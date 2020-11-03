@@ -1,0 +1,65 @@
+stepnm = 20;
+
+
+
+%% grosse bille collée
+
+names = {'1' '2-1' '2-2'}
+
+
+for k = 1:length(names)
+[VarName, Area, StdDev, XM, YM, Slice] = importfile100620(['D:\Data\Raw\20.06.09\DepthoCouplé_GrosseCollée_' names{k} '_Results.txt']);
+
+
+
+ptrsmall = find(Area < 50);
+
+ptrbig = find(Area > 200);
+
+
+[~, indfocussmall] = max(StdDev(ptrsmall));
+
+focussmall = Slice(ptrsmall(indfocussmall));
+
+
+[~, indfocusbig] = max(StdDev(ptrbig));
+
+focusbig = Slice(ptrbig(indfocusbig));
+
+
+focusdist(k) = abs(focusbig-focussmall)*stepnm/1000
+
+end
+
+
+%% tout collé
+
+names = {'1-1' '1-2' '1-3' '1-4' '2-1' '2-2' '2-3' '2-4'}
+
+Bigradius = 4503/2;
+
+Smallradius = 500;
+
+for k = 1:length(names)
+[VarName, Area, StdDev, XM, YM, Slice] = importfile100620(['D:\Data\Raw\20.06.09\DepthoCouplé_ToutCollé_' names{k} '_Results.txt']);
+
+
+
+ptrsmall = find(Area < 50);
+
+ptrbig = find(Area > 200);
+
+
+[~, indfocussmall] = max(StdDev(ptrsmall));
+
+focussmall = Slice(ptrsmall(indfocussmall));
+
+
+[~, indfocusbig] = max(StdDev(ptrbig));
+
+focusbig = Slice(ptrbig(indfocusbig));
+
+
+focusdist(k) = abs(focusbig-focussmall)*stepnm/1000
+
+end

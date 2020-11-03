@@ -1,0 +1,153 @@
+clear all
+close all
+
+pixelconv = 1/15.8;
+stepnm = 20*1.34/1.52;
+
+RealDist = (4504+1093)/2;
+
+folder = 'D:\Data\Raw\20.06.17';
+
+
+
+
+%% Bille 1
+names1 = {'1' '2-1' '2-2' '3' '4' '5' '6' '7' '8' '9' '10-1' '10-2' '11' '12'};
+
+
+
+for  k =1:length(names1)
+    
+    filename = [folder filesep 'DistM450My1_' names1{k}];
+    stackname = [folder filesep 'DistM450My1_' names1{k} '.tif'];
+    
+    [VarName1, Area, StdDev, XM, YM, Slice] = importfilemultibeads([filename '_Results.txt']);
+    
+    [X1,Y1,A1,ptr1,X2,Y2,A2,ptr2,S] = splitBeads_M450My1([XM Slice],...
+        stackname,filename,YM,Area,4,0,'Bead1');
+    
+    
+    D1{k} = sqrt((X1-X2).^2+(Y1-Y2).^2)*pixelconv*1000 - RealDist; % en nm
+
+
+    D1{k} = D1{k}';
+    
+
+    
+end
+
+
+
+%% Bille 2
+
+
+names2 = {'1' '2-1' '2-2' '3' '4' '5' '7' '8' '10-1' '10-2' '11' '12'};
+
+
+
+for  k =1:length(names2)
+    
+    filename = [folder filesep 'DistM450My1_' names2{k}];
+    stackname = [folder filesep 'DistM450My1_' names2{k} '.tif'];
+    
+    [VarName1, Area, StdDev, XM, YM, Slice] = importfilemultibeads([filename '_Results.txt']);
+    
+    [X1,Y1,A1,ptr1,X2,Y2,A2,ptr2,S] = splitBeads_M450My1([XM Slice],...
+        stackname,filename,YM,Area,4,0,'Bead2');
+    
+    
+    D2{k} = sqrt((X1-X2).^2+(Y1-Y2).^2)*pixelconv*1000 - RealDist - 1093; % en nm
+
+D2{k} = D2{k}';
+    
+    RelMvt{k} = sqrt(diff(X1).^2+diff(Y1).^2);
+    
+end
+
+%% Distance entre deux petite billes
+
+
+names2 = {'1' '2-1' '2-2' '3' '4' '5' '7' '8' '10-1' '10-2' '11' '12'};
+
+
+
+for  k =1:length(names2)
+    
+    filename = [folder filesep 'DistM450My1_' names2{k}];
+    stackname = [folder filesep 'DistM450My1_' names2{k} '.tif'];
+    
+    [VarName1, Area, StdDev, XM, YM, Slice] = importfilemultibeads([filename '_Results.txt']);
+    
+    [X1,Y1,A1,ptr1,X2,Y2,A2,ptr2,S] = splitBeads_M450My1([XM Slice],...
+        stackname,filename,YM,Area,4,0,'2Small');
+    
+    
+    D3{k} = sqrt((X1-X2).^2+(Y1-Y2).^2)*pixelconv*1000 - 1093; % en nm
+
+D3{k} = D3{k}';
+    
+    
+end
+
+%% plot
+
+
+
+figure(1)
+hold on
+title('Bille 1 bleu  Bille2 rouge  2petite vert')
+xlabel('Slice')
+ylabel('MeasuredDistance-RealDistance (nm)')
+
+for k =1:length(names1)
+    plot(D1{k},'-*b')
+    Mean1(k) = mean(D1{k});
+    Std1(k) = std(D1{k});
+end
+
+
+for k =1:length(names2)
+    plot(D2{k},'-*r')
+    Mean2(k) = mean(D2{k});
+    Std2(k) = std(D2{k});
+end
+
+
+for k =1:length(names2)
+    plot(D3{k},'-*g')
+    Mean3(k) = mean(D3{k});
+    Std3(k) = std(D3{k});
+end
+
+for k =1:length(names2)
+    plot(RelMvt{k},'-*m')
+    MeanRel(k) = mean(RelMvt{k});
+end
+
+
+
+figure
+hold on
+histogram([D1{:}],'binwidth',20,'normalization','pdf')
+histogram([D2{:}],'binwidth',20,'normalization','pdf')
+
+
+figure
+title('Mean dist')
+hold on
+Spread_Julien(Mean1,1,0.8,'b','o')
+Spread_Julien(Mean2,2,0.8,'r','o')
+Spread_Julien(Mean3,3,0.8,'g','o')
+ax = gca;
+ax.XTick = [1 2 3];
+ax.XTickLabel = {'Bille1' 'Bille2' '2small'}
+
+figure
+title('Std dist')
+hold on
+Spread_Julien(Std1,1,0.8,'b','o')
+Spread_Julien(Std2,2,0.8,'r','o')
+Spread_Julien(Std3,3,0.8,'g','o')
+ax = gca;
+ax.XTick = [1 2 3];
+ax.XTickLabel = {'Bille1' 'Bille2' '2small'}
