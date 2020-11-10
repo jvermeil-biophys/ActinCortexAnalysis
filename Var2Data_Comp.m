@@ -1,4 +1,4 @@
-function Var2Data_Comp_V1(date,tag,Bcorrec,manip,specif,nimgr...
+function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
     ,nimgtot,CompDur,Db,datafolder,resfolder,figurefolder)
 
 warning('off')
@@ -142,7 +142,6 @@ if exist(loadname,'file')
                 ddzrmp=diff(dzrmp);
             end
             
-            ncycle = round(Scst(end)/nimgtot);
             
             % création des variable xp yp
             xprmp = [X1rmp,X2rmp];
@@ -206,6 +205,9 @@ if exist(loadname,'file')
             Tfull = (BTMat(:,2)-BTMat(1,2))/1000;
             
             Tfull2 = [Tfull(2:end); Tfull(end)+0.04];
+            
+            
+            ncycle = round(Scst(end)/nimgtot);
             
             kcycle = [1:ncycle] * nimgtot;
             

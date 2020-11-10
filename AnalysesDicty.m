@@ -359,7 +359,6 @@ RemoveFromData(MatfileFolder,{'06-10-20_M3_P1_C7_R40','06-10-20_M1_P1_C1_R40','0
     '23-09-20_M1_P1_C9_R40','23-09-20_M2_P1_C3_R40','23-09-20_M2_P1_C11_R40',...
     '25-09-20_M1_P1_C12_R40','25-09-20_M1_P1_C8_R40','25-09-20_M3_P1_C1_R40',},'DictyDB')
 
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Data2Peak %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -421,134 +420,132 @@ Stats2PlotsDictys({'DictyAx2_DMSO','DictyAx2_M270'},{Cdm,Cwt27},'DictyBeadsSize'
 
 %% M450 Ax2 DMSO/LatA (Nishit)
 
-Var2Data_Comp_V1('20-05-20','R40',1.1,'M1','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-05-20','R40',1.1,'M2','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-05-20','R40',1.1,'M1','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-05-20','R40',1.1,'M2','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('22-05-20','R40',1.1,'M1','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('22-05-20','R40',1.1,'M1','DictyAx2_LatA',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('22-05-20','R40',1.1,'M1','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('22-05-20','R40',1.1,'M1','DictyAx2_LatA',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('25-05-20','R40',1.1,'M1','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('25-05-20','R40',1.1,'M1','DictyAx2_LatA',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-05-20','R40',1.1,'M1','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-05-20','R40',1.1,'M1','DictyAx2_LatA',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('27-05-20','R40',1.1,'M1','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('27-05-20','R40',1.1,'M1','DictyAx2_DMSO',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
 %% M270 Ax2 WT (Nishit)
 
-Var2Data_Comp_V1('25-08-20','R90',0.82,'M1','DictyAx2_M270',95,143,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-08-20','R90',0.82,'M1','DictyAx2_M270',95,143,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('26-08-20','R90',0.82,'M1','DictyAx2_M270',95,143,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('26-08-20','R90',0.82,'M1','DictyAx2_M270',95,143,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
 
 %% M450 Ax2 WT + Mutants (DictyBase)
 
-Var2Data_Comp_V1('23-09-20','R40',1.1,'M1','DictyDB_WT',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('23-09-20','R40',1.1,'M2','DictyDB_SevA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('23-09-20','R40',1.1,'M3','DictyDB_FimA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('23-09-20','R40',1.1,'M1','DictyDB_WT',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('23-09-20','R40',1.1,'M2','DictyDB_SevA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('23-09-20','R40',1.1,'M3','DictyDB_FimA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('25-09-20','R40',1.1,'M1','DictyDB_SevA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('25-09-20','R40',1.1,'M2','DictyDB_FimA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('25-09-20','R40',1.1,'M3','DictyDB_WT',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-09-20','R40',1.1,'M1','DictyDB_SevA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-09-20','R40',1.1,'M2','DictyDB_FimA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-09-20','R40',1.1,'M3','DictyDB_WT',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('06-10-20','R40',1.1,'M1','DictyDB_abpC',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('06-10-20','R40',1.1,'M2','DictyDB_abpA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('06-10-20','R40',1.1,'M3','DictyDB_WT',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('06-10-20','R40',1.1,'M1','DictyDB_abpC',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('06-10-20','R40',1.1,'M2','DictyDB_abpA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('06-10-20','R40',1.1,'M3','DictyDB_WT',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('08-10-20','R40',1.1,'M1','DictyDB_abpA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('08-10-20','R40',1.1,'M2','DictyDB_abpC',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('08-10-20','R40',1.1,'M3','DictyDB_WT',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('08-10-20','R40',1.1,'M1','DictyDB_abpA',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('08-10-20','R40',1.1,'M2','DictyDB_abpC',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('08-10-20','R40',1.1,'M3','DictyDB_WT',95,167,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
 %% MultiTime Comp M450 Ax2 (Nishit)
 
-Var2Data_Comp_V1_R248('13-02-20','R248',1.1,'M1','DictyAx2-Comp',21,24,98,193,383,4438,RawdataFolder,MatfileFolder);
-Var2Data_Comp_V1_R248('20-02-20','R248',1.1,'M1','DictyAx2-Comp',21,24,98,193,383,4438,RawdataFolder,MatfileFolder);
+Var2Data_Comp_R248('13-02-20','R248',1.1,'M1','DictyAx2-Comp',21,24,98,193,383,4438,RawdataFolder,MatfileFolder);
+Var2Data_Comp_R248('20-02-20','R248',1.1,'M1','DictyAx2-Comp',21,24,98,193,383,4438,RawdataFolder,MatfileFolder);
 
 %% MultiRate Comp M450 WTDB
 
 %20-10-20
-Var2Data_Comp_V1('20-10-20','R50_04s',0.85,'M1','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_1s',0.85,'M1','DictyDB_M450',100,136,'05s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_2s',0.85,'M1','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_4s',0.85,'M1','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_8s',0.85,'M1','DictyDB_M450',133,169,'4s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_14s',0.85,'M1','DictyDB_M450',140,176,'7s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_24s',0.85,'M1','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_04s',0.85,'M1','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_1s',0.85,'M1','DictyDB_M450',100,136,'05s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_2s',0.85,'M1','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_4s',0.85,'M1','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_8s',0.85,'M1','DictyDB_M450',133,169,'4s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_14s',0.85,'M1','DictyDB_M450',140,176,'7s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_24s',0.85,'M1','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('20-10-20','R50_04s',0.85,'M2','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_1s',0.85,'M2','DictyDB_M450',100,136,'05s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_2s',0.85,'M2','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_4s',0.85,'M2','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_8s',0.85,'M2','DictyDB_M450',133,169,'4s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_14s',0.85,'M2','DictyDB_M450',140,176,'7s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_24s',0.85,'M2','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_04s',0.85,'M2','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_1s',0.85,'M2','DictyDB_M450',100,136,'05s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_2s',0.85,'M2','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_4s',0.85,'M2','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_8s',0.85,'M2','DictyDB_M450',133,169,'4s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_14s',0.85,'M2','DictyDB_M450',140,176,'7s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_24s',0.85,'M2','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
 % 21-10-20
-Var2Data_Comp_V1('21-10-20','R50_04s',0.85,'M1','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_1s',0.85,'M1','DictyDB_M450',100,136,'05s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_2s',0.85,'M1','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_4s',0.85,'M1','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_8s',0.85,'M1','DictyDB_M450',133,169,'4s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_14s',0.85,'M1','DictyDB_M450',140,176,'7s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_24s',0.85,'M1','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_04s',0.85,'M1','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_1s',0.85,'M1','DictyDB_M450',100,136,'05s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_2s',0.85,'M1','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_4s',0.85,'M1','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_8s',0.85,'M1','DictyDB_M450',133,169,'4s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_14s',0.85,'M1','DictyDB_M450',140,176,'7s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_24s',0.85,'M1','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('21-10-20','R50_04s',0.85,'M2','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_1s',0.85,'M2','DictyDB_M450',100,136,'05s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_2s',0.85,'M2','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_4s',0.85,'M2','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_8s',0.85,'M2','DictyDB_M450',133,169,'4s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_14s',0.85,'M2','DictyDB_M450',140,176,'7s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R50_24s',0.85,'M2','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_04s',0.85,'M2','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_1s',0.85,'M2','DictyDB_M450',100,136,'05s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_2s',0.85,'M2','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_4s',0.85,'M2','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_8s',0.85,'M2','DictyDB_M450',133,169,'4s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_14s',0.85,'M2','DictyDB_M450',140,176,'7s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R50_24s',0.85,'M2','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
 % 22-10-20
-Var2Data_Comp_V1('22-10-20','R50_04s',0.85,'M1','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('22-10-20','R50_4s',0.85,'M1','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('22-10-20','R50_24s',0.85,'M1','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('22-10-20','R50_04s',0.85,'M1','DictyDB_M450',40,76,'02s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('22-10-20','R50_4s',0.85,'M1','DictyDB_M450',133,169,'2s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('22-10-20','R50_24s',0.85,'M1','DictyDB_M450',141,177,'12s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
 
 % 28-10-20
-Var2Data_Comp_MultiRatePerCell_V1('28-10-20','R50-Multi',0.85,'M1','DictyDB_M450-Multi',...
+Var2Data_Comp_MultiRatePerCell('28-10-20','R50-Multi',0.85,'M1','DictyDB_M450-Multi',...
     'RmpTimeDatas',4504,RawdataFolder,MatfileFolder,FigureFolder);
-
-
 
 %% MultiRate Comp M270 WTDB
 
 %20-10-20
-Var2Data_Comp_V1('20-10-20','R90_04s',0.85,'M1','DictyDB_M270',40,76,'02s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R90_1s',0.85,'M1','DictyDB_M270',100,136,'05s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R90_2s',0.85,'M1','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R90_4s',0.85,'M1','DictyDB_M270',133,169,'2s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R90_8s',0.85,'M1','DictyDB_M270',133,169,'4s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R90_14s',0.85,'M1','DictyDB_M270',140,176,'7s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R90_24s',0.85,'M1','DictyDB_M270',141,177,'12s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R90_04s',0.85,'M1','DictyDB_M270',40,76,'02s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R90_1s',0.85,'M1','DictyDB_M270',100,136,'05s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R90_2s',0.85,'M1','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R90_4s',0.85,'M1','DictyDB_M270',133,169,'2s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R90_8s',0.85,'M1','DictyDB_M270',133,169,'4s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R90_14s',0.85,'M1','DictyDB_M270',140,176,'7s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R90_24s',0.85,'M1','DictyDB_M270',141,177,'12s',2691,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('20-10-20','R50_04s',0.85,'M2','DictyDB_M270',40,76,'02s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_1s',0.85,'M2','DictyDB_M270',100,136,'05s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_4s',0.85,'M2','DictyDB_M270',133,169,'2s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_8s',0.85,'M2','DictyDB_M270',133,169,'4s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_14s',0.85,'M2','DictyDB_M270',140,176,'7s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('20-10-20','R50_24s',0.85,'M2','DictyDB_M270',141,177,'12s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_04s',0.85,'M2','DictyDB_M270',40,76,'02s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_1s',0.85,'M2','DictyDB_M270',100,136,'05s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_4s',0.85,'M2','DictyDB_M270',133,169,'2s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_8s',0.85,'M2','DictyDB_M270',133,169,'4s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_14s',0.85,'M2','DictyDB_M270',140,176,'7s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-10-20','R50_24s',0.85,'M2','DictyDB_M270',141,177,'12s',2691,RawdataFolder,MatfileFolder,FigureFolder);
 
 % 21-10-20
-Var2Data_Comp_V1('21-10-20','R90_04s',0.85,'M1','DictyDB_M270',40,76,'02s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_1s',0.85,'M1','DictyDB_M270',100,136,'05s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_2s',0.85,'M1','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_4s',0.85,'M1','DictyDB_M270',133,169,'2s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_8s',0.85,'M1','DictyDB_M270',133,169,'4s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_14s',0.85,'M1','DictyDB_M270',140,176,'7s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_24s',0.85,'M1','DictyDB_M270',141,177,'12s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_04s',0.85,'M1','DictyDB_M270',40,76,'02s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_1s',0.85,'M1','DictyDB_M270',100,136,'05s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_2s',0.85,'M1','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_4s',0.85,'M1','DictyDB_M270',133,169,'2s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_8s',0.85,'M1','DictyDB_M270',133,169,'4s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_14s',0.85,'M1','DictyDB_M270',140,176,'7s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_24s',0.85,'M1','DictyDB_M270',141,177,'12s',2691,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('21-10-20','R90_04s',0.85,'M2','DictyDB_M270',40,76,'02s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_1s',0.85,'M2','DictyDB_M270',100,136,'05s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_4s',0.85,'M2','DictyDB_M270',133,169,'2s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_8s',0.85,'M2','DictyDB_M270',133,169,'4s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_14s',0.85,'M2','DictyDB_M270',140,176,'7s',2691,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_V1('21-10-20','R90_24s',0.85,'M2','DictyDB_M270',141,177,'12s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_04s',0.85,'M2','DictyDB_M270',40,76,'02s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_1s',0.85,'M2','DictyDB_M270',100,136,'05s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_4s',0.85,'M2','DictyDB_M270',133,169,'2s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_8s',0.85,'M2','DictyDB_M270',133,169,'4s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_14s',0.85,'M2','DictyDB_M270',140,176,'7s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-10-20','R90_24s',0.85,'M2','DictyDB_M270',141,177,'12s',2691,RawdataFolder,MatfileFolder,FigureFolder);
 
 %% LongueManip comp M450/M270 WTDB
-Var2Data_Comp_V1('04-11-20','R50_2s',0.85,'M1','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('04-11-20','R50_2s',0.85,'M1','DictyDB_M450',133,169,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
 
-Var2Data_Comp_V1('04-11-20','R90_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('04-11-20','R90_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,RawdataFolder,MatfileFolder,FigureFolder);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Data2Meca w/ Loop %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
