@@ -431,7 +431,7 @@ EE = exist('MR');
 if EE == 1
     fprintf('Sauvegarde complete...');
     cd([resfolder filesep 'V2D'])
-    save(savename,'MR','AllRamp');
+    save(savename,'MR');
     delete([savenamepart '.mat']);
     cd(path)
     fprintf(' OK\n\n');
