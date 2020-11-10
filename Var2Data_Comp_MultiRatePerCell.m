@@ -1,4 +1,4 @@
-function Var2Data_Comp_MultiRatePerCell_V1(date,tag,Bcorrec,manip,specif,rmptimetag,Db,datafolder,resfolder,figurefolder)
+function Var2Data_Comp_MultiRatePerCell(date,tag,Bcorrec,manip,specif,rmptimetag,Db,datafolder,resfolder,figurefolder)
 
 warning('off')
 
@@ -48,11 +48,6 @@ savenamepart=[savename '_Part'] ;
 
 loadname=['R2V_' date '_' manip specifchamp '_' specif '.mat'];
 
-
-AllRamp = [];
-AllForce = [];
-Stds = [];
-
 if exist(loadname,'file')
     
     fprintf(['Chargement du fichier ' loadname '\n\n'])
@@ -89,7 +84,7 @@ if exist(loadname,'file')
             
             
             dzcst = MT{kc}.dzcst/1000;
-
+            
             % création des variable xp yp
             xpcst = [X1cst,X2cst];
             ypcst = [Y1cst,Y2cst];
@@ -194,6 +189,9 @@ if exist(loadname,'file')
             
             BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
             
+            rmptimeMat = dlmread([fieldpath filesep rmptimedataname],'\t',0,0);
+            
+            cyclesend = cumsum(rmptimeMat(1:end-1,4));
             
             B = BTMat(S,1)*Bcorrec;
             Bcst = BTMat(Scst,1)*Bcorrec;
@@ -203,16 +201,7 @@ if exist(loadname,'file')
             
             Tfull2 = [Tfull(2:end); Tfull(end)+0.04];
             
-            %%%%%%%%%%%%%%%ici
-            
-            ncycle = round(Scst(end)/nimgtot);
-            kcycle = [1:ncycle] * nimgtot;
-            
-            Tfull2(kcycle) = Tfull2(kcycle-1)+0.04;
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
+            Tfull2(cyclesend) = Tfull2(cyclesend-1)+0.04;
             
             
             % Tfull c'est toutes les positions temporelles de toutes
@@ -242,7 +231,7 @@ if exist(loadname,'file')
             if contains(specif,'M270')
                 
                 M = 0.74257*1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % aimantation A.m^-1 pour M270
-                              
+                
             else
                 
                 M = 1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % aimantation A.m^-1 pour M450
@@ -290,24 +279,35 @@ if exist(loadname,'file')
                 
                 FullRmpDat = [Srmp Trmp D3rmp Frmp Brmp dzrmp];
                 
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                rmptimeMat = dlmread([fieldpath filesep rmptimedataname],'\t',0,0);
                 
+                ncycle = size(rmptimeMat,1)-1;
                 
                 RmpDat = cell(1,ncycle);
                 
                 
-                cyclevect = 1:ncycle;
+                nimgbefrmps = rmptimeMat(:,2);
+                                
+                nimgloops = rmptimeMat(:,4);
                 
-                bgnrmp = (cyclevect-1)*nimgtot+(nimgtot-nimgr)/2+1;
-                bgncst = (cyclevect-1)*nimgtot+1;
+                cyclesends = [0; cumsum(nimgloops)];
+                
+
+                    
                 
                 
-                for k = cyclevect
+                for k = 1:ncycle
                     
+                    CompDur = num2str(rmptimeMat(k,1)/2);
                     
+                    if strcmp(CompDur,'0.2')
+                        CompDur = '02';
+                    elseif strcmp(CompDur,'0.5')
+                        CompDur = '05';
+                    end
                     
-                    m = ismember(Srmp,bgnrmp(k):bgnrmp(k)+nimgr-1);
+                    CompDur = [CompDur 's'];
+                    
+                    m = ismember(Srmp,cyclesends(k)+nimgbefrmps(k)+1:cyclesends(k+1)-nimgbefrmps(k));
                     Stmp = Srmp(m);
                     D3tmp = D3rmp(m);
                     Ftmp = Frmp(m);
@@ -316,28 +316,18 @@ if exist(loadname,'file')
                     dztmp = dzrmp(m);
                     
                     
-                    mcstsurround = ismember(Scst,[bgncst(k):bgnrmp(k)-1 bgnrmp(k)+nimgr:k*nimgtot]);
+                    mcstsurround = ismember(Scst,[cyclesends(k)+1:cyclesends(k)+nimgbefrmps(k) cyclesends(k+1)-nimgbefrmps(k):cyclesends(k+1)]);
                     
                     if k == 1
-                        mcstbefore = ismember(Scst,[bgncst(k):bgnrmp(k)-1]);
+                        mcstbefore = ismember(Scst,cyclesends(k)+1:cyclesends(k)+nimgbefrmps(k));
                     else
-                        mcstbefore = ismember(Scst,[bgnrmp(k-1)+nimgr:(k-1)*nimgtot bgncst(k):bgnrmp(k)-1]);
+                        mcstbefore = ismember(Scst,cyclesends(k-1)-nimgbefrmps(k):cyclesends(k)+nimgbefrmps(k));
                     end
                     
                     
                     if not(isempty(D3tmp))
                         
                         dD3 = abs(diff(D3tmp));
-                        
-                        
-                        if ~(length(Stmp)<nimgr)&&max(dD3)*1000<100
-                            
-                            kr = size(AllRamp,1);
-                            AllRamp(kr+1,:) = D3tmp-D3tmp(1);
-                            AllForce(kr+1,:) = Ftmp;
-                            Stds(kr+1) = max(diff(D3tmp))*1000;
-                            
-                        end
                         
                         
                         [~,Mind] = max(Btmp);
@@ -382,13 +372,13 @@ if exist(loadname,'file')
                     
                     
                     
-                    %                         figure(1)
-                    %                         hold on
-                    %                         plot(Scst,Scst,'*')
-                    %                         plot(Srmp,Srmp,'*')
-                    %                         plot(Scst(mcstbefore),Scst(mcstbefore),'o','markersize',15)
-                    %                         plot(Scst(mcstsurround),Scst(mcstsurround),'s','markersize',20)
-                    
+%                     figure(1)
+%                     hold on
+%                     plot(Scst,Scst,'*')
+%                     plot(Srmp,Srmp,'*')
+%                     plot(Scst(mcstbefore),Scst(mcstbefore),'o','markersize',15)
+%                     plot(Scst(mcstsurround),Scst(mcstsurround),'s','markersize',20)
+%                     
                 end
                 
                 
@@ -458,7 +448,7 @@ EE = exist('MR');
 if EE == 1
     fprintf('Sauvegarde complete...');
     cd([resfolder filesep 'V2D'])
-    save(savename,'MR','AllRamp');
+    save(savename,'MR');
     delete([savenamepart '.mat']);
     cd(path)
     fprintf(' OK\n\n');
