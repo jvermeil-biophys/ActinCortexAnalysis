@@ -53,10 +53,6 @@ savenamepart=[savename '_Part'] ;
 loadname=['R2V_' date '_' manip specifchamp '_' specif '.mat'];
 
 
-AllRamp = [];
-AllForce = [];
-Stds = [];
-
 if exist(loadname,'file')
     
     fprintf(['Chargement du fichier ' loadname '\n\n'])
@@ -324,16 +320,7 @@ if exist(loadname,'file')
                         
                         dD3 = abs(diff(D3tmp));
                         
-                        
-                        if ~(length(Stmp)<nimgr)&&max(dD3)*1000<100
-                            
-                            kr = size(AllRamp,1);
-                            AllRamp(kr+1,:) = D3tmp-D3tmp(1);
-                            AllForce(kr+1,:) = Ftmp;
-                            Stds(kr+1) = max(diff(D3tmp))*1000;
-                            
-                        end
-                        
+                                                
                         
                         [~,Mind] = max(Btmp);
                         bordercst = [Stmp(1)-33:Stmp(1)-1 Stmp(end)+1:Stmp(end)+33];
