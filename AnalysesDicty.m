@@ -686,7 +686,7 @@ Data2MecaLoop_BigTable('04-11-20','M2','DictyDB_M270','R90_2s',2691,MatfileFolde
 
 %%%%%%%%%%%% Two R2 available : 0.7 & 0.95
 
-fitparams = 'Strain100-R20.7';
+fitparams = 'Strain100-R20.95';
 
 %% M450 mutant 
 ConditionsM450Multi = {'ExpType','DictyDB_WT','TpsComp','1s','FitParams',fitparams;...
