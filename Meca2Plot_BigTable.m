@@ -381,11 +381,6 @@ if ismember('TpsComp',Cond)
 end
 
 
-
-% testing GitKraken
-
-
-
 %% Saving
 
 sfig = figurefolder;
