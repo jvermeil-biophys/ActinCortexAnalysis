@@ -1,4 +1,4 @@
-function Meca2Plot_BigTable(resfolder,figurefolder,Cond,Col,Lab,savename,SigDisplay,varargin)
+function Meca2Plot_BigTable(resfolder,figurefolder,Cond,Col,Sym,Lab,savename,SigDisplay,varargin)
 
 % Meca2Plot_BigTable(resfolder,figurefolder,conditions,colors,labels)
 
@@ -107,6 +107,7 @@ for kcond = 1:ncond
     UniqueCellList{kcond} = unique(CellIdList{kcond});
     
     CompNums{kcond} = BigTable(ptrcond,'CompNum').Variables;
+    CompTimes{kcond} = BigTable(ptrcond,'CompTime').Variables;
     
 end
 
@@ -153,8 +154,9 @@ hold on
 title('H0 distrib')
 
 figure(7)
+subplot(211)
 hold on
-title('SpotSave')
+title('Echad & H0 vs Time')
 
 figure(8)
 hold on
@@ -240,7 +242,7 @@ for kcond = 1:ncond
 
     figure(3)
     hold on
-    plot(H0EXP{kcond},E0chad{kcond},'ok','markerfacecolor',Col{kcond})
+    plot(H0EXP{kcond},E0chad{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
 
     if ncond == 2
         ratioEH{kcond} = (E0chad{kcond}./H0EXP{kcond})/median(E0chad{kcond});
@@ -263,7 +265,7 @@ end
     ax.LineWidth = 1.5;
     box on
 
-    plotSpread_V(E0chad,'distributionMarkers',{'o'},'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+    plotSpread_V(E0chad,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
     for ii = 1:length(E0chad)
         plot([ii-0.45 ii+0.45],[median(E0chad{ii})  median(E0chad{ii})],'k--','linewidth',1.3)
     end
@@ -310,7 +312,7 @@ end
     ax.LineWidth = 1.5;
     box on
 
-    plotSpread_V(H0Beeswarm,'distributionMarkers',{'o'},'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+    plotSpread_V(H0Beeswarm,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
     for ii = 1:length(H0Beeswarm)
         plot([ii-0.45 ii+0.45],[median(H0Beeswarm{ii})  median(H0Beeswarm{ii})],'k--','linewidth',1.3)
     end
@@ -344,7 +346,23 @@ end
     ax = gca;
     ax.XTickLabelRotation = 45;
 
+%% Time Evolution
 
+figure(7)
+hold on
+
+for kcond = 1:ncond
+    
+subplot(211)
+hold on
+    plot(CompTimes{kcond},E0chad{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
+subplot(212)
+hold on
+    plot(CompTimes{kcond},H0EXP{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
+    
+end
+
+    
 %% per cell plot vs tps comp
 
 
@@ -378,10 +396,10 @@ if ismember('TpsComp',Cond)
         hold on
         subplot(211)
         title(FullCellList(kc))
-        plotSpread_V({CellVsTpsComp_Echad{:,kc}},'distributionMarkers',{'o'},'distributionColors',Col,'xNames',TpsCmpList)
+        plotSpread_V({CellVsTpsComp_Echad{:,kc}},'distributionMarkers',Sym,'distributionColors',Col,'xNames',TpsCmpList)
         ylabel('Echad (kPa)')
         subplot(212)
-        plotSpread_V({CellVsTpsComp_H0EXP{:,kc}},'distributionMarkers',{'o'},'distributionColors',Col,'xNames',TpsCmpList)
+        plotSpread_V({CellVsTpsComp_H0EXP{:,kc}},'distributionMarkers',Sym,'distributionColors',Col,'xNames',TpsCmpList)
         ylabel('H0exp (nm)')
       
         fig = gcf;
