@@ -742,7 +742,7 @@ ConditionsM450MultiCell = {'ExpType','DictyDB_M450-Multi','TpsComp','02s','FitPa
 
 Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM450MultiCell, ...
 {C02,C05,C1,C2,C4,C7,C12},...
-{'M450-02s','M450-05s','M450-1s','M450-2s','M450-4s','M450-7s','M450-12s'},'M450MultiRatePerCell',1)
+{'M450-02s','M450-05s','M450-1s','M450-2s','M450-4s','M450-7s','M450-12s'},'M450MultiRatePerCellR209',1)
 
 %% M270 multirate
 
