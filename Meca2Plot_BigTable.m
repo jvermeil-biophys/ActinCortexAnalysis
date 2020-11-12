@@ -386,6 +386,7 @@ if ismember('TpsComp',Cond)
       
         fig = gcf;
         saveas(fig,strcat(sffc, filesep, 'Echad_',FullCellList(kc),'.png'),'png')
+        saveas(fig,strcat(sffc, filesep, 'Echad_',FullCellList(kc),'.fig'),'fig')
         
 
     end
