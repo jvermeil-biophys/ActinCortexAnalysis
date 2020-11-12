@@ -360,14 +360,14 @@ end
     
     plotSpread_V(E0chadCell,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
     for ii = 1:length(E0chadCell)
-        plot([ii-0.45 ii+0.45],[median(E0chadCell{ii})  median(E0chadCell{ii})],'k--','linewidth',1.3)
+        plot([ii-0.45 ii+0.45],[nanmedian(E0chadCell{ii})  nanmedian(E0chadCell{ii})],'k--','linewidth',1.3)
     end
     ylabel('Echad par cell (kPa)')
 
 
     if SigDisplay
 
-    distsize = prctile(vertcat(E0chadCell{:}),98);
+    distsize = prctile(horzcat(E0chadCell{:}),98);
     plotheight = distsize;
 
     for ii = 1:length(E0chadCell)-1
