@@ -543,6 +543,13 @@ if exist(loadname,'file')
                     
                     ExpStrainRateInterp = interp1(Tmid,ExpStrainRate,Tinterp,'spline');
                     
+                    % hysteresis computation
+                    
+                    if length(Ddown)>1
+                        Hyst = abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown));
+                    else
+                        Hyst = NaN;
+                    end
                     
                     %% Sauvegarde des valeurs pertinentes
 %                     
@@ -793,7 +800,7 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'EChadwick') = {Echadtmp};
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
                     BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};      
-                    BigTable(CurrentTableLine,'Hysteresis') = {abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown))};               
+                    BigTable(CurrentTableLine,'Hysteresis') = {Hyst};               
                     
                     
                     BigTable(CurrentTableLine,'Validated') = {1};
@@ -813,7 +820,7 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'EChadwick') = {Echadtmp};
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
                     BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};    
-                    BigTable(CurrentTableLine,'Hysteresis') = {abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown))};               
+                    BigTable(CurrentTableLine,'Hysteresis') = {Hyst};               
                    
                     BigTable(CurrentTableLine,'Validated') = {0};
                     BigTable(CurrentTableLine,'Comments') = {notsavedtext};

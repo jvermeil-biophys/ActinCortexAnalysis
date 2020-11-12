@@ -78,18 +78,23 @@ fitPList = Cond(:,ptrfitP);
 DoSuccessStats(unique(exptypesList),unique(fitPList),excludevect)
 
 % identifying changes between conditions
+
+CondID = [];
+
+for k =2:2:size(Cond,2)
     
-    CondID = [];
-    
-    for k =2:2:size(Cond,2)
+    if length(unique(Cond(:,k))) >1
         
-        if length(unique(Cond(:,k))) >1
-            
-            CondID = strcat(CondID,'-',Cond(:,k));
-            
-        end
+        CondID = strcat(CondID,'-',Cond(:,k));
         
     end
+    
+end
+
+% per cell ?
+answer = questdlg('Plot and H0 per cell ? (creates many plots)', ...
+    'Individual cell plotting', ...
+    'Yes','No','No');
 
 % retrieving data for different experimental conditions
 ncond = size(Cond,1);
@@ -127,9 +132,9 @@ for kcond = 1:ncond
     
 end
 
-    FullCellList = unique(vertcat(UniqueCellList{:}));
-    
-    nCell = length(FullCellList);
+FullCellList = unique(vertcat(UniqueCellList{:}));
+
+nCell = length(FullCellList);
 
 %% prep figs
 
@@ -180,7 +185,7 @@ title('Echad & H0 vs Time')
 
 figure(8)
 hold on
-title('SpotSave')
+title('Hysteresis')
 
 ymax1 = 0;
 ymax2 = 0;
@@ -189,303 +194,300 @@ ymax2 = 0;
 
 
 for kcond = 1:ncond
-
-
+    
+    
     fprintf(['\n\nFor condition : ' Lab{kcond} '\n'])
-
+    
     fprintf(['\nNumber of compressions : ' num2str(length(E0chad{kcond})) '.\nNumber of cells : ' num2str(size(UniqueCellList{kcond},1)) '.\n'])
-
-
-
+    
+    
+    
     if ncond <=2
-
+        
         %%  distribution des Echad + median
-
+        
         [counts,edges] = histcounts(E0chad{kcond},'binwidth',2);
-
+        
         figure(1)
         hold on
         histogram(E0chad{kcond},edges,'facecolor',Col{kcond},'facealpha',0.5)
         plot([median(E0chad{kcond}) median(E0chad{kcond})],[0 1000],'--','linewidth',1.7,'color',Col{kcond},'handlevisibility','off')
         ax = gca;
-
+        
         ymax1tmp = max(counts)*1.05;
-
+        
         ymax1 = max([ymax1 ymax1tmp]);
-
+        
         ylim([0 ymax1])
-
+        
         %% Distrib Echad avec moyenne pond�r�e en log
-
-
+        
+        
         EchadWeight = (E0chad{kcond}./EchadCI{kcond}).^2;
-
+        
         EchadWeightedMean = 10^(sum(log10(E0chad{kcond}).*EchadWeight)/sum(EchadWeight));
-
+        
         EchadWeightedStd = sqrt(sum(((E0chad{kcond}-EchadWeightedMean).^2.*EchadWeight))/sum(EchadWeight));
-
-
+        
+        
         [counts,edges] = histcounts(log10(E0chad{kcond}));
-
-
+        
+        
         figure(2)
         hold on
         histogram(E0chad{kcond},10.^edges,'facecolor',Col{kcond},'facealpha',0.5)
-
+        
         plot([EchadWeightedMean EchadWeightedMean],[0 1000],'--','linewidth',1.7,'color',Col{kcond},'handlevisibility','off')
         ax = gca;
         ax.LineWidth = 1.5;
         ax.XScale = 'log';
         ax.XTick = [1 10 100];
         box on
-
-
+        
+        
         xlim([0.5 200])
-
-
+        
+        
         ymax3tmp = max(counts)*1.05;
-
+        
         ymax2 = max([ymax2 ymax3tmp]);
-
+        
         ylim([0 ymax2])
-
+        
         %% legends & other additions
-
+        
         L1.String{end} = [Lab{kcond}  ' - ' num2str(median(E0chad{kcond})) 'kPa'];
-
+        
         L2.String{end} = [Lab{kcond}  ' - ' num2str(EchadWeightedMean) '+- ' num2str(EchadWeightedStd) ' kPa'];
-
+        
     end
-
-
+    
+    
     %% Module vs Epaisseur d�part
-
+    
     figure(3)
     hold on
     plot(H0EXP{kcond},E0chad{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
-
+    
     if ncond == 2
         ratioEH{kcond} = (E0chad{kcond}./H0EXP{kcond})/median(E0chad{kcond});
     end
-
+    
     ax = gca;
     ax.YScale = 'log';
     ax.XTickLabelRotation = 45;
-
+    
     L3.String{end} = Lab{kcond};
-
+    
 end
 
 
 %% regrouping per cells and conditions
-    CellVsCond_Echad = cell(ncond,nCell);
-    CellVsCond_H0EXP = cell(ncond,nCell);
-    CellVsCond_ID = cell(ncond,nCell);
+CellVsCond_Echad = cell(ncond,nCell);
+CellVsCond_H0EXP = cell(ncond,nCell);
+CellVsCond_ID = cell(ncond,nCell);
+
+for kc = 1:nCell
+    for kcond = 1:ncond
+        
+        ptrcell = strcmp(CellIdList{kcond}, FullCellList(kc));
+        
+        CellVsCond_Echad{kcond,kc} = E0chad{kcond}(ptrcell);
+        CellVsCond_H0EXP{kcond,kc} =H0EXP{kcond}(ptrcell);
+        CellVsCond_ID{kcond,kc} = strcat(FullCellList(kc), CondID(kcond));
+        
+    end
     
-    for kc = 1:nCell
-        for kcond = 1:ncond
-            
-            ptrcell = strcmp(CellIdList{kcond}, FullCellList(kc));
-            
-            CellVsCond_Echad{kcond,kc} = E0chad{kcond}(ptrcell);
-            CellVsCond_H0EXP{kcond,kc} =H0EXP{kcond}(ptrcell);
-            CellVsCond_ID{kcond,kc} = strcat(FullCellList(kc), CondID(kcond));
-            
-        end  
-        
-        
- end
+    
+end
 
 %% Beeswarm plot
 
-    % all data Echad
-    figure(4)
-    ax = gca;
-    ax.YColor = [0 0 0];
-    ax.LineWidth = 1.5;
-    box on
+% all data Echad
+figure(4)
+ax = gca;
+ax.YColor = [0 0 0];
+ax.LineWidth = 1.5;
+box on
 
-    plotSpread_V(E0chad,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
-    for ii = 1:length(E0chad)
-        plot([ii-0.45 ii+0.45],[median(E0chad{ii})  median(E0chad{ii})],'k--','linewidth',1.3)
-    end
-    ylabel('Echad (kPa)')
+plotSpread_V(E0chad,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+for ii = 1:length(E0chad)
+    plot([ii-0.45 ii+0.45],[median(E0chad{ii})  median(E0chad{ii})],'k--','linewidth',1.3)
+end
+ylabel('Echad (kPa)')
 
 
-    if SigDisplay
-
+if SigDisplay
+    
     distsize = prctile(vertcat(E0chad{:}),98);
     plotheight = distsize;
-
+    
     for ii = 1:length(E0chad)-1
-
+        
         for jj = ii+1:length(E0chad)
-
+            
             sigtxt = DoParamStats(E0chad{ii},E0chad{jj});
-
+            
             if ~strcmp(sigtxt,'NS')
-
+                
                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
                 text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-
+                
                 plotheight = plotheight + 0.05*distsize;
             end
         end
     end
-
-     ylim([0 plotheight])
-
-    end
-
-
-    ax = gca;
-    ax.XTickLabelRotation = 45;
     
+    ylim([0 plotheight])
     
-    % avg per cell Echad
-    figure(5)
-    ax = gca;
-    ax.YColor = [0 0 0];
-    ax.LineWidth = 1.5;
-    box on
+end
 
-    for kcond = 1:ncond
-         
-        E0chadCell{kcond} = [];
+
+ax = gca;
+ax.XTickLabelRotation = 45;
+
+
+% avg per cell Echad
+figure(5)
+ax = gca;
+ax.YColor = [0 0 0];
+ax.LineWidth = 1.5;
+box on
+
+for kcond = 1:ncond
+    
+    E0chadCell{kcond} = [];
+    
+    for kc = 1:nCell
         
-        for kc = 1:nCell
-            
-            E0chadCell{kcond} = [E0chadCell{kcond} nanmean(CellVsCond_Echad{kcond,kc})];
-            
-        end
+        E0chadCell{kcond} = [E0chadCell{kcond} nanmean(CellVsCond_Echad{kcond,kc})];
+        
     end
+end
+
+plotSpread_V(E0chadCell,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+for ii = 1:length(E0chadCell)
+    plot([ii-0.45 ii+0.45],[nanmedian(E0chadCell{ii})  nanmedian(E0chadCell{ii})],'k--','linewidth',1.3)
+end
+ylabel('Echad par cell (kPa)')
+
+
+if SigDisplay
     
-    plotSpread_V(E0chadCell,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
-    for ii = 1:length(E0chadCell)
-        plot([ii-0.45 ii+0.45],[nanmedian(E0chadCell{ii})  nanmedian(E0chadCell{ii})],'k--','linewidth',1.3)
-    end
-    ylabel('Echad par cell (kPa)')
-
-
-    if SigDisplay
-
     distsize = prctile(horzcat(E0chadCell{:}),98);
     plotheight = distsize;
-
+    
     for ii = 1:length(E0chadCell)-1
-
+        
         for jj = ii+1:length(E0chadCell)
-
+            
             sigtxt = DoParamStats(E0chadCell{ii},E0chadCell{jj});
-
+            
             if ~strcmp(sigtxt,'NS')
-
+                
                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
                 text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-
+                
                 plotheight = plotheight + 0.05*distsize;
             end
         end
     end
-
-     ylim([0 plotheight])
-
-    end
-
-
-    ax = gca;
-    ax.XTickLabelRotation = 45;
-
-    % H0
+    
+    ylim([0 plotheight])
+    
+end
 
 
-    H0Beeswarm = H0EXP;
+ax = gca;
+ax.XTickLabelRotation = 45;
 
-    figure(6)
-    ax = gca;
-    ax.YColor = [0 0 0];
-    ax.LineWidth = 1.5;
-    box on
-
-    plotSpread_V(H0Beeswarm,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
-    for ii = 1:length(H0Beeswarm)
-        plot([ii-0.45 ii+0.45],[median(H0Beeswarm{ii})  median(H0Beeswarm{ii})],'k--','linewidth',1.3)
-    end
-    ylabel('H0 init ramp')
+% H0
 
 
-    if SigDisplay
+H0Beeswarm = H0EXP;
 
+figure(6)
+ax = gca;
+ax.YColor = [0 0 0];
+ax.LineWidth = 1.5;
+box on
+
+plotSpread_V(H0Beeswarm,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+for ii = 1:length(H0Beeswarm)
+    plot([ii-0.45 ii+0.45],[median(H0Beeswarm{ii})  median(H0Beeswarm{ii})],'k--','linewidth',1.3)
+end
+ylabel('H0 init ramp')
+
+
+if SigDisplay
+    
     distsize = prctile(vertcat(H0Beeswarm{:}),90);
     plotheight = distsize;
-
+    
     for ii = 1:length(E0chad)-1
         for jj = ii+1:length(H0Beeswarm)
-
+            
             sigtxt = DoParamStats(H0Beeswarm{ii},H0Beeswarm{jj});
-
+            
             if ~strcmp(sigtxt,'NS')
-
+                
                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
                 text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-
+                
                 plotheight = plotheight+ 0.05*distsize;
             end
-
+            
         end
     end
-
+    
     ylim([0 plotheight])
-
-    end
-    ax = gca;
-    ax.XTickLabelRotation = 45;
-
-
-    % Hysteresis
+    
+end
+ax = gca;
+ax.XTickLabelRotation = 45;
 
 
+% Hysteresis
+
+figure(8)
+ax = gca;
+ax.YColor = [0 0 0];
+ax.LineWidth = 1.5;
+box on
+
+plotSpread_V(Hyst,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+for ii = 1:length(Hyst)
+    plot([ii-0.45 ii+0.45],[median(Hyst{ii})  median(Hyst{ii})],'k--','linewidth',1.3)
+end
+ylabel('Hysteresis')
 
 
-    figure(6)
-    ax = gca;
-    ax.YColor = [0 0 0];
-    ax.LineWidth = 1.5;
-    box on
-
-    plotSpread_V(Hyst,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
-    for ii = 1:length(Hyst)
-        plot([ii-0.45 ii+0.45],[median(Hyst{ii})  median(Hyst{ii})],'k--','linewidth',1.3)
-    end
-    ylabel('Hysteresis')
-
-
-    if SigDisplay
-
+if SigDisplay
+    
     distsize = prctile(vertcat(Hyst{:}),90);
     plotheight = distsize;
-
+    
     for ii = 1:length(E0chad)-1
         for jj = ii+1:length(Hyst)
-
+            
             sigtxt = DoParamStats(Hyst{ii},Hyst{jj});
-
+            
             if ~strcmp(sigtxt,'NS')
-
+                
                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
                 text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-
+                
                 plotheight = plotheight+ 0.05*distsize;
             end
-
+            
         end
     end
-
+    
     ylim([0 plotheight])
-
-    end
-    ax = gca;
-    ax.XTickLabelRotation = 45;
+    
+end
+ax = gca;
+ax.XTickLabelRotation = 45;
 
 %% Time Evolution
 
@@ -494,20 +496,20 @@ hold on
 
 for kcond = 1:ncond
     
-subplot(211)
-hold on
+    subplot(211)
+    hold on
     plot(CompTimes{kcond},E0chad{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
-subplot(212)
-hold on
+    subplot(212)
+    hold on
     plot(CompTimes{kcond},H0EXP{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
     
 end
 
 %% per cell plot vs tps comp
-
-for kc = 1:nCell
-
-   figure
+if strcmp(answer,'Yes')
+    for kc = 1:nCell
+        
+        figure
         hold on
         subplot(211)
         title(FullCellList(kc))
@@ -519,7 +521,7 @@ for kc = 1:nCell
         subplot(212)
         plotSpread_V({CellVsCond_H0EXP{:,kc}},'distributionMarkers',Sym,'distributionColors',Col,'xNames',CondID)
         ylabel('H0exp (nm)')
-      
+        
         ax = gca;
         ax.XTickLabelRotation = 45;
         ax.TickLabelInterpreter = 'none';
@@ -529,8 +531,8 @@ for kc = 1:nCell
         saveas(fig,strcat(sffc, filesep, 'Echad_',FullCellList(kc),'.fig'),'fig')
         
         close
+    end
 end
-   
 
 %% Saving
 
@@ -581,6 +583,16 @@ if ncond >=2
     fig = gca;
     saveas(fig,[sff filesep 'H0ChadBeeswarm.png'],'png')
     saveas(fig,[sff filesep 'H0ChadBeeswarm.fig'],'fig')
+    
+    figure(7)
+    fig = gca;
+    saveas(fig,[sff filesep 'E+H0InTime.png'],'png')
+    saveas(fig,[sff filesep 'E+H0InTime.fig'],'fig')
+    
+    figure(8)
+    fig = gca;
+    saveas(fig,[sff filesep 'Hysteresis.png'],'png')
+    saveas(fig,[sff filesep 'Hysteresis.fig'],'fig')
 end
 
 

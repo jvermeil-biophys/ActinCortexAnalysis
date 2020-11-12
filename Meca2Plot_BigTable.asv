@@ -91,6 +91,11 @@ DoSuccessStats(unique(exptypesList),unique(fitPList),excludevect)
         
     end
 
+    % per cell ?
+    answer = questdlg('Plot and H0 per cell ? (creates many plots)', ...
+	'Individual cell plotting', ...
+	'Yes','No','No');
+    
 % retrieving data for different experimental conditions
 ncond = size(Cond,1);
 
@@ -180,7 +185,7 @@ title('Echad & H0 vs Time')
 
 figure(8)
 hold on
-title('SpotSave')
+title('Hysresis')
 
 ymax1 = 0;
 ymax2 = 0;
@@ -399,7 +404,7 @@ end
     % H0
 
 
-    H0Beeswarm = H0BEF;
+    H0Beeswarm = H0EXP;
 
     figure(6)
     ax = gca;
@@ -411,7 +416,7 @@ end
     for ii = 1:length(H0Beeswarm)
         plot([ii-0.45 ii+0.45],[median(H0Beeswarm{ii})  median(H0Beeswarm{ii})],'k--','linewidth',1.3)
     end
-    ylabel('H0 pre-ramp')
+    ylabel('H0 init ramp')
 
 
     if SigDisplay
@@ -423,6 +428,49 @@ end
         for jj = ii+1:length(H0Beeswarm)
 
             sigtxt = DoParamStats(H0Beeswarm{ii},H0Beeswarm{jj});
+
+            if ~strcmp(sigtxt,'NS')
+
+                plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
+
+                plotheight = plotheight+ 0.05*distsize;
+            end
+
+        end
+    end
+
+    ylim([0 plotheight])
+
+    end
+    ax = gca;
+    ax.XTickLabelRotation = 45;
+
+
+    % Hysteresis
+
+    figure(8)
+    ax = gca;
+    ax.YColor = [0 0 0];
+    ax.LineWidth = 1.5;
+    box on
+
+    plotSpread_V(Hyst,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+    for ii = 1:length(Hyst)
+        plot([ii-0.45 ii+0.45],[median(Hyst{ii})  median(Hyst{ii})],'k--','linewidth',1.3)
+    end
+    ylabel('Hysteresis')
+
+
+    if SigDisplay
+
+    distsize = prctile(vertcat(Hyst{:}),90);
+    plotheight = distsize;
+
+    for ii = 1:length(E0chad)-1
+        for jj = ii+1:length(Hyst)
+
+            sigtxt = DoParamStats(Hyst{ii},Hyst{jj});
 
             if ~strcmp(sigtxt,'NS')
 
@@ -535,6 +583,16 @@ if ncond >=2
     fig = gca;
     saveas(fig,[sff filesep 'H0ChadBeeswarm.png'],'png')
     saveas(fig,[sff filesep 'H0ChadBeeswarm.fig'],'fig')
+    
+    figure(7)
+    fig = gca;
+    saveas(fig,[sff filesep 'E+H0InTime.png'],'png')
+    saveas(fig,[sff filesep 'E+H0InTime.fig'],'fig')
+    
+    figure(8)
+    fig = gca;
+    saveas(fig,[sff filesep 'Hysteresis.png'],'png')
+    saveas(fig,[sff filesep 'Hysteresis.fig'],'fig')
 end
 
 
