@@ -382,39 +382,7 @@ end
 
 
 
-    
-    %     % per cell Echad
-%     
-%     figure(5)
-%     ax = gca;
-%     ax.YColor = [0 0 0];
-%     ax.LineWidth = 1.5;
-%     box on
-%     
-%     plotSpread_V(E0chadCell,'distributionMarkers',{'o'},'distributionColors',color,'xNames',legends,'spreadWidth',1)
-%     
-%     ylabel('Echad - WtdAvg per cell (kPa)')
-%     
-%     distsize = prctile(horzcat(E0chadCell{:}),90);
-%     plotheight = distsize;
-%     
-%     for ii = 1:length(E0chad)-1
-%         for jj = ii+1:length(E0chadCell)
-%             
-%             sigtxt = DoParamStats(E0chadCell{ii},E0chadCell{jj});
-%             
-%             if ~strcmp(sigtxt,'NS')
-%                 
-%                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
-%                 text((ii+jj)/2, plotheight + 0.1*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-%                 
-%                 plotheight = plotheight+ 0.2*distsize;
-%             end
-%         end
-%     end
-%     
-
-
+% testing GitKraken
 
 
 
