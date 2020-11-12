@@ -112,6 +112,8 @@ for kcond = 1:ncond
     E0chad{kcond} = BigTable(ptrcond,'EChadwick').Variables/1000;
     EchadCI{kcond} = BigTable(ptrcond,'CiEChadwick').Variables/1000;
     
+    Hyst{kcond} = BigTable(ptrcond,'Hysteresis').Variables;
+    
     H0EXP{kcond} = BigTable(ptrcond,'InitialThickness').Variables;
     H0SUR{kcond} = BigTable(ptrcond,'SurroundingThickness').Variables;
     H0BEF{kcond} = BigTable(ptrcond,'PreviousThickness').Variables;
@@ -397,7 +399,7 @@ end
     % H0
 
 
-    H0Beeswarm = H0BEF;
+    H0Beeswarm = H0EXP;
 
     figure(6)
     ax = gca;
@@ -409,7 +411,7 @@ end
     for ii = 1:length(H0Beeswarm)
         plot([ii-0.45 ii+0.45],[median(H0Beeswarm{ii})  median(H0Beeswarm{ii})],'k--','linewidth',1.3)
     end
-    ylabel('H0 pre-ramp')
+    ylabel('H0 init ramp')
 
 
     if SigDisplay
@@ -421,6 +423,52 @@ end
         for jj = ii+1:length(H0Beeswarm)
 
             sigtxt = DoParamStats(H0Beeswarm{ii},H0Beeswarm{jj});
+
+            if ~strcmp(sigtxt,'NS')
+
+                plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
+
+                plotheight = plotheight+ 0.05*distsize;
+            end
+
+        end
+    end
+
+    ylim([0 plotheight])
+
+    end
+    ax = gca;
+    ax.XTickLabelRotation = 45;
+
+
+    % Hysteresis
+
+
+
+
+    figure(6)
+    ax = gca;
+    ax.YColor = [0 0 0];
+    ax.LineWidth = 1.5;
+    box on
+
+    plotSpread_V(Hyst,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+    for ii = 1:length(Hyst)
+        plot([ii-0.45 ii+0.45],[median(Hyst{ii})  median(Hyst{ii})],'k--','linewidth',1.3)
+    end
+    ylabel('Hysteresis')
+
+
+    if SigDisplay
+
+    distsize = prctile(vertcat(Hyst{:}),90);
+    plotheight = distsize;
+
+    for ii = 1:length(E0chad)-1
+        for jj = ii+1:length(Hyst)
+
+            sigtxt = DoParamStats(Hyst{ii},Hyst{jj});
 
             if ~strcmp(sigtxt,'NS')
 
