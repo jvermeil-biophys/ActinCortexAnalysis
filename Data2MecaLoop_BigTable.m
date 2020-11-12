@@ -13,7 +13,7 @@ warning('off','all')
 set(0,'DefaultFigureWindowStyle','docked')
 set(0,'DefaultTextInterpreter','none');
 
-R2CRITERION = 0.95;
+R2CRITERION = 0.9;
 
 SAVING_CRITERIONs = [];
 
