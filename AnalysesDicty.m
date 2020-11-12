@@ -684,7 +684,7 @@ Data2MecaLoop_BigTable('04-11-20','M2','DictyDB_M270','R90_2s',2691,MatfileFolde
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Meca2Plot %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 
-%%%%%%%%%%%% Two R2 available : 0.7 & 0.95
+%%%%%%%%%%%% Two R2 available : 0.7, 0.9 & 0.95
 
 fitparams = 'Strain100-R20.95';
 
@@ -720,7 +720,7 @@ ConditionsM450Multi = {'ExpType','DictyDB_M450','TpsComp','02s','FitParams',fitp
 
 Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM450Multi, ...
 {C02,C05,C1,C2,C4,C7,C12},...
-{'M450-02s','M450-05s','M450-1s','M450-2s','M450-4s','M450-7s','M450-12s'},'M450MultiRateR2095',1,...
+{'M450-02s','M450-05s','M450-1s','M450-2s','M450-4s','M450-7s','M450-12s'},'M450MultiRateR209',1,...
 'Exclude',{'ExpDay','04-11-20'})
 
     % M450 multirate 041120    
