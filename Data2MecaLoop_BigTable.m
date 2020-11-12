@@ -13,7 +13,7 @@ warning('off','all')
 set(0,'DefaultFigureWindowStyle','docked')
 set(0,'DefaultTextInterpreter','none');
 
-R2CRITERION = 0.7;
+R2CRITERION = 0.95;
 
 SAVING_CRITERIONs = [];
 
@@ -601,7 +601,7 @@ if exist(loadname,'file')
                         
                         if ~hasNormalDz
                             
-                            notsavedtext = [notsavedtext 'Disaligned vertically'];
+                            notsavedtext = [notsavedtext 'Disaligned vertically '];
                             
                             nreason = nreason - 1;
                             
