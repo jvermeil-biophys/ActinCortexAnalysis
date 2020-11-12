@@ -50,8 +50,6 @@ if LoopCont
     params = ['-Stress' num2str(ContTh) '-R2' num2str(R2CRITERION)];
 elseif LoopDef
     params = ['-Strain' num2str(DefTh) '-R2' num2str(R2CRITERION)];
-else
-    params = ['-ChadHyp-R2' num2str(R2CRITERION)];
 end
 
 
@@ -379,10 +377,6 @@ if exist(loadname,'file')
                             fprintf(['\nSelection on STRESS (' num2str(ContTh) ' Pa). Npts inital loop : ' num2str(nptsH0el) '\n'])
                         elseif LoopDef
                             fprintf(['\nSelection on STRAIN (' num2str(DefTh) '%%). Npts inital loop : ' num2str(nptsH0el) '\n'])
-                        else
-                            fprintf(['\nSelection on Chadwick Hypotheses. Npts inital loop : ' num2str(nptsH0el) '\n'])
-                            
-                            
                         end
                     end
                     
@@ -394,10 +388,7 @@ if exist(loadname,'file')
                             
                             MaxCont = max(Contrainte);
                             
-                            
                             InferieurAXPourcents = Contrainte < ContTh;
-                            
-                            
                             
                         elseif LoopDef
                             %% utilisation du h0 pour calculer deformation
@@ -406,18 +397,10 @@ if exist(loadname,'file')
                             MaxDef = max(Deformation);
                             
                             InferieurAXPourcents = Deformation*100 < DefTh;
-                            
-                            
-                        else
-                            %% limitation en critère de chadwick maximum
-                            CtctRad = sqrt(RADIUS*(H0tmp - Hcomp));
-                            
-                            
-                            InferieurAXPourcents = CtctRad<10*(Hcomp/2);
-                            
+                                                        
                         end
                         
-                        ptrFit = find(((InferieurAXPourcents)|(H0tmp-Hcomp<0.02)) == 0,1,'first');
+                        ptrFit = find(InferieurAXPourcents == 0,1,'first');
                         
                         if isempty(ptrFit)
                             ptrFit = length(Fcomp);
@@ -579,7 +562,7 @@ if exist(loadname,'file')
                     hasSmallConfInt = (abs(EchadFitCI) < 2*abs(Echadtmp));
                     
                     currentRampDz = RampData{ii}(:,6);
-                    hasNormalDz = (max(currentRampDz) < 1);
+                    hasNormalDz = (max(abs(currentRampDz)) < 1);
                     
                     SAVING_CRITERION =  isPositive && hasNormalDz && hasSmallConfInt && hasNoLargeJump && hasEnoughPoints && doesConverge && isAGoodFit;
                     
@@ -618,7 +601,7 @@ if exist(loadname,'file')
                         
                         if ~hasNormalDz
                             
-                            notsavedtext = [notsavedtext 'Has DZ problems '];
+                            notsavedtext = [notsavedtext 'Disaligned vertically'];
                             
                             nreason = nreason - 1;
                             
