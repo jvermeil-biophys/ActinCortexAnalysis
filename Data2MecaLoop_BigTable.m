@@ -79,8 +79,8 @@ StrainRateMed = {}; % stress rate median
 if exist([resfolder filesep 'MecaDataTable.mat'])
     load([resfolder filesep 'MecaDataTable'])
 else
-    varnames = {'ExpType', 'ExpDay', 'CellID', 'CellName', 'CompNum'   , 'TpsComp', 'RawDataTDFB', 'MaxIndent' , 'MinThickness' , 'CompTime'  , 'InitialThickness', 'SurroundingThickness', 'PreviousThickness', 'H0Chadwick', 'EChadwick', 'CiEChadwick', 'R2Chadwick'    , 'FitParams', 'Validated', 'Comments'};
-    vartypes = {'string' , 'string', 'string', 'string'  , 'doublenan' , 'string' , 'cell'       , 'doublenan' , 'doublenan'    , 'doublenan' , 'doublenan'       , 'doublenan'           , 'doublenan'        , 'doublenan' , 'doublenan', 'doublenan'  , 'doublenan' , 'string'   ,'logical'  , 'string'};
+    varnames = {'ExpType', 'ExpDay', 'CellID', 'CellName', 'CompNum'   , 'TpsComp', 'RawDataTDFB', 'MaxIndent' , 'MinThickness' , 'Hysteresis', 'CompTime'  , 'InitialThickness', 'SurroundingThickness', 'PreviousThickness', 'H0Chadwick', 'EChadwick', 'CiEChadwick', 'R2Chadwick'    , 'FitParams', 'Validated', 'Comments'};
+    vartypes = {'string' , 'string', 'string', 'string'  , 'doublenan' , 'string' , 'cell'       , 'doublenan' , 'doublenan'    , 'doublenan' , 'doublenan' , 'doublenan'       , 'doublenan'           , 'doublenan'        , 'doublenan' , 'doublenan', 'doublenan'  , 'doublenan'     , 'string'   ,'logical'   , 'string'};
     BigTable = table('Size',[0 length(varnames)],'VariableTypes',vartypes,'VariableNames',varnames);
 end
 
@@ -792,7 +792,8 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'H0Chadwick') = {H0chadFit*1000};
                     BigTable(CurrentTableLine,'EChadwick') = {Echadtmp};
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
-                    BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};               
+                    BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};      
+                    BigTable(CurrentTableLine,'Hysteresis') = {abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown))};               
                     
                     
                     BigTable(CurrentTableLine,'Validated') = {1};
@@ -811,8 +812,9 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'H0Chadwick') = {H0chadFit*1000};
                     BigTable(CurrentTableLine,'EChadwick') = {Echadtmp};
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
-                    BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};  
-                    
+                    BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};    
+                    BigTable(CurrentTableLine,'Hysteresis') = {abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown))};               
+                   
                     BigTable(CurrentTableLine,'Validated') = {0};
                     BigTable(CurrentTableLine,'Comments') = {notsavedtext};
                     
@@ -827,7 +829,9 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'H0Chadwick') = {NaN};
                     BigTable(CurrentTableLine,'EChadwick') = {NaN};
                     BigTable(CurrentTableLine,'CiEChadwick') = {NaN};
-                    BigTable(CurrentTableLine,'R2Chadwick') = {NaN};  
+                    BigTable(CurrentTableLine,'R2Chadwick') = {NaN};    
+                    BigTable(CurrentTableLine,'Hysteresis') = {NaN};               
+                   
                     
                     BigTable(CurrentTableLine,'Validated') = {0};
                     BigTable(CurrentTableLine,'Comments') = {notsavedtext};
