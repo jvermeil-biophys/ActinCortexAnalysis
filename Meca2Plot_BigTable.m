@@ -355,38 +355,6 @@ end
     ax = gca;
     ax.XTickLabelRotation = 45;
     
-    
-    %% per cell plot vs tps comp
-% 
-% if ismember('TpsComp',Cond)
-%     
-%     ptrtpscmp = find(ismember(Cond(1,:),'TpsComp'))+1;
-%     
-%     TpsCmpList = Cond(:,ptrtpscmp);
-%     
-%     nTps = length(TpsCmpList)
-%     nCell = length(UniqueCellList);
-%     
-%     CellVsTime = cell(length(UniqueCellList),nTps);
-%     
-%     for k = 1:nCell
-%         for l = 1:nTps
-%             
-%             
-%             
-%             
-%         end
-%     end
-%     
-%     
-% end
-
-
-
-% testing GitKraken
-
-
-
 %% Saving
 
 sfig = figurefolder;
