@@ -79,8 +79,8 @@ StrainRateMed = {}; % stress rate median
 if exist([resfolder filesep 'MecaDataTable.mat'])
     load([resfolder filesep 'MecaDataTable'])
 else
-    varnames = {'ExpType', 'ExpDay', 'CellID', 'CellName', 'CompNum'   , 'TpsComp', 'RawDataTDFB', 'MaxIndent' , 'CompTime'  , 'InitialThickness', 'SurroundingThickness', 'PreviousThickness', 'H0Chadwick', 'EChadwick', 'CiEChadwick', 'R2Chadwick'    , 'FitParams', 'Validated', 'Comments'};
-    vartypes = {'string' , 'string', 'string', 'string'  , 'doublenan' , 'string' , 'cell'       , 'doublenan' , 'doublenan' , 'doublenan'       , 'doublenan'           , 'doublenan'        , 'doublenan' , 'doublenan', 'doublenan'  , 'doublenan' , 'string'   ,'logical'  , 'string'};
+    varnames = {'ExpType', 'ExpDay', 'CellID', 'CellName', 'CompNum'   , 'TpsComp', 'RawDataTDFB', 'MaxIndent' , 'MinThickness' , 'CompTime'  , 'InitialThickness', 'SurroundingThickness', 'PreviousThickness', 'H0Chadwick', 'EChadwick', 'CiEChadwick', 'R2Chadwick'    , 'FitParams', 'Validated', 'Comments'};
+    vartypes = {'string' , 'string', 'string', 'string'  , 'doublenan' , 'string' , 'cell'       , 'doublenan' , 'doublenan'    , 'doublenan' , 'doublenan'       , 'doublenan'           , 'doublenan'        , 'doublenan' , 'doublenan', 'doublenan'  , 'doublenan' , 'string'   ,'logical'  , 'string'};
     BigTable = table('Size',[0 length(varnames)],'VariableTypes',vartypes,'VariableNames',varnames);
 end
 
@@ -788,6 +788,7 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'InitialThickness') = {InitialThick};
                     BigTable(CurrentTableLine,'CompTime') = {mean(Tup)};
                     BigTable(CurrentTableLine,'MaxIndent') = {InitialThick-min(Dup)*1000};
+                    BigTable(CurrentTableLine,'MinThickness') = {min(Dup)*1000};
                     BigTable(CurrentTableLine,'H0Chadwick') = {H0chadFit*1000};
                     BigTable(CurrentTableLine,'EChadwick') = {Echadtmp};
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
@@ -806,6 +807,7 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'InitialThickness') = {InitialThick};
                     BigTable(CurrentTableLine,'CompTime') = {mean(Tup)};
                     BigTable(CurrentTableLine,'MaxIndent') = {InitialThick-min(Dup)*1000};
+                    BigTable(CurrentTableLine,'MinThickness') = {min(Dup)*1000};
                     BigTable(CurrentTableLine,'H0Chadwick') = {H0chadFit*1000};
                     BigTable(CurrentTableLine,'EChadwick') = {Echadtmp};
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
@@ -821,6 +823,7 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'InitialThickness') = {NaN};
                     BigTable(CurrentTableLine,'CompTime') = {NaN};
                     BigTable(CurrentTableLine,'MaxIndent') = {NaN};
+                    BigTable(CurrentTableLine,'MinThickness') = {NaN};
                     BigTable(CurrentTableLine,'H0Chadwick') = {NaN};
                     BigTable(CurrentTableLine,'EChadwick') = {NaN};
                     BigTable(CurrentTableLine,'CiEChadwick') = {NaN};
