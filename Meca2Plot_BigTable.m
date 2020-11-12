@@ -40,7 +40,7 @@ end
 
 excludevect = zeros(height(BigTable),1);
 
-if length(varargin) >0
+if ~isempty(varargin)
     
     if ismember('Exclude',varargin(1:2:end))
         
@@ -66,7 +66,11 @@ VALIDptr = BigTable.Validated & ~excludevect;
 
  exptypesList = Cond(:,ptrexptypes);
 
-DoSuccessStats(unique(exptypesList),excludevect)
+ ptrfitP= find(ismember(Cond(1,:),'FitParams'))+1;
+
+ fitPList = Cond(:,ptrfitP);
+
+DoSuccessStats(unique(exptypesList),unique(fitPList),excludevect)
 
 % retrieving data for different experimental conditions
 ncond = size(Cond,1);
