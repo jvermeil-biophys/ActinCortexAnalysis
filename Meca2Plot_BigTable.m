@@ -77,6 +77,20 @@ fitPList = Cond(:,ptrfitP);
 
 DoSuccessStats(unique(exptypesList),unique(fitPList),excludevect)
 
+% identifying changes between conditions
+    
+    CondID = [];
+    
+    for k =2:2:size(Cond,2)
+        
+        if length(unique(Cond(:,k))) >1
+            
+            CondID = strcat(CondID,'-',Cond(:,k));
+            
+        end
+        
+    end
+
 % retrieving data for different experimental conditions
 ncond = size(Cond,1);
 
@@ -110,6 +124,10 @@ for kcond = 1:ncond
     CompTimes{kcond} = BigTable(ptrcond,'CompTime').Variables;
     
 end
+
+    FullCellList = unique(vertcat(UniqueCellList{:}));
+    
+    nCell = length(FullCellList);
 
 %% prep figs
 
@@ -256,6 +274,26 @@ for kcond = 1:ncond
 
 end
 
+
+%% regrouping per cells and conditions
+    CellVsCond_Echad = cell(ncond,nCell);
+    CellVsCond_H0EXP = cell(ncond,nCell);
+    CellVsCond_ID = cell(ncond,nCell);
+    
+    for kc = 1:nCell
+        for kcond = 1:ncond
+            
+            ptrcell = strcmp(CellIdList{kcond}, FullCellList(kc));
+            
+            CellVsCond_Echad{kcond,kc} = E0chad{kcond}(ptrcell);
+            CellVsCond_H0EXP{kcond,kc} =H0EXP{kcond}(ptrcell);
+            CellVsCond_ID{kcond,kc} = strcat(FullCellList(kc), CondID(kcond));
+            
+        end  
+        
+        
+ end
+
 %% Beeswarm plot
 
     % all data Echad
@@ -282,6 +320,61 @@ end
         for jj = ii+1:length(E0chad)
 
             sigtxt = DoParamStats(E0chad{ii},E0chad{jj});
+
+            if ~strcmp(sigtxt,'NS')
+
+                plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
+
+                plotheight = plotheight + 0.05*distsize;
+            end
+        end
+    end
+
+     ylim([0 plotheight])
+
+    end
+
+
+    ax = gca;
+    ax.XTickLabelRotation = 45;
+    
+    
+    % avg per cell Echad
+    figure(5)
+    ax = gca;
+    ax.YColor = [0 0 0];
+    ax.LineWidth = 1.5;
+    box on
+
+    for kcond = 1:ncond
+         
+        E0chadCell{kcond} = [];
+        
+        for kc = 1:nCell
+            
+            E0chadCell{kcond} = [E0chadCell{kcond} nanmean(CellVsCond_Echad{kcond,kc})];
+            
+        end
+    end
+    
+    plotSpread_V(E0chadCell,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+    for ii = 1:length(E0chadCell)
+        plot([ii-0.45 ii+0.45],[median(E0chadCell{ii})  median(E0chadCell{ii})],'k--','linewidth',1.3)
+    end
+    ylabel('Echad par cell (kPa)')
+
+
+    if SigDisplay
+
+    distsize = prctile(vertcat(E0chadCell{:}),98);
+    plotheight = distsize;
+
+    for ii = 1:length(E0chadCell)-1
+
+        for jj = ii+1:length(E0chadCell)
+
+            sigtxt = DoParamStats(E0chadCell{ii},E0chadCell{jj});
 
             if ~strcmp(sigtxt,'NS')
 
@@ -362,54 +455,34 @@ hold on
     
 end
 
-    
 %% per cell plot vs tps comp
 
+for kc = 1:nCell
 
-if ismember('TpsComp',Cond)
-    
-    ptrtpscmp = find(ismember(Cond(1,:),'TpsComp'))+1;
-    TpsCmpList = Cond(:,ptrtpscmp);
-    
-    FullCellList = unique(vertcat(UniqueCellList{:}));
-    
-    nCell = length(FullCellList);
-    
-    
-    CellVsTpsComp_Echad = cell(ncond,nCell);
-    CellVsTpsComp_H0EXP = cell(ncond,nCell);
-    CellVsTpsComp_ID = cell(ncond,nCell);
-    
-    for kc = 1:nCell
-        for kcond = 1:ncond
-            
-            ptrcell = strcmp(CellIdList{kcond}, FullCellList(kc));
-            
-            CellVsTpsComp_Echad{kcond,kc} = E0chad{kcond}(ptrcell);
-            CellVsTpsComp_H0EXP{kcond,kc} =H0EXP{kcond}(ptrcell);
-            CellVsTpsComp_ID{kcond,kc} = strcat(FullCellList(kc), '-', TpsCmpList(kcond));
-            
-        end  
-        
-        
-        figure
+   figure
         hold on
         subplot(211)
         title(FullCellList(kc))
-        plotSpread_V({CellVsTpsComp_Echad{:,kc}},'distributionMarkers',Sym,'distributionColors',Col,'xNames',TpsCmpList)
+        plotSpread_V({CellVsCond_Echad{:,kc}},'distributionMarkers',Sym,'distributionColors',Col,'xNames',[])
         ylabel('Echad (kPa)')
+        ax = gca;
+        ax.XTickLabel = [];
+        
         subplot(212)
-        plotSpread_V({CellVsTpsComp_H0EXP{:,kc}},'distributionMarkers',Sym,'distributionColors',Col,'xNames',TpsCmpList)
+        plotSpread_V({CellVsCond_H0EXP{:,kc}},'distributionMarkers',Sym,'distributionColors',Col,'xNames',CondID)
         ylabel('H0exp (nm)')
       
+        ax = gca;
+        ax.XTickLabelRotation = 45;
+        ax.TickLabelInterpreter = 'none';
+        
         fig = gcf;
         saveas(fig,strcat(sffc, filesep, 'Echad_',FullCellList(kc),'.png'),'png')
         saveas(fig,strcat(sffc, filesep, 'Echad_',FullCellList(kc),'.fig'),'fig')
         
-
-    end
+        close
 end
-
+   
 
 %% Saving
 
