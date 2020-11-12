@@ -29,7 +29,7 @@ datenow = datestr(now,'yy-mm-dd');
 sfig = figurefolder;
 sff = [sfig filesep datenow filesep 'Meca' filesep savename];
 sffc = [sff filesep 'PerCell'];
-mkdir(sffc)
+mkdir(sff)
 
 
 %% get data
@@ -384,8 +384,9 @@ if ismember('TpsComp',Cond)
         plotSpread_V({CellVsTpsComp_H0EXP{:,kc}},'distributionMarkers',{'o'},'distributionColors',Col,'xNames',TpsCmpList)
         ylabel('H0exp (nm)')
       
-        fig = gcf;
-        saveas(fig,strcat(sffc, filesep, 'Echad_',FullCellList(kc),'.png'),'png')
+   
+        fig = gcf;        
+        saveas(fig,[sff filesep 'Echad_' FullCellList(kc) '.png'],'png')
         
 
     end
