@@ -91,14 +91,12 @@ TableSize = size(BigTable,1);
 %% Analysis
 loadname=['V2D_' date '_' manip '_' tag '_' specif '.mat'];
 
-cd(path)
-
 if exist(loadname,'file')
 
         fprintf(['\nChargement du fichier ' loadname '\n\n'])
 
     
-    load(loadname);
+    load([path loadname]);
     
     % for R248 exp
     if ~exist('MR')
