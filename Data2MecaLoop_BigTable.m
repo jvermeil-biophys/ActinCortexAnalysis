@@ -96,7 +96,7 @@ if exist(loadname,'file')
         fprintf(['\nChargement du fichier ' loadname '\n\n'])
 
     
-    load([path loadname]);
+    load([path filesep loadname]);
     
     % for R248 exp
     if ~exist('MR')
