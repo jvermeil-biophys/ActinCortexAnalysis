@@ -13,7 +13,7 @@ warning('off','all')
 set(0,'DefaultFigureWindowStyle','docked')
 set(0,'DefaultTextInterpreter','none');
 
-R2CRITERION = 0.7;
+R2CRITERION = 0.9;
 
 SAVING_CRITERIONs = [];
 
@@ -50,8 +50,6 @@ if LoopCont
     params = ['-Stress' num2str(ContTh) '-R2' num2str(R2CRITERION)];
 elseif LoopDef
     params = ['-Strain' num2str(DefTh) '-R2' num2str(R2CRITERION)];
-else
-    params = ['-ChadHyp-R2' num2str(R2CRITERION)];
 end
 
 
@@ -81,8 +79,8 @@ StrainRateMed = {}; % stress rate median
 if exist([resfolder filesep 'MecaDataTable.mat'])
     load([resfolder filesep 'MecaDataTable'])
 else
-    varnames = {'ExpType', 'ExpDay', 'CellID', 'CellName', 'CompNum'   , 'TpsComp', 'RawDataTDFB', 'MaxIndent' , 'CompTime'  , 'InitialThickness', 'SurroundingThickness', 'PreviousThickness', 'H0Chadwick', 'EChadwick', 'CiEChadwick', 'R2Chadwick'    , 'FitParams', 'Validated', 'Comments'};
-    vartypes = {'string' , 'string', 'string', 'string'  , 'doublenan' , 'string' , 'cell'       , 'doublenan' , 'doublenan' , 'doublenan'       , 'doublenan'           , 'doublenan'        , 'doublenan' , 'doublenan', 'doublenan'  , 'doublenan' , 'string'   ,'logical'  , 'string'};
+    varnames = {'ExpType', 'ExpDay', 'CellID', 'CellName', 'CompNum'   , 'TpsComp', 'RawDataTDFB', 'MaxIndent' , 'MinThickness' , 'Hysteresis', 'CompTime'  , 'InitialThickness', 'SurroundingThickness', 'PreviousThickness', 'H0Chadwick', 'EChadwick', 'CiEChadwick', 'R2Chadwick'    , 'FitParams', 'Validated', 'Comments'};
+    vartypes = {'string' , 'string', 'string', 'string'  , 'doublenan' , 'string' , 'cell'       , 'doublenan' , 'doublenan'    , 'doublenan' , 'doublenan' , 'doublenan'       , 'doublenan'           , 'doublenan'        , 'doublenan' , 'doublenan', 'doublenan'  , 'doublenan'     , 'string'   ,'logical'   , 'string'};
     BigTable = table('Size',[0 length(varnames)],'VariableTypes',vartypes,'VariableNames',varnames);
 end
 
@@ -93,14 +91,12 @@ TableSize = size(BigTable,1);
 %% Analysis
 loadname=['V2D_' date '_' manip '_' tag '_' specif '.mat'];
 
-cd(path)
-
 if exist(loadname,'file')
 
         fprintf(['\nChargement du fichier ' loadname '\n\n'])
 
     
-    load(loadname);
+    load([path filesep loadname]);
     
     % for R248 exp
     if ~exist('MR')
@@ -379,10 +375,6 @@ if exist(loadname,'file')
                             fprintf(['\nSelection on STRESS (' num2str(ContTh) ' Pa). Npts inital loop : ' num2str(nptsH0el) '\n'])
                         elseif LoopDef
                             fprintf(['\nSelection on STRAIN (' num2str(DefTh) '%%). Npts inital loop : ' num2str(nptsH0el) '\n'])
-                        else
-                            fprintf(['\nSelection on Chadwick Hypotheses. Npts inital loop : ' num2str(nptsH0el) '\n'])
-                            
-                            
                         end
                     end
                     
@@ -394,10 +386,7 @@ if exist(loadname,'file')
                             
                             MaxCont = max(Contrainte);
                             
-                            
                             InferieurAXPourcents = Contrainte < ContTh;
-                            
-                            
                             
                         elseif LoopDef
                             %% utilisation du h0 pour calculer deformation
@@ -406,18 +395,10 @@ if exist(loadname,'file')
                             MaxDef = max(Deformation);
                             
                             InferieurAXPourcents = Deformation*100 < DefTh;
-                            
-                            
-                        else
-                            %% limitation en critère de chadwick maximum
-                            CtctRad = sqrt(RADIUS*(H0tmp - Hcomp));
-                            
-                            
-                            InferieurAXPourcents = CtctRad<10*(Hcomp/2);
-                            
+                                                        
                         end
                         
-                        ptrFit = find(((InferieurAXPourcents)|(H0tmp-Hcomp<0.02)) == 0,1,'first');
+                        ptrFit = find(InferieurAXPourcents == 0,1,'first');
                         
                         if isempty(ptrFit)
                             ptrFit = length(Fcomp);
@@ -562,6 +543,13 @@ if exist(loadname,'file')
                     
                     ExpStrainRateInterp = interp1(Tmid,ExpStrainRate,Tinterp,'spline');
                     
+                    % hysteresis computation
+                    
+                    if length(Ddown)>1
+                        Hyst = abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown));
+                    else
+                        Hyst = NaN;
+                    end
                     
                     %% Sauvegarde des valeurs pertinentes
 %                     
@@ -579,7 +567,7 @@ if exist(loadname,'file')
                     hasSmallConfInt = (abs(EchadFitCI) < 2*abs(Echadtmp));
                     
                     currentRampDz = RampData{ii}(:,6);
-                    hasNormalDz = (max(currentRampDz) < 1);
+                    hasNormalDz = (max(abs(currentRampDz)) < 1);
                     
                     SAVING_CRITERION =  isPositive && hasNormalDz && hasSmallConfInt && hasNoLargeJump && hasEnoughPoints && doesConverge && isAGoodFit;
                     
@@ -618,7 +606,7 @@ if exist(loadname,'file')
                         
                         if ~hasNormalDz
                             
-                            notsavedtext = [notsavedtext 'Has DZ problems '];
+                            notsavedtext = [notsavedtext 'Disaligned vertically '];
                             
                             nreason = nreason - 1;
                             
@@ -807,10 +795,12 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'InitialThickness') = {InitialThick};
                     BigTable(CurrentTableLine,'CompTime') = {mean(Tup)};
                     BigTable(CurrentTableLine,'MaxIndent') = {InitialThick-min(Dup)*1000};
+                    BigTable(CurrentTableLine,'MinThickness') = {min(Dup)*1000};
                     BigTable(CurrentTableLine,'H0Chadwick') = {H0chadFit*1000};
                     BigTable(CurrentTableLine,'EChadwick') = {Echadtmp};
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
-                    BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};               
+                    BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};      
+                    BigTable(CurrentTableLine,'Hysteresis') = {Hyst};               
                     
                     
                     BigTable(CurrentTableLine,'Validated') = {1};
@@ -825,11 +815,13 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'InitialThickness') = {InitialThick};
                     BigTable(CurrentTableLine,'CompTime') = {mean(Tup)};
                     BigTable(CurrentTableLine,'MaxIndent') = {InitialThick-min(Dup)*1000};
+                    BigTable(CurrentTableLine,'MinThickness') = {min(Dup)*1000};
                     BigTable(CurrentTableLine,'H0Chadwick') = {H0chadFit*1000};
                     BigTable(CurrentTableLine,'EChadwick') = {Echadtmp};
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
-                    BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};  
-                    
+                    BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};    
+                    BigTable(CurrentTableLine,'Hysteresis') = {Hyst};               
+                   
                     BigTable(CurrentTableLine,'Validated') = {0};
                     BigTable(CurrentTableLine,'Comments') = {notsavedtext};
                     
@@ -840,10 +832,13 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'InitialThickness') = {NaN};
                     BigTable(CurrentTableLine,'CompTime') = {NaN};
                     BigTable(CurrentTableLine,'MaxIndent') = {NaN};
+                    BigTable(CurrentTableLine,'MinThickness') = {NaN};
                     BigTable(CurrentTableLine,'H0Chadwick') = {NaN};
                     BigTable(CurrentTableLine,'EChadwick') = {NaN};
                     BigTable(CurrentTableLine,'CiEChadwick') = {NaN};
-                    BigTable(CurrentTableLine,'R2Chadwick') = {NaN};  
+                    BigTable(CurrentTableLine,'R2Chadwick') = {NaN};    
+                    BigTable(CurrentTableLine,'Hysteresis') = {NaN};               
+                   
                     
                     BigTable(CurrentTableLine,'Validated') = {0};
                     BigTable(CurrentTableLine,'Comments') = {notsavedtext};
