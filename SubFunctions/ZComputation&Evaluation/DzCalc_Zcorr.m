@@ -1,6 +1,10 @@
 function dzcalc = DzCalc_Zcorr(X1,Y1,X2,Y2,S,stackname,depthoname,depthofolder)
-% renvoi dz en micron 
-% tic
+
+% dzcalc = DzCalc_Zcorr(X1,Y1,X2,Y2,S,stackname,depthoname,depthofolder)
+% 
+% Computes dz in micron by correlating a line of pixel from the beads image
+% to a reference depthograph.
+%
 
 set(0,'DefaultFigureWindowStyle','docked')
 

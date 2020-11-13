@@ -1,5 +1,16 @@
 function [X1,Y1,S1,ptr1,X2,Y2,S2,ptr2] = splitBeads(X_ind,stackname,filename,Y,distcheck,AUTO,varargin)
-% X_ind doit contenir les positions X en pixels
+
+% [X1,Y1,S1,ptr1,X2,Y2,S2,ptr2] = splitBeads(X_ind,stackname,filename,Y,distcheck,AUTO,varargin)
+%
+% X_ind is a matrix corresponding to [X Slices]
+% 
+% Separates the list of 2D position (X, Y) into tracks for two beads. Takes
+% user input when beads have disapeard, aretacts are detected on the image,
+% or beads have moved to far from one image to the next. User input is
+% taken graphically by opening the problematic image. When in automode
+% (AUTO = 1) an error is return when user input is needed so that the R2V
+% code skips this video.
+% 
 
 
 

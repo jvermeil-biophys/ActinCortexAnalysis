@@ -1,6 +1,9 @@
 function [Zup,Wup,Zmid,Wmid,Zdown,Wdown] = Corr2Zs(Bool,Str,MultiPos,MultiVal,ValSum,fref)
 
-
+% [Zup,Wup,Zmid,Wmid,Zdown,Wdown] = Corr2Zs(Bool,Str,MultiPos,MultiVal,ValSum,fref)
+% 
+% Computes the best Z values for each beads based on correlation results 
+% 
 
 ptr = find(Bool ==1);
 if isempty(ptr)

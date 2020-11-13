@@ -1,5 +1,11 @@
 function [ListDep, ListFor] = get_fich_name(listP)
 
+% 
+% [ListDep, ListFor] = get_fich_name(listP)
+%
+% creates a list of possible identifiers for cells based on the numbers of
+% selected chambers (listP)
+
 nc = 30; % vidéo par puits
 ni = 15; % interface par vidéo
 
