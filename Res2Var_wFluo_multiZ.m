@@ -1,16 +1,37 @@
+function Res2Var_wFluo_multiZ(date,tag,manip,specif,fich,resfile,nimg,depthoname,AUTO,...
+    datafolder,resfolder)
 
-function Res2Var_wFluo_multiZ(date,chmpMag,manip,specif,fich,resfile,nimg,depthoname,AUTO,...
-    datafolder,resfolder,resfolderbis)
+%       Res2Var is using the imageJ particle analysis data to create
+%       individual trajectories for the beads. It is using the txt files
+%       created by ImageJ to get the X and Y positions the beads, it then
+%       loads the images of the video and computes the DZ between the beads
+%       using the depthograph. This particular version (_wFluo_multiZ)
+%       is used for analyzing constant field experiments, with triplet 
+%       of image in Z for each time points. It can handle the presence of
+%       fluo images at the end of each loop.
+%       
+%       Res2Var_wFluo_multiZ(restype,date,tag,manip,specif,fich,
+%       depthoname,nimgbr,nimgr,nimg,...
+%       AUTO,datafolder,resfolder)
+%
+%       date : date of experiment 'dd-mm-yy'
+%       tag : tag present on the tif and txt files (ex: '5mT', '5mT_Dicty')
+%       manip : 'manip' number (ex: 'M1' ou 'M2' etc...), 
+%       specif : experimental condiion (ex: 'Dicty_WT')
+%       fich : chambers to analyze for the condition (ex: 1 or [1:3])
+%       resfile : extension of text file (ex: 'Results' or  'Inside')
+%       nimg : nb img total in a loop, can be put to 3 as default if there
+%       is no fluo images in the movies
+%       depthoname : depthograph (ex:'19-05-20_DepthographM450')
+%       AUTO : automatique mode of analysis (skip file when user input
+%       is needed, AUTO variable should be defined in the main file) 
+%       datafolder : path to the raw data, should be RawdataFolder in main
+%       resfolder : path to where save the matlabdata, should be 
+%       MatfileFolder in main
 
-set(groot, 'defaultfigureposition', get(0, 'Screensize').*[20 20 0.98 0.9]);
-set(groot,'DefaultFigureWindowStyle','normal')
-set(groot, 'defaultAxesTickLabelInterpreter','latex'); 
-set(groot, 'defaultLegendInterpreter','latex');
-set(groot, 'defaultTextInterpreter','latex');
-set(groot,'DefaultAxesFontSize',10)
+set(0,'DefaultFigureWindowStyle','docked')
 
 warning('off','all')
-
 
 % dossier de données et sauvegarde
 path =[datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2)];
@@ -20,20 +41,14 @@ datenow = datestr(now,'yy-mm-dd');
 
 mkdir([sf filesep 'R2V'])
 
-if nargin == 12 && not(isempty(resfolderbis))
-scf = resfolderbis;
-
-mkdir([scf filesep datenow filesep 'R2V'])
-end 
-
 cd(path)
 
 pixelconv=1/15.8;
 
-specifchamp = ['_' chmpMag];
+specifchamp = ['_' tag];
 
 
-specifload=['_' chmpMag];
+specifload=['_' tag];
 
 
 savename=['R2V_' date '_' manip specifchamp '_' specif];
@@ -376,10 +391,6 @@ if exist('MT')
         cd([sf filesep 'R2V'])
         save(savename,'MT','ListD','ListF');
         delete([savenamepart '.mat']);
-        if nargin == 12 && not(isempty(resfolderbis))
-        cd([scf filesep datenow filesep 'R2V'])
-        save(savename,'MT','ListD','ListF');
-        end
         cd(path)
         
         cprintf('Com', ' OK\n\n\n')

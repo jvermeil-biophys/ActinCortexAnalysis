@@ -2,6 +2,7 @@ function Res2Var_wFluo_multiZ_Comp_R248(restype,date,tag,manip,specif,fich,depth
     nimgbr,nimgar,nimgr1,nimgr2,nimgr3,...
     AUTO,datafolder,resfolder)
 
+
 %       Res2Var is using the imageJ particle analysis data to create
 %       individual trajectories for the beads. It is using the txt files
 %       created by ImageJ to get the X and Y positions the beads, it then
@@ -17,7 +18,7 @@ function Res2Var_wFluo_multiZ_Comp_R248(restype,date,tag,manip,specif,fich,depth
 %       with an upgrade in labview, and are analyzed with an upgraded
 %       version of Res2Var (_MultiRatePerCell)
 %       
-%       Res2Var_wFluo_multiZ_Comp_R248(restype,date,tag,manip,specif,fich,
+%       Res2Var_wFluo_multiZ_Comp(restype,date,tag,manip,specif,fich,
 %       depthoname,nimgbr,nimgr,nimg,...
 %       AUTO,datafolder,resfolder)
 %
@@ -29,9 +30,9 @@ function Res2Var_wFluo_multiZ_Comp_R248(restype,date,tag,manip,specif,fich,depth
 %       fich : chambers to analyze for the condition (ex: 1 or [1:3])
 %       depthoname : depthograph (ex:'19-05-20_DepthographM450')
 %       nimgbr : nb img in a loop before a ramp
-%       nimgr1 : nb img in a 2s ramp
-%       nimgr1 : nb img in a 4s ramp
-%       nimgr1 : nb img in a 8s ramp
+%       nimgr : nb img in a ramp
+%       nimgr : nb img in a ramp
+%       nimgr : nb img in a ramp
 %       AUTO : automatique mode of analysis (skip file when user input
 %       is needed, AUTO variable should be defined in the main file) 
 %       datafolder : path to the raw data, should be RawdataFolder in main

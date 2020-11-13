@@ -1,16 +1,38 @@
 function Res2Var_wFluo_multiZ_Comp(restype,date,tag,manip,specif,fich,depthoname,nimgbr,nimgr,nimg,...
     AUTO,datafolder,resfolder)
 
-%       Res2Var_wFluo_multiZ_Comp(extension du fichier texte (ex: 'Results' ou 'Inside'), date de la manip au format 'jj-mm-aa', type de manip (ex: '5mT' ou 'R40'),
-%       numéro de manip (ex: 'M1' ou 'M2' etc...), nom caractériqtique de la manip (ex: 'Dicty_WT'), puits à analyser (ex: 1 ou [1:3]),
-%       nom du depthograph (ex: '19-05-20_DepthographM450'), nombre d'image avant rampe dans une boucle, nombre d'image rampe dans une boucle,
-%       nombre d'image total d'une boucle, AUTO, RawdataFolder, MatfileFolder)
+%       Res2Var is using the imageJ particle analysis data to create
+%       individual trajectories for the beads. It is using the txt files
+%       created by ImageJ to get the X and Y positions the beads, it then
+%       loads the images of the video and computes the DZ between the beads
+%       using the depthograph. This particular version (_wFluo_multiZ_Comp)
+%       is used for analyzing compression experiments, where the constant
+%       field part between compression have triplet of images in Z. It can 
+%       handle the presence of fluo images at the end of each loop.    
+%       
+%       Res2Var_wFluo_multiZ_Comp(restype,date,tag,manip,specif,fich,
+%       depthoname,nimgbr,nimgr,nimg,...
+%       AUTO,datafolder,resfolder)
+%
+%       restype : extension of text file (ex: 'Results' or  'Inside')
+%       date : date of experiment 'dd-mm-yy'
+%       tag : tag present on the tif and txt files (ex: 'R40', 'R90_Multi')
+%       manip : 'manip' number (ex: 'M1' ou 'M2' etc...), 
+%       specif : experimental condiion (ex: 'Dicty_WT')
+%       fich : chambers to analyze for the condition (ex: 1 or [1:3])
+%       depthoname : depthograph (ex:'19-05-20_DepthographM450')
+%       nimgbr : nb img in a loop before a ramp
+%       nimgr : nb img in a ramp
+%       nimg : nb img total in a loop
+%       AUTO : automatique mode of analysis (skip file when user input
+%       is needed, AUTO variable should be defined in the main file) 
+%       datafolder : path to the raw data, should be RawdataFolder in main
+%       resfolder : path to where save the matlabdata, should be 
+%       MatfileFolder in main
 
 set(0,'DefaultFigureWindowStyle','docked')
 
-% home
-h='C:\Users\Valentin\Dropbox\TheseValentin\Matlab';
-
+warning('off','all')
 
 % dossier de données et sauvegarde
 path =[datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2)];
@@ -19,10 +41,6 @@ sf   = resfolder;
 datenow = datestr(now,'yy-mm-dd');
 
 mkdir([sf filesep 'R2V'])
-% 
-% scf = 'C:\Users\Valentin\Dropbox\TheseValentin\Données_et_images\Données';
-% 
-% mkdir([scf filesep datenow filesep 'R2V'])
 
 cd(path)
 
