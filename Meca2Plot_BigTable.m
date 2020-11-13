@@ -17,10 +17,6 @@ here = pwd;
 
 %% params and settings
 
-% home
-% h='C:\Users\Valentin\Dropbox\TheseValentin\Matlab';
-
-
 % dossier de donn�es et sauvegarde des donn�es
 path = [resfolder filesep 'D2M'];
 datenow = datestr(now,'yy-mm-dd');
