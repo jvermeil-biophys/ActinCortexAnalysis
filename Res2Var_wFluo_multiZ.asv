@@ -300,9 +300,7 @@ end
 
 
 %%% for each triplet, getting the image where both beads are at their best
-% focus to keep 2D data from this image. This is done by getting images
-% with the higher STD (aka most dynamics gray level, corresponding to best
-% focus)
+% focus to keep 2D data from this image
 STD1 = nan(3,length(Sdown));
 STD2 = STD1;
 
@@ -334,7 +332,9 @@ STD1(3,pu1) = Mat(ptr1(p1u),Nstd);
 X2u(pu2) = X2tot(p2u);
 STD2(3,pu2) = Mat(ptr2(p2u),Nstd);
 
+
 m = ismember(STD1+STD2,max(STD1+STD2));
+
 
 X1all = [X1d; X1m; X1u];
 X2all = [X2d; X2m; X2u];
@@ -343,6 +343,7 @@ X1 = X1all(m);
 X2 = X2all(m);
 S = Sall(m);
 
+% redefinition de p1 et p2 après la récuperation des "bon" x
 p1 = ismember(Stot,S);
 p2 = ismember(Stot,S);
 
@@ -351,6 +352,7 @@ Y2 = Y2tot(p2);
 %%% end of getting best focus
 
 cprintf('Com',' OK\n');
+
 
 %%% Computing dz
 fprintf('Calcul de dz...\n');
