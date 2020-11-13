@@ -8,7 +8,7 @@ function Res2Var_wFluo_multiZ(date,tag,manip,specif,fich,resfile,nimg,depthoname
 %       using the depthograph. This particular version (_wFluo_multiZ)
 %       is used for analyzing constant field experiments, with triplet
 %       of image in Z for each time points. It can handle the presence of
-%       fluo images at the end of each loop. this code is specific for
+%       fluo images at the end of each loop. This code is specific for
 %       experiments made with 100X oil objectiv (see end of code where
 %       optical indices correction is applied)
 %
@@ -123,7 +123,7 @@ for ki=1:nacq
             try
                 
                 % main analysis code (present at the end of present code file)
-                [S, X1, X2, Y1, Y2, dz, STD1, STD2] = doAnalysis(date, manip, Noim, tag, path, resname, resfile, stackname, name, nimg, depthoname, datafolder, AUTO)
+                [S, X1, X2, Y1, Y2, dz, STD1, STD2] = doAnalysis(date, manip, Noim, tag, path, resname, resfile, stackname, name, nimg, depthoname, datafolder, AUTO);
                 
                 kii = kii +1; % number of analyzed videos
                 
@@ -141,7 +141,7 @@ for ki=1:nacq
                 ListF{kii} = Nofich;
                 
                 % partial saving
-                fprintf('\nSauvegarde partielle des positions...');
+                fprintf('\nPartial saving...');
                 save([sf filesep 'R2V' filesep savenamepart],'MT','ListD','ListF');
                 cprintf('Com', ' OK\n\n')
                 
@@ -171,7 +171,7 @@ for ki=1:nacq
                 ListF{kii} = Nofich;
                 
                 % partial saving
-                fprintf('\nSauvegarde partielle des positions...');
+                fprintf('\nPartial saving...');
                 save([sf filesep 'R2V' filesep savenamepart],'MT','ListD','ListF');
                 cprintf('Com', ' OK\n\n')
             
@@ -183,10 +183,10 @@ end
 % (if not in automode)
 if exist('MT')
     if AUTO
-        fprintf('\nSauvegarde partielle des positions...(END OF AUTOMODE)\n\n');
+        fprintf('\nPartial saving...(END OF AUTOMODE)\n\n');
         save([sf filesep 'R2V' filesep savenamepart],'MT','ListD','ListF');
     else
-        fprintf('Sauvegarde des positions...');
+        fprintf('Complete saving...');
         save([sf filesep 'R2V' filesep savename],'MT','ListD','ListF');
         delete([sf filesep 'R2V' filesep savenamepart '.mat']);
         
@@ -217,12 +217,6 @@ Nxm = find(strcmp(HeadTable,'XM')) +1 ;
 Nym = find(strcmp(HeadTable,'YM')) +1 ;
 Ns = find(strcmp(HeadTable,'Slice')) +1 ;
 Nstd = find(strcmp(HeadTable,'StdDev')) +1 ;
-
-
-Nx = find(strcmp(HeadTable,'X')) +1 ;
-Ny = find(strcmp(HeadTable,'Y')) +1 ;
-Nmaj = find(strcmp(HeadTable,'Major')) +1 ;
-Nmin = find(strcmp(HeadTable,'Minor')) +1 ;
 %%% end of identification
 
 cprintf('Com',' OK\n');
@@ -248,7 +242,7 @@ Smid  = Smdu ; % list of images 2, for middle image in Z
 Sup   = Sup(ptru); % list of images 3, for upper image in Z
 
 Sall = [Sdown;Smid;Sup]; % table of all images in lists
-%%% end of creating 
+%%% end of creating list
 
 stackpath = [path filesep stackname]; % complete path for loading tif stack
 
@@ -256,19 +250,21 @@ for is = 1:max(S)
 
     Itmp = imread(stackpath,'tiff',is); % loading image
 
-    % chacking if image is black
+    % checking if image is black
     IntTot = sum(sum(Itmp));
     if IntTot == 0
-        % if black, removal of complete triplet of images
         [~, col] = find(Sall == is);
-        Sdown(col) = [];
-        Smid(col) = [];
-        Sup(col) = [];
+        cols = [cols col];
     end
     
 end
 
-Sall = [Sdown;Smid;Sup]; % new table of all images in lists without black images
+Sdown(cols) = [];
+Smid(cols) = [];
+Sup(cols) = [];
+
+
+Sall = [Sdown;Smid;Sup];
 
 cprintf('Com',' OK\n');
 
