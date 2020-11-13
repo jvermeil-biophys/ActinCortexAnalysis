@@ -349,7 +349,7 @@ Y2 = Y2tot(p2);
 cprintf('Com',' OK\n');
 
 %%% Computing dz
-fprintf('Calcul de dz...\n');
+fprintf('Computing z and dz...');
 
 dz = DzCalc_Zcorr_multiZ(X1tot,X1,Y1tot,Y1,X2tot,...
     X2,Y2tot,Y2,Stot,S,stackpath,Sdown,Smid,Sup,depthoname,datafolder);
@@ -358,7 +358,7 @@ dz = smooth(dz,'rlowess');
 
 dz = dz*1.33/1.52; % correction for optical index changes between air and oil (100X)
 
-cprintf('Com', ' ...OK\n');
+cprintf('Com', ' OK\n');
 %%% end of computing dz
 
 end

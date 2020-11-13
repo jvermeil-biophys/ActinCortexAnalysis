@@ -1,4 +1,4 @@
-function [Sdown,Smid,Sup,Sramp] = SplitZRampImg_RV248(Sfull,nimgbr,nimgar,nimgr1,nimgr2,nimgr3)
+function [Sdown,Smid,Sup,Sramp] = SplitZRampImg_R248(Sfull,nimgbr,nimgar,nimgr1,nimgr2,nimgr3)
 
 nimg = 3*nimgbr+nimgr1+3*nimgar+nimgr2+nimgr3;
 

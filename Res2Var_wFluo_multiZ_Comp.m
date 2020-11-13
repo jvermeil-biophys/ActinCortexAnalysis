@@ -129,7 +129,7 @@ for ki=1:nacq
             
             try
                 
-                [Sramp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, depthoname, datafolder, AUTO);
+                [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, depthoname, datafolder, AUTO);
                 
                 kii = kii +1; % compteur de ficheir trouvé
                 
@@ -242,6 +242,7 @@ end
 %%%%% Analysis function
 
 function [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, depthoname, datafolder, AUTO)
+
 fprintf([restype ' ' date '_' manip '_' Noim '_' tag ' : \n\n']);
 
 
@@ -269,7 +270,7 @@ end
 %%% end of identification
 
 
-fprintf(' OK\n');
+cprintf('Com', ' OK\n');
 
 
 % checking video for black images
@@ -318,11 +319,11 @@ Sall = [Sdown;Smid;Sup];
 
 
 
-fprintf(' OK\n');
+cprintf('Com', ' OK\n');
 
 
-% Séparation des données relative a chaque bille
-fprintf('Tri des données par bille...');
+% Spliting data from imageJ file per bead
+fprintf('Creating beads 2D trajectories...');
 
 % creating tag for analysis log file name
 if strcmp(restype,'Results')
@@ -423,11 +424,11 @@ STD2rmp = Mat(ptr2(p2rmp),Nstdmean);
 Srmp = Stot(p1rmp);
 %%% end of getting best focus
 
-fprintf(' OK\n');
+cprintf('Com', ' OK\n');
 
 
 %%% Computing dz
-fprintf('Calcul des z et de dz...\n');
+fprintf('Computing z and dz...');
 
 % dz for triplet in constant part
 dzcst = DzCalc_Zcorr_multiZ(X1tot,X1cst,Y1tot,Y1cst,X2tot,...
@@ -453,7 +454,7 @@ dzcst = dzcst*1.33/1.52; % correction for optical index changes between air and 
 
 dzrmp = dzrmp*1.33/1.52; % correction for optical index changes between air and oil (100X)
 
-cprintf('Com', ' ...OK\n');
+cprintf('Com', ' OK\n');
 %%% end of computing dz
 
 end
