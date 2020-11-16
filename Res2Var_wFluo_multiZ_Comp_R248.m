@@ -9,14 +9,14 @@ function Res2Var_wFluo_multiZ_Comp_R248(restype,date,tag,manip,specif,fich,depth
 %       using the depthograph. This particular version (_wFluo_multiZ_Comp_R248)
 %       is used for analyzing specific compression experiments, with 2s,
 %       4s, and 8s ramps; and where the constant
-%       field part between compression have triplet of images in Z. It can 
+%       field part between compression have triplet of images in Z. It can
 %       handle the presence of fluo images at the end of each loop.
 %       This version is only supposed to be used only for analyzing the
 %       experiments with the R248 tag in their stackname from 2018/2019.
 %       After that experiments with multiple rate where done more generally
 %       with an upgrade in labview, and are analyzed with an upgraded
 %       version of Res2Var (_MultiRatePerCell)
-%       
+%
 %       Res2Var_wFluo_multiZ_Comp_R248(restype,date,tag,manip,specif,fich,
 %       depthoname,nimgbr,nimgr,nimg,...
 %       AUTO,datafolder,resfolder)
@@ -24,7 +24,7 @@ function Res2Var_wFluo_multiZ_Comp_R248(restype,date,tag,manip,specif,fich,depth
 %       restype : extension of text file (ex: 'Results' or  'Inside')
 %       date : date of experiment 'dd-mm-yy'
 %       tag : tag present on the tif and txt files (ex: 'R40', 'R90_Multi')
-%       manip : 'manip' number (ex: 'M1' ou 'M2' etc...), 
+%       manip : 'manip' number (ex: 'M1' ou 'M2' etc...),
 %       specif : experimental condiion (ex: 'Dicty_WT')
 %       fich : chambers to analyze for the condition (ex: 1 or [1:3])
 %       depthoname : depthograph (ex:'19-05-20_DepthographM450')
@@ -33,9 +33,9 @@ function Res2Var_wFluo_multiZ_Comp_R248(restype,date,tag,manip,specif,fich,depth
 %       nimgr1 : nb img in a 4s ramp
 %       nimgr1 : nb img in a 8s ramp
 %       AUTO : automatique mode of analysis (skip file when user input
-%       is needed, AUTO variable should be defined in the main file) 
+%       is needed, AUTO variable should be defined in the main file)
 %       datafolder : path to the raw data, should be RawdataFolder in main
-%       resfolder : path to where save the matlabdata, should be 
+%       resfolder : path to where save the matlabdata, should be
 %       MatfileFolder in main
 
 
@@ -135,8 +135,14 @@ for ki=1:nacq
             try
                 
                 [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimgar, nimgbr, nimgr1, nimgr2, nimgr3, depthoname, datafolder, AUTO);
-
+                
                 kii = kii +1; % compteur de ficheir trouvé
+                
+                fieldname = [name '_Field.txt'];
+                
+                fprintf(['\nLoading of ' fieldname '...']);
+                BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+                cprintf('Com', ' OK\n\n')
                 
                 % registering analyzed data in global matrix
                 MT{kii}.exp = name;
@@ -152,6 +158,8 @@ for ki=1:nacq
                 MT{kii}.xrmp = [X1rmp X2rmp];
                 MT{kii}.yrmp = [Y1rmp Y2rmp];
                 MT{kii}.dzrmp = dzrmp;
+                
+                MT{kii}.BTMat = BTMat;
                 
                 % marking file as analyzed
                 ListD{kii} = Noim;
@@ -172,8 +180,14 @@ for ki=1:nacq
             
         else
             [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimgar, nimgbr, nimgr1, nimgr2, nimgr3, depthoname, datafolder, AUTO);
-
+            
             kii = kii +1; % compteur de ficheir trouvé
+            
+            fieldname = [name '_Field.txt'];
+            
+            fprintf(['\nLoading of ' fieldname '...']);
+            BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+            cprintf('Com', ' OK\n\n')
             
             % registering analyzed data in global matrix
             MT{kii}.exp = name;
@@ -189,6 +203,8 @@ for ki=1:nacq
             MT{kii}.xrmp = [X1rmp X2rmp];
             MT{kii}.yrmp = [Y1rmp Y2rmp];
             MT{kii}.dzrmp = dzrmp;
+            
+            MT{kii}.BTMat = BTMat;
             
             % marking file as analyzed
             ListD{kii} = Noim;

@@ -58,11 +58,6 @@ if exist(loadname,'file')
         if not(isempty(MT{kc}))
             VALID = 1;
             name = MT{kc}.exp;
-            if strcmp(name(end-1:end),'in')
-                fieldname = [name(1:end-2) '_Field.txt'];
-            else
-                fieldname = [name '_Field.txt'];
-            end
             
             fprintf(['Cellule : ' name '\n\n'])
             
@@ -188,7 +183,7 @@ if exist(loadname,'file')
                 
                 fprintf('Création des vecteurs champ et temps...');
                 
-                BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+                BTMat = MT{kc}.BTMat;
                 
                 
                 

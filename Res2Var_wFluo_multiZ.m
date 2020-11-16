@@ -82,7 +82,7 @@ if E1 == 2 || E2 == 2
         end
     end
     ListD = newlistD;
-    clear c newlistD    
+    clear c newlistD
     kii = length(MT);
     [ListDep,pDep] = setdiff(ListDep,ListD);
     ListFor = {ListFor{pDep}};
@@ -110,10 +110,10 @@ for ki=1:nacq
     % creating names for loading
     stackname = [date '_' manip '_' Nofich '_' tag '.tif'];
     name=[date '_' manip '_' Noim '_' tag];
-    resname = [name '_' resfile '.txt'];    
+    resname = [name '_' resfile '.txt'];
     
     % checking existence
-    E = exist([path filesep resname],'file');   
+    E = exist([path filesep resname],'file');
     
     
     if E == 2
@@ -127,6 +127,12 @@ for ki=1:nacq
                 
                 kii = kii +1; % number of analyzed videos
                 
+                fieldname = [name '_Field.txt'];
+                
+                fprintf(['\nLoading of ' fieldname '...']);
+                BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+                cprintf('Com', ' OK\n\n')
+                
                 % registering analyzed data in global matrix
                 MT{kii}.exp = name;
                 MT{kii}.stack = stackname;
@@ -135,6 +141,7 @@ for ki=1:nacq
                 MT{kii}.y = [Y1 Y2];
                 MT{kii}.dz = dz;
                 MT{kii}.std = [STD1 STD2];
+                MT{kii}.BTMat = BTMat;
                 
                 % marking file as analyzed
                 ListD{kii} = Noim;
@@ -152,34 +159,41 @@ for ki=1:nacq
             end
         else
             
-                % main analysis code (present at the end of present code file)
+            % main analysis code (present at the end of present code file)
             [S, X1, X2, Y1, Y2, dz, STD1, STD2] = doAnalysis(date, manip, Noim, tag, path, resname, resfile, stackname, name, nimg, depthoname, datafolder, AUTO);
-                
-                kii = kii +1; % number of analyzed videos
-                
-                % registering analyzed data in global matrix
-                MT{kii}.exp = name;
-                MT{kii}.stack = stackname;
-                MT{kii}.S = S;
-                MT{kii}.x = [X1 X2];
-                MT{kii}.y = [Y1 Y2];
-                MT{kii}.dz = dz;
-                MT{kii}.std = [STD1 STD2];
-                
-                % marking file as analyzed
-                ListD{kii} = Noim;
-                ListF{kii} = Nofich;
-                
-                % partial saving
-                fprintf('\nPartial saving...');
-                save([sf filesep 'R2V' filesep savenamepart],'MT','ListD','ListF');
-                cprintf('Com', ' OK\n\n')
+            
+            kii = kii +1; % number of analyzed videos
+            
+            fieldname = [name '_Field.txt'];
+            
+            fprintf(['\nLoading of ' fieldname '...']);
+            BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+            cprintf('Com', ' OK\n\n')
+            
+            % registering analyzed data in global matrix
+            MT{kii}.exp = name;
+            MT{kii}.stack = stackname;
+            MT{kii}.S = S;
+            MT{kii}.x = [X1 X2];
+            MT{kii}.y = [Y1 Y2];
+            MT{kii}.dz = dz;
+            MT{kii}.std = [STD1 STD2];
+            MT{kii}.BTMat = BTMat;
+            
+            % marking file as analyzed
+            ListD{kii} = Noim;
+            ListF{kii} = Nofich;
+            
+            % partial saving
+            fprintf('\nPartial saving...');
+            save([sf filesep 'R2V' filesep savenamepart],'MT','ListD','ListF');
+            cprintf('Com', ' OK\n\n')
             
         end
     end
 end
 
-% saving of all analyzed data and removing partial matlab date file 
+% saving of all analyzed data and removing partial matlab date file
 % (if not in automode)
 if exist('MT')
     if AUTO
@@ -247,9 +261,9 @@ Sall = [Sdown;Smid;Sup]; % table of all images in lists
 stackpath = [path filesep stackname]; % complete path for loading tif stack
 
 for is = 1:max(S)
-
+    
     Itmp = imread(stackpath,'tiff',is); % loading image
-
+    
     % checking if image is black
     IntTot = sum(sum(Itmp));
     if IntTot == 0

@@ -89,10 +89,6 @@ if exist([path filesep loadname],'file')
             fprintf(['Manip : ' name '\n\n']);
             fprintf(['Classification : ' class '\n\n']);
             fprintf('Récuperation des données sur les billes...');
-
-            fieldname = [name '_Field.txt'];
-            
-            
             
             S = MT{kc}.S;
             S = unique(S);
@@ -127,16 +123,12 @@ if exist([path filesep loadname],'file')
             
             fprintf('Création des vecteurs champ et temps...');
             
-            if FE
-                BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+
+                BTMat = MT{kc}.BTMat;
   
                 B = Bcorrec*BTMat(S,1);
                 T = (BTMat(S,2)-BTMat(1,2))/1000;
-            else
-                fprintf('\n');
-                error(['Missing file : ' fieldname])
-                
-            end
+
             
             ImgSep = mean(round(diff(T)/0.1)*0.1);
             

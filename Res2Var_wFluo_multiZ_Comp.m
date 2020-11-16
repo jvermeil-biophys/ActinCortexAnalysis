@@ -133,6 +133,12 @@ for ki=1:nacq
                 
                 kii = kii +1; % compteur de ficheir trouvé
                 
+                fieldname = [name '_Field.txt'];
+                
+                fprintf(['\nLoading of ' fieldname '...']);
+                BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+                cprintf('Com', ' OK\n\n')
+                
                 % registering analyzed data in global matrix
                 MT{kii}.exp = name;
                 MT{kii}.stack = stackname;
@@ -147,6 +153,8 @@ for ki=1:nacq
                 MT{kii}.xrmp = [X1rmp X2rmp];
                 MT{kii}.yrmp = [Y1rmp Y2rmp];
                 MT{kii}.dzrmp = dzrmp;
+                
+                MT{kii}.BTMat = BTMat;
                 
                 % marking file as analyzed
                 ListD{kii} = Noim;
@@ -170,6 +178,12 @@ for ki=1:nacq
             
             kii = kii +1; % compteur de ficheir trouvé
             
+            fieldname = [name '_Field.txt'];
+            
+            fprintf(['\nLoading of ' fieldname '...']);
+            BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+            cprintf('Com', ' OK\n\n')
+            
             % registering analyzed data in global matrix
             MT{kii}.exp = name;
             MT{kii}.stack = stackname;
@@ -184,6 +198,8 @@ for ki=1:nacq
             MT{kii}.xrmp = [X1rmp X2rmp];
             MT{kii}.yrmp = [Y1rmp Y2rmp];
             MT{kii}.dzrmp = dzrmp;
+            
+            MT{kii}.BTMat = BTMat;
             
             % marking file as analyzed
             ListD{kii} = Noim;
