@@ -71,15 +71,14 @@ AUTO = 0;
 NotSaved = {};
 
 %pour d2p
-PLOTDFCurve = 1;
-PLOTDFComp = 1;
+PLOTDP = 0;
 
 % d2m
 PLOTD2M = 0;
 VERBOSED2M = 0;
 
 %p2s
-PLOTPS = 1;
+PLOTPS = 0;
 
 return % stop execution here
 
@@ -372,20 +371,20 @@ RemoveFromData(MatfileFolder,{'06-10-20_M3_P1_C7_R40','06-10-20_M1_P1_C1_R40','0
 
 %% M450 Ax2 DMSO/LatA (Nishit)
 
-Data2Peaks('DictyAx2_DMSO',1,MatfileFolder,FigureFolder);
-Data2Peaks('DictyAx2_LatA',1,MatfileFolder,FigureFolder);
+Data2Peaks('DictyAx2_DMSO',PLOTDP,MatfileFolder,FigureFolder);
+Data2Peaks('DictyAx2_LatA',PLOTDP,MatfileFolder,FigureFolder);
 
 %% M270 Ax2 WT (Nishit)
 
-Data2Peaks('DictyAx2_M270',1,MatfileFolder,FigureFolder);
+Data2Peaks('DictyAx2_M270',PLOTDP,MatfileFolder,FigureFolder);
 
 %% M450 Ax2 WT + Mutants (DictyBase)
 
-Data2Peaks('DictyDB_WT',1,MatfileFolder,FigureFolder);
-Data2Peaks('DictyDB_SevA',1,MatfileFolder,FigureFolder);
-Data2Peaks('DictyDB_FimA',1,MatfileFolder,FigureFolder);
-Data2Peaks('DictyDB_abpA',1,MatfileFolder,FigureFolder);
-Data2Peaks('DictyDB_abpC',1,MatfileFolder,FigureFolder);
+Data2Peaks('DictyDB_WT',PLOTDP,MatfileFolder,FigureFolder);
+Data2Peaks('DictyDB_SevA',PLOTDP,MatfileFolder,FigureFolder);
+Data2Peaks('DictyDB_FimA',PLOTDP,MatfileFolder,FigureFolder);
+Data2Peaks('DictyDB_abpA',PLOTDP,MatfileFolder,FigureFolder);
+Data2Peaks('DictyDB_abpC',PLOTDP,MatfileFolder,FigureFolder);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Peaks2Stats %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -414,7 +413,7 @@ Peaks2Stats('DictyDB_abpC',PLOTPS,0.9,MatfileFolder,FigureFolder);
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Stats2Plots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 
-Stats2PlotsDictys({'DictyDB_WT','DictyDB_SevA','DictyDB_FimA'},{Cwt,Csev,Cfim},'DictyMutantsComp',1,1,1,0,0.9,MatfileFolder,FigureFolder);
+Stats2PlotsDictys({'DictyDB_WT','DictyDB_FimA'},{Cwt,Cfim},'DictyMutantsFimComp',1,1,1,0,0.9,MatfileFolder,FigureFolder);
 
 Stats2PlotsDictys({'Dicty_WT','DictyDB_abpA','DictyDB_abpC','DictyDB_FimA'},{Cwt,CaA,CaC,Cfim},'DictyMutantsComp',1,1,1,0,0.9,MatfileFolder,FigureFolder);
 
@@ -766,7 +765,6 @@ Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM270Multi, ...
 {'M270-02s','M270-05s','M270-1s','M270-2s','M270-4s','M270-7s','M270-12s'},'M270DMultiRate',1,...
 'Exclude',{'ExpDay','04-11-20'})
 
-
 %% M450270 multirate
 ConditionsM450270Multi = {'ExpType','DictyDB_M450','TpsComp','02s','FitParams',fitparams;...
     'ExpType','DictyDB_M270','TpsComp','02s','FitParams',fitparams;...
@@ -789,8 +787,6 @@ Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM450270Multi, ...
 {'M450-02s','M270-02s','M450-05s','M270-05s','M450-1s','M270-1s','M450-2s',...
 'M270-2s','M450-4s','M270-4s','M450-7s','M270-7s','M450-12s','M270-12s'},'M450270DMultiRate',0,...
 'Exclude',{'ExpDay','04-11-20'})
-
-
 
 %% M50/M270 original
 ConditionsM450270_1s = {'ExpType','DictyDB_M450','TpsComp','1s','FitParams',fitparams;...

@@ -1406,10 +1406,10 @@ end
 if 0 % Plots
     
 
-    PEAKS    = 0;
+    PEAKS    = 1;
     PROBA  = 1;
-    DIST   = 0;
-    TIME = 0;
+    DIST   = 1;
+    TIME = 1;
     
     % Nouvelles manips dictys
     

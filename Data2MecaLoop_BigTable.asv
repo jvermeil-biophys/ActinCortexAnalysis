@@ -86,7 +86,7 @@ TableSize = size(BigTable,1);
 %% Analysis
 loadname=['V2D_' date '_' manip '_' tag '_' specif '.mat'];
 
-if exist([path filesep loadname],'file')
+if exist(loadname,'file')
 
         fprintf(['\nChargement du fichier ' loadname '\n\n'])
 
