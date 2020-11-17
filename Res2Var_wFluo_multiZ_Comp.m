@@ -19,10 +19,6 @@ sf   = resfolder;
 datenow = datestr(now,'yy-mm-dd');
 
 mkdir([sf filesep 'R2V'])
-% 
-% scf = 'C:\Users\Valentin\Dropbox\TheseValentin\Données_et_images\Données';
-% 
-% mkdir([scf filesep datenow filesep 'R2V'])
 
 cd(path)
 

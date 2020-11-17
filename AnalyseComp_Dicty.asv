@@ -771,7 +771,7 @@ ConditionsM450171120= {'ExpType','DictyDB_M450','TpsComp','02s','FitParams',fitp
 
 Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM450171120, ...
 {C02_27,C05_27},{M02,M05},...
-{'M450-02s','M450-05s'},'M450_17-11-20',1)
+{'M450-02s','M450-05s'},'M450_1s_17-11-20',1)
 
 % low force 
 ConditionsM45R12= {'ExpType','DictyDB_M450','TpsComp','02s','FitParams',fitparams,'ExpDay','17-11-20';

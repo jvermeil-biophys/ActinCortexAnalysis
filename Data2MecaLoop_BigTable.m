@@ -345,6 +345,8 @@ if exist([path filesep loadname],'file')
                     pointeurFirst10pc = (InitialThick-Hcomp*1000)/InitialThick < 0.10;
                     pointeurFirst10pc(find(pointeurFirst10pc == 0, 1):end) = 0;
                     
+                    pointeurFirst10pc(1:2) = 1; % To avoid H0el = 0 if only one point, H0 will get better in the fit loop if the curve is suitable 
+                    
                     nptsH0el = sum(pointeurFirst10pc);
                     
                     
@@ -412,15 +414,7 @@ if exist([path filesep loadname],'file')
                         FcompFit(HcompFit>H0tmp) = [];
                         TcompFit(HcompFit>H0tmp) = [];
                         HcompFit(HcompFit>H0tmp) = [];
-                        
-%                         % validity of chadwick
-%                         CtctRad = sqrt(RADIUS*(H0tmp - HcompFit));
-%                         ptrChad = CtctRad>2*(HcompFit/2);
-%                         
-%                         FcompFit = FcompFit(ptrChad);
-%                         HcompFit = HcompFit(ptrChad);
-%                         TcompFit = TcompFit(ptrChad);
-                        
+                                              
                         
                         
                         try
@@ -437,7 +431,6 @@ if exist([path filesep loadname],'file')
                             FFFci = confint(FFF);
                             
                             EchadFitCI = abs(diff(FFFci(:,1)));
-                            %                     H0chadFitCI = FFFci(:,2);
                             
                             canBeFitted = 1;
                             
@@ -553,8 +546,8 @@ if exist([path filesep loadname],'file')
                         dhcomp = abs(diff(orderedMat(:,2)))*1000;
                         d3hcomp = dhcomp(1:end-2)+dhcomp(2:end-1)+dhcomp(3:end);
                         hasNoLargeJump = ((max(dhcomp) < max([0.15*(max(Dup*1000)-min(Dup*1000)) 15])) ...
-                            && (max(d3hcomp)< max([0.30*(max(Dup*1000)-min(Dup*1000)) 30]))) || strcmp(specif(end-2:end),'02s') ...
-                            || strcmp(specif(end-2:end),'05s');
+                            && (max(d3hcomp)< max([0.30*(max(Dup*1000)-min(Dup*1000)) 30]))) || strcmp(tag(end-2:end),'04s') ...
+                            || strcmp(tag(end-1:end),'1s');
                     else
                         hasNoLargeJump = 1;
                     end
@@ -562,7 +555,7 @@ if exist([path filesep loadname],'file')
                     hasSmallConfInt = (abs(EchadFitCI) < 2*abs(Echadtmp));
                     
                     currentRampDz = RampData{ii}(:,6);
-                    hasNormalDz = (max(abs(currentRampDz)) < 1);
+                    hasNormalDz = (max(abs(currentRampDz)) < 2);
                     
                     SAVING_CRITERION =  isPositive && hasNormalDz && hasSmallConfInt && hasNoLargeJump && hasEnoughPoints && doesConverge && isAGoodFit;
                     

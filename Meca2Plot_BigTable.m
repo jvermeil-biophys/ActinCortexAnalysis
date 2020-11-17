@@ -26,7 +26,7 @@ datenow = datestr(now,'yy-mm-dd');
 sfig = figurefolder;
 sff = [sfig filesep datenow filesep 'Meca' filesep savename];
 sffc = [sff filesep 'PerCell'];
-mkdir(sffc)
+mkdir(sff)
 
 
 %% get data
@@ -48,10 +48,10 @@ if ~isempty(varargin)
         
         
         
-        ptrex = find(ismember('Exclude',varargin(1:2:end)));
+        ptrex = find(ismember(varargin(1:2:end),'Exclude'));
         
         for kex = 1:length(ptrex)
-            condex = varargin{ptrex(kex)+1};
+            condex = varargin{ptrex(kex)*2};
             
             excludevecttmp = strcmp(BigTable(:,condex{1}).Variables,condex{2});
             excludevect = excludevect | excludevecttmp;
@@ -164,7 +164,7 @@ figure(3)
 hold on
 title('E v H0')
 L3 = legend;
-xlabel('Thickness befor comp(nm)')
+xlabel('Thickness before comp(nm)')
 ylabel('E chad (kPa)')
 
 figure(4)
@@ -316,7 +316,7 @@ box on
 % all data
 plotSpread_V(E0chad,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
 for ii = 1:length(E0chad)
-    plot([ii-0.45 ii+0.45],[median(E0chad{ii})  median(E0chad{ii})],'k--','linewidth',1.3)
+    plot([ii-0.45 ii+0.45],[nanmedian(E0chad{ii})  nanmedian(E0chad{ii})],'k--','linewidth',1.3)
 end
 
 % first comp of each cell in another color
@@ -427,13 +427,13 @@ box on
 
 plotSpread_V(H0Beeswarm,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
 for ii = 1:length(H0Beeswarm)
-    plot([ii-0.45 ii+0.45],[median(H0Beeswarm{ii})  median(H0Beeswarm{ii})],'k--','linewidth',1.3)
+    plot([ii-0.45 ii+0.45],[nanmedian(H0Beeswarm{ii}) nanmedian(H0Beeswarm{ii})],'k--','linewidth',1.3)
 end
 
-% % first comp of each cell in another color
-% set(0,'DefaultLineMarkerSize',10);
-% plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
-% set(0,'DefaultLineMarkerSize',8);
+% first comp of each cell in another color
+set(0,'DefaultLineMarkerSize',10);
+plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
+set(0,'DefaultLineMarkerSize',8);
 
 ylabel('H0 init ramp')
 
@@ -476,7 +476,7 @@ box on
 
 plotSpread_V(Hyst,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
 for ii = 1:length(Hyst)
-    plot([ii-0.45 ii+0.45],[median(Hyst{ii})  median(Hyst{ii})],'k--','linewidth',1.3)
+    plot([ii-0.45 ii+0.45],[nanmedian(Hyst{ii})  nanmedian(Hyst{ii})],'k--','linewidth',1.3)
 end
 
 % first comp of each cell in another color
@@ -535,6 +535,7 @@ end
 
 %% per cell plot vs tps comp
 if strcmp(answer,'Yes')
+    mkdir(sffc)
     for kc = 1:nCell
         
         figure

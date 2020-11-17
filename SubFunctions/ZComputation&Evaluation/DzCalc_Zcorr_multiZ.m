@@ -20,11 +20,9 @@ if exist('fmin')
     f = fmin;
 end
 Lk = length(K);
-try
-    I = K(:,ceil(Lk/2)-l:ceil(Lk/2)+l);
-catch
-    fuck you
-end
+
+I = K(:,ceil(Lk/2)-l:ceil(Lk/2)+l);
+
 Id = double(I);
 Ime = mean(Id,2);
 RIme = double(repmat(Ime,1,2*l+1));
@@ -80,11 +78,7 @@ for i = 1:Ls
             
             rX2tmp = round(X2tmp);
             rY2tmp = round(Y2tmp);
-            %
-            %             imshow(imread(stackname,'tiff',Slist(ii)))
-            %             hold on
-            %             plot([X2tmp-3 X2tmp-3 X2tmp+3 X2tmp+3 X2tmp-3],[Y2tmp-Leng-2 Y2tmp+Leng+2 Y2tmp+Leng+2 Y2tmp-Leng-2 Y2tmp-Leng-2],'y-*')
-            
+
             ROI1 = imread(stackname,'tiff',Slist(ii),'pixelregion',{[rY1tmp-Leng-2 rY1tmp+Leng+2],[rX1tmp-3 rX1tmp+3]})'; % ROI verticale
             ROI1d = double(ROI1);
             if length(ROI1) < 2*Leng+5
