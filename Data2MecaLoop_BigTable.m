@@ -534,7 +534,7 @@ if exist([path filesep loadname],'file')
                     % hysteresis computation
                     
                     if length(Ddown)>1
-                        Hyst = abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown));
+                        Hyst = (abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown)))/abs(trapz(Dup,Fup));
                     else
                         Hyst = NaN;
                     end

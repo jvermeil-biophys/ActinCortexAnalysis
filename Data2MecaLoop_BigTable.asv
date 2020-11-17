@@ -345,7 +345,7 @@ if exist([path filesep loadname],'file')
                     pointeurFirst10pc = (InitialThick-Hcomp*1000)/InitialThick < 0.10;
                     pointeurFirst10pc(find(pointeurFirst10pc == 0, 1):end) = 0;
                     
-                    pointeurFirst10pc(1:2) = 1;
+                    pointeurFirst10pc(1:2) = 1; % To avoid H0el = 0 if only one point, H0 will get better in the fit loop if the curve is suitable 
                     
                     nptsH0el = sum(pointeurFirst10pc);
                     
@@ -431,7 +431,6 @@ if exist([path filesep loadname],'file')
                             FFFci = confint(FFF);
                             
                             EchadFitCI = abs(diff(FFFci(:,1)));
-                            %                     H0chadFitCI = FFFci(:,2);
                             
                             canBeFitted = 1;
                             
@@ -535,7 +534,7 @@ if exist([path filesep loadname],'file')
                     % hysteresis computation
                     
                     if length(Ddown)>1
-                        Hyst = abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown));
+                        Hyst = (abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown)))/abs(trapz(Dup,Fup));
                     else
                         Hyst = NaN;
                     end
