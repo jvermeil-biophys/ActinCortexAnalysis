@@ -310,6 +310,12 @@ plotSpread_V(E0chad,'distributionMarkers',Sym,'distributionColors',Col,'xNames',
 for ii = 1:length(E0chad)
     plot([ii-0.45 ii+0.45],[median(E0chad{ii})  median(E0chad{ii})],'k--','linewidth',1.3)
 end
+
+% first comp of each cell in another color
+set(0,'DefaultLineMarkerSize',10);
+plotSpread_V(E0chadFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
+set(0,'DefaultLineMarkerSize',8);
+% 
 ylabel('Echad (kPa)')
 
 
@@ -412,6 +418,12 @@ plotSpread_V(H0Beeswarm,'distributionMarkers',Sym,'distributionColors',Col,'xNam
 for ii = 1:length(H0Beeswarm)
     plot([ii-0.45 ii+0.45],[median(H0Beeswarm{ii})  median(H0Beeswarm{ii})],'k--','linewidth',1.3)
 end
+
+% % first comp of each cell in another color
+% set(0,'DefaultLineMarkerSize',10);
+% plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
+% set(0,'DefaultLineMarkerSize',8);
+
 ylabel('H0 init ramp')
 
 
