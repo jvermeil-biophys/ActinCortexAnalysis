@@ -136,7 +136,7 @@ for ki=1:nacq
                 fieldname = [name '_Field.txt'];
                 
                 fprintf(['\nLoading of ' fieldname '...']);
-                BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+                BTMat = dlmread([path filesep fieldname],'\t',0,0);
                 cprintf('Com', ' OK\n\n')
                 
                 % registering analyzed data in global matrix
@@ -181,7 +181,7 @@ for ki=1:nacq
             fieldname = [name '_Field.txt'];
             
             fprintf(['\nLoading of ' fieldname '...']);
-            BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+            BTMat = dlmread([path filesep fieldname],'\t',0,0);
             cprintf('Com', ' OK\n\n')
             
             % registering analyzed data in global matrix

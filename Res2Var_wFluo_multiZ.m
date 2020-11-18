@@ -33,7 +33,7 @@ function Res2Var_wFluo_multiZ(date,tag,manip,specif,fich,resfile,nimg,depthoname
 
 set(0,'DefaultFigureWindowStyle','docked') % defining default figure window for plots
 
-warning('off','all') % removing wrning (orange text) display in consol
+warning('off','all') % removing warning (orange text) display in consol
 
 % Displaying automode status
 if AUTO
@@ -130,7 +130,7 @@ for ki=1:nacq
                 fieldname = [name '_Field.txt'];
                 
                 fprintf(['\nLoading of ' fieldname '...']);
-                BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+                BTMat = dlmread([path filesep fieldname],'\t',0,0);
                 cprintf('Com', ' OK\n\n')
                 
                 % registering analyzed data in global matrix
@@ -167,7 +167,7 @@ for ki=1:nacq
             fieldname = [name '_Field.txt'];
             
             fprintf(['\nLoading of ' fieldname '...']);
-            BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+            BTMat = dlmread([path filesep fieldname],'\t',0,0);
             cprintf('Com', ' OK\n\n')
             
             % registering analyzed data in global matrix
@@ -260,12 +260,14 @@ Sall = [Sdown;Smid;Sup]; % table of all images in lists
 
 stackpath = [path filesep stackname]; % complete path for loading tif stack
 
+cols = [];
+
 for is = 1:max(S)
     
     Itmp = imread(stackpath,'tiff',is); % loading image
     
     % checking if image is black
-    IntTot = sum(sum(Itmp));
+    IntTot = sum(sum(Itmp));    
     if IntTot == 0
         [~, col] = find(Sall == is);
         cols = [cols col];
