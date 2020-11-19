@@ -1,6 +1,23 @@
-function Data2Peaks(Inhib,PLOT,...
-    MatfileFolder,figurefolder,resfolderbis)
+function Data2Peaks(specif,PLOT,...
+    datafolder,figurefolder)
 
+%
+% Data2Peaks is used for analyzing constant field curves. it detects peaks
+% and validated them based on several criterions. it also computes the
+% median thickness of the cortex and the fluctuations amplitude. For curves
+% that are longer than 10 minutes it also computes fluctuations for the
+% first and second half of the curves. If the cell has two pinching they
+% are computed and saved together for later comparison.
+%
+% Data2Peaks(specif,PLOT,...
+%    datafolder,figurefolder)
+%
+% specif : experimental condiion (ex: 'Dicty_WT')
+% PLOT : 1 = plot some graphs, 0 = thou shall not plot
+% datafolder : path to the raw data, should be RawdataFolder in main
+% figurefolder : path to figure saving folder, should be FigureFolder
+% in main
+%
 
 %% INIT
 set(0,'DefaultFigureWindowStyle','docked')
@@ -9,16 +26,14 @@ set(0,'DefaultAxesFontSize',20)
 warning('off','all')
 
 % data folder
-df = [MatfileFolder filesep 'V2D'];
+df = [datafolder filesep 'V2D'];
 
 % save folder
 date=get_dates();
 
-sf   = MatfileFolder;
-
 datenow = datestr(now,'yy-mm-dd');
 
-mkdir([sf filesep 'D2P'])
+mkdir([datafolder filesep 'D2P'])
 
 if nargin ==5 && not(isempty(resfolderbis))
 scf = resfolderbis;
@@ -53,7 +68,7 @@ for kd=1:nd
     for km=1:5
         
         %% Data retrieval and peaks detection
-        datafile=['V2D_' date{kd} '_M' num2str(km) '_' Inhib '.mat'];
+        datafile=['V2D_' date{kd} '_M' num2str(km) '_' specif '.mat'];
         
         
         % verification de l'existence du fichier
@@ -81,7 +96,7 @@ for kd=1:nd
                 end
             end
             
-            if contains(Inhib,'Outside')
+            if contains(specif,'Outside')
                 ptrDI = [];
             else
                 ptrDI = find(contains(codelist,'-')); % nom dans la liste avec une possible double interface
@@ -100,7 +115,7 @@ for kd=1:nd
                     code = AcqName(10:end-4);
                     Class = MR{kc}.class;
                     
-                    if contains(Inhib,'Outside')
+                    if contains(specif,'Outside')
                         nbBI = 0;
                     else
                         nbBI = MR{kc}.nbBI;
@@ -354,21 +369,21 @@ for kd=1:nd
                     %                         hold on
                     %                         plot(T,D3-mean(D3),colclass)
                     
-                    if PLOT && (CortBot < 500 || contains(Inhib,'RPE1'))
+                    if PLOT && (CortBot < 500 || contains(specif,'RPE1'))
                         
                         
                         %% plot avec cortex
                         
-                        mkdir([ff filesep 'CurvePlots' filesep Inhib])
+                        mkdir([ff filesep 'CurvePlots' filesep specif])
                         figure
                         hold on
-                        if contains(Inhib,'Sep')
+                        if contains(specif,'Sep')
                             ptr = find(F < 1);
                             patch([T(ptr(1))-0.7 T(ptr(end))+10 T(ptr(end))+10 T(ptr(1))-0.7],[0 0 3000 3000],[0.8 0.8 0.8],'facealpha',0.4,'edgecolor','none')
                             
                             
                         end
-                        if contains(Inhib,'Endo')||contains(Inhib,'Div')
+                        if contains(specif,'Endo')||contains(specif,'Div')
                             plot(S,D3,'-k','linewidth',2,'handlevisibility','off')
                             plot(S,D3,'ok','linewidth',0.1,'markerfacecolor',colclass)
                             xlabel('Image n°')
@@ -384,7 +399,7 @@ for kd=1:nd
                         %                         plot([0 T(end)],[MedCortW MedCortW],'--k')
                         %
                         fig = gcf;
-                        saveas(fig,[ff filesep 'CurvePlots' filesep Inhib filesep AcqName '_' namename],'png')
+                        saveas(fig,[ff filesep 'CurvePlots' filesep specif filesep AcqName '_' namename],'png')
                         close
                         
                         
@@ -401,7 +416,7 @@ for kd=1:nd
                     
                     %% Store peaks data
                     
-                    if (CortBot < 500 || contains(Inhib,'RPE1'))
+                    if (CortBot < 500 || contains(specif,'RPE1'))
                         
                         
                         [~,i] = min(abs(Ptmp-0.1));
@@ -456,15 +471,15 @@ for kd=1:nd
     
     
     %% Saving data
-    Sname = ['D2P_' date{kd} '_' Inhib];
-    Sname2 = ['Hxxpc_' date{kd} '_' Inhib];
+    Sname = ['D2P_' date{kd} '_' specif];
+    Sname2 = ['Hxxpc_' date{kd} '_' specif];
     
     if exist('MP','var')
-        savename2 = [sf filesep 'D2P' filesep Sname2];
+        savename2 = [datafolder filesep 'D2P' filesep Sname2];
         save(savename2,'h10pc')
         
         
-        savename = [sf filesep 'D2P' filesep Sname];
+        savename = [datafolder filesep 'D2P' filesep Sname];
         save(savename,'MP')
 if nargin ==5 && not(isempty(resfolderbis))
         savename = [scf filesep datenow filesep 'D2P' filesep Sname];
@@ -486,7 +501,7 @@ end
 
 
 % sauvegarde cellule double interfaces
-save([sf filesep 'D2P' filesep 'DoubleInt_' Inhib],'CommonTimes','CurveOnes', 'CurveTwos',...
+save([datafolder filesep 'D2P' filesep 'DoubleInt_' specif],'CommonTimes','CurveOnes', 'CurveTwos',...
     'NameOnes', 'NameTwos', 'Lags', 'Corrs')
 
 
