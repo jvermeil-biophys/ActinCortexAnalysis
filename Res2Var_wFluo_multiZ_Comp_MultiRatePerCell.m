@@ -162,9 +162,9 @@ for ki=1:nacq
                 ListF{kii} = Nofich;
                 
                 % partial saving
-                fprintf('\nPartial saving...');
+                fprintf('Partial saving...');
                 save([sf filesep 'R2V' filesep savenamepart],'MT','ListD','ListF');
-                cprintf('Com', ' OK\n\n')
+                cprintf('Com', ' OK\n\n\n')
                 
                 
             catch ERR
@@ -228,8 +228,8 @@ if exist('MT')
         save([sf filesep 'R2V' filesep savename],'MT','ListD','ListF');
         delete([sf filesep 'R2V' filesep savenamepart '.mat']);
         
-        cprintf('Com', ' OK\n\n\n')
     end
+    cprintf('Com', ' OK\n\n\n')
 end
 
 

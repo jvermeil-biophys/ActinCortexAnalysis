@@ -1,5 +1,6 @@
-function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
-    ,nimgtot,CompDur,Db,resfolder,figurefolder)
+function Var2Data_Comp_MultiRatePerCell(date,tag,Bcorrec,manip,specif,rmptimetag,...
+    Db,datafolder,resfolder,figurefolder)
+
 
 %
 %       Var2Data is taking the .mat file (from Res2Var) containing the trajectories of each
@@ -9,13 +10,13 @@ function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
 %       Res2Var with the rest of the data) to create time and magnetic field
 %       variables. It then computes the attraction force between the two beads
 %       based on the magnetic field strength and the beads distance. This
-%       version (_Comp) is used to analyze classical compression
-%       experiments where all compressions have the same length.
+%       version (_Comp_MultiRatePerCell) is used to analyze compressions
+%       experiments with different cmpression length over one video.
 %       This Var2Data also removes some points from the curves but doesn't
 %       remove whole curves like Var2Data_wFluo.
 %
-%       Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
-%          ,nimgtot,CompDur,Db,datafolder,resfolder,figurefolder)
+%       Var2Data_Comp(date,tag,Bcorrec,manip,specif,rmptimetag,...
+%       ,Db,datafolder,resfolder,figurefolder)
 %
 %       date : date of experiment 'dd-mm-yy'
 %       tag : tag present on the tif and txt files (ex: '5mT', '5mT_Dicty')
@@ -25,8 +26,8 @@ function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
 %       specif : experimental condiion (ex: 'Dicty_WT')
 %       nimgr : number of images in a ramp
 %       nimgtot : number of images in a loop
-%       CompDur : Duration of compression as a string and in seconds (ex : '2s', '12s')
 %       Db : beads diameter in nm
+%       datafolder : path to raw data with the txt file for ramp durations
 %       resfolder : path to where are the matlabdata, should be
 %       MatfileFolder in main
 %       figurefolder : path to figure saving folder, should be FigureFolder
@@ -45,6 +46,7 @@ set(groot,'DefaultAxesFontSize',30)
 
 % folder with initial data and were to save analysed data
 path = [resfolder filesep 'R2V']; % data from previous program
+txtpath = [datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2)]; % where to find text file for comp durations
 
 datenow = datestr(now,'yy-mm-dd'); % today
 
@@ -73,6 +75,7 @@ if exist([path filesep loadname],'file')
         if not(isempty(MT{kc}))
             VALID = 1;
             name = MT{kc}.exp;
+            rmptimedataname = [name '_' rmptimetag '.txt']; % name of text file
             
             fprintf(['Cell : ' name '\n\n'])
             
@@ -170,9 +173,17 @@ if exist([path filesep loadname],'file')
             
             BTMat = MT{kc}.BTMat; % loading data gathered from _Field.txt file
             
-             Bfull = BTMat(:,1)*Bcorrec; % magnetic field for all images
+            rmptimeMat = dlmread([txtpath filesep rmptimedataname],'\t',0,0);
             
-            Tfull = (BTMat(:,2)-BTMat(1,2))/1000;% timepoints of all images
+            cyclesend = cumsum(rmptimeMat(1:end-1,4));
+            
+            B = BTMat(S,1)*Bcorrec; % full magnetic field
+            Bcst = BTMat(Scst,1)*Bcorrec; % for constant part
+            Brmp = BTMat(Srmp,1)*Bcorrec; % for ramp part
+            
+            Tfull = (BTMat(:,2)-BTMat(1,2))/1000; % timepoints of all images
+            
+            Bfull = BTMat(:,1)*Bcorrec; % magnetic field for all images
             
             % Here is a correction for an error in labview :
             % at the begining of each loop there is an extra signal from
@@ -180,25 +191,19 @@ if exist([path filesep loadname],'file')
             % remove it and compensate by adding the right time point at
             % the end of the loop
             Tfull2 = [Tfull(2:end); Tfull(end)+0.05];
-            ncycle = round(Scst(end)/nimgtot);
-            kcycle = [1:ncycle] * nimgtot;
-            Tfull2(kcycle) = Tfull2(kcycle-1)+0.05;            
-            Bfull2 = [Bfull(2:end); Bfull(end)];
-            Bfull2(kcycle) = Bfull2(kcycle-1);
+            Tfull2(cyclesend) = Tfull2(cyclesend-1)+0.05;
             
-            Bcst = BTMat(Scst,1)*Bcorrec; % for constant part
-            Brmp = BTMat(Srmp,1)*Bcorrec; % for ramp part
             
             T = Tfull2(S); % timepoints for images kept (1 point per triplet)
             Tcst = (BTMat(Scst,2)-BTMat(1,2))/1000; % time for cst part
             Trmp = (BTMat(Srmp,2)-BTMat(1,2))/1000; % time for ramp part
-
-            
-            B = Bfull2(S); % field for for images kept (1 point per triplet)
-            Bcst = Bfull2(Scst); % for cst part
-            Brmp = Bfull2(Srmp); % for ramp
             
             cprintf('Com', [' OK.\n']);
+            
+            
+            
+            fprintf('Création des vecteurs force...');
+            
             
             
             
@@ -254,30 +259,44 @@ if exist([path filesep loadname],'file')
             cprintf('Com', [' OK.\n']);
             
             
-            
             %% Ramp splitting
             fprintf('Splitting ramps...')
             
             FullRmpDat = [Srmp Trmp D3rmp Frmp Brmp dzrmp]; % all data relative to ramps
             
+            ncycle = size(rmptimeMat,1)-1;
+            
             RmpDat = cell(1,ncycle); % variable for storing individual ramps
             CstRmp = cell(1,ncycle); % variable for constant data relative to ramp
             
-            cyclevect = 1:ncycle; % list of loops
+            nimgbefrmps = rmptimeMat(:,2); % images before each ramp
             
-            bgnrmp = (cyclevect-1)*nimgtot+(nimgtot-nimgr)/2+1; % begining of ramps
-            bgncst = (cyclevect-1)*nimgtot+1; % begining of constant parts
+            nimgloops = rmptimeMat(:,4); % images for each loops
+            
+            cyclesends = [0; cumsum(nimgloops)]; % end of loops
             
             
-            for k = cyclevect
+            for k = 1:ncycle
                 
-                m = ismember(Srmp,bgnrmp(k):bgnrmp(k)+nimgr-1); % image indicices for compression n°k
+                CompDur = num2str(rmptimeMat(k,1)/2); % retrieving comp duration
+                
+                if strcmp(CompDur,'0.2')
+                    CompDur = '02';
+                elseif strcmp(CompDur,'0.5')
+                    CompDur = '05';
+                end
+                
+                CompDur = [CompDur 's']; % comp duration in correct format
+                
+                % getting data for ramp n°k
+                m = ismember(Srmp,cyclesends(k)+nimgbefrmps(k)+1:cyclesends(k+1)-nimgbefrmps(k));
                 Stmp = Srmp(m);
                 D3tmp = D3rmp(m);
                 Ftmp = Frmp(m);
                 Btmp = Brmp(m);
                 Ttmp = Trmp(m);
                 dztmp = dzrmp(m);
+                
                 
                 % removal of points with a big dz jump
                 ddz = diff(dztmp);
@@ -292,16 +311,18 @@ if exist([path filesep loadname],'file')
                     ddz=diff(dztmp);
                 end
                 
+                
                 % getting positions of constant data points before and after
                 % ramp n°k
-                mcstsurround = ismember(Scst,[bgncst(k):bgnrmp(k)-1 bgnrmp(k)+nimgr:k*nimgtot]);
+                mcstsurround = ismember(Scst,[cyclesends(k)+1:cyclesends(k)+nimgbefrmps(k) cyclesends(k+1)-nimgbefrmps(k):cyclesends(k+1)]);
+                
                 
                 % getting positions of constant data points after ramp n°k-1
                 % and before ramp n°k
                 if k == 1
-                    mcstbefore = ismember(Scst,bgncst(k):bgnrmp(k)-1);
+                    mcstbefore = ismember(Scst,cyclesends(k)+1:cyclesends(k)+nimgbefrmps(k));
                 else
-                    mcstbefore = ismember(Scst,[bgnrmp(k-1)+nimgr:(k-1)*nimgtot bgncst(k):bgnrmp(k)-1]);
+                    mcstbefore = ismember(Scst,cyclesends(k-1)-nimgbefrmps(k):cyclesends(k)+nimgbefrmps(k));
                 end
                 
                 

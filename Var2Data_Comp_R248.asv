@@ -1,5 +1,5 @@
-function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
-    ,nimgtot,CompDur,Db,resfolder,figurefolder)
+function Var2Data_Comp_R248(date,tag,Bcorrec,manip,specif,nimgbr,nimgar,...
+    nimgr1,nimgr2,nimgr3,Db,resfolder,figurefolder)
 
 %
 %       Var2Data is taking the .mat file (from Res2Var) containing the trajectories of each
@@ -9,13 +9,15 @@ function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
 %       Res2Var with the rest of the data) to create time and magnetic field
 %       variables. It then computes the attraction force between the two beads
 %       based on the magnetic field strength and the beads distance. This
-%       version (_Comp) is used to analyze classical compression
-%       experiments where all compressions have the same length.
+%       version (_Comp_R248) is used to analyze successive compression
+%       of 2, 4, and 8 seconds (only a few experiments were done that way,
+%       a more general labview/matlab for exists for compression of
+%       different length)
 %       This Var2Data also removes some points from the curves but doesn't
 %       remove whole curves like Var2Data_wFluo.
 %
-%       Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
-%          ,nimgtot,CompDur,Db,datafolder,resfolder,figurefolder)
+%       Var2Data_Comp_R248(date,tag,Bcorrec,manip,specif,nimgbr,nimgar,...
+%           nimgr1,nimgr2,nimgr3,Db,resfolder)
 %
 %       date : date of experiment 'dd-mm-yy'
 %       tag : tag present on the tif and txt files (ex: '5mT', '5mT_Dicty')
@@ -23,15 +25,18 @@ function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
 %       calibration with teslameter)
 %       manip : 'manip' number (ex: 'M1' ou 'M2' etc...),
 %       specif : experimental condiion (ex: 'Dicty_WT')
-%       nimgr : number of images in a ramp
-%       nimgtot : number of images in a loop
-%       CompDur : Duration of compression as a string and in seconds (ex : '2s', '12s')
+%       nimgbr : number of images before a ramp
+%       nimgar : number of images after a ramp
+%       nimgr1 : number of images for 2s ramp
+%       nimgr2 : number of images for 4s ramp
+%       nimgr3 : number of images for 8s ramp
 %       Db : beads diameter in nm
 %       resfolder : path to where are the matlabdata, should be
 %       MatfileFolder in main
 %       figurefolder : path to figure saving folder, should be FigureFolder
 %       in main
 %
+
 
 warning('off') % removing warning (orange text) display in consol
 
@@ -161,7 +166,7 @@ if exist([path filesep loadname],'file')
             D3 = D3sort(:,2);
             D = Dsort(:,2);
             dz = dzsort(:,2);
-            S = D3sort(:,1);            
+            S = D3sort(:,1);
             
             cprintf('Com', [' OK.\n']);
             
@@ -169,36 +174,93 @@ if exist([path filesep loadname],'file')
             fprintf('Creation of time and magnetic field vectors...');
             
             BTMat = MT{kc}.BTMat; % loading data gathered from _Field.txt file
-            
-             Bfull = BTMat(:,1)*Bcorrec; % magnetic field for all images
-            
-            Tfull = (BTMat(:,2)-BTMat(1,2))/1000;% timepoints of all images
-            
-            % Here is a correction for an error in labview :
-            % at the begining of each loop there is an extra signal from
-            % the camera registered as an image which does not exist. Here we
-            % remove it and compensate by adding the right time point at
-            % the end of the loop
-            Tfull2 = [Tfull(2:end); Tfull(end)+0.05];
-            ncycle = round(Scst(end)/nimgtot);
-            kcycle = [1:ncycle] * nimgtot;
-            Tfull2(kcycle) = Tfull2(kcycle-1)+0.05;            
-            Bfull2 = [Bfull(2:end); Bfull(end)];
-            Bfull2(kcycle) = Bfull2(kcycle-1);
-            
-            Bcst = BTMat(Scst,1)*Bcorrec; % for constant part
-            Brmp = BTMat(Srmp,1)*Bcorrec; % for ramp part
-            
-            T = Tfull2(S); % timepoints for images kept (1 point per triplet)
-            Tcst = (BTMat(Scst,2)-BTMat(1,2))/1000; % time for cst part
-            Trmp = (BTMat(Srmp,2)-BTMat(1,2))/1000; % time for ramp part
 
+            NimgtotInit = length(BTMat); % total number of images
             
-            B = Bfull2(S); % field for for images kept (1 point per triplet)
-            Bcst = Bfull2(Scst); % for cst part
-            Brmp = Bfull2(Srmp); % for ramp
+            Nbt = NimgtotInit;
             
-            cprintf('Com', [' OK.\n']);
+            n1 = 0;
+            n2 = 0;
+            n3 = 0;
+            
+            % counting number of ramps of each duration
+            while Nbt>0
+                Nbt = Nbt - nimgbr- nimgar- nimgr1;
+                
+                if Nbt < 0
+                    
+                    error('Incoherence with cycle sizes or incomplete cycle')
+                    
+                elseif Nbt == 0
+                    n1 = n1 +1 ;
+                elseif Nbt >0
+                    n1 = n1 +1 ;
+                    
+                    Nbt = Nbt - nimgbr- nimgar- nimgr2;
+                    
+                    
+                    if Nbt < 0                        
+                        error('Incoherence with cycle sizes or incomplete cycle')
+                    elseif Nbt == 0
+                        n2 = n2 +1 ;
+                    elseif Nbt >0
+                        Nbt = Nbt - nimgbr- nimgar- nimgr3;
+                        n2 = n2 +1 ;
+                        
+                        if Nbt< 0
+                            error('Incoherence with cycle sizes or incomplete cycle')
+                            
+                        else
+                            n3 = n3 +1 ;
+                        end
+                    end
+                end
+            end
+            
+            
+            
+            
+            
+            
+            
+            Tfull = (BTMat(:,2)-BTMat(1,2))/1000;
+            
+            Tfull2 = [Tfull(2:end); Tfull(end)+0.04];
+            
+            
+            
+            krempl = [nimgbr+nimgar+nimgr1];
+            
+            nimgcycle = [nimgbr+nimgar+nimgr3 nimgbr+nimgar+nimgr1 nimgbr+nimgar+nimgr2];
+            
+            for ii = 2:n1+n2+n3
+                krempl(ii) = krempl(ii-1) + nimgcycle(mod(ii,3)+1);
+            end
+            
+            
+            
+            
+            
+            Tfull2(krempl) = Tfull2(krempl-1)+0.04;
+            
+            T = Tfull2(S);
+            Tcst = Tfull2(Scst);
+            Trmp = Tfull2(Srmp);
+            
+            
+            
+            
+            Bfull = BTMat(:,1)*Bcorrec;
+            
+            Bfull2 = [Bfull(2:end); Bfull(end)];
+            
+            Bfull2(krempl) = Bfull2(krempl-1);
+            
+            B = Bfull2(S)*Bcorrec;
+            Bcst = Bfull2(Scst)*Bcorrec;
+            Brmp = Bfull2(Srmp)*Bcorrec;
+            
+            fprintf(' OK\n');
             
             
             
@@ -255,23 +317,24 @@ if exist([path filesep loadname],'file')
             
             
             
-            %% Ramp splitting
-            fprintf('Splitting ramps...')
+            % traitement des compressions individuelle et sauvegarde
+            fprintf('Découpage...')
             
-            FullRmpDat = [Srmp Trmp D3rmp Frmp Brmp dzrmp]; % all data relative to ramps
-            
-            RmpDat = cell(1,ncycle); % variable for storing individual ramps
-            CstRmp = cell(1,ncycle); % variable for constant data relative to ramp
-            
-            cyclevect = 1:ncycle; % list of loops
-            
-            bgnrmp = (cyclevect-1)*nimgtot+(nimgtot-nimgr)/2+1; % begining of ramps
-            bgncst = (cyclevect-1)*nimgtot+1; % begining of constant parts
+            FullRmpDat = [Srmp Trmp D3rmp Frmp Brmp dzrmp];
             
             
-            for k = cyclevect
+            kbeg(1:3:length(krempl)) = krempl(1:3:length(krempl))-121;
+            kbeg(2:3:length(krempl)) = krempl(2:3:length(krempl))-216;
+            kbeg(3:3:length(krempl)) = krempl(3:3:length(krempl))-406;
+            
+            kend(1:3:length(krempl)) = krempl(1:3:length(krempl))-24;
+            kend(2:3:length(krempl)) = krempl(2:3:length(krempl))-24;
+            kend(3:3:length(krempl)) = krempl(3:3:length(krempl))-24;
+            
+            for k = 1:n1+n2+n3
                 
-                m = ismember(Srmp,bgnrmp(k):bgnrmp(k)+nimgr-1); % image indicices for compression n°k
+                
+                m = ismember(Srmp,kbeg(k):kend(k));
                 Stmp = Srmp(m);
                 D3tmp = D3rmp(m);
                 Ftmp = Frmp(m);
@@ -279,32 +342,18 @@ if exist([path filesep loadname],'file')
                 Ttmp = Trmp(m);
                 dztmp = dzrmp(m);
                 
-                % removal of points with a big dz jump
-                ddz = diff(dztmp);
-                while max(abs(ddz))> 700
-                    ptrdel = find(abs(ddz)>700)+1;
-                    Stmp(ptrdel) = [];
-                    D3tmp(ptrdel) = [];
-                    Ftmp(ptrdel) = [];
-                    Btmp(ptrdel) = [];
-                    Ttmp(ptrdel) = [];
-                    dztmp(ptrdel) = [];
-                    ddz=diff(dztmp);
-                end
                 
-                % getting positions of constant data points before and after
-                % ramp n°k
-                mcstsurround = ismember(Scst,[bgncst(k):bgnrmp(k)-1 bgnrmp(k)+nimgr:k*nimgtot]);
                 
-                % getting positions of constant data points after ramp n°k-1
-                % and before ramp n°k
+                
                 if k == 1
-                    mcstbefore = ismember(Scst,bgncst(k):bgnrmp(k)-1);
+                    mcstbefore = ismember(Scst,1:kbeg(1)-1);
+                    mcstsurround = ismember(Scst,[1:kbeg(1)-1 kend(1)+1:krempl(1)]);
                 else
-                    mcstbefore = ismember(Scst,[bgnrmp(k-1)+nimgr:(k-1)*nimgtot bgncst(k):bgnrmp(k)-1]);
+                    mcstbefore = ismember(Scst,kend(k-1)+1:kbeg(k)-1);
+                    mcstsurround = ismember(Scst,[krempl(k-1)+1:kbeg(k)-1 kend(k)+1:krempl(k)]);
                 end
                 
-                
+                %%%%%%%%%%%%%%%%%%%%%%%%%%
                 % saving data for ramp n°k
                 if not(isempty(D3tmp))
                     

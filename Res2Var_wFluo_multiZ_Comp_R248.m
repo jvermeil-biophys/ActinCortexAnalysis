@@ -9,8 +9,11 @@ function Res2Var_wFluo_multiZ_Comp_R248(restype,date,tag,manip,specif,fich,depth
 %       using the depthograph. This particular version (_wFluo_multiZ_Comp_R248)
 %       is used for analyzing specific compression experiments, with 2s,
 %       4s, and 8s ramps; and where the constant
-%       field part between compression have triplet of images in Z. It can
-%       handle the presence of fluo images at the end of each loop.
+%       field part between compression have triplet of images in Z. 
+%       (only a few experiments were done that way,
+%       a more general labview/matlab for exists for compression of
+%       different length).
+%       It can handle the presence of fluo images at the end of each loop.
 %       This version is only supposed to be used only for analyzing the
 %       experiments with the R248 tag in their stackname from 2018/2019.
 %       After that experiments with multiple rate where done more generally
@@ -211,9 +214,9 @@ for ki=1:nacq
             ListF{kii} = Nofich;
             
             % partial saving
-            fprintf('\nPartial saving...');
+            fprintf('Partial saving...');
             save([sf filesep 'R2V' filesep savenamepart],'MT','ListD','ListF');
-            cprintf('Com', ' OK\n\n')
+            cprintf('Com', ' OK\n\n\')
             
         end
         
@@ -231,9 +234,8 @@ if exist('MT')
         fprintf('Complete saving...');
         save([sf filesep 'R2V' filesep savename],'MT','ListD','ListF');
         delete([sf filesep 'R2V' filesep savenamepart '.mat']);
-        
-        cprintf('Com', ' OK\n\n\n')
     end
+    cprintf('Com', ' OK\n\n\n')
 end
 
 

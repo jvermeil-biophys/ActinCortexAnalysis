@@ -4,7 +4,6 @@ clc;
 
 %% Paths & options
 %% Paths
-h='C:\Users\Valentin\Dropbox\TheseValentin\Matlab';
 RawdataFolder = 'D:\Data\Raw';
 MatfileFolder = 'D:\Data\MatFile';
 DropboxDataFolder = '';
@@ -51,7 +50,9 @@ Cdc3  = [63 255 127]./255; % diff tmp comp
 
 return % stop execution here
 
-%% Nouvelle Manip Rampe  %%% R2V
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Res2Var Comp %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 
 %% BeadsIn
 
@@ -225,116 +226,116 @@ Res2Var_wFluo_multiZ_Comp_R248('Results','15-10-19','RV248','M2','DC-Comp_R248_C
     '15-10-19_Depthograph',21,24,98,193,383,...
     AUTO,RawdataFolder,MatfileFolder)
 
-%% V2D comp
-% manip inhib
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Var2Data Comp %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% InOut DC
 
 % manip ctrl test
-Var2Data_Comp('28-08-18','R80',0.56,'M1','DC-Comp_Ctrl',95,179,'1s',4415,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('28-08-18','R80',0.56,'M2','DC-Comp_Ctrl',95,179,'1s',4415,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('28-08-18','R80',0.56,'M1','DC-Comp_Ctrl',95,179,'1s',4415,MatfileFolder,FigureFolder);
+Var2Data_Comp('28-08-18','R80',0.56,'M2','DC-Comp_Ctrl',95,179,'1s',4415,MatfileFolder,FigureFolder);
 
 %     % Arpin 1
-%     Var2Data_Comp('17-09-18','R80',0.56,'M1','DC-Comp_ArpinWT',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('17-09-18','R80',0.56,'M2','DC-Comp_ArpinKO',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('17-09-18','R80',0.56,'M1','DC-Comp_ArpinWT',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('17-09-18','R80',0.56,'M2','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %
-%     Var2Data_Comp('18-09-18','R80',0.56,'M1','DC-Comp_ArpinKO',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('18-09-18','R80',0.56,'M2','DC-Comp_ArpinWT',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('18-09-18','R80',0.56,'M3','DC-Comp_ArpinKO',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('18-09-18','R80',0.56,'M1','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('18-09-18','R80',0.56,'M2','DC-Comp_ArpinWT',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('18-09-18','R80',0.56,'M3','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %
 % Inhib 1
 
-%     Var2Data_Comp('24-09-18','R80',0.56,'M1','DC-Comp_CK666',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('24-09-18','R80',0.56,'M1','DC-Comp_Ctrl',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('24-09-18','R80',0.56,'M2','DC-Comp_SMIFH2',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('24-09-18','R80',0.56,'M1','DC-Comp_CK666',95,179,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp('24-09-18','R80',0.56,'M1','DC-Comp_Ctrl',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('24-09-18','R80',0.56,'M2','DC-Comp_SMIFH2',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
-Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_LatA500',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_SMIFH2',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_Ctrl',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_CK666',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_LatA500',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_SMIFH2',95,179,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_Ctrl',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_CK666',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 % Arpin 2;
-%     Var2Data_Comp('05-10-18','R80',0.56,'M1','DC-Comp_ArpinKO',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('05-10-18','R80',0.56,'M2','DC-Comp_ArpinWT',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('05-10-18','R80',0.56,'M1','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('05-10-18','R80',0.56,'M2','DC-Comp_ArpinWT',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 
 % Inhib 2
 %
-%     Var2Data_Comp('29-10-18','R80',0.56,'M1','DC-Comp_CalA25',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('29-10-18','R80',0.56,'M1','DC-Comp_LatA2',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('29-10-18','R80',0.56,'M2','DC-Comp_LatA2',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('29-10-18','R80',0.56,'M1','DC-Comp_CalA25',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('29-10-18','R80',0.56,'M1','DC-Comp_LatA2',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('29-10-18','R80',0.56,'M2','DC-Comp_LatA2',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 
 %     Var2Data_Comp('30-10-18','R80',0.56,'M1','DC-Comp_Blebbi',95,179,'1s',4438)
-%     Var2Data_Comp('30-10-18','R80',0.56,'M1','DC-Comp_CalA25',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('30-10-18','R80',0.56,'M2','DC-Comp_Ctrl',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('30-10-18','R80',0.56,'M1','DC-Comp_CalA25',95,179,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp('30-10-18','R80',0.56,'M2','DC-Comp_Ctrl',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 % inhib 3
 
 
-Var2Data_Comp('12-12-18','R80',0.56,'M1','DC-Comp_Ctrl',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('12-12-18','R80',0.56,'M2','DC-Comp_Nase',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('12-12-18','R80',0.56,'M1','DC-Comp_Ctrl',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('12-12-18','R80',0.56,'M2','DC-Comp_Nase',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %
 %
 %     % ArpC4
 %
-%     Var2Data_Comp('17-12-18','R80',0.56,'M1','DC-Comp_AprC4KO',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('17-12-18','R80',0.56,'M2','DC-Comp_AprC4WT',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('17-12-18','R80',0.56,'M1','DC-Comp_AprC4KO',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('17-12-18','R80',0.56,'M2','DC-Comp_AprC4WT',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %
 %     % inhib 4
 %
-%     Var2Data_Comp('18-12-18','R80',0.56,'M1','DC-Comp_Y27',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('18-12-18','R80',0.56,'M2','DC-Comp_Nase',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('18-12-18','R80',0.56,'M1','DC-Comp_Y27',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('18-12-18','R80',0.56,'M2','DC-Comp_Nase',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %
 %     % Inhib 5
 %
-%     Var2Data_Comp('21-12-18','R80',0.56,'M1','DC-Comp_LatANase',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('21-12-18','R80',0.56,'M1','DC-Comp_LatANase',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 %% 3T3 Joseph
 
-Var2Data_Comp('04-08-20','R40_3T3aSFLnodrugs',1.15,'M1','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('05-08-20','R40_3T3aSFLnodrugs',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('07-08-20','R40_3T3aSFLnodrugs',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('04-08-20','R40_3T3aSFLnodrugs',1.15,'M1','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('05-08-20','R40_3T3aSFLnodrugs',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('07-08-20','R40_3T3aSFLnodrugs',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
+
+%% billes internes 
+Var2Data_Comp('28-08-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4415,MatfileFolder,FigureFolder);
+Var2Data_Comp('28-08-18','R80',0.56,'M2','DC-Comp_Inside',95,179,'1s',4415,MatfileFolder,FigureFolder);
 
 
-
-%% %%%%%%% billes internes %%%%%%%%%
-Var2Data_Comp('28-08-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4415,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('28-08-18','R80',0.56,'M2','DC-Comp_Inside',95,179,'1s',4415,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('17-09-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp('17-09-18','R80',0.56,'M2','DC-Comp_Inside',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 
-Var2Data_Comp('17-09-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('17-09-18','R80',0.56,'M2','DC-Comp_Inside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('24-09-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp('24-09-18','R80',0.56,'M2','DC-Comp_Inside',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 
-Var2Data_Comp('24-09-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('24-09-18','R80',0.56,'M2','DC-Comp_Inside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_Inside',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 
-Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_Inside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-
-
-Var2Data_Comp('12-12-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('12-12-18','R80',0.56,'M2','DC-Comp_NaseInside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('12-12-18','R80',0.56,'M1','DC-Comp_Inside',95,179,'1s',4438,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('12-12-18','R80',0.56,'M2','DC-Comp_NaseInside',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %
-%     Var2Data_Comp('18-12-18','R80',0.56,'M2','DC-Comp_NaseInside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('18-12-18','R80',0.56,'M2','DC-Comp_NaseInside',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %
 %
-%     Var2Data_Comp('30-04-19','R80',0.56,'M1','DC-Comp_SiCtrl+LatA',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('30-04-19','R80',0.56,'M1','DC-Comp_SiCtrl+LatA',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %     Var2Data_Comp('30-04-19','R80',0.56,'M1','DC-Comp_SiVim+LatA',95,179,'1s',4438) ;
 
 %% billes externes
 %
-Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_Outside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_Outside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_Outside',95,179,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_Outside',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
-Var2Data_Comp('30-10-18','R80',0.56,'M1','DC-Comp_Outside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp('30-10-18','R80',0.56,'M2','DC-Comp_Outside',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('30-10-18','R80',0.56,'M1','DC-Comp_Outside',95,179,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp('30-10-18','R80',0.56,'M2','DC-Comp_Outside',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
-%     Var2Data_Comp('21-01-19','R80',0.56,'M1','DC-Comp_Bsa',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+%     Var2Data_Comp('21-01-19','R80',0.56,'M1','DC-Comp_Bsa',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %
 dist = []
 dist = [dist Var2Data_Comp('23-01-19','R80',0.56,'M1','DC-Comp_SerumJ1',95,179,'1s',4438)];
-Var2Data_Comp('23-01-19','R80',0.56,'M1','DC-Comp_Naked',95,179,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
+Var2Data_Comp('23-01-19','R80',0.56,'M1','DC-Comp_Naked',95,179,'1s',4438,MatfileFolder,FigureFolder);
 %
 %
 dist = [dist Var2Data_Comp('28-01-19','R80',0.56,'M1','DC-Comp_SerumJ6',95,179,'1s',4438)];
@@ -342,11 +343,10 @@ dist = [dist Var2Data_Comp('28-01-19','R80',0.56,'M1','DC-Comp_SerumJ6',95,179,'
 
 %% compression de tps diff
 
-Var2Data_Comp_JV_R248('14-10-19','RV248',0.56,'M1','DC-Comp_R248_Ctrl',21,24,98,193,383,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_JV_R248('14-10-19','RV248',0.56,'M2','DC-Comp_R248_LatA',21,24,98,193,383,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_JV_R248('15-10-19','RV248',0.56,'M1','DC-Comp_R248_Blebbi',21,24,98,193,383,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-Var2Data_Comp_JV_R248('15-10-19','RV248',0.56,'M2','DC-Comp_R248_Ctrl',21,24,98,193,383,'1s',4438,RawdataFolder,MatfileFolder,FigureFolder);
-
+Var2Data_Comp_JV_R248('14-10-19','RV248',0.56,'M1','DC-Comp_R248_Ctrl',21,24,98,193,383,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp_JV_R248('14-10-19','RV248',0.56,'M2','DC-Comp_R248_LatA',21,24,98,193,383,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp_JV_R248('15-10-19','RV248',0.56,'M1','DC-Comp_R248_Blebbi',21,24,98,193,383,'1s',4438,MatfileFolder,FigureFolder);
+Var2Data_Comp_JV_R248('15-10-19','RV248',0.56,'M2','DC-Comp_R248_Ctrl',21,24,98,193,383,'1s',4438,MatfileFolder,FigureFolder);
 
 %% remove
 
@@ -373,6 +373,10 @@ RemoveFromData(MatfileFolder,{'24-09-18_M1_P1_C1_R80','24-09-18_M1_P1_C3_R80','2
 %         '25-09-18_M2_P1_C3_R80in#ap#240','28-08-18_M2_P1_C3_R80in#ap#200',...
 %         '25-09-18_M1_P1_C1_R80in#av#75','28-08-18_M1_P1_C1_R80in#av#75',...
 %         });
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Data2Meca %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 
 %% D2M pour these et papier
 
@@ -456,7 +460,9 @@ Data2MecaLoop_BigTable('05-08-20','M2','3T3aSFL_BSA_nodrugs','R40_3T3aSFLnodrugs
 Data2MecaLoop_BigTable('07-08-20','M2','3T3aSFL_BSA_nodrugs','R40_3T3aSFLnodrugs',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
 
 
-%% Meca2Plot_BigTable
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Meca2Plot %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 
 fitparams = 'Strain100-R20.9';
 
