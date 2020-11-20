@@ -52,6 +52,8 @@ PROBA  = 1;
 DIST   = 0;
 TIME = 1;
 
+return % stop execution here 
+
 %% Analysis
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%

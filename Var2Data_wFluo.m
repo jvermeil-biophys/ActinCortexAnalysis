@@ -270,8 +270,6 @@ if exist([path filesep loadname],'file')
             if Valid
             fprintf('Variable creation...');
             
-            
-                MR{kc}.actigood = length(T)/NptsTot > 0.5;
                 MR{kc}.name = name;
                 MR{kc}.stack = MT{kc}.stack;
                 MR{kc}.F=F;

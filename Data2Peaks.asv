@@ -224,16 +224,15 @@ for kf=1:nf
             
             peakI.good = logical(peakI.good);
             
-            
+
             %% Activity related computations
-            
+                        
             CortBot = prctile(D3,10);
             CortTop = prctile(D3,90);
             
-            CortActi = CortTop-CortBot; % fluctuations amplitude
-            
-            % if curve longer than 10 minute comparison betwen first half
-            % and second half fluctuations
+            CortActi = CortTop-CortBot; % fluctuations amplitude            
+
+            % if curve longer than 10 minute comparison betwen first hal
             if T(end) - T(1) > 600
                 
                 Tmid = T(1) + (T(end)-T(1))/2;
@@ -249,14 +248,15 @@ for kf=1:nf
                 
             end
             
-            % median cortex thickness
             MedCortW = median(D3);
             
-            % cortex fluctuations assymetry
             CortAssym = ((CortTop-MedCortW)-(MedCortW-CortBot))/CortActi;
+
+            
+            Ptmp = (length(ProbaD3):-1:1)/length(ProbaD3);
             
             
-            if PLOT % curve plotting
+            if PLOT
                 
                 % plot the curves with both image n° and time x coordinate
                 
@@ -288,7 +288,7 @@ for kf=1:nf
             
             
             if NpD == 0 % if no peaks detected
-                NpG = 0; % no good peaks kept
+                NpG = 0; % no peaks kept
             end
             
             
@@ -311,11 +311,13 @@ for kf=1:nf
             end
             MP{ic}.CortAssym = CortAssym;
             MP{ic}.MedCortW = MedCortW;
+            MP{ic}.h10pc = h10pc(ic);
             MP{ic}.time = T;
             MP{ic}.dx = Dx;
             MP{ic}.dz = Dz;
             MP{ic}.dy = Dy;
             MP{ic}.dist = D3;
+            MP{ic}.dtwD3 = (D3-CortBot)./(mean(D3-CortBot));
             MP{ic}.peaks = peakI;
             MP{ic}.name = AcqName;
             
@@ -329,7 +331,7 @@ end
 Sname = ['D2P_' specif];
 
 if exist('MP','var')
-    
+
     
     savename = [datafolder filesep 'D2P' filesep Sname];
     save(savename,'MP')
@@ -337,11 +339,9 @@ if exist('MP','var')
     fprintf(['File saved : \n' Sname '.mat \n\n']);
 end
 
-% separate saving for double pinching
-if ~isempty(CommonTimes)
-    save([datafolder filesep 'D2P' filesep 'DoubleInt_' specif],'CommonTimes','CurveOnes', 'CurveTwos',...
-        'NameOnes', 'NameTwos', 'Lags', 'Corrs')
-end
+% sauvegarde cellule double interfaces
+save([datafolder filesep 'D2P' filesep 'DoubleInt_' specif],'CommonTimes','CurveOnes', 'CurveTwos',...
+    'NameOnes', 'NameTwos', 'Lags', 'Corrs')
 
 end
 

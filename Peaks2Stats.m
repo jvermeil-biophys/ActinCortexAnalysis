@@ -107,38 +107,6 @@ AllD3N = [];
 
 dtwD3s = {};
 
-for kd=1:nd
-    
-    datafile0=['Hxxpc_' date{kd} '_' Cell '.mat'];
-    E0 = exist([df filesep datafile0]);
-    
-    if E0 == 2
-        
-        load([df filesep datafile0])
-        fprintf(['File Loaded : \n' datafile0 '\n'])
-        
-        H10pc = [H10pc h10pc];
-
-        clear h10pc
-        
-    end
-end
-
-
-nrem = max([1 round(0.05*length(H10pc))]);
-
-Sh = sort(H10pc);
-
-
-
-if length(H10pc)<600
-    Hmin = -Inf;
-    Hmax= Inf;
-else
-    Hmax = Sh(end-nrem+1)-0.0001;
-Hmin = Sh(nrem) +0.0001;
-end
-
 DataTime = {};
 
 
