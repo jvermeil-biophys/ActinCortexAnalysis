@@ -93,8 +93,8 @@ for kf=1:nf
             % Name of the experiment and image
             AcqName = MR{kc}.name;
             
-            ptr_ = strfind(MR{k}.name,'_');
-            code = MR{k}.name(ptr_(1)+1:ptr_(4)-1); % get the cell ID Mx_Py_Cz
+            ptr_ = strfind(MR{kc}.name,'_');
+            code = MR{kc}.name(ptr_(1)+1:ptr_(4)-1); % get the cell ID Mx_Py_Cz
             
             % get data
             T = MR{kc}.time;

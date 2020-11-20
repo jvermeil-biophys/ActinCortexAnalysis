@@ -113,7 +113,7 @@ while not(exist('X1','var')) % as long as variables have not been initialized,
                 S1 = img;
                 ptr1 = ptr_img(A == 1);
                 
-                X2 = X_ind(ptr_img(A == 2),1);
+                X2 = X_ind(ptr_i(A == 2),1);
                 Y2 = Y(ptr_img(A == 2),1);
                 S2 = img;
                 ptr2 = ptr_img(A == 2);  
@@ -223,11 +223,11 @@ for i=img:nimg
                 
                 A = HungarianMatch(Dist2mat); % Best match for each line
                 
-                
                 % These are the beads locations on the current image
                 newX = [X_ind(ptr_i(A == 1),1); X_ind(ptr_i(A == 2),1)];
                 newY = [Y(ptr_i(A == 1),1);Y(ptr_i(A == 2),1)];
-                newptr = [ptr_i(A == 1);ptr_i(A == 2)];            
+                newptr = [ptr_i(A == 1);ptr_i(A == 2)];
+             
                 
                 
                 % Assigning the new beads to the closest bead position on
@@ -236,8 +236,8 @@ for i=img:nimg
                 newXmat = repmat(newX,1,2); % X of the objects on current image
                 newYmat = repmat(newY,1,2); % Y of the objects on current image
                 
-                Xposmat = repmat([X1(end) X2(end)],2,1); % X of the beads on previous image
-                Yposmat = repmat([Y1(end) Y2(end)],2,1); % Y of the beads on previous image
+                Xposmat = repmat([X1(end) X2(end)],length(ptr_i),1); % X of the beads on previous image
+                Yposmat = repmat([Y1(end) Y2(end)],length(ptr_i),1); % Y of the beads on previous image
                 
                 newDist2mat = (newXmat-Xposmat).^2+(newYmat-Yposmat).^2; % Square distance matrix (cost matrix for the matching algorithm)
         
@@ -245,15 +245,15 @@ for i=img:nimg
                         
                 
                 % Assigning new beads to end of trajectories
-                X1(end+1) = newX(newA == 1);
-                Y1(end+1) = newY(newA == 1);
+                X1(end+1) = newX(A == 1);
+                Y1(end+1) = newY(A == 1);
                 S1(end+1) = i;
-                ptr1(end+1) = newptr(newA == 1);
+                ptr1(end+1) = newptr(A == 1);
                 
-                X2(end+1) = newX(newA == 2);
-                Y2(end+1) = newY(newA == 2);
+                X2(end+1) = newX(A == 2);
+                Y2(end+1) = newY(A == 2);
                 S2(end+1) = i;
-                ptr2(end+1) = newptr(newA == 2);
+                ptr2(end+1) = newptr(A == 2);
                 
             elseif ismember(i,Slog) % beads not present on the image and info already saved
                 

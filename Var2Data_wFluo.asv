@@ -161,9 +161,9 @@ if exist([path filesep loadname],'file')
             
             angle = abs(rad2deg(angle));
             
-            badangle = find(angle>50 & angle<130);
+            find(angle>50 & angle <)
             
-            ptrdel = [ptrdel; badangle];
+            ptrdel = [ptrdel find(angle>50)];
                         
             
             % Big jumps in dz
