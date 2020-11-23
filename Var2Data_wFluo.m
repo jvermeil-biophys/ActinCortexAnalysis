@@ -1,223 +1,193 @@
-function NotSaved = Var2Data_wFluo(date,chmpMag,Bcorrec,manip,specif,Db,...
-    datafolder,resfolder,resfolderbis)
+function NotSaved = Var2Data_wFluo(date,tag,Bcorrec,manip,specif,Db,resfolder)
 
-warning('off')
+%
+%       Var2Data is taking the .mat file (from Res2Var) containing the trajectories of each
+%       beads, and computes the distance between those beads centers, and the
+%       thickness of the pinched object by substractiong the diameter of the
+%       beads. It also gets the info in the _Field.txt file (previously saved by
+%       Res2Var with the rest of the data) to create time and magnetic field
+%       variables. It then computes the attraction force between the two beads
+%       based on the magnetic field strength and the beads distance. This
+%       version (_wFluo) is used for the analysis of constant field
+%       experiments, with possible fluo images taken in addition to BF.
+%       This Var2Data also removes some curves from further analysis if they don't
+%       meet goodness criterions (see code for details).
+%
+%       NotSaved = Var2Data_wFluo(date,chmpMag,Bcorrec,manip,specif,Db,...
+%         datafolder,resfolder)
+% 
+%       OUTPUT
+%       NotSaved : Variable with the name of curves that were discarded
+%
+%       INPUTS
+%       date : date of experiment 'dd-mm-yy'
+%       tag : tag present on the tif and txt files (ex: '5mT', '5mT_Dicty')
+%       Bcorrec : correction factor for the magnetic field (based on
+%       calibration with teslameter)
+%       manip : 'manip' number (ex: 'M1' ou 'M2' etc...),
+%       specif : experimental condiion (ex: 'Dicty_WT')
+%       Db : beads diameter in nm
+%       datafolder : path to the raw data, should be RawdataFolder in main
+%       resfolder : path to where save the matlabdata, should be
+%       MatfileFolder in main
+%
 
-NotSaved = {};
+warning('off') % removing warning (orange text) display in consol
 
+NotSaved = {}; % Initializing a variable to store names of discarded data
+
+% default options for figures
 set(groot,'DefaultFigureWindowStyle','docked')
 set(groot, 'defaultAxesTickLabelInterpreter','latex'); 
 set(groot, 'defaultLegendInterpreter','latex');
 set(groot, 'defaultTextInterpreter','latex');
 set(groot,'DefaultAxesFontSize',30)
 
-load([resfolder filesep 'V2D\Classification.mat'])
-
-% dossier de données et sauvegarde
+% folder with initial data and were to save analysed data
 path = [resfolder filesep 'R2V'];
-fieldpath =[datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2)];
-sf   = resfolder;
 
-datenow = datestr(now,'yy-mm-dd');
+datenow = datestr(now,'yy-mm-dd'); % today
 
-mkdir([sf filesep 'V2D'])
+mkdir([resfolder filesep 'V2D']) % create directory
 
-if nargin ==9 && not(isempty(resfolderbis))
-scf = resfolderbis;
+savename=['V2D_' date '_' manip '_' specif]; % saving name
 
-mkdir([scf filesep datenow filesep 'V2D'])
-end
+savenamepart=[savename '_Part'] ; % partial saving name
 
-specifchamp = ['_' chmpMag];
+loadname=['R2V_' date '_' manip '_' tag '_' specif '.mat']; % inital data
 
-savename=['V2D_' date '_' manip '_' specif];
-
-savenamepart=[savename '_Part'] ;
-
-loadname=['R2V_' date '_' manip specifchamp '_' specif '.mat'];
-
-% General data
-pixelconv=1/15.8;
-
-dxtot = [];
-dytot = [];
-dztot = [];
+% conversion factor from pixel to microns
+pixelconv=1/15.8; % 100X
+% pixelconv=1/9.7; % 63X
 
 if exist([path filesep loadname],'file')
     
-    fprintf(['Chargement du fichier ' loadname '\n\n'])
+    fprintf(['\n\nLoading file ' loadname '\n'])
     load([path filesep loadname]);
-    nc = length(MT);
+    nc = length(MT); % numbers of curves
     
     for kc = 1:nc
         if not(isempty(MT{kc}))
-            Valid = 1;
+            
+            Valid = 1; % default status for saving is OK
+            
             name = MT{kc}.exp;
             
             if strcmp(name(end-1:end),'in')
                 name = name(1:end-2);
-            end
-            
-            if contains(name,AllMigr)
-                class = 'M';
-            elseif contains(name,AllEtal)
-                class = 'E';
-            elseif contains(name,AllGene)
-                class = 'G';
-            else
-                class = 'OK';
-            end
-            
-            if contains(name,AllUne)
-                nbBilleInt = 1;
-            elseif contains(name,AllDeux)
-                nbBilleInt = 2;
-            elseif contains(name,AllTrois)
-                nbBilleInt = 3;
-            elseif contains(name,AllQuatre)
-                nbBilleInt = 4;
-            elseif contains(name,AllCinq)
-                nbBilleInt = 5;
-            elseif contains(name,AllSix)
-                nbBilleInt = 6;
-            else
-                nbBilleInt = 0;
-%                 error(['No bead number available for ' name])
-            end
+            end         
           
             
-            fprintf(['Manip : ' name '\n\n']);
-            fprintf(['Classification : ' class '\n\n']);
-            fprintf('Récuperation des données sur les billes...');
-
-            fieldname = [name '_Field.txt'];
+            fprintf(['\n\nExperiment : ' name '\n\n']);
+            fprintf('Retrieving beads data...');
             
-            
-            
-            S = MT{kc}.S;
-            S = unique(S);
-            
-            FE = exist([fieldpath filesep fieldname],'file');
-            
-            
-           
+            S = MT{kc}.S; % list of image with beads tracked on it
+            S = unique(S); % shouldn't be necessary, didn't had time to check
+   
+            % X data for each beads
             X1 = MT{kc}.x(:,1);
             X2 = MT{kc}.x(:,2);
-            dxp = X1 - X2; % en pixels
-            
+            dxp = X1 - X2; % in pixels          
        
-            
+            % Y data for each beads
             Y1 = MT{kc}.y(:,1);
             Y2 = MT{kc}.y(:,2);
-            dyp = Y1 - Y2; % en pixels
+            dyp = Y1 - Y2; % in pixels   
     
-    
+            % Z data for both beads
+            dz = MT{kc}.dz; % in nm
+            
+            cprintf('Com', [' OK.\n']);
             
             
-            L1 = mean(sqrt((X1(1:end-1)-X1(2:end)).^2+(Y1(1:end-1)-Y1(2:end)).^2));
+            fprintf('Creation of vectors for time and magnetic field...');
             
-            L2 = mean(sqrt((X2(1:end-1)-X2(2:end)).^2+(Y2(1:end-1)-Y2(2:end)).^2));
-            
-            L = (L1+L2)/2*pixelconv*1000; % distance moyenne parcourue entree deux images en nm
-            
-            dz = MT{kc}.dz; % en nanometre
-            
-            fprintf(' OK\n');
-            
-            
-            fprintf('Création des vecteurs champ et temps...');
-            
-            if FE
-                BTMat = dlmread([fieldpath filesep fieldname],'\t',0,0);
+
+            BTMat = MT{kc}.BTMat; % retrieving data from _Field.txt file
   
-                B = Bcorrec*BTMat(S,1);
-                T = (BTMat(S,2)-BTMat(1,2))/1000;
-            else
-                fprintf('\n');
-                error(['Missing file : ' fieldname])
+            B = Bcorrec*BTMat(S,1); % adjusted magnetic field
+            T = (BTMat(S,2)-BTMat(1,2))/1000; % time starting at 0 in seconds
+
+            
+            ImgSep = median(round(diff(T)/0.1)*0.1); % approximation of time between two images
+            
+            NptsTot = round((T(end) - T(1))/ImgSep); % estimate of total number of images given duration of curve
+
+            cprintf('Com', [' OK.\n']);
+            
+            
+            fprintf('Beads distance computation...');
+            
+            % Conversion from pixels to nm
+            dx = dxp*pixelconv*1000; % along the field
+            dy = dyp*pixelconv*1000; % perpendicular to the field in the observation plan
+                
+            % distance computation
+            D3tot = sqrt(dx.^2+dy.^2+dz.^2); % center to center distance
+            D3 = D3tot - Db; % surface to surface distance (object thickness)
+            Dyz = sqrt(dy.^2+dz.^2); % distance in the plan perpendicular to the field
+            D2 = sqrt(dx.^2+dy.^2); % distance in the observation plan
+            
+            
+            % Removal of problematic individual points
+            % ptrdel = marked for deletion
+            
+            ptrdel = find(isnan(dz)); % problem with computed Z
+            
+            % problem with magnetic field
+            if ~contains(specif,'Sep') && ~contains(tag,'R') % not used if experiment is observation of beads separation when field is turned off, or if constant data from compression experiment
+                
+                mB = find(B < 0.8*Bcorrec*str2double(tag(1:end-2))); % if magnetic field is lower than 80% of expected value (indication of coils or BOP problems during experiments)
+                ptrdel = [ptrdel mB'];
                 
             end
-            
-            ImgSep = mean(round(diff(T)/0.1)*0.1);
-            
-            NptsTot = round((T(end) - T(1))/ImgSep);
-%             length(T)
-%             plot(T,T,'*')
-            
-            fprintf(' OK\n');
-            
-            
-            fprintf('Calcul de la distance...');
-            
-            % conversion en nm des grandeur
-            dx = dxp*pixelconv*1000;
-            dy = dyp*pixelconv*1000;
-            
            
-                dxtot = [dxtot dx'];
-                dytot = [dytot dy'];
-                dztot = [dztot dz'];
-                
-            % calcul distance
-%             [D3, ErrD3] = DCalc(Diam,ErrDiam,dx,ErrX,dy,ErrY,dz,ErrZ);
-%             D3tot = D3 + Diam;
-            D3tot = sqrt(dx.^2+dy.^2+dz.^2);
-            D3 = D3tot - Db;
-            Dyz = sqrt(dy.^2+dz.^2);
-            D2 = sqrt(dx.^2+dy.^2);
             
-            
-
-% figure(200)
-% hold on
-% plot(mean(dz),mean(dy),'*')
-
-%             figure(65456)
-%             hold on
-%             minZ = min([mean(Z1) mean(Z2)]);
-%             maxZ = max([mean(Z1) mean(Z2)]);            
-%             plot3(minZ,maxZ,median(D3),'*')
-%             xlabel('Min Z')
-%             ylabel('Max Z')
-%             zlabel('Med D3')
-%             
-%             figure(13325)
-%             hold on
-%             plot(mean([minZ maxZ]),median(D3),'*')
-%             xlabel('Mean Z')
-%             ylabel('Med D')
-
-
-            % correction des points problématique
-            
-            ptrdel2 = find(isnan(dz));
-            % mauvais champ mag
-            
-            if ~contains(specif,'Sep')
-            mB = find(B < 0.8*Bcorrec*str2double(chmpMag(1:end-2)));
-            ptrdel2 = [ptrdel2 mB'];
+            % Isolated points         
+          
+            dd3 = diff(D3);            
+            ptrdeld3 = find(abs(dd3)>300)+1; % points that are more than 300 nm from previous point
+            if ~isempty(ptrdeld3)
+               for kp = 1:length(ptrdeld3)
+                  if ptrdeld3(kp)>length(dd3) || (abs(dd3(ptrdeld3(kp)))>300 &&... % if last point of curve or point also more than 300 nm from the next point 
+                          sign(dd3(ptrdeld3(kp)))~=sign(dd3(ptrdeld3(kp)-1))) % in the other direction (meaning it's isolated)
+                      ptrdel = [ptrdel ptrdeld3(kp)];
+                  end
+               end
             end
-             ptrdel2 = unique(ptrdel2);
             
-
-            D3(ptrdel2) = [];
-            D3tot(ptrdel2) = [];
-            Dyz(ptrdel2) = [];
-            T(ptrdel2) = [];
-            dz(ptrdel2) = [];
-            dy(ptrdel2) = [];
-            dx(ptrdel2) = [];
-            B(ptrdel2) = [];
-            S(ptrdel2) = [];
-
-  
-
-            % trop grand saut en DZ
-            ddz = diff(abs(dz)); 
-            ddzcount = 0;
-            while (max(abs(ddz))> 700)&&(ddzcount<50)
-            ptrdel = find(ddz>700)+1;
-            ptrdel = [ptrdel; find(ddz<-700)];
+           % too big angle between chain and field
+            angle=acos(dx./D3tot); % angle between chain and field direction
+            
+            angle = abs(rad2deg(angle));
+            
+            badangle = find(angle>50 & angle<130);
+            
+            ptrdel = [ptrdel; badangle];
+                        
+            
+            % Big jumps in dz
+          ddz = diff(dz); 
+            ddzcount = 0; 
+            
+            mDz = []; % mask for bad dz
+            
+            dztmp = dz;
+            
+            while (max(abs(ddz))> 700)&&(ddzcount<50) % there are some big jumps in dz
+            mDz = [mDz; find(ddz>700)+1]; % jumps up position
+            mDz = [mDz; find(ddz<-700)+1]; % jumps down position
+            
+            dztmp(mDz) = dztmp(mDz-1);
+            
+            ddz=diff(dztmp); % recalculating ddz to see if more jumping points
+            ddzcount = ddzcount +1;
+            end
+            
+            ptrdel = [ptrdel; mDz];
+            
+            
+            % deletion
             ptrdel = unique(ptrdel);
             D3(ptrdel) = [];
             D3tot(ptrdel) = [];
@@ -228,109 +198,86 @@ if exist([path filesep loadname],'file')
             dx(ptrdel) = [];
             B(ptrdel) = [];
             S(ptrdel) = [];
-            ddz=diff(abs(dz));
-            ddzcount = ddzcount +1;
-            end
-            
 
-            if ddzcount>49
+            if ddzcount>49 % if there are too many successive points in a jump curve is considered invalid
                 Valid = 0;           
                 cprintf('err', ' Too much ddz problems\n');
-                pause(0.5)
-            end 
+                pause(0.5) % for visualition
+            else
+
+            cprintf('Com', [' OK.\n']);
             
-            clear ptrdel
-            
-            % point isolé en 3D (trop haut ou trop bas)
-            
-          
-            dd3 = diff(D3);            
-            ptrdeld3 = find(abs(dd3)>300)+1;
-            if ~isempty(ptrdeld3)
-                ptrdel = [];
-               for kp = 1:length(ptrdeld3)
-                  if ptrdeld3(kp)>length(dd3) || (abs(dd3(ptrdeld3(kp)))>300 &&...
-                          sign(dd3(ptrdeld3(kp)))~=sign(dd3(ptrdeld3(kp)-1)))
-                      ptrdel = [ptrdel ptrdeld3(kp)];
-                  end
-               end
-                D3(ptrdel) = [];
-            D3tot(ptrdel) = [];
-            Dyz(ptrdel) = [];
-            T(ptrdel) = [];
-            dz(ptrdel) = [];
-            dy(ptrdel) = [];
-            dx(ptrdel) = [];
-            B(ptrdel) = [];
-            S(ptrdel) = [];
             end
-            
-            clear ptrdel
-            
-            fprintf(' OK\n');
      
         
-            fprintf('Création du vecteur force...');
-            
-            % calcul de la force dipolaire
-            
-            D3nm = D3+Db; % en nm
-            
-            M = 1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % aimantation A.m^-1
+            fprintf('Computation of force...');
+                  
+            if contains(specif,'M270') % for M270 beads
+                
+                M = 0.74257*1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % magnetization [A.m^-1]
 
-            V = 4/3*pi*(Db/2)^3; % en nm^3
-            
-            m = M.*10^-9*V; % moment dipolaire en A.nm^2
-            try
-            Bind = 2*10^5*m./(D3nm.^3); % champ induit par la magnétisation d'une bille voisine
-            catch
-                continue
+                
+            else % for M450 beads
+                
+                M = 1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % magnetization [A.m^-1]
+                
             end
-            Nvois = 1; % nombre de billes au contact
             
-            Btot = B + Nvois*Bind;% B corrigé
+            V = 4/3*pi*(Db/2)^3; % bead volume [nm^3]
             
-            Mtot = 1.05*1600*(0.001991*Btot.^3+17.54*Btot.^2+153.4*Btot)./(Btot.^2+35.53*Btot+158.1);
+            m = M.*10^-9*V; % dipolar moment [A.nm^2]
+           
+            Bind = 2*10^5*m./(D3tot.^3); % induction field from one bead on the other
+
+            Nvois = 1; % number of beads in contact
             
-            mtot = Mtot.*10^-9*V;
+            Btot = B + Nvois*Bind;% corrected B for neighbours
             
-            anglefactor=abs(3*(dx./D3nm).^2-1); % effet angle de la chaine / champ B
+            if contains(specif,'M270') % for M270 beads
+                
+                Mtot = 0.74257*1.05*1600*(0.001991*Btot.^3+17.54*Btot.^2+153.4*Btot)./(Btot.^2+35.53*Btot+158.1); % corrected magnetization
+
+            else % for M450 beads
+                
+                Mtot = 1.05*1600*(0.001991*Btot.^3+17.54*Btot.^2+153.4*Btot)./(Btot.^2+35.53*Btot+158.1); % corrected magnetization
+                
+            end
             
-            F = 3*10^5.*anglefactor.*mtot.^2./D3nm.^4; % en pN
+            mtot = Mtot.*10^-9*V; % corrected dipolar moment
             
-            fprintf(' OK\n');
+            anglefactor=abs(3*(dx./D3tot).^2-1); % angle between chain and field direction
+            
+            F = 3*10^5.*anglefactor.*mtot.^2./D3tot.^4; % force [pN]
+            
+            cprintf('Com', [' OK.\n']);
             
                                             
-            fprintf('Validation des données...')
+            fprintf('Data validation...')   
             
-            
-            
-            
-            if Valid
-            if  (length(T)/NptsTot > 0.5) && ...
-                    ((T(end)-T(1) > 120)|| contains(chmpMag,'R80')||...
-                    contains(specif,'Sep')||contains(chmpMag,'R40')||...
-                    contains(chmpMag,'R90')||...
+            if Valid % if still valid
+            if  (length(T)/NptsTot > 0.5) && ... % check if too many points have been removed
+                    ((T(end)-T(1) > 120)|| contains(tag,'R')||... % check if duration of curve is long enough, overlook duration check if inside/outside/ramp/separation experiment
+                    contains(specif,'Sep')||...
                     contains(specif,'Inside')||contains(specif,'Outside')) 
-                
-                Valid = 1;
-                fprintf(' OK\n');
+                                cprintf('Com', [' OK.\n']);
+                Valid = 1; % still valid
             else
-                Valid = 0;            
+                Valid = 0; % not valid    
                 cprintf('err', ' Not Enough Points\n');
                 pause(0.5)
                 
             end
+            
+            else
+                cprintf('err', ' Not saved\n');
             end
             
+
+            
             if Valid
-            fprintf('Création des variables...');
+            fprintf('Variable creation...');
             
-            
-                MR{kc}.actigood = length(T)/NptsTot > 0.5;
                 MR{kc}.name = name;
-                MR{kc}.class = class;
-                MR{kc}.nbBI = nbBilleInt;
                 MR{kc}.stack = MT{kc}.stack;
                 MR{kc}.F=F;
                 MR{kc}.dx=dx;
@@ -342,42 +289,34 @@ if exist([path filesep loadname],'file')
                 MR{kc}.B=B;
                 MR{kc}.time = T;
                 MR{kc}.S = S;
-                MR{kc}.L = L;
+              
 
+                cprintf('Com', [' OK.\n\n']);                             
                 
-
-                
-                fprintf(' OK\n\n');
-                             
-                
-                fprintf('Sauvegarde partielle...');
-                save([sf filesep 'V2D' filesep savenamepart],'MR');
-                fprintf(' OK\n\n\n');
+                fprintf('Partial saving...');
+                save([resfolder filesep 'V2D' filesep savenamepart],'MR');
+               cprintf('Com', [' OK.\n']);
             else
-                NotSaved = {NotSaved{:}, name};
+                NotSaved = {NotSaved{:}, name}; % if not saved, store name
             end
-
-            
-            clear S X* Y* Z* dx dy dz dxp dyp dzp ptr* D3* B BT* Elps* DistC* ...
-                    ErrD T ls S name F Valid ddzcount;
             
         end
         
     end
+    
+else
+    error(['Couldn''t find the file : ' [path filesep loadname]]) % problem with file name
 end
 
 EE = exist('MR');
 
 if EE == 1
-    fprintf('Sauvegarde complete...');
-    save([sf filesep 'V2D' filesep savename],'MR');
-    delete([sf filesep 'V2D' filesep savenamepart '.mat']);
-    if nargin ==9 && not(isempty(resfolderbis))
-    save([scf filesep datenow filesep 'V2D' filesep savename],'MR');
-    end
-    fprintf(' OK\n\n');
+    fprintf('\n\nComplete saving...');
+    save([resfolder filesep 'V2D' filesep savename],'MR');
+    delete([resfolder filesep 'V2D' filesep savenamepart '.mat']); % removing partial save file
+    cprintf('Com', [' OK.\n\n']);
     
-    fprintf([num2str(kc) ' jeux de données traités\n\n\n']);
+    fprintf([num2str(kc) ' data set analyzed.\n\n\n\n']);
 else
     
     fprintf('No existing file in the given list. \nCheck for a path error. \n\n');

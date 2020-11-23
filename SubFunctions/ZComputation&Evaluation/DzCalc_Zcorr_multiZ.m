@@ -1,7 +1,14 @@
 function dzcalc = DzCalc_Zcorr_multiZ(X1tot,X1,Y1tot,Y1,X2tot,...
     X2,Y2tot,Y2,Stot,S,stackname,Sdown,Smid,Sup,depthoname,depthofolder)
-% renvoi Z1 et Z2 en micron
-% tic
+
+% dzcalc = DzCalc_Zcorr_multiZ(X1tot,X1,Y1tot,Y1,X2tot,...
+%    X2,Y2tot,Y2,Stot,S,stackname,Sdown,Smid,Sup,depthoname,depthofolder)
+% 
+% Computes dz in micron by correlating a line of pixel from the beads image
+% to a reference depthograph. This computation is more accurate than
+% DzCalc_Zcorr as it take into account three images taken at different
+% height and average the dz over these three images.
+%
 
 set(0, 'defaultfigureposition', get(0, 'Screensize').*[20 20 0.98 0.9]);
 

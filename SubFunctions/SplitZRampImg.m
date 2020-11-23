@@ -1,5 +1,12 @@
 function [Sdown,Smid,Sup,Sramp] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg)
 
+% [Sdown,Smid,Sup,Sramp] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg)
+%
+% Splits the image list Sfull between list for down, middle and up images
+% corresponding to the triplets taken in Z when not in a ramp.  
+% And a list of image that are during a ramp. 
+
+
 Mdown = logical(zeros(1,length(Sfull)));
 Mmid  = Mdown;
 Mup   = Mdown;

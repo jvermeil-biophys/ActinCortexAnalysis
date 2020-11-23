@@ -31,7 +31,7 @@
 %
 %   Examples:
 %   ========
-%       locsum = slocdir(ï¿½c:\workï¿½);
+%       locsum = slocdir(‘c:\work’);
 %       locsum = slocDir('C:\work', 'workspace_SLOC.txt');
 %       locsum = slocDir('C:\work', 'workspace_SLOC.txt', false);
 %

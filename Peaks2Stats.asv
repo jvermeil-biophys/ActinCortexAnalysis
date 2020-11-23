@@ -146,17 +146,14 @@ if E == 2
         
         
        % Autocorrelation
-       
-       MinTime = 300; % minimum time to do autocorrelation
-       Fs = 2; % autocorrelation sampling frequency
-       
-        if (T(end) - T(1) > MinTime+1) && ((T(end)-T(1))/(length(T)-1) <= 1) % done only for curves longer than MinTime and with consistency in time
+        
+        if (T(end) - T(1) > 300) && ((T(end)-T(1))/(length(T)-1) <= 1) % done only for curves > 5 min and with consistency in time
             
             
-            [C,L] = FFTandAUTOCORR(T,D3,Fs); % performs cure autocorrelation. 
+            [C,L] = FFTandAUTOCORR(T,D3,2); % performs cure autocorrelation. 
             % This function also does FFT but here it is desactivated as it is unsused
             
-            ptr = L<MinTime+1; % only taking the first MinTime seconds
+            ptr = L<301; % only taking the first five minutes
             
             C = C(ptr); % Correlation value
             L = L(ptr); % lags            
@@ -186,8 +183,8 @@ if E == 2
                 
             end
             
-            Lags = [Lags(:)' L']; % lag from
-            Corrs = [Corrs(:)' C']; % correlation
+            Lags = [Lags(:)' L]; % lag from
+            Corrs = [Corrs(:)' C]; % correlation
             Mins = [Mins L(locmn)]; % First minimum of autocorrelation
             Maxs = [Maxs L(locmx)]; % First maximum of autocorrelation
             
@@ -270,11 +267,7 @@ MS.CortAssyms = CAssTot;
 MS.MedCortWs = MedCTot;
 MS.Acticurves = ActiCurves;
 MS.lags = Lags;
-MS.corrs = Corrs;
-MS.corrmins = Mins;
-MS.corrmaxs = Maxs;
-MS.mintimecorr = MinTime;
-MS.freqsamp = Fs; 
+MS.
 
 
 fprintf(['\nTotal number of peakes kepts for plotting : ' ...

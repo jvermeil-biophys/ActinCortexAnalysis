@@ -109,24 +109,26 @@ for i = 1:Ls
                 pause
             end
             
+            if contains(figtitle,'MidLS')
+            figure
+            hold on
+            subplot(311)
+            hold on
+            imshow(ROI1)
+            plot(X1inRoi/10,Y1inRoi/10,'*')
+            title(figtitle)
+            subplot(312)
+            hold on
+            imshow(uint16(ROI1int))
+            plot(X1inRoi,Y1inRoi,'*')
+            plot(X1inRoi-Leng*10:X1inRoi+Leng*10,ones(20*Leng+1)*Y1inRoi,'r-.')
+            subplot(313)
+            hold on
+            plot(L1)
+            plot(midL1,L1(midL1),'*')
             
-%             figure
-%             hold on
-%             subplot(311)
-%             hold on
-%             imshow(ROI1)
-%             plot(X1inRoi/10,Y1inRoi/10,'*')
-%             title(figtitle)
-%             subplot(312)
-%             hold on
-%             imshow(uint16(ROI1int))
-%             plot(X1inRoi,Y1inRoi,'*')
-%             plot(X1inRoi-Leng*10:X1inRoi+Leng*10,ones(20*Leng+1)*Y1inRoi,'r-.')
-%             subplot(313)
-%             hold on
-%             plot(L1)
-%             plot(midL1,L1(midL1),'*')
-%             
+            close
+            end
 
             %bille 1
 

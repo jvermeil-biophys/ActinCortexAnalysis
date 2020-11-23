@@ -18,7 +18,7 @@ R2CRITERION = 0.9;
 SAVING_CRITERIONs = [];
 
 % constante
-RADIUS = DIAMETER/2000; % Rayon de la bille en µm
+RADIUS = DIAMETER/2000; % Rayon de la bille en ï¿½m
 
 %% params and settings
 
@@ -28,7 +28,7 @@ outvar = [];
 % h='C:\Users\Valentin\Dropbox\TheseValentin\Matlab';
 datenow = datestr(now,'yy-mm-dd');
 
-% dossier de données et sauvegarde des données
+% dossier de donnï¿½es et sauvegarde des donnï¿½es
 path = [resfolder filesep 'V2D'];
 sf = [resfolder filesep 'D2M'];
 
@@ -36,7 +36,7 @@ sf = [resfolder filesep 'D2M'];
 mkdir(sf)
 % Param pour fit
 LoopCont = 0;
-LoopDef = 1; % conditionné a loopcont = 0
+LoopDef = 1; % conditionnï¿½ a loopcont = 0
 
 ContTh = 1000; % en Pa
 DefTh = 100; % en % de def
@@ -113,7 +113,7 @@ if exist([path filesep loadname],'file')
     
     for i=1:nCells
         if not(isempty(MR{i}))
-            % récupération des données
+            % rï¿½cupï¿½ration des donnï¿½es
             currentCellData = MR{i};
             currentCellName{i} = currentCellData.name;
             
@@ -134,7 +134,7 @@ if exist([path filesep loadname],'file')
             F = currentCellData.F;
             B = currentCellData.B;
             
-            % Donnée force cst [cst = constante]
+            % Donnï¿½e force cst [cst = constante]
             CstData = currentCellData.CstData;
             D3cst = CstData(:,3)*1000-DIAMETER;
             Tcst = CstData(:,2);
@@ -147,7 +147,7 @@ if exist([path filesep loadname],'file')
             
             medianCortThick(i) = medianCorticalThicknessCst;
             
-            % Données rampe
+            % Donnï¿½es rampe
             FullRampData = currentCellData.RampData{2}; % all data
             D3rmp = FullRampData(:,3)*1000 - DIAMETER;
             Trmp = FullRampData(:,2);
@@ -243,20 +243,20 @@ if exist([path filesep loadname],'file')
                     %%% [/data saving] %%
                     
                     
-                    Btot = RampData{ii}(:,5); % Champ mag sur toute la duréee de la rampe
+                    Btot = RampData{ii}(:,5); % Champ mag sur toute la durï¿½ee de la rampe
                     
                     minBtot = min(Btot);
                     
-                    % Les lignes qui suivent servent à detecter le début de la rampe de champ magnetique.
-                    % Pour Bamplitude = Bmax - Bmin, on place le début de la rampe à l'index pour lequel
-                    % B = Bmin + Bamplitude/40 et la fin à l'index où B = Bmax.
+                    % Les lignes qui suivent servent ï¿½ detecter le dï¿½but de la rampe de champ magnetique.
+                    % Pour Bamplitude = Bmax - Bmin, on place le dï¿½but de la rampe ï¿½ l'index pour lequel
+                    % B = Bmin + Bamplitude/40 et la fin ï¿½ l'index oï¿½ B = Bmax.
                     [maxBtot,indexMaxBtot] = max(Btot);
                     minBtot = min(Btot);
                     thresholdBtot = (maxBtot - minBtot) / 50; % variation de 2%
                     [~,indexThresholdBtot] = min(abs(Btot(1:indexMaxBtot) - (minBtot+thresholdBtot)));
                     
                     
-                    % l'index bis correspond à la fin de la partie descendante de la rampe.
+                    % l'index bis correspond ï¿½ la fin de la partie descendante de la rampe.
                     [~,indexThresholdBtotBis] = min(abs(Btot(indexMaxBtot:end) - (minBtot+thresholdBtot)));
                     indexThresholdBtotBis = indexThresholdBtotBis + indexMaxBtot - 1;
                     
@@ -264,11 +264,11 @@ if exist([path filesep loadname],'file')
                     pointeur3 = Btot(1:indexMaxBtot) < minBtot+0.3 & Btot(1:indexMaxBtot) > minBtot-0.3; % Intersection d'ensembles
                     
                     % Definition of the 2 parts of the ramps
-                    Dup = RampData{ii}(indexThresholdBtot:indexMaxBtot,3) - DIAMETER/1000; % Distance (en µm) pendant la phase de compression
-                    Ddown = RampData{ii}(indexMaxBtot:indexThresholdBtotBis,3) - DIAMETER/1000; % Distance (en µm) pendant la phase de décompression
+                    Dup = RampData{ii}(indexThresholdBtot:indexMaxBtot,3) - DIAMETER/1000; % Distance (en ï¿½m) pendant la phase de compression
+                    Ddown = RampData{ii}(indexMaxBtot:indexThresholdBtotBis,3) - DIAMETER/1000; % Distance (en ï¿½m) pendant la phase de dï¿½compression
                     
                     Fup = RampData{ii}(indexThresholdBtot:indexMaxBtot,4); % Force (en pN) pendant la phase de compression
-                    Fdown = RampData{ii}(indexMaxBtot:indexThresholdBtotBis,4); % Force (en pN) pendant la phase de décompression
+                    Fdown = RampData{ii}(indexMaxBtot:indexThresholdBtotBis,4); % Force (en pN) pendant la phase de dï¿½compression
                     
                     Tup = RampData{ii}(indexThresholdBtot:indexMaxBtot,2);
                     
@@ -281,7 +281,7 @@ if exist([path filesep loadname],'file')
                     %% Analyse mecanique
                     
                     % definition des variables et constantes
-                    Hcomp = Dup; % épaisseur du cortex pendant la compression en µm
+                    Hcomp = Dup; % ï¿½paisseur du cortex pendant la compression en ï¿½m
                     Fcomp = Fup; % force pendant la compression
                     Tcomp = Tup;
                     
@@ -290,24 +290,24 @@ if exist([path filesep loadname],'file')
                     
                     pointeurMonotonie =  differentialHcomp > 0; % 1 quand croissant 0 quand decroissant
                     
-                    MaxDisplacementCummulative = MaxDisplacement; % deplacement maximum cumulé sur plus de trois points de suite
+                    MaxDisplacementCummulative = MaxDisplacement; % deplacement maximum cumulï¿½ sur plus de trois points de suite
                     
                     GrowthPhases = bwconncomp(pointeurMonotonie); % get connected component where pointeurMonotonie == 1 <=> zones de croissance
-                    % GrowthPhases.PixelIdxList{k} -> La liste des points de la k ième zone de croissance.
+                    % GrowthPhases.PixelIdxList{k} -> La liste des points de la k iï¿½me zone de croissance.
                     
                     for k = 1:GrowthPhases.NumObjects % nombre de zones
-                        if length(GrowthPhases.PixelIdxList{k}) > 2 % si plus de trois points croissants d'affilée.
+                        if length(GrowthPhases.PixelIdxList{k}) > 2 % si plus de trois points croissants d'affilï¿½e.
                             MaxDisplacementCummulative =  max([MaxDisplacementCummulative sum(differentialHcomp(GrowthPhases.PixelIdxList{k}))*1000]);
                             % on calcule de combien ca monte sur ces points, si c'est plus grand on note la valeur.
                         end
                     end
                     
-                    % On considere que la courbe d'indentation est normalement décroissante
-                    % si il n'y a pas de deplacement de plus de 50nm en 1 pts, ou de remontée
+                    % On considere que la courbe d'indentation est normalement dï¿½croissante
+                    % si il n'y a pas de deplacement de plus de 50nm en 1 pts, ou de remontï¿½e
                     % de plus de 50nm sur 3 pts ou plus.
                     
-                    % On teste également que la tendance globale de la
-                    % courbe est décroissante
+                    % On teste ï¿½galement que la tendance globale de la
+                    % courbe est dï¿½croissante
                     
                     DecreaseFit = robustfit(Fcomp,Hcomp*1000);
                     
@@ -357,7 +357,7 @@ if exist([path filesep loadname],'file')
                     % estimation de H0 par fit elastique lineaire
                     F_H0el = F_H0.^(1/2);
                     LinFitCoeff_H0 = polyfit(F_H0el, H_H0, 1);
-                    H0el = LinFitCoeff_H0(2); % épaisseur de départ
+                    H0el = LinFitCoeff_H0(2); % ï¿½paisseur de dï¿½part
                     
                     
                     H0prev = 10e15;
@@ -524,7 +524,7 @@ if exist([path filesep loadname],'file')
                     StrainRate = 0.5.*sqrt(1./(6.*pi.*RADIUS.*Finterp.*H0chadFit.*EchadFit)).*Fdotinterp; %
                     
                     
-                    Deltadot  = diff(-smooth(Dup,8))./diff(Tup); % pas besoin de H0 pour la dérivée
+                    Deltadot  = diff(-smooth(Dup,8))./diff(Tup); % pas besoin de H0 pour la dï¿½rivï¿½e
                     
                     
                     ExpStrainRate = Deltadot/(3*H0chadFit);
@@ -732,7 +732,7 @@ if exist([path filesep loadname],'file')
                         hold on
                         title('Evolution of H0 with loops')
                         plot(0:cpt,[H0prev(2:end) H0tmp]*1000,'ko-','markerfacecolor','c')
-                        xlabel('Loop n°','FontName','Serif')
+                        xlabel('Loop nï¿½','FontName','Serif')
                         ylabel('H0 (nm)','FontName','Serif')
                         
                         
