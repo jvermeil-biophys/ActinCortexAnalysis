@@ -90,8 +90,7 @@ for kt = 1:nt
         load([DataF filesep filename])
         fprintf(['File loaded : ' filename '\n']);
         
-        Data = MS.data;
-        
+      
         
         % get data
         CortThick{kt} = MS.MedCortWs;

@@ -153,19 +153,19 @@ if E == 2
         if (T(end) - T(1) > 300) && ((T(end)-T(1))/(length(T)-1) <= 1) % done only for curves > 5 min and with consistency in time
             
             
-            [C,L] = FFTandAUTOCORR(T,D3,2); % performs cure autocorrelation. 
-            % This function also does FFT but here it is desactivated as it is unsused
+            [C,L] = FFTandAUTOCORR(T,D3,2);
             
-            ptr = L<301; % only taking the first five minutes
+            ptr = L<301;
             
-            C = C(ptr); % Correlation value
-            L = L(ptr); % lags            
+            C = C(ptr);
+            L = L(ptr);
             
-            [~, locmn] = findpeaks(-C,'NPeaks',1,'minpeakprominence',0.01); % first minimum
             
-            [~, locmx] = findpeaks(C,'NPeaks',1,'minpeakprominence',0.01); % first maximum
+            [~, locmn] = findpeaks(-C,'NPeaks',1,'minpeakprominence',0.01);
             
-            if PLOT % plot autocorr curve and makrs first minimum and maximum
+            [~, locmx] = findpeaks(C,'NPeaks',1,'minpeakprominence',0.01);
+            
+            if PLOT
                 figure
                 hold on
                 title([specif ' : Autocorrelation of ' AcqName])
@@ -179,11 +179,10 @@ if E == 2
                 xlim([0 350])
                 ylim([-0.8 1.05])
                 
-                fig = gcf; % save fig
+                fig = gcf;
                 saveas(fig,[ffp2 filesep 'Autocorr_' specif ' - ' AcqName '.png'],'png')
                 saveas(fig,[ffp2 filesep 'Autocorr_' specif ' - ' AcqName '.fig'],'fig')
                 close
-                
             end
             
             Lags = [Lags(:)' L]; % lag from
@@ -206,7 +205,7 @@ if E == 2
         AllD3 =  [AllD3 D3'];
         D3DataPts = [D3DataPts D3Centered];
         
-        % activity curve
+                    
         ActiCurveX = sort(D3Centered);
         ActiCurveY = (length(ActiCurveX):-1:1)/length(ActiCurveX)*100;
 
@@ -244,7 +243,7 @@ if E == 2
 % Removing peaks smaller than 15nm (noise)
 peakslim = 15;
 
-Psort = P(P>peakslim); 
+Psort = P(P>peakslim);
 PNsort = PN(P>peakslim);
 Hsort = H(P>peakslim);
 Wsort = W(P>peakslim);

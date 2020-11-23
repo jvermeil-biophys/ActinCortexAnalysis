@@ -1,8 +1,8 @@
 function Data2Peaks(specif,PLOT,...
-    datafolder,figurefolder)
+    resfolder,figurefolder)
 
 %
-% Data2Peaks is used for analyzing constant field curves. it detects peaks
+% Data2Peaks is used for analyzing constant field curves. It detects peaks
 % and validated them based on several criterions. it also computes the
 % median thickness of the cortex and the fluctuations amplitude. For curves
 % that are longer than 10 minutes it also computes fluctuations for the
@@ -14,7 +14,7 @@ function Data2Peaks(specif,PLOT,...
 %
 % specif : experimental condiion (ex: 'Dicty_WT')
 % PLOT : 1 = plot some graphs, 0 = thou shall not plot
-% datafolder : path to the raw data, should be RawdataFolder in main
+% resfolder : path to the matlab data, should be MatFileFolder in main
 % figurefolder : path to figure saving folder, should be FigureFolder
 % in main
 %
@@ -26,7 +26,7 @@ set(0,'DefaultAxesFontSize',20)
 warning('off','all')
 
 % data folder
-df = [datafolder filesep 'V2D'];
+df = [resfolder filesep 'V2D'];
 
 % listing file to analyze
 dfContents = dir(df);
@@ -36,7 +36,7 @@ ListOfInterest = filelist(contains(filelist,specif));
 % save folder
 datenow = datestr(now,'yy-mm-dd');
 ff = [figurefolder filesep datenow]; % figure folder
-mkdir([datafolder filesep 'D2P']) % matfile save folder
+mkdir([resfolder filesep 'D2P']) % matfile save folder
 
 % initialisation of variables for double pinched cells
 CommonTimes = {};
@@ -331,7 +331,7 @@ Sname = ['D2P_' specif];
 if exist('MP','var')
     
     
-    savename = [datafolder filesep 'D2P' filesep Sname];
+    savename = [resfolder filesep 'D2P' filesep Sname];
     save(savename,'MP')
     
     fprintf(['File saved : \n' Sname '.mat \n\n']);
@@ -339,7 +339,7 @@ end
 
 % separate saving for double pinching
 if ~isempty(CommonTimes)
-    save([datafolder filesep 'D2P' filesep 'DoubleInt_' specif],'CommonTimes','CurveOnes', 'CurveTwos',...
+    save([resfolder filesep 'D2P' filesep 'DoubleInt_' specif],'CommonTimes','CurveOnes', 'CurveTwos',...
         'NameOnes', 'NameTwos', 'Lags', 'Corrs')
 end
 

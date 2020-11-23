@@ -64,9 +64,8 @@ Dgrid = Dgrid - mean(Dgrid); % centering data
 
 [Corr,Lags] = xcorr(Dgrid,'coeff'); % crosscorrelation
 
-% since this is autocorrelation we take only positive lags
-Corr = Corr(Lags>0); 
-Lags = Lags(Lags>0); 
+Corr = Corr(Lags>0); % selecting positiv lags
+Lags = Lags(Lags>0);
 
 LagsF =Lags/Fs;
 
