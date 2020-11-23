@@ -521,7 +521,7 @@ end
 
 end
 
-function PlotMedP1090(MedCw,P10,P90,coord,col) % function for plotting all cells cortex thickness and fluctuation per cell
+function PlotMedP1090(MedCw,P10,P90,coord,col) % function for plotting cortex thickness and fluctuation per cell
 
 step = 0.9/(length(MedCw)+1);
 x = (1:length(MedCw))*step-0.45;

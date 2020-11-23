@@ -41,15 +41,15 @@ NotSaved = {}; % gather a list of non saved data (because of sorting criteria)
 
 % for d2p
 PLOTDP = 0; % plot curve with cortex level
-alignlvl = 0.9; % for probcum
+alignlvl = 0.5; % for probcum
 
 % for p2s
 PLOTPS = 0;
 
 % for s2p
 PEAKS    = 1;
-ACTI  = 1;
-DIST   = 1;
+PROBA  = 1;
+DIST   = 0;
 TIME = 1;
 
 return % stop execution here 
@@ -1370,16 +1370,175 @@ Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
     
     Peaks2Stats('DC_Inside_DMSO',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
 
-  
+
+    
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Stats2PLots %%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
     
-    CORT = 0;
+
     PEAKS    = 0;
-    ACTI  = 0;
+    PROBA  = 1;
     DIST   = 0;
-    TIME = 1;
+    TIME = 0;
     
-    Stats2Plots({'DictyAx2_DMSO','DictyAx2_LatA'},{Cdm,Cb},...
-        'DictyAx2LatA',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
+    Stats2PlotsDictys({'DictyAx2_DMSO','DictyAx2_LatA'},...
+        'NewDictys',DIST,PEAKS,PROBA,TIME,alignlvl,MatfileFolder,FigureFolder,FigureFolder)
+    
+        FigureMaker(1,MatfileFolder,FigureFolder)
+    
+
+        Stats2Plots({'DCLA_DMSO','Dicty_WT'},...
+        'DC-Dicty',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder,FigureFolder)
+    
+    
+    Stats2Plots({'DCLA_DMSO','NicoActiDownVar'},...
+        'NewDCLA-NICODOWNVar',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_DMSO','NicoActiUp'},...
+        'NewDCLA-NICOUP',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_DMSO','NicoActiUpVar'},...
+        'NewDCLA-NICOUPVar',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+        Stats2Plots({'DC_Inside_3mT','DC_Inside_5mT'},...
+        'Inside1-3-5mT',DIST,PEAKS,PROBA,TIME,alignlvl,MatfileFolder,FigureFolder)
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_Blebbi'},...
+        'NewDCLA-Bleb',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_DMSO','DCLA_CalA1','DCLA_CalA3','DCLA_CalA10'},...
+        'NewDCLA-CalA_',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_DMSO','DCLA_CK666'},...
+        'NewDCLA-Arp',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_DMSO','DCLA_SMIFH2'},...
+        'NewDCLA-SM',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_DMSO','DCLA_ML141'},...
+        'NewDCLA-ML',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_ArpC4WT','DCLA_ArpC4KO'},...
+        'NewDCLA-ArpC4',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_ArpinWT','DCLA_ArpinKO'},...
+        'NewDCLA-Arpin',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_MyoII-WT','DCLA_MyoII-KO'},...
+        'NewDCLA-MyoII',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+      
+    Stats2Plots({'DCLA_DMSO','DCLA_LatA500'},...
+        'NewDCLA-LatA',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    
+    Stats2Plots({'DCLA_DMSO','Dicty_WT'},...
+        'DC-Dicty',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    Stats2Plots({'DCLA_DMSO','RPE1'},...
+        'DC-RPE1',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    % pooled figs
+    
+    Stats2Plots({'DCLA_DMSO','DC_Inside_7-5pc','DC_TrueOutside','DCLA_LatA500'},...
+        'NewDCLA-LatA,inout',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_DMSO','DC_Inside_7-5pc','DC_TrueOutside'},...
+        'NewDCLA-inout',DIST,PEAKS,PROBA,0.5,MatfileFolder,FigureFolder)
+        Stats2Plots({'DC_Inside_0pc','DC_Inside_5pc','DC_Inside_7-5pc','DC_Inside_10pc','DC_Inside_12-5pc','DC_Inside_15pc'},...
+        'NewDCLA-insides',DIST,PEAKS,PROBA,0.5,MatfileFolder,FigureFolder)
+    
+        Stats2Plots({'DCLA_DMSO','DC_Inside_7-5pc','DCLA_LatA500'},...
+        'NewDCLA-LatA,in',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_LatA500','DCLA_Blebbi','DCLA_CK666',...
+        'DCLA_SMIFH2'},...
+        'NewDCLA-Basic',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+        
+    Stats2Plots({'DCLA_DMSO','DCLA_Blebbi','DCLA_LatA500'},...
+        'NewDCLA-BBLat',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_Blebbi','DCLA_CalA1','DCLA_CK666',...
+        'DCLA_SMIFH2'},...
+        'NewDCLA-BasicnoLA',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)   
+
+     FigureMaker(1,MatfileFolder,FigureFolder)
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_NoDrug'},...
+        'NewDCLA-Controls',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)    
+    Stats2Plots({'DCLA_NoDrug','DCLA_Y27'},...
+        'NewDCLA-Y27',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)    
+    Stats2Plots({'DCLA_MyoII-WT','DCLA_MyoII-KO'},...
+        'NewDCLA-Myo',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)    
+    Stats2Plots({'DCLA_ArpinWT','DCLA_ArpinKO'},...
+        'NewDCLA-Arpin',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)    
+    Stats2Plots({'DCLA_ArpC4WT','DCLA_ArpC4KO'},...
+        'NewDCLA-ArpC4',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)    
+
+    
+    
+    
+    
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_CK666','DCLA_ArpinWT','DCLA_ArpinKO'},...
+        'NewDCLA-Arp23',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    Stats2Plots({'NicoActiDown','NicoActiDownVar','NicoActiUp','NicoActiUpVar'},...
+        'NewDCLA-NICODOWN',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+            Stats2Plots({'DCLA_DMSO','NicoActiDown','NicoActiDownVar'},...
+        'NewDCLA-NICODOWN+',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+
+    Stats2Plots({'DCLA_DMSO','NicoActiUp','NicoActiUpVar'},...
+        'NewDCLA-NICOUP+',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+
+    
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_CalA1','DCLA_CalA3','DCLA_CalA10'},...
+        'NewDCLA-CalA',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+        Stats2Plots({'DCLA_DMSO','DCLA_CalA3'},...
+        'NewDCLA-CalA3',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+        Stats2Plots({'DCLA_DMSO','DCLA_CalA1'},...
+        'NewDCLA-CalA1',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_Blebbi','DCLA_CalA1','DCLA_SMIFH2','DCLA_CK666'},...
+        'NewDCLA-Fig3',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    
+    Stats2Plots({'DCLA_DMSO2','DCLA_SiCtrl','DCLA_SiVim','DCLA_SiCtrl+LatA','DCLA_SiVim+LatA'},...
+        'NewDCLA-KDvim',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_Blebbi','DCLA_Y27','DCLA_CalA1'},...
+        'NewDCLA-Myo',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_CalA1','DCLA_CalA3'},...
+        'NewDCLA-DMSOCalA',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+
+    
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_Blebbi','DCLA_CalA1'},...
+        'NewDCLA-BBCal1',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+        Stats2Plots({'DCLA_DMSO','DC_Inside_7-5pc','DC_TrueOutside'},...
+        'NewDCLA-inout',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_LatA500','DC_Inside_7-5pc'},...
+        'NewDCLA-LatAin',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'DCLA_DMSO','DCLA_LatA500','DC_Inside_7-5pc','DC_TrueOutside'},...
+        'NewDCLA-LatAinout',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    
+
+        
+ 
+    
+        Stats2Plots({'DCLA_DMSO'},...
+        'NewDCLA-DMSO',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    
+    
+        Stats2Plots({'DCLA_DMSO','DCLA_LatA500','DCLA_SMIFH2','DCLA_CK666'},...
+        'NewDCLA-F',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+        Stats2Plots({'DCLA_DMSO','DCLA_LatA500','DCLA_Blebbi','DCLA_CalA1'},...
+        'NewDCLA-Fig',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+            Stats2Plots({'DCLA_DMSO','DCLA_Blebbi','DCLA_CalA1','DCLA_CK666',...
+        'DCLA_SMIFH2'},...
+        'NewDCLA-BasicnoLA',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)
+    
+    
+    
+    Stats2Plots({'DCLA_DMSO','DCLA_Blebbi','DCLA_LatA500'},...
+        'NewDCLA',DIST,PEAKS,PROBA,alignlvl,MatfileFolder,FigureFolder)    
+
+
