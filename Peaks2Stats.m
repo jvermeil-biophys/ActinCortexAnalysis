@@ -25,15 +25,12 @@ warning('off','all')
 % data folder
 df = [resfolder filesep 'D2P'];
 
-% save folder
+% data save folder
 sf   = resfolder;
-
-datenow = datestr(now,'yy-mm-dd');
-
 mkdir([sf filesep 'P2S'])
 
-
 % figure folder
+datenow = datestr(now,'yy-mm-dd'); % today
 ff = [figurefolder filesep datenow];
 mkdir(ff)
 
@@ -88,7 +85,7 @@ E = exist([df filesep datafile],'file');
 if E == 2
     
     load([df filesep datafile])
-    fprintf(['File loaded : \n' datafile '. \n']);
+    fprintf(['\nFile loaded : \n' datafile '. \n']);
     
     % number of curves
     nc=size(MP,2);
@@ -180,8 +177,8 @@ if E == 2
                 ylim([-0.8 1.05])
                 
                 fig = gcf; % save fig
-                saveas(fig,[ffp2 filesep 'Autocorr_' specif ' - ' AcqName '.png'],'png')
-                saveas(fig,[ffp2 filesep 'Autocorr_' specif ' - ' AcqName '.fig'],'fig')
+                saveas(fig,[ff filesep 'Autocorr_' specif ' - ' AcqName '.png'],'png')
+                saveas(fig,[ff filesep 'Autocorr_' specif ' - ' AcqName '.fig'],'fig')
                 close
                 
             end
@@ -210,7 +207,7 @@ if E == 2
         ActiCurveX = sort(D3Centered);
         ActiCurveY = (length(ActiCurveX):-1:1)/length(ActiCurveX)*100;
 
-        ActiCurves = [ActiCurves(:)' {ActiCurveX ActiCurveY}]; % activity curves
+        ActiCurves = {ActiCurves{:} {ActiCurveX; ActiCurveY}}; % activity curves
         
         if PLOT % ploting activity curves, cortex thickness and fluctuations (no saving)
 
@@ -245,22 +242,18 @@ if E == 2
 peakslim = 15;
 
 Psort = P(P>peakslim); 
-PNsort = PN(P>peakslim);
 Hsort = H(P>peakslim);
 Wsort = W(P>peakslim);
 PeakCortsort = PeakCort(P>peakslim);
 
 
 %% Storing Data
-MS.freq = NpTot/Ttot*60; 
+MS.freq = NpTot/Ttot*60; % global peaks frequency
 MS.timetot = Ttot;
 MS.proms = Psort;
-MS.promsN = PNsort;
 MS.heights = Hsort;
 MS.peaksCortW = PeakCortsort;
-MS.D3Data = D3Data;
 MS.AllD3 = AllD3;
-MS.AllD3N = AllD3N;
 MS.D3DataPts = sort(D3DataPts);
 MS.widths = Wsort;
 MS.CortBots = CBotTot;
@@ -271,23 +264,22 @@ MS.CortActisBeg = CActBegTot;
 MS.CortActisEnd = CActEndTot;
 MS.CortActis = CActTot;
 MS.CortAssyms = CAssTot;
-MS.CTags = CTagList;
 MS.MedCortWs = MedCTot;
 
 
-fprintf(['Total number of peakes kepts for plotting : ' ...
-    num2str(PeaksDet) '/' num2str(PeaksKept) ' (' num2str(PeaksKept/PeaksDet*100) '%%)']);
+fprintf(['\nTotal number of peakes kepts for plotting : ' ...
+    num2str(PeaksKept) '/' num2str(PeaksDet) ' (' num2str(PeaksKept/PeaksDet*100) '%%)\n']);
 
 
 %% Saving data
-save([sf filesep 'P2S' filesep 'TimeDatas_' Cell],'Distances','YDistances','XDistances,'Times','Names')
-save([sf filesep 'P2S' filesep 'P2S_' Cell],'MS')
-fprintf(['File saved : \nP2S_' Cell '.mat\n\n'])
+save([sf filesep 'P2S' filesep 'TimeDatas_' specif],'Distances','YDistances','XDistances','Times','Names')
+save([sf filesep 'P2S' filesep 'P2S_' specif],'MS')
+fprintf(['\nFile saved : \nP2S_' specif '.mat\n\n\n'])
     
     
 else
     
-    cprintf('err',['File : ' datafile ' not found !'])
+    cprintf('err',['\nFile : ' datafile ' not found !\n'])
     
 end
 

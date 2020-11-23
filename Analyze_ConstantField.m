@@ -1349,7 +1349,8 @@ Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
     Peaks2Stats('DCLA_SiCtrl+LatA',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
     
     
-    Peaks2Stats('Dicty_WT',1,alignlvl,MatfileFolder,FigureFolder);
+    Peaks2Stats('DictyAx2_DMSO',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
+    Peaks2Stats('DictyAx2_LatA',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
     
     %% Inside     
     Peaks2Stats('DC_Inside_0pc',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
