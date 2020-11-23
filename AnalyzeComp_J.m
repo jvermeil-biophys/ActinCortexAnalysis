@@ -102,6 +102,9 @@ if 0
     %% Joseph
     
     % 3T3
+    Res2Var_wFluo_multiZ_Comp_J('Results','13-11-20','M1','3T3Patterns_R40','3T3WT_pattern',ExperimentalConditions3T3,1,...
+        '20-02-20_Depthograph100x',18,133,169,AUTO,RawdataFolder,MatfileFolder)
+    
     Res2Var_wFluo_multiZ_Comp_J('Results','07-08-20','M1','R40_3T3aSFLdoxi','3T3aSFL_BSA_doxi',ExperimentalConditions3T3,1,...
         '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
     
@@ -326,6 +329,8 @@ if 0
     %% Joseph
     
     % 3T3
+    Var2Data_wFluo_Comp_J('13-11-20','M1','3T3Patterns_R40','3T3WT_pattern',ExperimentalConditions3T3,133,169,RawdataFolder,MatfileFolder,FigureFolder)
+    
     Var2Data_wFluo_Comp_J('07-08-20','M1','R40_3T3aSFLdoxi','3T3aSFL_BSA_doxi',ExperimentalConditions3T3,95,143,RawdataFolder,MatfileFolder,FigureFolder)
     
     Var2Data_wFluo_Comp_J('07-08-20','M2','R40_3T3aSFLnodrugs','3T3aSFL_BSA_nodrugs',ExperimentalConditions3T3,95,143,RawdataFolder,MatfileFolder,FigureFolder)
@@ -497,6 +502,10 @@ if 0
     %% D2M Joseph
     PLOT = 1; % PLOT = 0;
     
+    % Patterns
+    Data2Meca_J('13-11-20','M1','3T3Patterns_R40','3T3WT_pattern',ExperimentalConditions3T3,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+
+    
     % 3T3
     PLOT = 0;
     Data2Meca_J('07-08-20','M1','R40_3T3aSFLdoxi','3T3aSFL_BSA_doxi',ExperimentalConditions3T3,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
@@ -533,6 +542,8 @@ if 0
     %% M2P Joseph
 
     % 3T3
+    Meca2Plot_J('3T3WT_pattern',Cct,MatfileFolder,FigureFolder)
+    
     Meca2Plot_J('3T3aSFL_BSA_doxi',Cct,MatfileFolder,FigureFolder)
     
     Meca2Plot_J('3T3aSFL_BSA_nodrugs',Cct,MatfileFolder,FigureFolder)
