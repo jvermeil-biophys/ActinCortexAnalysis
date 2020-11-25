@@ -798,15 +798,24 @@ Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM450171120, ...
 {C02_27,C05_27},{M02,M05},...
 {'M450-02s','M450-05s'},'M450_17-11-20',1)
 
-% low force 
-ConditionsM45R12= {'ExpType','DictyDB_M450','TpsComp','02s','FitParams',fitparams,'ExpDay','17-11-20';
+% low force  17-11
+ConditionsM45R12_1711= {'ExpType','DictyDB_M450','TpsComp','02s','FitParams',fitparams,'ExpDay','17-11-20';
     'ExpType','DictyDB_M45R12','TpsComp','02s','FitParams',fitparams,'ExpDay','17-11-20';
     'ExpType','DictyDB_M45R12','TpsComp','2s','FitParams',fitparams,'ExpDay','17-11-20';
     }
 
-Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM45R12, ...
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM45R12_1711, ...
 {C02_27,C12_27,C4},{M02,M02,M4},...
 {'M45R50-02s','M45R12-02s','M4R12-2s'},'M450_lowforce_17-11-20',1)
+
+% low force  18-11
+ConditionsM45R12_1811= {'ExpType','DictyDB_M450','TpsComp','4s','FitParams',fitparams,'ExpDay','18-11-20';
+    'ExpType','DictyDB_M45R12','TpsComp','1s','FitParams',fitparams,'ExpDay','18-11-20';
+    }
+
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM45R12_1811, ...
+{C02_27,C12_27},{M02,M02},...
+{'M45R50-4s','M45R12-1s'},'M450_lowforce_18-11-20',1)
 
 % M450multirate per cell
 ConditionsM450MultiCell = {'ExpType','DictyDB_M450-Multi','TpsComp','02s','FitParams',fitparams;...
