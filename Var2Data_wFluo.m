@@ -108,7 +108,6 @@ if exist([path filesep loadname],'file')
             B = Bcorrec*BTMat(S,1); % adjusted magnetic field
             T = (BTMat(S,2)-BTMat(1,2))/1000; % time starting at 0 in seconds
 
-            
             ImgSep = median(round(diff(T)/0.1)*0.1); % approximation of time between two images
             
             NptsTot = round((T(end) - T(1))/ImgSep); % estimate of total number of images given duration of curve

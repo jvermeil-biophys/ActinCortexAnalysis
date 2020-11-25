@@ -243,14 +243,19 @@ if exist('MT')
             MT2{kii}.S = MT{kii}.Scst;
             MT2{kii}.x = MT{kii}.xcst;
             MT2{kii}.y = MT{kii}.ycst;
-            MT2{kii}.dz = MT{kii}.dzcst;
+            MT2{kii}.dz = MT{kii}.dzcst;            
+            MT2{kii}.BTMat = MT{kii}.BTMat;
+
         end
     end
     
     MT = MT2;
-    fprintf('Partial saving of constant parts...');
+    fprintf('Saving of constant parts...');
     save([sf filesep 'R2V' filesep savenamecst],'MT','ListD','ListF');
     fprintf(' OK\n\n\n')
+    
+else
+    cprintf('err','No file found ! Check parameters.')
 end
 
 end

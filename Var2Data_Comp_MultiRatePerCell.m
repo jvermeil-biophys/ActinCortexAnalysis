@@ -162,7 +162,7 @@ if exist([path filesep loadname],'file')
             
             % retrieving data sorted in time
             D3 = D3sort(:,2);
-            D = Dsort(:,2);
+            Dx = Dsort(:,2);
             dz = dzsort(:,2);
             S = D3sort(:,1);            
             
@@ -192,14 +192,18 @@ if exist([path filesep loadname],'file')
             Bfull2 = [Bfull(2:end); Bfull(end)];
             Bfull2(cyclesend) = Bfull2(cyclesend-1);
             
-            
             T = Tfull2(S); % timepoints for images kept (1 point per triplet)
-            Tcst = (BTMat(Scst,2)-BTMat(1,2))/1000; % time for cst part
-            Trmp = (BTMat(Srmp,2)-BTMat(1,2))/1000; % time for ramp part
+            B = Bfull2(S); % field for for images kept (1 point per triplet)
             
-                        B = Bfull2(S); % field for for images kept (1 point per triplet)
-            Bcst = Bfull2(Scst); % for cst part
-            Brmp = Bfull2(Srmp); % for ramp
+            ptrcst = ismember(S,Scst);
+            ptrrmp = ismember(S,Srmp);
+            
+            Tcst = T(ptrcst); % time for cst part
+            Trmp = T(ptrrmp); % time for ramp part
+
+            
+            Bcst = B(ptrcst); % for cst part
+            Brmp = B(ptrrmp); % for ramp
             
             cprintf('Com', [' OK.\n']);
             
@@ -215,8 +219,9 @@ if exist([path filesep loadname],'file')
             
             
             % Dipolar force
-            
+          
             D3nm = D3*1000; % in nm
+            Dxnm = Dx*1000; % in nm
             
             if contains(specif,'M270') % for M270 beads
                 
@@ -232,7 +237,7 @@ if exist([path filesep loadname],'file')
             
             m = M.*10^-9*V; % dipolar moment [A.nm^2]
             
-            Bind = 2*10^5*m./(D3tot.^3); % induction field from one bead on the other
+            Bind = 2*10^5*m./(D3nm.^3); % induction field from one bead on the other
             
             Nvois = 1; % number of beads in contact
             
@@ -250,9 +255,9 @@ if exist([path filesep loadname],'file')
             
             mtot = Mtot.*10^-9*V; % corrected dipolar moment
             
-            anglefactor=abs(3*(dx./D3tot).^2-1); % angle between chain and field direction
+            anglefactor=abs(3*(Dxnm./D3nm).^2-1); % angle between chain and field direction
             
-            F = 3*10^5.*anglefactor.*mtot.^2./D3tot.^4; % force [pN]
+            F = 3*10^5.*anglefactor.*mtot.^2./D3nm.^4; % force [pN]
             
             
             Fcst = F(ptrcst); % force during constant part

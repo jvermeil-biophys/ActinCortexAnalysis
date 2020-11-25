@@ -515,66 +515,47 @@ NotSaved = {NotSaved{:},Var2Data_wFluo('12-12-18','R80cst',0.56,'M1','DC-Comp_Ct
 
 % 3T3 joseph
 
-NotSaved = {NotSaved{:},Var2Data_wFluo('04-08-20','R40_3T3aSFLnodrugscst',1.15,'M1','3T3aSFL_BSA_nodrugs',4504,RawdataFolder,MatfileFolder)};
-NotSaved = {NotSaved{:},Var2Data_wFluo('05-08-20','R40_3T3aSFLnodrugscst',1.15,'M2','3T3aSFL_BSA_nodrugs',4504,RawdataFolder,MatfileFolder)};
-NotSaved = {NotSaved{:},Var2Data_wFluo('07-08-20','R40_3T3aSFLnodrugscst',1.15,'M2','3T3aSFL_BSA_nodrugs',4504,RawdataFolder,MatfileFolder)};
+NotSaved = {NotSaved{:},Var2Data_wFluo('04-08-20','R40_3T3aSFLnodrugscst',1.15,'M1','3T3aSFL_BSA_nodrugs',4504,MatfileFolder)};
+NotSaved = {NotSaved{:},Var2Data_wFluo('05-08-20','R40_3T3aSFLnodrugscst',1.15,'M2','3T3aSFL_BSA_nodrugs',4504,MatfileFolder)};
+NotSaved = {NotSaved{:},Var2Data_wFluo('07-08-20','R40_3T3aSFLnodrugscst',1.15,'M2','3T3aSFL_BSA_nodrugs',4504,MatfileFolder)};
 
 %%%%%%%%% billes internes %%%%%%%%%
-Var2Data_wFluo('28-08-18','R80cst',0.56,'M1','DC-Comp_Inside',4415,...
-    RawdataFolder,MatfileFolder)
-Var2Data_wFluo('28-08-18','R80cst',0.56,'M2','DC-Comp_Inside',4415,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('28-08-18','R80cst',0.56,'M1','DC-Comp_Inside',4415,MatfileFolder)
+Var2Data_wFluo('28-08-18','R80cst',0.56,'M2','DC-Comp_Inside',4415,MatfileFolder)
 
 
-Var2Data_wFluo('17-09-18','R80cst',0.56,'M1','DC-Comp_Inside',4438,...
-    RawdataFolder,MatfileFolder)
-Var2Data_wFluo('17-09-18','R80cst',0.56,'M2','DC-Comp_Inside',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('17-09-18','R80cst',0.56,'M1','DC-Comp_Inside',4438,MatfileFolder)
+Var2Data_wFluo('17-09-18','R80cst',0.56,'M2','DC-Comp_Inside',4438,MatfileFolder)
 
 
-Var2Data_wFluo('24-09-18','R80cst',0.56,'M1','DC-Comp_Inside',4438,...
-    RawdataFolder,MatfileFolder)
-Var2Data_wFluo('24-09-18','R80cst',0.56,'M2','DC-Comp_Inside',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('24-09-18','R80cst',0.56,'M1','DC-Comp_Inside',4438,MatfileFolder)
+Var2Data_wFluo('24-09-18','R80cst',0.56,'M2','DC-Comp_Inside',4438,MatfileFolder)
 
 
-Var2Data_wFluo('25-09-18','R80cst',0.56,'M1','DC-Comp_Inside',4438,...
-    RawdataFolder,MatfileFolder)
-Var2Data_wFluo('25-09-18','R80cst',0.56,'M2','DC-Comp_Inside',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('25-09-18','R80cst',0.56,'M1','DC-Comp_Inside',4438,MatfileFolder)
+Var2Data_wFluo('25-09-18','R80cst',0.56,'M2','DC-Comp_Inside',4438,MatfileFolder)
 
 
-Var2Data_wFluo('12-12-18','R80cst',0.56,'M1','DC-Comp_Inside',4438,...
-    RawdataFolder,MatfileFolder)
-Var2Data_wFluo('12-12-18','R80cst',0.56,'M2','DC-Comp_NaseInside',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('12-12-18','R80cst',0.56,'M1','DC-Comp_Inside',4438,MatfileFolder)
+Var2Data_wFluo('12-12-18','R80cst',0.56,'M2','DC-Comp_NaseInside',4438,MatfileFolder)
 
-Var2Data_wFluo('18-12-18','R80cst',0.56,'M2','DC-Comp_NaseInside',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('18-12-18','R80cst',0.56,'M2','DC-Comp_NaseInside',4438,MatfileFolder)
 
 % billes externes
 
-Var2Data_wFluo('25-09-18','R80cst',0.56,'M1','DC-Comp_Outside',4438,...
-    RawdataFolder,MatfileFolder)
-Var2Data_wFluo('25-09-18','R80cst',0.56,'M2','DC-Comp_Outside',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('25-09-18','R80cst',0.56,'M1','DC-Comp_Outside',4438,MatfileFolder)
+Var2Data_wFluo('25-09-18','R80cst',0.56,'M2','DC-Comp_Outside',4438,MatfileFolder)
 
-Var2Data_wFluo('30-10-18','R80cst',0.56,'M1','DC-Comp_Outside',4438,...
-    RawdataFolder,MatfileFolder)
-Var2Data_wFluo('30-10-18','R80cst',0.56,'M2','DC-Comp_Outside',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('30-10-18','R80cst',0.56,'M1','DC-Comp_Outside',4438,MatfileFolder)
+Var2Data_wFluo('30-10-18','R80cst',0.56,'M2','DC-Comp_Outside',4438,MatfileFolder)
 
-Var2Data_wFluo('21-01-19','R80cst',0.56,'M1','DC-Comp_Bsa',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('21-01-19','R80cst',0.56,'M1','DC-Comp_Bsa',4438,MatfileFolder)
 
-Var2Data_wFluo('23-01-19','R80cst',0.56,'M1','DC-Comp_Naked',4438,...
-    RawdataFolder,MatfileFolder)
-Var2Data_wFluo('23-01-19','R80cst',0.56,'M1','DC-Comp_SerumJ1',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('23-01-19','R80cst',0.56,'M1','DC-Comp_Naked',4438,MatfileFolder)
+Var2Data_wFluo('23-01-19','R80cst',0.56,'M1','DC-Comp_SerumJ1',4438,MatfileFolder)
 
 
-Var2Data_wFluo('28-01-19','R80cst',0.56,'M1','DC-Comp_SerumJ6',4438,...
-    RawdataFolder,MatfileFolder)
+Var2Data_wFluo('28-01-19','R80cst',0.56,'M1','DC-Comp_SerumJ6',4438,MatfileFolder)
 
 
 % data from comp

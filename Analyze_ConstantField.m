@@ -618,7 +618,6 @@ return % stop execution here
 
     %% Nouvelles manips Inhib
        
-    Not 
     NotSaved = {NotSaved{:},Var2Data_wFluo('28-05-18','5mT',0.56,'M1','DCLA_CK666',4415,...
         MatfileFolder)};
     NotSaved = {NotSaved{:},Var2Data_wFluo('28-05-18','5mT',0.56,'M2','DCLA_DMSO',4415,...
@@ -1186,9 +1185,7 @@ RemoveFromData(MatfileFolder,{'17-04-19_M1_P1_C3_5mT','11-04-19_M3_P1_C1_5mT'},'
     
     
     Data2Peaks('DictyAx2_DMSO',PLOTDP,MatfileFolder,FigureFolder);
-    Data2Peaks('DictyAx2_LatA',PLOTDP,MatfileFolder,FigureFolder);
-      
-    
+    Data2Peaks('DictyAx2_LatA',PLOTDP,MatfileFolder,FigureFolder);    
     
     Data2Peaks('DictyAx2_BSA30',PLOTDP,MatfileFolder,FigureFolder); 
     
@@ -1324,7 +1321,7 @@ Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
    Peaks2Stats('DCLA_ArpinWT',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
     
     Peaks2Stats('DCLA_ArpinKO',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
-%     
+     
    Peaks2Stats('DCLA_ArpC4WT',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
     
     Peaks2Stats('DCLA_ArpC4KO',PLOTPS,alignlvl,MatfileFolder,FigureFolder);

@@ -72,6 +72,8 @@ for kf=1:nf
         if not(isempty(MR{k}))
             ptr_ = strfind(MR{k}.name,'_');
             codelist = [codelist(:)' {MR{k}.name(ptr_(1)+1:ptr_(4)-1)}]; % get the cell ID Mx_Py_Cz
+        else
+            codelist = [codelist(:)' {''}];
         end
     end
     
@@ -115,6 +117,9 @@ for kf=1:nf
                 
                 kassoc = find(contains(codelist,code(1:pos))); % find the two curves
                 
+                if length(kassoc) > 1 % sometimes the second curve was not validated in V2D
+                                      % here we check that there is indedd two curves from the same cell
+                
                 kassoc = kassoc(kassoc~=kc); % get index of second curve
                 
                 ptrDI = ptrDI(ptrDI ~= kassoc); % remove second curve from list
@@ -142,6 +147,7 @@ for kf=1:nf
                 Lags{end+1} = lags/2;
                 Corrs{end+1} = c;
                 
+                end
             end
             
             %% peaks detection

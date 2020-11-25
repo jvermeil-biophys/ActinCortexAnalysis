@@ -101,7 +101,7 @@ while not(exist('X1','var')) % as long as variables have not been initialized,
                 Ymat = repmat(Y(ptr_img),1,2); % Y of the objects on current image
                 
                 Xclickmat = repmat([Xim(1) Xim(2)],length(ptr_img),1); % X of the beads clicked by user
-                Yclickmat = repmat([Xim(1) Xim(2)],length(ptr_img),1); % Y of the beads clicked by user
+                Yclickmat = repmat([Yim(1) Yim(2)],length(ptr_img),1); % Y of the beads clicked by user
                 
                 Dist2mat = (Xmat-Xclickmat).^2+(Ymat-Yclickmat).^2; % Square distance matrix (cost matrix for the matching algorithm)
                 
@@ -217,7 +217,7 @@ for i=img:nimg
                 Ymat = repmat(Y(ptr_i),1,2); % Y of the objects on current image
                 
                 Xclickmat = repmat([Xim(1) Xim(2)],length(ptr_i),1); % X of the beads clicked by user
-                Yclickmat = repmat([Xim(1) Xim(2)],length(ptr_i),1); % Y of the beads clicked by user
+                Yclickmat = repmat([Yim(1) Yim(2)],length(ptr_i),1); % Y of the beads clicked by user
                 
                 Dist2mat = (Xmat-Xclickmat).^2+(Ymat-Yclickmat).^2; % Square distance matrix (cost matrix for the matching algorithm)
                 
