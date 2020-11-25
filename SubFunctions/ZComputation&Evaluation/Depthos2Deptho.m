@@ -5,14 +5,14 @@ path = 'D:\Data\Raw\EtalonnageZ\MultiZCorrection';
 
 savepath = 'D:\Data\Raw\EtalonnageZ\';
 
-date = '27-10-20';
+date = '17-11-20';
 
-num = {'1-1' '1-2' '1-3' '1-4' '1-5' '2-1' '2-2' '2-3' '2-4' '2-5'}
+num = {'1' '2' '3' '4'}
 ndeptho = length(num);
 
     for kdepth = 1:ndeptho
         
-        load([path '\' date '_DepthoM270_' num{kdepth} '.mat'])
+        load([path '\' date '_DepthoM450_' num{kdepth} '.mat'])
         Kim{kdepth} = K;
         Foc(kdepth) = f;
         LengK(kdepth) = size(K,1);
@@ -29,11 +29,8 @@ ndeptho = length(num);
     
     for kdepth = 1:ndeptho
         fcur = Foc(kdepth);
-        try
         Kim{kdepth} = Kim{kdepth}(fcur-fmin+1:fcur+LK-fmax,:);
-        catch
-            aaaa=1
-        end
+
         
     end
     
@@ -55,9 +52,9 @@ ndeptho = length(num);
     figure
     imshow(imadjust(uint16(Ktot)))
     
-    save([savepath '\' date '_DepthographM270.mat'],'K','f','stepnm');
+    save([savepath '\' date '_DepthographM450.mat'],'K','f','stepnm');
     
-    imwrite(uint16(K),[savepath '\' date '_DepthographM270.tif'])
+    imwrite(uint16(K),[savepath '\' date '_DepthographM450.tif'])
     
     clear K* f*
     

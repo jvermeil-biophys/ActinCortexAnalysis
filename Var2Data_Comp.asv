@@ -196,11 +196,12 @@ if exist([path filesep loadname],'file')
             Trmp = T(ptrrmp); % time for ramp part
 
             
-            Bcst = B(ptrcst); % for cst part
-            Brmp = B(ptrrmp); % for ramp
-
+            Bcst = Bfull2(ptrcst); % for cst part
+            Brmp = Bfull2(ptrrmp); % for ramp
             
             cprintf('Com', [' OK.\n']);
+            
+            
             
             fprintf('Creation of force vector...');
             
@@ -253,7 +254,8 @@ if exist([path filesep loadname],'file')
             
             
             cprintf('Com', [' OK.\n']);
-
+            
+            
             
             %% Ramp splitting
             fprintf('Splitting ramps...')
@@ -369,7 +371,8 @@ if exist([path filesep loadname],'file')
                 
                 cprintf('Com', [' OK.\n\n']);
                 
-        
+                figure
+                h
                 
             end
             

@@ -1,5 +1,14 @@
 function [Curve,MultiPos,MultiVal] = ComputeZCorrel(Li,KrefNorm)
 
+% 
+% [Curve,MultiPos,MultiVal] = ComputeZCorrel(Li,KrefNorm)
+% 
+% computes the correlation between one line of pixel from one bead and the
+% depthograph. Returns correlation curve, and best two correlation with
+% positions and value.
+% 
+% 
+
 Lref = size(KrefNorm,1);
 
 LiNorm = Li./mean(Li);
@@ -11,8 +20,6 @@ DiffK = KrefNorm - MLiNorm;
 DiffKsq = DiffK.^2;
 
 DiffKsqmean = mean(DiffKsq,2);
-
-% DiffKsqmean(1) = correlation avec le haut de la bille (anneau)
 
 Curve = DiffKsqmean;
 

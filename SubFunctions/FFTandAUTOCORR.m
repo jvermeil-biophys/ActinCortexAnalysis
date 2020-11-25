@@ -1,7 +1,17 @@
 function [Corr,LagsF] = FFTandAUTOCORR(T,D,Fs)
 
+%
+% This code perfoms fft and autocorrelation of the given signal
+%FFT is commented becaue unused
+%
+% FFTandAUTOCORR(T,D,Fs) 
+%
+% T : time vector
+% D : signal vector (distance)
+% Fs : sampling frequency
+%
+
 %% parameters definition
-% Fs = 2; % sampling frequency in Hertz
 Ts = 1/Fs; % sampling period in second
 
 %% interpolation of signal on a regular grid
@@ -20,7 +30,7 @@ Dgrid = fillmissing(Dgrid,'linear');
 % hold on
 % plot(T,D,'-*','linewidth',5)
 % plot(Tgrid,Dgrid,'-','linewidth',2)
-% title('Original Signal and Interpolation on a Grid for FFT')
+% title('Original Signal and Interpolation on a Grid')
 
 
 %% FFT
@@ -50,12 +60,13 @@ Dgrid = fillmissing(Dgrid,'linear');
 
 %% Autocorrelation
 
-Dgrid = Dgrid - mean(Dgrid);
+Dgrid = Dgrid - mean(Dgrid); % centering data
 
-[Corr,Lags] = xcorr(Dgrid,'coeff');
+[Corr,Lags] = xcorr(Dgrid,'coeff'); % crosscorrelation
 
-Corr = Corr(Lags>0);
-Lags = Lags(Lags>0);
+% since this is autocorrelation we take only positive lags
+Corr = Corr(Lags>0); 
+Lags = Lags(Lags>0); 
 
 LagsF =Lags/Fs;
 

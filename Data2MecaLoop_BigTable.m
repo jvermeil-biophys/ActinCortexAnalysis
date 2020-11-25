@@ -1,4 +1,4 @@
-function outvar = Data2MecaLoop_BigTable(date,manip,specif,tag,DIAMETER,resfolder,figurefolder,PLOT,VERBOSE)
+function Data2MecaLoop_BigTable(date,manip,specif,tag,DIAMETER,resfolder,figurefolder,PLOT,VERBOSE)
 
 % This version computes h0 first based on the first 15 points, then computes E for
 % each data point in the compression using this h0. Then, on the longest
@@ -22,18 +22,12 @@ RADIUS = DIAMETER/2000; % Rayon de la bille en µm
 
 %% params and settings
 
-outvar = [];
 
 % home
 % h='C:\Users\Valentin\Dropbox\TheseValentin\Matlab';
 datenow = datestr(now,'yy-mm-dd');
 
 % dossier de données et sauvegarde des données
-% path = 'D:\Data\MatFiles\V2D';
-% fieldpath =['D:\Data\Raw\' date(7:8) '.' date(4:5) '.' date(1:2)];
-% sf   = ['D:\Data\MatFiles' filesep 'D2M'];
-%fieldpath = [datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2)]; % INUTILE, -> datafolder supprimé des variable entrée
-
 path = [resfolder filesep 'V2D'];
 sf = [resfolder filesep 'D2M'];
 
@@ -91,7 +85,7 @@ TableSize = size(BigTable,1);
 %% Analysis
 loadname=['V2D_' date '_' manip '_' tag '_' specif '.mat'];
 
-if exist(loadname,'file')
+if exist([path filesep loadname],'file')
 
         fprintf(['\nChargement du fichier ' loadname '\n\n'])
 
@@ -242,7 +236,7 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'CellName') = {currentCellName{i}(1:index_(1)-1);};
                     BigTable(CurrentTableLine,'CompNum') = {ii};
                     BigTable(CurrentTableLine,'TpsComp') = {CompDuration{ii}};
-                    BigTable(CurrentTableLine,'RawDataTDFB') = {[RampData{ii}(:,2:5)]};
+                    BigTable(CurrentTableLine,'RawDataTDFB') = {[RampData{ii}(:,2:5)]'}; % here the transposition is made in order to have a column vector if there is only one point in the ramp, this is a strange unsolved bug.
                     BigTable(CurrentTableLine,'FitParams') = {params(2:end)};
                     
                     %%% [/data saving] %%
@@ -279,6 +273,8 @@ if exist(loadname,'file')
                     
                     hasEnoughPoints = length(Fup) > 8;
                     
+                    if hasEnoughPoints
+                    
                     %% H0 pour plot
                     
                     InitialThick = mean(RampData{ii}(pointeur3,3)) * 1000 - DIAMETER; % absolute thickness at the begining of compression
@@ -290,45 +286,6 @@ if exist(loadname,'file')
                     Fcomp = Fup; % force pendant la compression
                     Tcomp = Tup;
                     
-                    differentialHcomp = diff(Hcomp(5:end));
-                    MaxDisplacement = max(differentialHcomp)*1000; % en nm
-                    
-                    pointeurMonotonie =  differentialHcomp > 0; % 1 quand croissant 0 quand decroissant
-                    
-                    MaxDisplacementCummulative = MaxDisplacement; % deplacement maximum cumulé sur plus de trois points de suite
-                    
-                    GrowthPhases = bwconncomp(pointeurMonotonie); % get connected component where pointeurMonotonie == 1 <=> zones de croissance
-                    % GrowthPhases.PixelIdxList{k} -> La liste des points de la k ième zone de croissance.
-                    
-                    for k = 1:GrowthPhases.NumObjects % nombre de zones
-                        if length(GrowthPhases.PixelIdxList{k}) > 2 % si plus de trois points croissants d'affilée.
-                            MaxDisplacementCummulative =  max([MaxDisplacementCummulative sum(differentialHcomp(GrowthPhases.PixelIdxList{k}))*1000]);
-                            % on calcule de combien ca monte sur ces points, si c'est plus grand on note la valeur.
-                        end
-                    end
-                    
-                    % On considere que la courbe d'indentation est normalement décroissante
-                    % si il n'y a pas de deplacement de plus de 50nm en 1 pts, ou de remontée
-                    % de plus de 50nm sur 3 pts ou plus.
-                    
-                    % On teste également que la tendance globale de la
-                    % courbe est décroissante
-                    
-                    DecreaseFit = robustfit(Fcomp,Hcomp*1000);
-                    
-                    % QUESTION : Quels sont les cas qu'on vire exactement
-                    % en faisant ce genre de trucs ???
-                    
-                    isDecreasing = (MaxDisplacementCummulative < 50) && (MaxDisplacement < 50) && DecreaseFit(2) < 0;
-                    
-                    
-                    
-                    %                         figure(1)
-                    %                         hold on
-                    %                         plot(Hcomp*1000,'g*-')
-                    %                         a=1;
-                    
-                    
                     
                     % smoothing
                     FHsort = sortrows([Hcomp Fcomp Tcomp]); % B = sortrows(A) sorts the rows of a matrix in ascending order based on the elements in the first column.
@@ -336,6 +293,7 @@ if exist(loadname,'file')
                     Hcomp = FHsort(:,1);
                     Tcomp = FHsort(:,3);
                     Fcomp = smooth(Hcomp,Fcomp,7,'sgolay',5);
+                    
                     % Goal of 2 lines below : replace the potential negative values with a 0.
                     % Because otherwise the sqrt() a little below will create ugly complex numbers.
                     Fcomp_isPositive = [Fcomp > 0];
@@ -349,6 +307,8 @@ if exist(loadname,'file')
                     % Recuperation des 10% d'enfoncement relatif au champ minimum pour estimer H0
                     pointeurFirst10pc = (InitialThick-Hcomp*1000)/InitialThick < 0.10;
                     pointeurFirst10pc(find(pointeurFirst10pc == 0, 1):end) = 0;
+                    
+                    pointeurFirst10pc(1:2) = 1; % To avoid H0el = 0 if only one point, H0 will get better in the fit loop if the curve is suitable 
                     
                     nptsH0el = sum(pointeurFirst10pc);
                     
@@ -417,15 +377,7 @@ if exist(loadname,'file')
                         FcompFit(HcompFit>H0tmp) = [];
                         TcompFit(HcompFit>H0tmp) = [];
                         HcompFit(HcompFit>H0tmp) = [];
-                        
-%                         % validity of chadwick
-%                         CtctRad = sqrt(RADIUS*(H0tmp - HcompFit));
-%                         ptrChad = CtctRad>2*(HcompFit/2);
-%                         
-%                         FcompFit = FcompFit(ptrChad);
-%                         HcompFit = HcompFit(ptrChad);
-%                         TcompFit = TcompFit(ptrChad);
-                        
+                                              
                         
                         
                         try
@@ -442,7 +394,6 @@ if exist(loadname,'file')
                             FFFci = confint(FFF);
                             
                             EchadFitCI = abs(diff(FFFci(:,1)));
-                            %                     H0chadFitCI = FFFci(:,2);
                             
                             canBeFitted = 1;
                             
@@ -470,6 +421,10 @@ if exist(loadname,'file')
                             break
                         end
                         
+                    end
+                    else
+                        canBeFitted = 0;
+                    notsavedtext = 'Not enough points';
                     end
                 else
                     canBeFitted = 0;
@@ -505,7 +460,7 @@ if exist(loadname,'file')
                     BigTable(CurrentTableLine,'CellName') = {currentCellName{i}(1:index_(1)-1);};
                     BigTable(CurrentTableLine,'CompNum') = {ii};
                     BigTable(CurrentTableLine,'TpsComp') = {CompDuration{ii}};
-                    BigTable(CurrentTableLine,'RawDataTDFB') = {[RampData{ii}(:,2:5)]};
+                    BigTable(CurrentTableLine,'RawDataTDFB') = {[RampData{ii}(:,2:5)]'};
                     BigTable(CurrentTableLine,'FitParams') = {params(2:end)};
                     %%% [/data saving] %%
                     
@@ -546,7 +501,7 @@ if exist(loadname,'file')
                     % hysteresis computation
                     
                     if length(Ddown)>1
-                        Hyst = abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown));
+                        Hyst = (abs(trapz(Dup,Fup))-abs(trapz(Ddown,Fdown)))/abs(trapz(Dup,Fup));
                     else
                         Hyst = NaN;
                     end
@@ -558,8 +513,8 @@ if exist(loadname,'file')
                         dhcomp = abs(diff(orderedMat(:,2)))*1000;
                         d3hcomp = dhcomp(1:end-2)+dhcomp(2:end-1)+dhcomp(3:end);
                         hasNoLargeJump = ((max(dhcomp) < max([0.15*(max(Dup*1000)-min(Dup*1000)) 15])) ...
-                            && (max(d3hcomp)< max([0.30*(max(Dup*1000)-min(Dup*1000)) 30]))) || strcmp(specif(end-2:end),'02s') ...
-                            || strcmp(specif(end-2:end),'05s');
+                            && (max(d3hcomp)< max([0.30*(max(Dup*1000)-min(Dup*1000)) 30]))) || strcmp(tag(end-2:end),'04s') ...
+                            || strcmp(tag(end-1:end),'1s');
                     else
                         hasNoLargeJump = 1;
                     end
@@ -567,11 +522,11 @@ if exist(loadname,'file')
                     hasSmallConfInt = (abs(EchadFitCI) < 2*abs(Echadtmp));
                     
                     currentRampDz = RampData{ii}(:,6);
-                    hasNormalDz = (max(abs(currentRampDz)) < 1);
+                    hasNormalDz = (max(abs(currentRampDz)) < 2);
                     
-                    SAVING_CRITERION =  isPositive && hasNormalDz && hasSmallConfInt && hasNoLargeJump && hasEnoughPoints && doesConverge && isAGoodFit;
+                    SAVING_CRITERION =  isPositive && hasNormalDz && hasSmallConfInt && hasNoLargeJump && doesConverge && isAGoodFit;
                     
-                    SAVING_CRITERIONs =  [isPositive hasNormalDz hasSmallConfInt hasNoLargeJump hasEnoughPoints doesConverge isAGoodFit];
+                    SAVING_CRITERIONs =  [isPositive hasNormalDz hasSmallConfInt hasNoLargeJump doesConverge isAGoodFit];
                     
                     
                     if SAVING_CRITERION
@@ -651,23 +606,7 @@ if exist(loadname,'file')
                             
                         end
                         
-                        
-                        
-                        if ~hasEnoughPoints
-                            
-                            notsavedtext = [notsavedtext 'Not enough points '];
-                            
-                            nreason = nreason - 1;
-                            
-                            if nreason >0
-                                
-                                notsavedtext = [notsavedtext '& '];
-                                
-                            end
-                            
-                        end
-                        
-                        
+    
                         if ~doesConverge
                             
                             notsavedtext = [notsavedtext 'No Convergence on H0 '];

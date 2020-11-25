@@ -1,5 +1,12 @@
 function [Sdown,Smid,Sup] = SplitZimage(Sfull,nimg)
 
+% [Sdown,Smid,Sup] = SplitZimage(Sfull,nimg)
+%
+% Splits the image list Sfull between list for down, middle and up images
+% corresponding to the triplets taken in Z. nimg is the number of image in
+% a loops and is usefull when fluo images are not present and nimg is not a
+% multiple of 3
+
 Mdown = logical(zeros(1,length(Sfull)));
 Mmid  = Mdown;
 Mup   = Mdown;

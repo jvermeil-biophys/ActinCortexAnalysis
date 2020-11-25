@@ -1,7 +1,14 @@
 function dzcalc = DzCalc_Zcorr_multiZ(X1tot,X1,Y1tot,Y1,X2tot,...
     X2,Y2tot,Y2,Stot,S,stackname,Sdown,Smid,Sup,depthoname,depthofolder)
-% renvoi Z1 et Z2 en micron
-% tic
+
+% dzcalc = DzCalc_Zcorr_multiZ(X1tot,X1,Y1tot,Y1,X2tot,...
+%    X2,Y2tot,Y2,Stot,S,stackname,Sdown,Smid,Sup,depthoname,depthofolder)
+% 
+% Computes dz in micron by correlating a line of pixel from the beads image
+% to a reference depthograph. This computation is more accurate than
+% DzCalc_Zcorr as it take into account three images taken at different
+% height and average the dz over these three images.
+%
 
 set(0, 'defaultfigureposition', get(0, 'Screensize').*[20 20 0.98 0.9]);
 
@@ -20,11 +27,9 @@ if exist('fmin')
     f = fmin;
 end
 Lk = length(K);
-try
-    I = K(:,ceil(Lk/2)-l:ceil(Lk/2)+l);
-catch
-    fuck you
-end
+
+I = K(:,ceil(Lk/2)-l:ceil(Lk/2)+l);
+
 Id = double(I);
 Ime = mean(Id,2);
 RIme = double(repmat(Ime,1,2*l+1));
@@ -80,11 +85,7 @@ for i = 1:Ls
             
             rX2tmp = round(X2tmp);
             rY2tmp = round(Y2tmp);
-            %
-            %             imshow(imread(stackname,'tiff',Slist(ii)))
-            %             hold on
-            %             plot([X2tmp-3 X2tmp-3 X2tmp+3 X2tmp+3 X2tmp-3],[Y2tmp-Leng-2 Y2tmp+Leng+2 Y2tmp+Leng+2 Y2tmp-Leng-2 Y2tmp-Leng-2],'y-*')
-            
+
             ROI1 = imread(stackname,'tiff',Slist(ii),'pixelregion',{[rY1tmp-Leng-2 rY1tmp+Leng+2],[rX1tmp-3 rX1tmp+3]})'; % ROI verticale
             ROI1d = double(ROI1);
             if length(ROI1) < 2*Leng+5
@@ -98,10 +99,13 @@ for i = 1:Ls
                 
                 [Xmeshtmp,Ymeshtmp] =  meshgrid(rY1tmp-Leng-2:rY1tmp+Leng+2,rX1tmp-3:rX1tmp+3);
                 
-                [x,y] = find(Xmeshtmp>0&Xmeshtmp<simg(2)&Ymeshtmp>0&Ymeshtmp<simg(1));
-                
+                [x,y] = find(Xmeshtmp>0&Xmeshtmp<=simg(1)&Ymeshtmp>0&Ymeshtmp<=simg(2));
+                try
                 ROItmp = interp2(Xmeshtmp(unique(x),unique(y)),Ymeshtmp(unique(x),unique(y)),ROI1d,Xmeshtmp,Ymeshtmp,'spline');
-                
+                catch
+                    themall
+                    
+                end
                 ROI1d = ROItmp;
                 
             end
@@ -123,7 +127,7 @@ for i = 1:Ls
                 
                 [Xmeshtmp,Ymeshtmp] =  meshgrid(rY2tmp-Leng-2:rY2tmp+Leng+2,rX2tmp-3:rX2tmp+3);
                 
-                [x,y] = find(Xmeshtmp>0&Xmeshtmp<simg(2)&Ymeshtmp>0&Ymeshtmp<simg(1));
+                [x,y] = find(Xmeshtmp>0&Xmeshtmp<=simg(1)&Ymeshtmp>0&Ymeshtmp<=simg(2));
                 
 
                 ROItmp = interp2(Xmeshtmp(unique(x),unique(y)),Ymeshtmp(unique(x),unique(y)),ROI2d,Xmeshtmp,Ymeshtmp,'spline');

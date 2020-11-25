@@ -12,6 +12,7 @@ set(0,'DefaultFigureWindowStyle','docked')
 set(0,'DefaultTextInterpreter','none');
 set(0,'DefaultAxesFontSize',20)
 set(0,'DefaultTextInterpreter','Latex')
+set(0,'DefaultLineMarkerSize',8);
 
 here = pwd;
 
@@ -25,7 +26,7 @@ datenow = datestr(now,'yy-mm-dd');
 sfig = figurefolder;
 sff = [sfig filesep datenow filesep 'Meca' filesep savename];
 sffc = [sff filesep 'PerCell'];
-mkdir(sffc)
+mkdir(sff)
 
 
 %% get data
@@ -47,10 +48,10 @@ if ~isempty(varargin)
         
         
         
-        ptrex = find(ismember('Exclude',varargin(1:2:end)));
+        ptrex = find(ismember(varargin(1:2:end),'Exclude'));
         
         for kex = 1:length(ptrex)
-            condex = varargin{ptrex(kex)+1};
+            condex = varargin{ptrex(kex)*2};
             
             excludevecttmp = strcmp(BigTable(:,condex{1}).Variables,condex{2});
             excludevect = excludevect | excludevecttmp;
@@ -109,13 +110,17 @@ for kcond = 1:ncond
     end
     
     ptrcond = all(MatPtr,2) & VALIDptr;
+    ptrfirst = BigTable(:,'CompNum').Variables == 1;
     
     E0chad{kcond} = BigTable(ptrcond,'EChadwick').Variables/1000;
+    E0chadFirst{kcond} = BigTable(ptrcond&ptrfirst,'EChadwick').Variables/1000;
     EchadCI{kcond} = BigTable(ptrcond,'CiEChadwick').Variables/1000;
     
     Hyst{kcond} = BigTable(ptrcond,'Hysteresis').Variables;
+    HystFirst{kcond} = BigTable(ptrcond&ptrfirst,'Hysteresis').Variables;
     
     H0EXP{kcond} = BigTable(ptrcond,'InitialThickness').Variables;
+    H0EXPFirst{kcond} = BigTable(ptrcond&ptrfirst,'InitialThickness').Variables;
     H0SUR{kcond} = BigTable(ptrcond,'SurroundingThickness').Variables;
     H0BEF{kcond} = BigTable(ptrcond,'PreviousThickness').Variables;
     H0FIT{kcond} = BigTable(ptrcond,'H0Chadwick').Variables;
@@ -159,7 +164,7 @@ figure(3)
 hold on
 title('E v H0')
 L3 = legend;
-xlabel('Thickness befor comp(nm)')
+xlabel('Thickness before comp(nm)')
 ylabel('E chad (kPa)')
 
 figure(4)
@@ -306,11 +311,22 @@ ax.YColor = [0 0 0];
 ax.LineWidth = 1.5;
 box on
 
+
+
+% all data
 plotSpread_V(E0chad,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
 for ii = 1:length(E0chad)
-    plot([ii-0.45 ii+0.45],[median(E0chad{ii})  median(E0chad{ii})],'k--','linewidth',1.3)
+    plot([ii-0.45 ii+0.45],[nanmedian(E0chad{ii})  nanmedian(E0chad{ii})],'k--','linewidth',1.3)
 end
+
+% first comp of each cell in another color
+set(0,'DefaultLineMarkerSize',10);
+plotSpread_V(E0chadFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
+set(0,'DefaultLineMarkerSize',8);
+% 
 ylabel('Echad (kPa)')
+
+
 
 
 if SigDisplay
@@ -401,6 +417,7 @@ ax.XTickLabelRotation = 45;
 
 
 H0Beeswarm = H0EXP;
+H0BeeswarmFirst = H0EXPFirst;
 
 figure(6)
 ax = gca;
@@ -410,14 +427,20 @@ box on
 
 plotSpread_V(H0Beeswarm,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
 for ii = 1:length(H0Beeswarm)
-    plot([ii-0.45 ii+0.45],[median(H0Beeswarm{ii})  median(H0Beeswarm{ii})],'k--','linewidth',1.3)
+    plot([ii-0.45 ii+0.45],[nanmedian(H0Beeswarm{ii}) nanmedian(H0Beeswarm{ii})],'k--','linewidth',1.3)
 end
+
+% first comp of each cell in another color
+set(0,'DefaultLineMarkerSize',10);
+plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
+set(0,'DefaultLineMarkerSize',8);
+
 ylabel('H0 init ramp')
 
 
 if SigDisplay
     
-    distsize = prctile(vertcat(H0Beeswarm{:}),90);
+    distsize = prctile(vertcat(H0Beeswarm{:}),95);
     plotheight = distsize;
     
     for ii = 1:length(E0chad)-1
@@ -453,14 +476,21 @@ box on
 
 plotSpread_V(Hyst,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
 for ii = 1:length(Hyst)
-    plot([ii-0.45 ii+0.45],[median(Hyst{ii})  median(Hyst{ii})],'k--','linewidth',1.3)
+    plot([ii-0.45 ii+0.45],[nanmedian(Hyst{ii})  nanmedian(Hyst{ii})],'k--','linewidth',1.3)
 end
+
+% first comp of each cell in another color
+set(0,'DefaultLineMarkerSize',10);
+plotSpread_V(HystFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
+set(0,'DefaultLineMarkerSize',8);
+
+
 ylabel('Hysteresis')
 
 
 if SigDisplay
     
-    distsize = prctile(vertcat(Hyst{:}),90);
+    distsize = prctile(vertcat(Hyst{:}),95);
     plotheight = distsize;
     
     for ii = 1:length(E0chad)-1
@@ -495,14 +525,17 @@ for kcond = 1:ncond
     subplot(211)
     hold on
     plot(CompTimes{kcond},E0chad{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
+    ylabel('Echad (kPa)')
     subplot(212)
     hold on
     plot(CompTimes{kcond},H0EXP{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
+    ylabel('H0EXP (nm)')
     
 end
 
 %% per cell plot vs tps comp
 if strcmp(answer,'Yes')
+    mkdir(sffc)
     for kc = 1:nCell
         
         figure
