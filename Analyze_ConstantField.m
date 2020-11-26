@@ -3,7 +3,6 @@ clear all;
 clc;
 
 %% Paths
-h='C:\Users\Valentin\Dropbox\TheseValentin\Matlab';
 RawdataFolder = 'D:\Data\Raw';
 MatfileFolder = 'D:\Data\MatFile';
 FigureFolder = 'D:\Data\Figures';

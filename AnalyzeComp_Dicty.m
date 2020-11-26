@@ -92,6 +92,11 @@ VERBOSED2M = 0; % text display choice
 
 
 
+% M2P
+
+fitparams = 'Strain100-R20.9';
+
+
 return % stop execution here
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -816,6 +821,17 @@ ConditionsM45R12_1811= {'ExpType','DictyDB_M450','TpsComp','4s','FitParams',fitp
 Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM45R12_1811, ...
 {C02_27,C12_27},{M02,M02},...
 {'M45R50-4s','M45R12-1s'},'M450_lowforce_18-11-20',1)
+
+% only low force
+ConditionsM45R12= {'ExpType','DictyDB_M45R12','TpsComp','02s','FitParams',fitparams,'ExpDay','17-11-20'; ...
+    'ExpType','DictyDB_M45R12','TpsComp','1s','FitParams',fitparams,'ExpDay','18-11-20'; ...
+    'ExpType','DictyDB_M45R12','TpsComp','2s','FitParams',fitparams,'ExpDay','17-11-20'; ...
+    }
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM45R12, ...
+{C02,C4,C12},{M02,M1,M2},...
+{'M45R12-02s','M45R12-1s','M45R12-2s'},'M450_lowforce',1)
+
+
 
 % M450multirate per cell
 ConditionsM450MultiCell = {'ExpType','DictyDB_M450-Multi','TpsComp','02s','FitParams',fitparams;...
