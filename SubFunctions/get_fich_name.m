@@ -3,19 +3,24 @@ function [ListDep, ListFor] = get_fich_name(listP)
 % 
 % [ListDep, ListFor] = get_fich_name(listP)
 %
-% creates a list of possible identifiers for cells based on the numbers of
-% selected chambers (listP)
+% creates a list of possible identifiers (Px_Cy or Px_Cy-z) for cells based 
+% list of chambers to analyze. 
+%
+% ListP = list of chambers (ex : 1, 1:3, [1 3])
+%
 
-nc = 30; % vidéo par puits
-ni = 15; % interface par vidéo
+nc = 30; % max number of vidéos 
+ni = 15; % max number of interface
 
 
 listC = 1:nc; 
 listI = 0:ni; 
 
+% initialize variables
 ListDep = {};
 ListFor = {};
 
+% loop over all possible names
 for kp = 1:length(listP)
     for kc = listC
         for ki = listI

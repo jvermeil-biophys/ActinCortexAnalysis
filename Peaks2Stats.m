@@ -153,7 +153,7 @@ if E == 2
         if (T(end) - T(1) > MinTime+1) && ((T(end)-T(1))/(length(T)-1) <= 1) % done only for curves longer than MinTime and with consistency in time
             
             
-            [C,L] = FFTandAUTOCORR(T,D3,Fs); % performs cure autocorrelation. 
+            [C,L] = FFTandAUTOCORR(T,D3,Fs); % performs curve autocorrelation. 
             % This function also does FFT but here it is desactivated as it is unsused
             
             ptr = L<MinTime+1; % only taking the first MinTime seconds
@@ -277,7 +277,7 @@ MS.mintimecorr = MinTime;
 MS.freqsamp = Fs; 
 
 
-fprintf(['\nTotal number of peakes kepts for plotting : ' ...
+fprintf(['\nTotal number of peaks kepts for plotting : ' ...
     num2str(PeaksKept) '/' num2str(PeaksDet) ' (' num2str(PeaksKept/PeaksDet*100) '%%)\n']);
 
 

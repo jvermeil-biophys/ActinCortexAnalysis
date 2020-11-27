@@ -319,10 +319,10 @@ for ii = 1:length(E0chad)
     plot([ii-0.45 ii+0.45],[nanmedian(E0chad{ii})  nanmedian(E0chad{ii})],'k--','linewidth',1.3)
 end
 
-% first comp of each cell in another color
-set(0,'DefaultLineMarkerSize',10);
-plotSpread_V(E0chadFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
-set(0,'DefaultLineMarkerSize',8);
+% % first comp of each cell in another color
+% set(0,'DefaultLineMarkerSize',10);
+% plotSpread_V(E0chadFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
+% set(0,'DefaultLineMarkerSize',8);
 % 
 ylabel('Echad (kPa)')
 
