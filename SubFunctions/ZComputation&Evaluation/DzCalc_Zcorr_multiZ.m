@@ -131,10 +131,13 @@ for i = 1:Ls % going through images
                 
                 [Xmeshtmp,Ymeshtmp] =  meshgrid(rY1tmp-Leng-2:rY1tmp+Leng+2,rX1tmp-3:rX1tmp+3); % theoretical mesh of a complete ROI
                 
-                [x,y] = find(Xmeshtmp>0&Xmeshtmp<simg(2)&Ymeshtmp>0&Ymeshtmp<simg(1)); % Actual fraction of the ROI
+                [x,y] = find(Xmeshtmp>0&Xmeshtmp<=simg(1)&Ymeshtmp>0&Ymeshtmp<=simg(2)); % Actual fraction of the ROI
                 
+ try
                 ROItmp = interp2(Xmeshtmp(unique(x),unique(y)),Ymeshtmp(unique(x),unique(y)),ROI1d,Xmeshtmp,Ymeshtmp,'spline'); % interpolation
-                
+ catch
+     themall
+ end
                 ROI1d = ROItmp;
                 
             end
@@ -161,7 +164,7 @@ for i = 1:Ls % going through images
                 
                 [Xmeshtmp,Ymeshtmp] =  meshgrid(rY2tmp-Leng-2:rY2tmp+Leng+2,rX2tmp-3:rX2tmp+3); % theoretical mesh of a complete ROI
                 
-                [x,y] = find(Xmeshtmp>0&Xmeshtmp<simg(2)&Ymeshtmp>0&Ymeshtmp<simg(1)); % Actual fraction of the ROI
+                [x,y] = find(Xmeshtmp>0&Xmeshtmp<=simg(1)&Ymeshtmp>0&Ymeshtmp<=simg(2)); % Actual fraction of the ROI
                 
                 ROItmp = interp2(Xmeshtmp(unique(x),unique(y)),Ymeshtmp(unique(x),unique(y)),ROI2d,Xmeshtmp,Ymeshtmp,'spline'); % interpolation
                 
