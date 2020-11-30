@@ -453,11 +453,6 @@ Data2MecaLoop_BigTable('30-10-18','M2','DC-Comp_Ctrl','R80',4438,MatfileFolder,F
 Data2MecaLoop_BigTable('12-12-18','M1','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
 
 
-% 3T3 joseph
-
-Data2MecaLoop_BigTable('04-08-20','M1','3T3aSFL_BSA_nodrugs','R40_3T3aSFLnodrugs',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('05-08-20','M2','3T3aSFL_BSA_nodrugs','R40_3T3aSFLnodrugs',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('07-08-20','M2','3T3aSFL_BSA_nodrugs','R40_3T3aSFLnodrugs',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
