@@ -301,33 +301,22 @@ end
 
 clear all
 
-%% 27-10-20 M270 100X
 
-names = {'1-1' '1-2' '1-3' '1-4' '1-5' '2-1' '2-2' '2-3' '2-4' '2-5'}
+
+%% 17-11-20 M450 100X
+
+names = {'1' '2' '3' '4'}
 
 
 for kn = 1:length(names)
-filename = ['D:\Data\Raw\20.10.27\Deptho-M270_' names{kn} '_Results.txt'];
-stackname = ['D:\Data\Raw\20.10.27\Deptho-M270_' names{kn} '.tif'];
-savename = ['D:\Data\Raw\EtalonnageZ\MultiZCorrection\27-10-20_DepthoM270_' names{kn}];
-     [VarName1, Area, StdDev, Min, Max, XM, YM, BX, BY, Width, Height, Slice] = importfile_221020(filename);
+filename = ['D:\Data\Raw\20.11.17\Deptho_M450-' names{kn} '_Results.txt'];
+stackname = ['D:\Data\Raw\20.11.17\Deptho_M450-' names{kn} '.tif'];
+savename = ['D:\Data\Raw\EtalonnageZ\MultiZCorrection\17-11-20_DepthoM450_' names{kn}];
+     [VarName1, Area, StdDev, Min, Max, XM, YM, BX, BY, Width, Height, Slice] = importfile_171120(filename);
 [K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
 end
 
 clear all
 
-%% test
 
-names = {'1-1' '2-1'}
-
-
-for kn = 1:length(names)
-filename = ['C:\Users\PMMH\Desktop\Test\19-05-2020_Deptho_M450_HL5_' names{kn} '_Results.txt'];
-stackname = ['C:\Users\PMMH\Desktop\Test\19-05-2020_Deptho_M450_HL5_' names{kn} '.tif'];
-savename = ['C:\Users\PMMH\Desktop\Test\19-05-20_DepthographM450_' names{kn}];
-    [VarName1,Area,StdDev,XM,YM,Slice] = importfileDeptho2(filename);
-[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
-end
-
-clear all
 

@@ -1,41 +1,58 @@
 function [Curve,MultiPos,MultiVal] = ComputeZCorrel(Li,KrefNorm)
 
-Lref = size(KrefNorm,1);
+% 
+% Computes the correlation between one line of pixel from one bead and the
+% depthograph. Returns correlation curve, and best two correlation with
+% positions and value. The idea between getting the two best correlation
+% position is that for images of beads near the focus in Z, the depthograph
+% is very symetrical, thus we take the info of the best correlation on each
+% side, and then decide which to take based on the other images in the Z
+% triplet when there are some. Otherwise best correlation is used (this is
+% done in DzCalcCorr).
+% 
+% [Curve,MultiPos,MultiVal] = ComputeZCorrel(Li,KrefNorm)
+%
+% OUTPUTS : 
+% Curve : Correlation curve
+% MultiPos : position on two best correlations
+% MultiVal : value of two best correlations
+%
+% INPUTS : 
+% Li : line of pixel to correlate
+% KrefNorm : normalized depthograph
+% 
 
-LiNorm = Li./mean(Li);
+Lref = size(KrefNorm,1); % length of kimograph
 
-MLiNorm = repmat(LiNorm,Lref,1);
+LiNorm = Li./mean(Li); % normalized line of pixel
 
-DiffK = KrefNorm - MLiNorm;
+MLiNorm = repmat(LiNorm,Lref,1); % replication of the line of pixels as many times as there are line in the kimograph
 
-DiffKsq = DiffK.^2;
+DiffK = KrefNorm - MLiNorm; % difference between kimograph and replicated line of pixel
 
-DiffKsqmean = mean(DiffKsq,2);
+DiffKsq = DiffK.^2; % squared diff
 
-% DiffKsqmean(1) = correlation avec le haut de la bille (anneau)
+DiffKsqmean = mean(DiffKsq,2); % average of squared distance for each line of the kimograph
 
-Curve = DiffKsqmean;
+Curve = DiffKsqmean; % better name ;)
 
-% figure
-% plot(Curve)
+ix = 1:length(Curve); % X coord of curve
+ixq = 1:0.1:length(Curve); % finer X coord of curve
 
-ix = 1:length(Curve);
-ixq = 1:0.1:length(Curve);
+iDiffKsqsum = interp1(ix,smooth(Curve),ixq,'spline'); % fine interpolation of curve (for sub-voxel Z resoltuion)
 
-iDiffKsqsum = interp1(ix,smooth(Curve),ixq,'spline');
+iDiffKsqsumExtended = [max(iDiffKsqsum) iDiffKsqsum max(iDiffKsqsum)]; % Adding a point on both side of the curve to avoid peak detection at the edges
+ixqExtended = [0 ixq ixq(end)+1]; % extended X coord of curve
 
-iDiffKsqsumExtended = [max(iDiffKsqsum) iDiffKsqsum max(iDiffKsqsum)];
-ixqExtended = [0 ixq ixq(end)+1];
+[val,locs] = findpeaks(-iDiffKsqsumExtended,ixqExtended,'minpeakdistance',20,'sortstr','descend'); % minimum detection (peaks of inverted curve)
 
-[val,locs] = findpeaks(-iDiffKsqsumExtended,ixqExtended,'minpeakdistance',20,'sortstr','descend');
-
-if length(locs) < 2
+if length(locs) < 2 % if only one maximum the second position in NaN and the second correlation value is fixed to very much a lot in order to never be selected
     locs(2) = NaN;
-    val(2) = 10;
+    val(2) = Inf;
 end
 
-MultiPos = locs(1:2)-1;
-MultiVal = 1./abs(val(1:2));
+MultiPos = locs(1:2)-1; % storing
+MultiVal = 1./abs(val(1:2)); % storing
 
 
 end
