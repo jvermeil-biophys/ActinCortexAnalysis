@@ -6,32 +6,30 @@ warning('off')
 
 %% Paths & options
 %% Paths
-RawdataFolder = 'D:\Data\Raw';
-MatfileFolder = 'D:\Data\MatFile';
+RawdataFolder = 'D:\Matlab Analysis\Data_Joseph\Raw';
+MatfileFolder = 'D:\Matlab Analysis\Data_Joseph\MatFiles';
 DropboxDataFolder = '';
-FigureFolder = 'D:\Data\Figures';
+FigureFolder = 'D:\Matlab Analysis\Data_Joseph\Figures';
 
 %% Options
 set(0, 'defaultfigureposition', get(0, 'Screensize'));
 
 set(0,'DefaultFigureWindowStyle','docked')
 
-% Couleurs
+% Couleurs pour dictys
 Cwt = [20 109 159]./255; % WT
-
 Csev = [182 109 106]./255; % SevA- mutant
-
 Cfim  = [255 255 109]./255; % FimA- mutant
-
 CaA = [0 73 73]./255; % abpA- mutant
-
 CaC  = [255 182 119]./255; % abpC-
-
 Cwt27 = [146 109 219]./255./2; % WT M270
-
 Cdm = [146 0 0]./255; % DMSO
-
 Cl  = [150 0 255]./255; % Latranculin
+
+% Couleurs pour 3T3
+Cwt = [20 109 159]./255; % WT
+CaSFLnodrug = [182 109 106]./255; % aSFLnodrug
+CaSFLdoxy = [255 255 109]./255; % aSFLdoxy
 
 % diff rates
 C02 = [30 240 60]./255;
@@ -348,6 +346,24 @@ Res2Var_wFluo_multiZ_Comp('Results','04-11-20','R50_2s','M1','DictyDB_M450',1:2,
 Res2Var_wFluo_multiZ_Comp('Results','04-11-20','R90_2s','M2','DictyDB_M270',1,...
     '27-10-20_DepthographM270',18,133,169,AUTO,RawdataFolder,MatfileFolder)
 
+%% 3T3 Joseph 
+
+% (Internship aSFL nodrug vs. aSFL doxy)
+
+Res2Var_wFluo_multiZ_Comp('Results','04-08-20','R40','M1','3T3aSFL_BSA_nodrugs',1,...
+    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','05-08-20','R40','M2','3T3aSFL_BSA_nodrugs',1,...
+    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','07-08-20','R40','M2','3T3aSFL_BSA_nodrugs',1,...
+    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','04-08-20','R40','M2','3T3aSFL_BSA_doxy',1,...
+    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','05-08-20','R40','M1','3T3aSFL_BSA_doxy',1,...
+    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','07-08-20','R40','M1','3T3aSFL_BSA_doxy',1,...
+    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
+
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Var2Data Classic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -459,13 +475,13 @@ Stats2Plots({'DictyAx2_DMSO','DictyAx2_M270'},{Cdm,Cwt27},'DictyBeadsSize',CORT,
 
 % (Internship aSFL nodrug vs. aSFL doxy)
 
-Data2MecaLoop_BigTable('04-08-20','R40',1.15,'M1','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
-Data2MecaLoop_BigTable('05-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
-Data2MecaLoop_BigTable('07-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('04-08-20','R40',1.15,'M1','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('05-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('07-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
 
-Data2MecaLoop_BigTable('04-08-20','R40',1.15,'M2','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
-Data2MecaLoop_BigTable('05-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
-Data2MecaLoop_BigTable('07-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('04-08-20','R40',1.15,'M2','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('05-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('07-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
 
 
 %% M450 Ax2 DMSO/LatA (Nishit)
@@ -773,6 +789,17 @@ Data2MecaLoop_BigTable('04-11-20','M2','DictyDB_M270','R90_2s',2691,MatfileFolde
 
 fitparams = 'Strain100-R20.9';
 
+%% 3T3 Joseph 
+
+% (Internship aSFL nodrug vs. aSFL doxy)
+
+Conditions3T3aSFL = {'ExpType','3T3aSFL_BSA_nodrugs','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','3T3aSFL_BSA_doxy','TpsComp','1s','FitParams',fitparams;...
+    };
+
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3aSFL, ...
+{CaSFLnodrug,CaSFLdoxy},{'o','o'},...
+{'aSFL_nodrug','aSFL_doxy'},'3T3_BSA_noDrugVsDoxy',1)
 %% M450 mutant
 ConditionsM450Multi = {'ExpType','DictyDB_WT','TpsComp','1s','FitParams',fitparams;...
     'ExpType','DictyDB_FimA','TpsComp','1s','FitParams',fitparams;...
