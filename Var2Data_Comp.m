@@ -100,7 +100,7 @@ if exist([path filesep loadname],'file')
             
             % Computation of distance between beads
             Dcst = abs(xcst(:,2)-xcst(:,1));
-            D2cst = ((xcst(:,2)-xcst(:,1))^2 + (ycst(:,2)-ycst(:,1))^2)^0.5;
+            D2cst = ((xcst(:,2)-xcst(:,1)).^2 + (ycst(:,2)-ycst(:,1)).^2).^0.5;
             dycst = abs(ycst(:,1)-ycst(:,2));
             D2cst =(Dcst.^2+dycst.^2).^0.5;
             D3cst = (D2cst.^2+dzcst.^2).^0.5;
