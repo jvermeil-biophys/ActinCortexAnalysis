@@ -100,6 +100,7 @@ if exist([path filesep loadname],'file')
             
             % Computation of distance between beads
             Dcst = abs(xcst(:,2)-xcst(:,1));
+            D2cst = ((xcst(:,2)-xcst(:,1))^2 + (ycst(:,2)-ycst(:,1))^2)^0.5;
             dycst = abs(ycst(:,1)-ycst(:,2));
             D2cst =(Dcst.^2+dycst.^2).^0.5;
             D3cst = (D2cst.^2+dzcst.^2).^0.5;
@@ -143,22 +144,26 @@ if exist([path filesep loadname],'file')
             
             % putting cs and ramp data together
             D3all = [D3cst; D3rmp];
+            D2all = [D2cst; D2rmp];
             dzall = [dzcst; dzrmp];
             Dall = [Dcst; Drmp];
             Sall = [Scst; Srmp];
             
             % referencing by image number
             D3ind = [Sall D3all];
+            D2ind = [Sall D2all];
             Dind = [Sall Dall];
             dzind = [Sall dzall];
             
             % sorting by image number
             D3sort = sortrows(D3ind);
+            D2sort = sortrows(D2ind);
             Dsort = sortrows(Dind);
             dzsort = sortrows(dzind);
             
             % retrieving data sorted in time
             D3 = D3sort(:,2);
+            D2 = D2sort(:,2);
             Dx = Dsort(:,2);
             dz = dzsort(:,2);
             S = D3sort(:,1);            
@@ -359,6 +364,7 @@ if exist([path filesep loadname],'file')
                 
                 MR{kc}.name = name;
                 MR{kc}.D3=D3;
+                MR{kc}.D2=D2;
                 MR{kc}.dz=dz;
                 MR{kc}.B=B;
                 MR{kc}.F=F;
