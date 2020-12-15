@@ -137,7 +137,7 @@ if exist([path filesep loadname],'file')
             if ~contains(specif,'Sep') && ~contains(tag,'R') % not used if experiment is observation of beads separation when field is turned off, or if constant data from compression experiment
                 
                 mB = find(B < 0.8*Bcorrec*str2double(tag(1:end-2))); % if magnetic field is lower than 80% of expected value (indication of coils or BOP problems during experiments)
-                ptrdel = [ptrdel mB'];
+                ptrdel = [ptrdel; mB'];
                 
             end
            
@@ -150,7 +150,7 @@ if exist([path filesep loadname],'file')
                for kp = 1:length(ptrdeld3)
                   if ptrdeld3(kp)>length(dd3) || (abs(dd3(ptrdeld3(kp)))>300 &&... % if last point of curve or point also more than 300 nm from the next point 
                           sign(dd3(ptrdeld3(kp)))~=sign(dd3(ptrdeld3(kp)-1))) % in the other direction (meaning it's isolated)
-                      ptrdel = [ptrdel ptrdeld3(kp)];
+                      ptrdel = [ptrdel; ptrdeld3(kp)];
                   end
                end
             end
@@ -184,7 +184,7 @@ if exist([path filesep loadname],'file')
             end
             
             ptrdel = [ptrdel; mDz];
-            
+
             
             % deletion
             ptrdel = unique(ptrdel);
