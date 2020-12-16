@@ -31,7 +31,7 @@ df = [resfolder filesep 'V2D'];
 % listing file to analyze
 dfContents = dir(df);
 filelist = {dfContents.name};
-ListOfInterest = filelist(contains(filelist,specif));
+ListOfInterest = filelist(contains(filelist,[specif '.mat']));
 
 % save folder
 datenow = datestr(now,'yy-mm-dd');
@@ -270,7 +270,7 @@ for kf=1:nf
                 
                 figure
                 hold on
-                plot(S,D3,'-ko','linewidth',2,'markerfacecolor','g','handlevisibility','off')
+                plot(S,D3,'-ko','linewidth',0.5,'markerfacecolor','g','handlevisibility','off')
                 ylabel('D3 (nm)')
                 xlabel('Image n°')
                 namename = 'Images';
@@ -281,7 +281,10 @@ for kf=1:nf
                 
                 figure
                 hold on
-                plot(T,D3,'-ko','linewidth',2,'markerfacecolor','b','handlevisibility','off')
+                plot(T,D3,'-ko','linewidth',0.5,'markerfacecolor','b','handlevisibility','off')
+                plot([T(1) T(end)], [MedCortW MedCortW],'r','linewidth',1.3)
+                plot([T(1) T(end)], [CortBot CortBot],'k--','linewidth',1)
+                plot([T(1) T(end)], [CortTop CortTop],'k--','linewidth',1)
                 ylabel('D3 (nm)')
                 xlabel('Time (s)')
                 namename = 'Time';
