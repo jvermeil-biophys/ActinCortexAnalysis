@@ -73,7 +73,7 @@ YDistances = {}; % all Dy
 XDistances = {}; % all Dx
 ZDistances = {}; % all Dz
 Times = {}; % all time vectors
-Names = {}; % call names
+Names = {}; % cell names
 
 
 datafile=['D2P_' specif '.mat']; % file to load
@@ -93,7 +93,7 @@ if E == 2
     
     for ni = 1:nc
         
-        AcqName = MP{ni}.name;  % cell name       
+        AcqName = MP{ni}.name;  % cell name   
         
         CortBot = MP{ni}.CortBot;
         CBotTot = [CBotTot CortBot]; % cortex bottom level (10%)    
@@ -251,6 +251,7 @@ PeakCortsort = PeakCort(P>peakslim);
 
 
 %% Storing Data
+MS.Names = Names;
 MS.freq = NpTot/Ttot*60; % global peaks frequency
 MS.timetot = Ttot;
 MS.proms = Psort;

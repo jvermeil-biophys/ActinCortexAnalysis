@@ -261,7 +261,7 @@ plot(CortThick{kC},Acti1090{kC},'o','color','k','markerfacecolor',col{kC},'marke
 
 Correlfit = fitlm(CortThick{kC},Acti1090{kC});
 
-Pval = Correlfit.Coefficients.pValue
+Pval = Correlfit.Coefficients.pValue;
 
 Xnew = linspace(0,1000,1000);
 [y,~] = predict(Correlfit,Xnew','Alpha',0.05,'Simultaneous',true);
