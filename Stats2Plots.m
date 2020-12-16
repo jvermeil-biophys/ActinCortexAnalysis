@@ -1,15 +1,17 @@
-function Stats2Plots(Cond,col,savespecif,CORT,DIST,PEAKS,ACTI,TIME,alignlvl,resfolder,figurefolder)
+function Stats2Plots(Cond,CondNames,col,savespecif,CORT,DIST,PEAKS,ACTI,TIME,alignlvl,resfolder,figurefolder)
 
 %
 % Stats2Plots is used for analyzing constant field curves. It load the data
 % from Peaks2Stats and for different experimental conditions. It makes a
 % variety of plots that can be selected through the CORT, DIST, PEAKS, PROBA and
-% TIME variables. 
+% TIME variables.
 %
 % Stats2Plots(Cond,col,savespecif,DIST,PEAKS,ACTI,TIME,alignlvl,resfolder,figurefolder)
 %
-% Cond : list of experimental conditions (in bracket) to plot (ex :
+% Cond : list of experimental conditions {in brackets} to plot (ex :
 % {'DictyAx2_DMSO','DictyAx2_LatA'})
+% CondNames : list of names to display in graphs {in brackets} (ex :
+% {'DMSO','LatA'})
 % col : list of colors corresponding to each condition (in brackets, ex :
 % {Cdm, Cb} or {'r', 'g'} or {[0.2 0.5 0.3], [ 0.4 0.58 0.14]} )
 % savename for the folder containing figures
@@ -27,7 +29,7 @@ function Stats2Plots(Cond,col,savespecif,CORT,DIST,PEAKS,ACTI,TIME,alignlvl,resf
 set(0,'DefaultFigureWindowStyle','docked')
 set(0,'DefaultTextInterpreter','none');
 set(0,'DefaultAxesFontSize',20)
-set(0, 'defaultAxesTickLabelInterpreter','none'); 
+set(0, 'defaultAxesTickLabelInterpreter','none');
 set(0, 'defaultLegendInterpreter','none');
 warning('off','all')
 close all
@@ -49,29 +51,26 @@ mkdir(ff2)
 ncond = length(Cond); % number of conditions
 
 leg = cell(ncond,1); % legend initialisation
-label = cell(ncond,1); % labels initialisation
 
 % preparing legends
 for kC = 1:ncond
     
-    pos_ = strfind(Cond{kC},'_');
-    leg{kC} = Cond{kC};
-    label{kC} = [Cond{kC}(1:pos_-1) '\newline' Cond{kC}(pos_+1:end)];
+    leg{kC} = CondNames{kC};
     
 end
 
 
 %% retrieve data
 for kC = 1:ncond
-
-    % loading stats
-    filename = ['P2S_' Cond{kC}];    
     
-    if exist([DataF filesep filename '.mat']) ~= 0 
+    % loading stats
+    filename = ['P2S_' Cond{kC}];
+    
+    if exist([DataF filesep filename '.mat']) ~= 0
         
         load([DataF filesep filename])
-        fprintf(['File loaded : ' filename '\n']);       
-      
+        fprintf(['File loaded : ' filename '\n']);
+        
         
         % get data
         CortThick{kC} = MS.MedCortWs; % cortex thicknesses
@@ -107,17 +106,16 @@ for kC = 1:ncond
     if exist([DataF filesep filenameTime '.mat']) ~= 0
         
         load([DataF filesep filenameTime])
-        fprintf(['File loaded : ' filenameTime '\n']);      
+        fprintf(['File loaded : ' filenameTime '\n']);
         
         % get data
         AllDistances{kC} = Distances;
         AllTimes{kC} = Times;
-               
+        
     end
     
     % finalizing labels and legens with numbers of cells
-    label{kC} = [label{kC} '\newline' num2str(length(CortThick{kC}))];
-    leg{kC} = [leg{kC} ' - ' num2str(length(CortThick{kC}))];     
+    leg{kC} = [leg{kC} ' - ' num2str(length(CortThick{kC}))];
     
 end
 
@@ -125,15 +123,17 @@ end
 %% Plotting
 
 if CORT
-%% Cortex thickness
-
+    %% Cortex thickness
+    
     figure
     hold on
+    
+    set(0,'DefaultLineMarkerSize',8);
+    plotSpread_V(CortThick,'distributionMarkers',{'o'},'distributionColors',col ...
+        ,'xValues',1:length(CortThick),'xNames',Cond,'spreadWidth',1.4);
+    
     for kC = 1:ncond
-        
-        Spread_Julien(CortThick{kC},kC,0.7,col{kC},'o',50)
         plot([kC-0.38 kC+0.38],[median(CortThick{kC}) median(CortThick{kC})],'k--','linewidth', 3)
-        
     end
     
     ypos = prctile(CortThick{1},95); % for *** positioning
@@ -143,24 +143,38 @@ if CORT
         for kkt = kC+1:ncond
             pC = ranksum(CortThick{kC},CortThick{kkt});
             
-                    
-            txtsup = ['p = ' num2str(pC,'%.3f')];
-            
-            if 5/100 > pC && pC > 1/100
-                txtC = ['*  ' txtsup]  ;
-            elseif 1/100 > pC && pC > 1/1000
-                txtC = ['**  ' txtsup];
-            elseif 1/1000 > pC
-                txtC = ['***  ' txtsup];
+            if pC < 0.01
+                
+                txtsup = ['p < 0.01'];
+                
             else
-                txtC = ['NS  ' txtsup];
+                
+                txtsup = ['p = ' num2str(pC,'%.2f')];
                 
             end
             
-            line([kC+0.1 kkt-0.1],[ypos ypos],'color','k', 'linewidth', 1.3);
-            text((kC+kkt)/2,ypos + 20,txtC,'HorizontalAlignment','center','fontsize',11)
+            if 5/100 > pC && pC > 1/100
+                txtC = ['*  ' txtsup]  ;
+                plotsig = 1;
+            elseif 1/100 > pC && pC > 1/1000
+                txtC = ['**  ' txtsup];
+                plotsig = 1;
+            elseif 1/1000 > pC
+                txtC = ['***  ' txtsup];
+                plotsig = 1;
+            else
+                txtC = ['NS  ' txtsup];
+                plotsig = 0;
+            end
             
-            ypos = ypos + 30;
+            if plotsig
+                
+                line([kC+0.1 kkt-0.1],[ypos ypos],'color','k', 'linewidth', 1.3);
+                text((kC+kkt)/2,ypos + 20,txtC,'HorizontalAlignment','center','fontsize',11)
+                
+                ypos = ypos + 30;
+                
+            end
             
         end
     end
@@ -169,7 +183,7 @@ if CORT
     ax = gca;
     ax.XTick = 1:ncond;
     ax.XTickLabels = leg;
-    ax.XTickLabelRotation = 0;
+    ax.XTickLabelRotation = 45;
     ax.TickLabelInterpreter = 'none';
     
     ylim([0 ypos+30])
@@ -179,13 +193,16 @@ if CORT
     fig = gcf;
     saveas(fig,[ff2 filesep 'CortThick.fig'],'fig')
     saveas(fig,[ff2 filesep 'CortThick.png'],'png')
-   
-%% Fluctuations amplitude
+    
+    %% Fluctuations amplitude
     figure
     hold on
+    
+    set(0,'DefaultLineMarkerSize',8);
+    plotSpread_V(Acti1090,'distributionMarkers',{'o'},'distributionColors',col ...
+        ,'xValues',1:length(Acti1090),'xNames',Cond,'spreadWidth',1.4);
+    
     for kC = 1:ncond
-        
-        Spread_Julien(Acti1090{kC},kC,0.7,col{kC},'o')
         plot([kC-0.38 kC+0.38],[median(Acti1090{kC}) median(Acti1090{kC})],'k--','linewidth', 3)
         
     end
@@ -197,25 +214,38 @@ if CORT
         for kkt = kC+1:ncond
             pC = ranksum(Acti1090{kC},Acti1090{kkt});
             
-            
-            
-            txtsup = ['p = ' num2str(pC,'%.3f')];
-            
-            if 5/100 > pC && pC > 1/100
-                txtC = ['*  ' txtsup]  ;
-            elseif 1/100 > pC && pC > 1/1000
-                txtC = ['**  ' txtsup];
-            elseif 1/1000 > pC
-                txtC = ['***  ' txtsup];
+            if pC < 0.01
+                
+                txtsup = ['p < 0.01'];
+                
             else
-                txtC = ['NS  ' txtsup];
+                
+                txtsup = ['p = ' num2str(pC,'%.2f')];
                 
             end
             
-          line([kC+0.1 kkt-0.1],[ypos ypos],'color','k', 'linewidth', 1.3);
-            text((kC+kkt)/2,ypos + 20,txtC,'HorizontalAlignment','center','fontsize',11)
+            if 5/100 > pC && pC > 1/100
+                txtC = ['*  ' txtsup]  ;
+                plotsig = 1;
+            elseif 1/100 > pC && pC > 1/1000
+                txtC = ['**  ' txtsup];
+                plotsig = 1;
+            elseif 1/1000 > pC
+                txtC = ['***  ' txtsup];
+                plotsig = 1;
+            else
+                txtC = ['NS  ' txtsup];
+                plotsig = 0;
+            end
             
-            ypos = ypos + 30;
+            if plotsig
+                
+                line([kC+0.1 kkt-0.1],[ypos ypos],'color','k', 'linewidth', 1.3);
+                text((kC+kkt)/2,ypos + 20,txtC,'HorizontalAlignment','center','fontsize',11)
+                
+                ypos = ypos + 30;
+            end
+            
         end
     end
     
@@ -223,7 +253,7 @@ if CORT
     ax = gca;
     ax.XTick = 1:ncond;
     ax.XTickLabels = leg;
-    ax.XTickLabelRotation = 0;
+    ax.XTickLabelRotation = 45;
     ax.TickLabelInterpreter = 'none';
     
     ylim([0 ypos+30])
@@ -233,55 +263,55 @@ if CORT
     fig = gcf;
     saveas(fig,[ff2 filesep 'CortActiDist.fig'],'fig')
     saveas(fig,[ff2 filesep 'CortActiDist.png'],'png')
-
-%% Median + 10-90 level plot
-   
-for kC = 1:ncond
     
-    MedCw = CortThick{kC};
-    P10 = CortBot{kC};
-    P90 = CortTop{kC};
+    %% Median + 10-90 level plot
     
-    figure
-    hold on
-    PlotMedP1090(MedCw,P10,P90,kC,col{kC})
-    ylabel('Bead separation (nm)')
-    xlabel(leg{kC})
+    for kC = 1:ncond
+        
+        MedCw = CortThick{kC};
+        P10 = CortBot{kC};
+        P90 = CortTop{kC};
+        
+        figure
+        hold on
+        PlotMedP1090(MedCw,P10,P90,kC,col{kC})
+        ylabel('Bead separation (nm)')
+        xlabel(leg{kC})
+        
+    end
     
-end
-
-%% Correlation Cortex/Activity
- for kC = 1:ncond
-
-figure
-hold on
-ylabel('Fluctuation amplitude (nm)')
-xlabel('Median cortex thickness (nm)')
-plot(CortThick{kC},Acti1090{kC},'o','color','k','markerfacecolor',col{kC},'markersize',8)
-
-Correlfit = fitlm(CortThick{kC},Acti1090{kC});
-
-Pval = Correlfit.Coefficients.pValue;
-
-Xnew = linspace(0,1000,1000);
-[y,~] = predict(Correlfit,Xnew','Alpha',0.05,'Simultaneous',true);
-
-
-plot(Xnew,y,'linewidth',2,'color',col{kC})
-
-ylim([-200 800])
-xlim([0 500])
-box on
-
-legend(leg{kC},['Slope = ' num2str(Correlfit.Coefficients{2,1}) '. Pvalue = ' num2str(Pval(2))],'interpreter','none')
-legend('location','northwest')
- end
- 
+    %% Correlation Cortex/Activity
+    for kC = 1:ncond
+        
+        figure
+        hold on
+        ylabel('Fluctuation amplitude (nm)')
+        xlabel('Median cortex thickness (nm)')
+        plot(CortThick{kC},Acti1090{kC},'o','color','k','markerfacecolor',col{kC},'markersize',8)
+        
+        Correlfit = fitlm(CortThick{kC},Acti1090{kC});
+        
+        Pval = Correlfit.Coefficients.pValue;
+        
+        Xnew = linspace(0,1000,1000);
+        [y,~] = predict(Correlfit,Xnew','Alpha',0.05,'Simultaneous',true);
+        
+        
+        plot(Xnew,y,'linewidth',2,'color',col{kC})
+        
+        ylim([-200 800])
+        xlim([0 500])
+        box on
+        
+        legend(leg{kC},['Slope = ' num2str(Correlfit.Coefficients{2,1}) '. Pvalue = ' num2str(Pval(2))],'interpreter','none')
+        legend('location','northwest')
+    end
+    
 end
 
 if DIST
-%% Distribution of all datapoints
-
+    %% Distribution of all datapoints
+    
     
     figure
     hold on
@@ -295,7 +325,7 @@ if DIST
         
         bar(xDist,100*N,'facecolor',col{kC},'edgecolor','none',...
             'facealpha',0.7,'linewidth',2)
-               
+        
     end
     
     ylabel('% of points')
@@ -305,12 +335,12 @@ if DIST
     fig = gcf;
     
     saveas(fig,[ff2 filesep savespecif '_AllPointsDisttribution.fig'],'fig')
-    saveas(fig,[ff2 filesep savespecif '_AllPointsDistribution.png'],'png')   
+    saveas(fig,[ff2 filesep savespecif '_AllPointsDistribution.png'],'png')
     
 end
 
 if PEAKS
-%% Peaks statistics
+    %% Peaks statistics
     
     % prominence distribution
     figure
@@ -327,7 +357,7 @@ if PEAKS
     
     xlabel('Peaks prominence (nm)')
     ylabel('Proportion of all peaks (%)')
-
+    
     legend(leg,'interpreter','none')
     fig = gcf;
     saveas(fig,[ff2 filesep 'PeaksPromDist.fig'],'fig')
@@ -348,7 +378,7 @@ if PEAKS
     
     xlabel('Peaks prominence (nm)')
     ylabel('Proportion of all peaks (%)')
-
+    
     legend(leg,'interpreter','none')
     fig = gcf;
     saveas(fig,[ff2 filesep 'PeaksHeigthDist.fig'],'fig')
@@ -369,18 +399,18 @@ if PEAKS
     
     xlabel('Peaks duration (s)')
     ylabel('Proportion of all peaks (%)')
-
+    
     legend(leg,'interpreter','none')
     fig = gcf;
     saveas(fig,[ff2 filesep 'PeaksDurDist.fig'],'fig')
     saveas(fig,[ff2 filesep 'PeaksDurDist.png'],'png')
-     
+    
 end
 
 if ACTI
-%% Activity curves 
-
-   
+    %% Activity curves
+    
+    
     figure
     hold on
     plot([0 0 0],[0.001 50 100],'--k','handlevisibility','off')
@@ -416,30 +446,30 @@ if ACTI
     
     fig = gcf;
     saveas(fig,[ff2 filesep 'ProbDistLinV.fig'],'fig')
-    saveas(fig,[ff2 filesep 'ProbDistLinV.png'],'png')    
+    saveas(fig,[ff2 filesep 'ProbDistLinV.png'],'png')
     
-end 
+end
 
 if TIME
-%% Time analysis
-
+    %% Time analysis
+    
     for kC = 1:ncond
         
         AllC{kC} = []; % for all correlation curves
         AllTau{kC} = []; % for all decorelation times
         
         for k = 1:length(Lags{kC})
-
-           
-                expfitfun = fittype('exp(-x/T)'); % exponential fit function
-
-                expfit = fit(Lags{kC}{k},Corrs{kC}{k},expfitfun);
-                
-                Tau = coeffvalues(expfit);
-                
-                AllC{kC} = [AllC{kC}; Corrs{kC}{k}(1:Fs*MinTime+1)'];
-                AllTau{kC} = [AllTau{kC} Tau];
-                
+            
+            
+            expfitfun = fittype('exp(-x/T)'); % exponential fit function
+            
+            expfit = fit(Lags{kC}{k},Corrs{kC}{k},expfitfun);
+            
+            Tau = coeffvalues(expfit);
+            
+            AllC{kC} = [AllC{kC}; Corrs{kC}{k}(1:Fs*MinTime+1)'];
+            AllTau{kC} = [AllTau{kC} Tau];
+            
             
         end
         
@@ -454,34 +484,34 @@ if TIME
     hold on
     
     for kC = 1:ncond
-plot(MedLag{kC},MedCorr{kC},'color',col{kC},'linewidth',2)
-plot(MedLag{kC},MedCorr{kC}-ErrCorr{kC},'--','linewidth',0.5,'color',col{kC},'handlevisibility','off')
-plot(MedLag{kC},MedCorr{kC}+ErrCorr{kC},'--','linewidth',0.5,'color',col{kC},'handlevisibility','off')
+        plot(MedLag{kC},MedCorr{kC},'color',col{kC},'linewidth',2)
+        plot(MedLag{kC},MedCorr{kC}-ErrCorr{kC},'--','linewidth',0.5,'color',col{kC},'handlevisibility','off')
+        plot(MedLag{kC},MedCorr{kC}+ErrCorr{kC},'--','linewidth',0.5,'color',col{kC},'handlevisibility','off')
     end
-
-xlabel('Lag (sec)')
-ylabel('AutoCorrelation')
-
-xlim([0 350])
-ylim([-0.3 1])
-legend(leg)
-
+    
+    xlabel('Lag (sec)')
+    ylabel('AutoCorrelation')
+    
+    xlim([0 350])
+    ylim([-0.3 1])
+    legend(leg)
+    
     fig = gcf;
     saveas(fig,[ff2 filesep 'AutoCorr.fig'],'fig')
     saveas(fig,[ff2 filesep 'AutoCorr.png'],'png')
-
     
-figure
-hold on
-for kC = 1:ncond
-
-Spread_Julien(AllTau{kC},kC,0.9,col{kC},'o',5)
-plot([kC-0.45 kC+0.45],[median(AllTau{kC}) median(AllTau{kC})],'r--','linewidth',2)
-
-end
-
-ypos = prctile([AllTau{:}],99.5); % for *** positioning
-for kC = 1:ncond-1 % kC = 1:1 for comparing everything to the first condition only
+    
+    figure
+    hold on
+    for kC = 1:ncond
+        
+        Spread_Julien(AllTau{kC},kC,0.9,col{kC},'o',5)
+        plot([kC-0.45 kC+0.45],[median(AllTau{kC}) median(AllTau{kC})],'r--','linewidth',2)
+        
+    end
+    
+    ypos = prctile([AllTau{:}],99.5); % for *** positioning
+    for kC = 1:ncond-1 % kC = 1:1 for comparing everything to the first condition only
         for kkt = kC+1:ncond
             pC = ranksum(Acti1090{kC},Acti1090{kkt});
             
@@ -499,24 +529,24 @@ for kC = 1:ncond-1 % kC = 1:1 for comparing everything to the first condition on
                 txtC = ['NS  ' txtsup];
                 
             end
-
-             line([kC+0.1 kkt-0.1],[ypos ypos],'color','k', 'linewidth', 1.3);
+            
+            line([kC+0.1 kkt-0.1],[ypos ypos],'color','k', 'linewidth', 1.3);
             text((kC+kkt)/2,ypos + 2,txtC,'HorizontalAlignment','center','fontsize',11)
             
             ypos = ypos + 3;
+        end
     end
-end
-ax = gca;
-ax.XTick = 1:ncond;
-ax.XTickLabels = leg;
-
-ylim([0 ypos+3])
-ylabel('Decorrelation time (s)')
-
+    ax = gca;
+    ax.XTick = 1:ncond;
+    ax.XTickLabels = leg;
+    
+    ylim([0 ypos+3])
+    ylabel('Decorrelation time (s)')
+    
     fig = gcf;
     saveas(fig,[ff2 filesep 'DecorrelationTimes.fig'],'fig')
     saveas(fig,[ff2 filesep 'DecorrelationTimes.png'],'png')
-
+    
 end
 
 end
@@ -527,7 +557,7 @@ step = 0.9/(length(MedCw)+1);
 x = (1:length(MedCw))*step-0.45;
 
 Mat1= sortrows([MedCw' P10' P90']);
-plot([coord+x; coord+x],[Mat1(:,2)'; Mat1(:,3)'],'-k'); 
+plot([coord+x; coord+x],[Mat1(:,2)'; Mat1(:,3)'],'-k');
 plot(coord+x,Mat1(:,1),'ks','markerfacecolor',col)
 plot(coord+x,Mat1(:,3),'kv','markerfacecolor',col)
 plot(coord+x,Mat1(:,2),'k^','markerfacecolor',col)
