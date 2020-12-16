@@ -93,199 +93,201 @@ if E == 2
     
     for ni = 1:nc
         
-        AcqName = MP{ni}.name;  % cell name   
-        
-        CortBot = MP{ni}.CortBot;
-        CBotTot = [CBotTot CortBot]; % cortex bottom level (10%)    
-        
-        CortTop = MP{ni}.CortTop;
-        CTopTot = [CTopTot CortTop]; % cortex top level (90%)
-        
-        CortActi = MP{ni}.CortActi;
-        CActTot = [CActTot CortActi]; % cortex fluctuations amplitude
-        
-        CortActiBeg = MP{ni}.CortActiBeg; 
-        CActBegTot = [CActBegTot CortActiBeg]; % cortex fluctuations amplitude for first half of long curves
-        
-        CortActiEnd = MP{ni}.CortActiEnd;
-        CActEndTot = [CActEndTot CortActiEnd]; % cortex fluctuations amplitude for second half of long curves
-        
-        CortAssym = MP{ni}.CortAssym;
-        CAssTot = [CAssTot CortAssym]; % cortex fluctations assymetry
-                   
-        PeaksDet = PeaksDet + MP{ni}.npeaksD; % number of peaks detected        
-        PeaksKept = PeaksKept + MP{ni}.npeaksG; % number of peaks kept
-           
-        MedCortW = MP{ni}.MedCortW;
-        MedCTot = [MedCTot MedCortW]; % median cortex thickness
-        
-        D3 = MP{ni}.dist; % 3D distances
-        DY = MP{ni}.dy;
-        DX = abs(MP{ni}.dx);
-        DZ = MP{ni}.dz;
-        
-       T = MP{ni}.time; % time            
-        
-       % total time (jumps of more than 3 seconds are not considered)
-        dT = diff(T);
-        ptrdT = dT<3;        
-        Ttot = Ttot + sum(dT(ptrdT));
-        
-        NpTot = NpTot + MP{ni}.npeaksG; % total number of peaks
-        
-        peakI = MP{ni}.peaks; % peaks data from data2peaks
-        
-        if ~isempty(peakI)
+        if MP{ni}.MedCortW > 0  % not taking data with a negative cortex thickness
             
-            P  = [P  peakI.prom(peakI.good)']; % peaks prominence
-            H  = [H  peakI.height(peakI.good)']; % peaks height
-            W  = [W  peakI.width(peakI.good)']; % peak width
-            PeakCort = [PeakCort repmat(CortBot,1,sum(peakI.good))]; % cortex thickness par cell for each peak
+            AcqName = MP{ni}.name;  % cell name
             
-        end
-        
-        
-       % Autocorrelation
-       
-       MinTime = 300; % minimum time to do autocorrelation
-       Fs = 2; % autocorrelation sampling frequency
-       
-        if (T(end) - T(1) > MinTime+1) && ((T(end)-T(1))/(length(T)-1) <= 1) % done only for curves longer than MinTime and with consistency in time
+            CortBot = MP{ni}.CortBot;
+            CBotTot = [CBotTot CortBot]; % cortex bottom level (10%)
             
+            CortTop = MP{ni}.CortTop;
+            CTopTot = [CTopTot CortTop]; % cortex top level (90%)
             
-            [C,L] = FFTandAUTOCORR(T,D3,Fs); % performs curve autocorrelation. 
-            % This function also does FFT but here it is desactivated as it is unsused
+            CortActi = MP{ni}.CortActi;
+            CActTot = [CActTot CortActi]; % cortex fluctuations amplitude
             
-            ptr = L<MinTime+1; % only taking the first MinTime seconds
+            CortActiBeg = MP{ni}.CortActiBeg;
+            CActBegTot = [CActBegTot CortActiBeg]; % cortex fluctuations amplitude for first half of long curves
             
-            C = C(ptr); % Correlation value
-            L = L(ptr); % lags            
+            CortActiEnd = MP{ni}.CortActiEnd;
+            CActEndTot = [CActEndTot CortActiEnd]; % cortex fluctuations amplitude for second half of long curves
             
-            [~, locmn] = findpeaks(-C,'NPeaks',1,'minpeakprominence',0.01); % first minimum
+            CortAssym = MP{ni}.CortAssym;
+            CAssTot = [CAssTot CortAssym]; % cortex fluctations assymetry
             
-            [~, locmx] = findpeaks(C,'NPeaks',1,'minpeakprominence',0.01); % first maximum
+            PeaksDet = PeaksDet + MP{ni}.npeaksD; % number of peaks detected
+            PeaksKept = PeaksKept + MP{ni}.npeaksG; % number of peaks kept
             
-            if PLOT % plot autocorr curve and makrs first minimum and maximum
-                figure
-                hold on
-                title([specif ' : Autocorrelation of ' AcqName])
-                plot(L,C,'b-*')
-                xlabel('Lag (sec)')
-                ylabel('AutoCorrelation')
+            MedCortW = MP{ni}.MedCortW;
+            MedCTot = [MedCTot MedCortW]; % median cortex thickness
+            
+            D3 = MP{ni}.dist; % 3D distances
+            DY = MP{ni}.dy;
+            DX = abs(MP{ni}.dx);
+            DZ = MP{ni}.dz;
+            
+            T = MP{ni}.time; % time
+            
+            % total time (jumps of more than 3 seconds are not considered)
+            dT = diff(T);
+            ptrdT = dT<3;
+            Ttot = Ttot + sum(dT(ptrdT));
+            
+            NpTot = NpTot + MP{ni}.npeaksG; % total number of peaks
+            
+            peakI = MP{ni}.peaks; % peaks data from data2peaks
+            
+            if ~isempty(peakI)
                 
-                plot(L(locmn),C(locmn),'*r','linewidth',5)
-                plot(L(locmx),C(locmx),'*g','linewidth',5)
-                
-                xlim([0 350])
-                ylim([-0.8 1.05])
-                
-                fig = gcf; % save fig
-                saveas(fig,[ff filesep 'Autocorr_' specif ' - ' AcqName '.png'],'png')
-                saveas(fig,[ff filesep 'Autocorr_' specif ' - ' AcqName '.fig'],'fig')
-                close
+                P  = [P  peakI.prom(peakI.good)']; % peaks prominence
+                H  = [H  peakI.height(peakI.good)']; % peaks height
+                W  = [W  peakI.width(peakI.good)']; % peak width
+                PeakCort = [PeakCort repmat(CortBot,1,sum(peakI.good))]; % cortex thickness par cell for each peak
                 
             end
             
-            Lags = [Lags(:)' L']; % lag from
-            Corrs = [Corrs(:)' C']; % correlation
-            Mins = [Mins L(locmn)]; % First minimum of autocorrelation
-            Maxs = [Maxs L(locmx)]; % First maximum of autocorrelation
             
-           
-        end
-        
-        Distances{end+1} = D3; % all 3D distances
-        YDistances{end+1} = DY; % all Dy
-        XDistances{end+1} = DX; % all Dx
-        ZDistances{end+1} = DZ; % all Dz
-        Times{end+1} = T; % time
-        Names{end+1} = AcqName; % cell name
+            % Autocorrelation
+            
+            MinTime = 300; % minimum time to do autocorrelation
+            Fs = 2; % autocorrelation sampling frequency
+            
+            if (T(end) - T(1) > MinTime+1) && ((T(end)-T(1))/(length(T)-1) <= 1) % done only for curves longer than MinTime and with consistency in time
                 
-        D3Centered = D3' - prctile(D3,100*(1-alignlvl));
-        
-        AllD3 =  [AllD3 D3']; % all datapoints pulled together
-        D3DataPts = [D3DataPts D3Centered]; % all datapoints centered on alignlvl
-        
-        % activity curve
-        ActiCurveX = sort(D3Centered); 
-        ActiCurveY = (length(ActiCurveX):-1:1)/length(ActiCurveX)*100;
-
-        ActiCurves = {ActiCurves{:} {ActiCurveX; ActiCurveY}}; % activity curves
-        
-        if PLOT % ploting activity curves, cortex thickness and fluctuations (no saving)
-
+                
+                [C,L] = FFTandAUTOCORR(T,D3,Fs); % performs curve autocorrelation.
+                % This function also does FFT but here it is desactivated as it is unsused
+                
+                ptr = L<MinTime+1; % only taking the first MinTime seconds
+                
+                C = C(ptr); % Correlation value
+                L = L(ptr); % lags
+                
+                [~, locmn] = findpeaks(-C,'NPeaks',1,'minpeakprominence',0.01); % first minimum
+                
+                [~, locmx] = findpeaks(C,'NPeaks',1,'minpeakprominence',0.01); % first maximum
+                
+                if PLOT % plot autocorr curve and makrs first minimum and maximum
+                    figure
+                    hold on
+                    title([specif ' : Autocorrelation of ' AcqName])
+                    plot(L,C,'b-*')
+                    xlabel('Lag (sec)')
+                    ylabel('AutoCorrelation')
+                    
+                    plot(L(locmn),C(locmn),'*r','linewidth',5)
+                    plot(L(locmx),C(locmx),'*g','linewidth',5)
+                    
+                    xlim([0 350])
+                    ylim([-0.8 1.05])
+                    
+                    fig = gcf; % save fig
+                    saveas(fig,[ff filesep 'Autocorr_' specif ' - ' AcqName '.png'],'png')
+                    saveas(fig,[ff filesep 'Autocorr_' specif ' - ' AcqName '.fig'],'fig')
+                    close
+                    
+                end
+                
+                Lags = [Lags(:)' L']; % lag from
+                Corrs = [Corrs(:)' C']; % correlation
+                Mins = [Mins L(locmn)]; % First minimum of autocorrelation
+                Maxs = [Maxs L(locmx)]; % First maximum of autocorrelation
+                
+                
+            end
             
-            figure
-            hold on
-            title(specif)
-            plot(ActiCurveX,ActiCurveY,'b')
-            ylabel('P(h)')
-            xlabel('Height above cortex')
+            Distances{end+1} = D3; % all 3D distances
+            YDistances{end+1} = DY; % all Dy
+            XDistances{end+1} = DX; % all Dx
+            ZDistances{end+1} = DZ; % all Dz
+            Times{end+1} = T; % time
+            Names{end+1} = AcqName; % cell name
             
-            figure
-            hold on
-            title(specif)
-            xlim([-1 2])
-            plot(rand(1),MedCortW,'ok','markerfacecolor','b','markersize',10)
-            ylabel('Cortex Thickness (nm)')
+            D3Centered = D3' - prctile(D3,100*(1-alignlvl));
             
-            figure
-            hold on
-            title(specif)
-            xlim([-1 2])
-            plot(rand(1),CortActi,'ok','markerfacecolor','b','markersize',10)
-            ylabel('Thickness variation amplitude (nm)')
+            AllD3 =  [AllD3 D3']; % all datapoints pulled together
+            D3DataPts = [D3DataPts D3Centered]; % all datapoints centered on alignlvl
+            
+            % activity curve
+            ActiCurveX = sort(D3Centered);
+            ActiCurveY = (length(ActiCurveX):-1:1)/length(ActiCurveX)*100;
+            
+            ActiCurves = {ActiCurves{:} {ActiCurveX; ActiCurveY}}; % activity curves
+            
+            if PLOT % ploting activity curves, cortex thickness and fluctuations (no saving)
+                
+                
+                figure
+                hold on
+                title(specif)
+                plot(ActiCurveX,ActiCurveY,'b')
+                ylabel('P(h)')
+                xlabel('Height above cortex')
+                
+                figure
+                hold on
+                title(specif)
+                xlim([-1 2])
+                plot(rand(1),MedCortW,'ok','markerfacecolor','b','markersize',10)
+                ylabel('Cortex Thickness (nm)')
+                
+                figure
+                hold on
+                title(specif)
+                xlim([-1 2])
+                plot(rand(1),CortActi,'ok','markerfacecolor','b','markersize',10)
+                ylabel('Thickness variation amplitude (nm)')
+                
+            end
             
         end
-        
     end
     
+    % Removing peaks smaller than 15nm (noise)
+    peakslim = 15;
     
-% Removing peaks smaller than 15nm (noise)
-peakslim = 15;
-
-Psort = P(P>peakslim); 
-Hsort = H(P>peakslim);
-Wsort = W(P>peakslim);
-PeakCortsort = PeakCort(P>peakslim);
-
-
-%% Storing Data
-MS.Names = Names;
-MS.freq = NpTot/Ttot*60; % global peaks frequency
-MS.timetot = Ttot;
-MS.proms = Psort;
-MS.heights = Hsort;
-MS.peaksCortW = PeakCortsort;
-MS.AllD3 = AllD3;
-MS.D3DataPts = sort(D3DataPts);
-MS.widths = Wsort;
-MS.CortBots = CBotTot;
-MS.CortBot = mean(CBotTot);
-MS.CortTops = CTopTot;
-MS.CortTop = mean(CTopTot);
-MS.CortActisBeg = CActBegTot;
-MS.CortActisEnd = CActEndTot;
-MS.CortActis = CActTot;
-MS.CortAssyms = CAssTot;
-MS.MedCortWs = MedCTot;
-MS.Acticurves = ActiCurves;
-MS.lags = Lags;
-MS.corrs = Corrs;
-MS.corrmins = Mins;
-MS.corrmaxs = Maxs;
-MS.mintimecorr = MinTime;
-MS.freqsamp = Fs; 
-
-
-fprintf(['\nTotal number of peaks kepts for plotting : ' ...
-    num2str(PeaksKept) '/' num2str(PeaksDet) ' (' num2str(PeaksKept/PeaksDet*100) '%%)\n']);
-
-
-%% Saving data
-save([sf filesep 'P2S' filesep 'TimeDatas_' specif],'Distances','YDistances','XDistances','Times','Names')
-save([sf filesep 'P2S' filesep 'P2S_' specif],'MS')
-fprintf(['\nFile saved : \nP2S_' specif '.mat\n\n\n'])
+    Psort = P(P>peakslim);
+    Hsort = H(P>peakslim);
+    Wsort = W(P>peakslim);
+    PeakCortsort = PeakCort(P>peakslim);
+    
+    
+    %% Storing Data
+    MS.Names = Names;
+    MS.freq = NpTot/Ttot*60; % global peaks frequency
+    MS.timetot = Ttot;
+    MS.proms = Psort;
+    MS.heights = Hsort;
+    MS.peaksCortW = PeakCortsort;
+    MS.AllD3 = AllD3;
+    MS.D3DataPts = sort(D3DataPts);
+    MS.widths = Wsort;
+    MS.CortBots = CBotTot;
+    MS.CortBot = mean(CBotTot);
+    MS.CortTops = CTopTot;
+    MS.CortTop = mean(CTopTot);
+    MS.CortActisBeg = CActBegTot;
+    MS.CortActisEnd = CActEndTot;
+    MS.CortActis = CActTot;
+    MS.CortAssyms = CAssTot;
+    MS.MedCortWs = MedCTot;
+    MS.Acticurves = ActiCurves;
+    MS.lags = Lags;
+    MS.corrs = Corrs;
+    MS.corrmins = Mins;
+    MS.corrmaxs = Maxs;
+    MS.mintimecorr = MinTime;
+    MS.freqsamp = Fs;
+    
+    
+    fprintf(['\nTotal number of peaks kepts for plotting : ' ...
+        num2str(PeaksKept) '/' num2str(PeaksDet) ' (' num2str(PeaksKept/PeaksDet*100) '%%)\n']);
+    
+    
+    %% Saving data
+    save([sf filesep 'P2S' filesep 'TimeDatas_' specif],'Distances','YDistances','XDistances','Times','Names')
+    save([sf filesep 'P2S' filesep 'P2S_' specif],'MS')
+    fprintf(['\nFile saved : \nP2S_' specif '.mat\n\n\n'])
     
     
 else
