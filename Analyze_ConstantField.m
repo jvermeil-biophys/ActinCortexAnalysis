@@ -49,10 +49,10 @@ PLOTPS = 0;
 
 % for s2p
 CORT = 1;
-PEAKS    = 1;
-ACTI  = 1;
-DIST   = 1;
-TIME = 1;
+PEAKS = 0;
+ACTI  = 0;
+DIST   = 0;
+TIME = 0;
 
 return % stop execution here 
 
@@ -1367,7 +1367,6 @@ Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
     
     Peaks2Stats('DC_Inside_DMSO',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
 
-  
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Stats2PLots %%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -1395,16 +1394,20 @@ Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
 % Co  =  outside
 
     %% papier
-        Stats2Plots({'DCLA_DMSO','DCLA_CK666','DCLA_Smifh2','DCLA_Blebbi','DCLA_LatA500'},{Cdm,Cck,Cs,Cb,Cl},...
+        Stats2Plots({'DCLA_DMSO','DCLA_CK666','DCLA_Smifh2','DCLA_Blebbi','DCLA_LatA500'},{'Ctrl','CK666','Smifh2','Blebbi','LatA'},{Cdm,Cck,Cs,Cb,Cl},...
         'Paper_Main',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
     
-        Stats2Plots({'DCLA_DMSO','DCLA_Nase','DCLA_LatA500','DCLA_LatNase','DCLA_LatTryp'},{Cdm,Cnd,Cl,Cl/2,Cl/2},...
+        Stats2Plots({'DCLA_DMSO','DCLA_Nase','DCLA_LatA500','DCLA_LatNase','DCLA_LatTryp'},{'Ctrl','Nase','LatA','LatA+Nase','LatA+Tryp'},{Cdm,Cnd,Cl,Cl/2,Cl/2},...
         'Paper_NaseTryp',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
     
-        Stats2Plots({'DCLA_SiCtrl','DCLA_SiVim','DCLA_SiCtrl+LatA','DCLA_SiVim+LatA'},{Cin,Co,(Cl+Cin)/2,(Cl+Co)/2},...
+        Stats2Plots({'DCLA_DMSO','DCLA_SiCtrl','DCLA_SiVim','DCLA_LatA500','DCLA_SiCtrl+LatA','DCLA_SiVim+LatA'},{'Ctrl','SiCtrl','SiVim','LatA','SiCtrl+LatA','SiVim+LatA'},{Cdm,Cin,Co,Cl,(Cl+Cin)/2,(Cl+Co)/2},...
         'Paper_Vimentin',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
     
-        Stats2Plots({'DCLA_DMSO','DCLA_CalA1','DCLA_CalA3','DCLA_CalA10'},{Cdm,Ccl,Ccl,Ccl10},...
+        Stats2Plots({'DCLA_SiCtrl','DCLA_SiVim','DCLA_LatA500','DCLA_SiCtrl+LatA','DCLA_SiVim+LatA','DCLA_LatNase'},{'SiCtrl','SiVim','LatA','SiCtrl+LatA','SiVim+LatA','Nase+LatA'},{Cin,Co,Cl,(Cl+Cin)/2,(Cl+Co)/2,Cl/2},...
+        'Paper_Vimentin+Nase',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
+    
+    
+        Stats2Plots({'DCLA_DMSO','DCLA_CalA1','DCLA_CalA3','DCLA_CalA10'},{'DMSO','CalA1','CalA3','CalA10'},{Cdm,Ccl,Ccl,Ccl10},...
         'Paper_Calyculin',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
     
     %% autre

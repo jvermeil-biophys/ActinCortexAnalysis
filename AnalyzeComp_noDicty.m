@@ -4,7 +4,7 @@ clc;
 
 %% Paths & options
 %% Paths
-RawdataFolder = 'D:\Data\Raw';
+RawdataFolder = 'F:\Raw';
 MatfileFolder = 'D:\Data\MatFile';
 DropboxDataFolder = '';
 FigureFolder = 'D:\Data\Figures';
@@ -41,7 +41,7 @@ PLOTDFComp = 1;
 
 % d2m
 PLOTD2M = 0;
-VERBOSED2M = 1;
+VERBOSED2M = 0;
 
 % diff tmp comp
 Cdc1  = [255 127 63]./255; % diff tmp comp
@@ -150,28 +150,28 @@ Res2Var_wFluo_multiZ_Comp('Results','25-09-18','R80','M1','DC-Comp_SMIFH2',2,...
     '28-08-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','25-09-18','R80','M2','DC-Comp_Ctrl',1,...
     '28-08-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%     Res2Var_wFluo_multiZ_Comp('Results','25-09-18','R80','M2','DC-Comp_CK666',2,...
-%         '28-08-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','25-09-18','R80','M2','DC-Comp_CK666',2,...
+        '28-08-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
 
 % Arpin 2 18s (42 + 42 img) + 2s (95img) = 179
-%     Res2Var_wFluo_multiZ_Comp('Results','05-10-18','R80','M1','DC-Comp_ArpinKO',1:3,...
-%         '28-08-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%     Res2Var_wFluo_multiZ_Comp('Results','05-10-18','R80','M2','DC-Comp_ArpinWT',1:3,...
-%         '28-08-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%
+    Res2Var_wFluo_multiZ_Comp('Results','05-10-18','R80','M1','DC-Comp_ArpinKO',1:3,...
+        '28-08-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','05-10-18','R80','M2','DC-Comp_ArpinWT',1:3,...
+        '28-08-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+
 % CultureRampe Inhib 2 18s (42 + 42 img) + 2s (95img) = 179
-%     Res2Var_wFluo_multiZ_Comp('Results','29-10-18','R80','M1','DC-Comp_CalA25',1,...
-%         '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%     Res2Var_wFluo_multiZ_Comp('Results','29-10-18','R80','M1','DC-Comp_LatA2',2,...
-%         '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%     Res2Var_wFluo_multiZ_Comp('Results','29-10-18','R80','M2','DC-Comp_LatA2',2,...
-%         '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','29-10-18','R80','M1','DC-Comp_CalA25',1,...
+        '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','29-10-18','R80','M1','DC-Comp_LatA2',2,...
+        '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','29-10-18','R80','M2','DC-Comp_LatA2',2,...
+        '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
 
 
-%     Res2Var_wFluo_multiZ_Comp('Results','30-10-18','R80','M1','DC-Comp_Blebbi',2,...
-%         '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%     Res2Var_wFluo_multiZ_Comp('Results','30-10-18','R80','M2','DC-Comp_CalA25',1,...
-%         '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','30-10-18','R80','M1','DC-Comp_Blebbi',2,...
+        '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','30-10-18','R80','M2','DC-Comp_CalA25',1,...
+        '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','30-10-18','R80','M2','DC-Comp_Ctrl',2,...
     '30-10-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
 
@@ -179,32 +179,32 @@ Res2Var_wFluo_multiZ_Comp('Results','30-10-18','R80','M2','DC-Comp_Ctrl',2,...
 % CultureRampe Inhib 3 18s (42 + 42 img) + 2s (95img) = 179
 Res2Var_wFluo_multiZ_Comp('Results','12-12-18','R80','M1','DC-Comp_Ctrl',1,...
     '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%     Res2Var_wFluo_multiZ_Comp('Results','12-12-18','R80','M2','DC-Comp_Nase',1:3,...
-%         '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','12-12-18','R80','M2','DC-Comp_Nase',1:3,...
+        '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
 
 
 % CultureRampe ArpC4 1 18s (42 + 42 img) + 2s (95img) = 179
-%     Res2Var_wFluo_multiZ_Comp('Results','17-12-18','R80','M1','DC-Comp_AprC4KO',1,...
-%         '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%     Res2Var_wFluo_multiZ_Comp('Results','17-12-18','R80','M2','DC-Comp_AprC4WT',1,...
-%         '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%
+    Res2Var_wFluo_multiZ_Comp('Results','17-12-18','R80','M1','DC-Comp_AprC4KO',1,...
+        '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','17-12-18','R80','M2','DC-Comp_AprC4WT',1,...
+        '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+
 
 % CultureRampe Inhib 4 18s (42 + 42 img) + 2s (95img) = 179
-%     Res2Var_wFluo_multiZ_Comp('Results','18-12-18','R80','M1','DC-Comp_Y27',1,...
-%         '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%     Res2Var_wFluo_multiZ_Comp('Results','18-12-18','R80','M2','DC-Comp_Nase',2,...
-%         '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','18-12-18','R80','M1','DC-Comp_Y27',1,...
+        '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','18-12-18','R80','M2','DC-Comp_Nase',2,...
+        '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
 
 % CultureRampe Inhib 5 18s (42 + 42 img) + 2s (95img) = 179
-%     Res2Var_wFluo_multiZ_Comp('Results','21-12-18','R80','M1','DC-Comp_LatANase',1,...
-%         '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%
-%     % CultureRampe Inhib 5 18s (42 + 42 img) + 2s (95img) = 179
-%     Res2Var_wFluo_multiZ_Comp('Results','30-04-19','R80','M1','DC-Comp_SiCtrl+LatA',2,...
-%         '26-06-19_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
-%     Res2Var_wFluo_multiZ_Comp('Results','30-04-19','R80','M1','DC-Comp_SiVim+LatA',1,...
-%         '26-06-19_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','21-12-18','R80','M1','DC-Comp_LatANase',1,...
+        '12-12-18_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+
+    % CultureRampe Inhib 5 18s (42 + 42 img) + 2s (95img) = 179
+    Res2Var_wFluo_multiZ_Comp('Results','30-04-19','R80','M1','DC-Comp_SiCtrl+LatA',2,...
+        '26-06-19_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
+    Res2Var_wFluo_multiZ_Comp('Results','30-04-19','R80','M1','DC-Comp_SiVim+LatA',1,...
+        '26-06-19_Depthograph',42,95,179,AUTO,RawdataFolder,MatfileFolder)
 
 %% Manip avec differents temps de compression
 Res2Var_wFluo_multiZ_Comp_R248('Results','14-10-19','RV248','M1','DC-Comp_R248_Ctrl',1:2,...
@@ -235,61 +235,61 @@ Res2Var_wFluo_multiZ_Comp_R248('Results','15-10-19','RV248','M2','DC-Comp_R248_C
 Var2Data_Comp('28-08-18','R80',0.56,'M1','DC-Comp_Ctrl',95,179,'1s',4415,MatfileFolder,FigureFolder);
 Var2Data_Comp('28-08-18','R80',0.56,'M2','DC-Comp_Ctrl',95,179,'1s',4415,MatfileFolder,FigureFolder);
 
-%     % Arpin 1
-%     Var2Data_Comp('17-09-18','R80',0.56,'M1','DC-Comp_ArpinWT',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('17-09-18','R80',0.56,'M2','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%
-%     Var2Data_Comp('18-09-18','R80',0.56,'M1','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('18-09-18','R80',0.56,'M2','DC-Comp_ArpinWT',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('18-09-18','R80',0.56,'M3','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%
+    % Arpin 1
+    Var2Data_Comp('17-09-18','R80',0.56,'M1','DC-Comp_ArpinWT',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('17-09-18','R80',0.56,'M2','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
+
+    Var2Data_Comp('18-09-18','R80',0.56,'M1','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('18-09-18','R80',0.56,'M2','DC-Comp_ArpinWT',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('18-09-18','R80',0.56,'M3','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
+
 % Inhib 1
 
-%     Var2Data_Comp('24-09-18','R80',0.56,'M1','DC-Comp_CK666',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('24-09-18','R80',0.56,'M1','DC-Comp_CK666',95,179,'1s',4438,MatfileFolder,FigureFolder);
 Var2Data_Comp('24-09-18','R80',0.56,'M1','DC-Comp_Ctrl',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('24-09-18','R80',0.56,'M2','DC-Comp_SMIFH2',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('24-09-18','R80',0.56,'M2','DC-Comp_SMIFH2',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_LatA500',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_SMIFH2',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('25-09-18','R80',0.56,'M1','DC-Comp_SMIFH2',95,179,'1s',4438,MatfileFolder,FigureFolder);
 Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_Ctrl',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_CK666',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('25-09-18','R80',0.56,'M2','DC-Comp_CK666',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
-% Arpin 2;
-%     Var2Data_Comp('05-10-18','R80',0.56,'M1','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('05-10-18','R80',0.56,'M2','DC-Comp_ArpinWT',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    %Arpin 2;
+    Var2Data_Comp('05-10-18','R80',0.56,'M1','DC-Comp_ArpinKO',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('05-10-18','R80',0.56,'M2','DC-Comp_ArpinWT',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 
 % Inhib 2
-%
-%     Var2Data_Comp('29-10-18','R80',0.56,'M1','DC-Comp_CalA25',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('29-10-18','R80',0.56,'M1','DC-Comp_LatA2',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('29-10-18','R80',0.56,'M2','DC-Comp_LatA2',95,179,'1s',4438,MatfileFolder,FigureFolder);
+
+    Var2Data_Comp('29-10-18','R80',0.56,'M1','DC-Comp_CalA25',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('29-10-18','R80',0.56,'M1','DC-Comp_LatA2',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('29-10-18','R80',0.56,'M2','DC-Comp_LatA2',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 
-%     Var2Data_Comp('30-10-18','R80',0.56,'M1','DC-Comp_Blebbi',95,179,'1s',4438)
-%     Var2Data_Comp('30-10-18','R80',0.56,'M1','DC-Comp_CalA25',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('30-10-18','R80',0.56,'M1','DC-Comp_Blebbi',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('30-10-18','R80',0.56,'M1','DC-Comp_CalA25',95,179,'1s',4438,MatfileFolder,FigureFolder);
 Var2Data_Comp('30-10-18','R80',0.56,'M2','DC-Comp_Ctrl',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 % inhib 3
 
 
 Var2Data_Comp('12-12-18','R80',0.56,'M1','DC-Comp_Ctrl',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('12-12-18','R80',0.56,'M2','DC-Comp_Nase',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%
-%
-%     % ArpC4
-%
-%     Var2Data_Comp('17-12-18','R80',0.56,'M1','DC-Comp_AprC4KO',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('17-12-18','R80',0.56,'M2','DC-Comp_AprC4WT',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%
-%     % inhib 4
-%
-%     Var2Data_Comp('18-12-18','R80',0.56,'M1','DC-Comp_Y27',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%     Var2Data_Comp('18-12-18','R80',0.56,'M2','DC-Comp_Nase',95,179,'1s',4438,MatfileFolder,FigureFolder);
-%
-%     % Inhib 5
-%
-%     Var2Data_Comp('21-12-18','R80',0.56,'M1','DC-Comp_LatANase',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('12-12-18','R80',0.56,'M2','DC-Comp_Nase',95,179,'1s',4438,MatfileFolder,FigureFolder);
+
+
+    % ArpC4
+
+    Var2Data_Comp('17-12-18','R80',0.56,'M1','DC-Comp_AprC4KO',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('17-12-18','R80',0.56,'M2','DC-Comp_AprC4WT',95,179,'1s',4438,MatfileFolder,FigureFolder);
+
+    % inhib 4
+
+    Var2Data_Comp('18-12-18','R80',0.56,'M1','DC-Comp_Y27',95,179,'1s',4438,MatfileFolder,FigureFolder);
+    Var2Data_Comp('18-12-18','R80',0.56,'M2','DC-Comp_Nase',95,179,'1s',4438,MatfileFolder,FigureFolder);
+
+    % Inhib 5
+
+    Var2Data_Comp('21-12-18','R80',0.56,'M1','DC-Comp_LatANase',95,179,'1s',4438,MatfileFolder,FigureFolder);
 
 %% 3T3 Joseph
 
@@ -379,36 +379,51 @@ RemoveFromData(MatfileFolder,{'24-09-18_M1_P1_C1_R80','24-09-18_M1_P1_C3_R80','2
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 
 %% D2M pour these et papier
+R2all = [];
 
-
-Data2Meca('28-08-18','M1','DC-Comp_Ctrl','R80',4415,PLOTD2M,MatfileFolder,FigureFolder);
-Data2Meca('28-08-18','M2','DC-Comp_Ctrl','R80',4415,PLOTD2M,MatfileFolder,FigureFolder);
-Data2Meca('24-09-18','M1','DC-Comp_Ctrl','R80',4438,PLOTD2M,MatfileFolder,FigureFolder);
-Data2Meca('25-09-18','M2','DC-Comp_Ctrl','R80',4438,PLOTD2M,MatfileFolder,FigureFolder);
-Data2Meca('30-10-18','M2','DC-Comp_Ctrl','R80',4438,PLOTD2M,MatfileFolder,FigureFolder);
-Data2Meca('12-12-18','M1','DC-Comp_Ctrl','R80',4438,PLOTD2M,MatfileFolder,FigureFolder);
-
-
-Meca2Plot('Comp_Ctrl',Cct,MatfileFolder,FigureFolder)
-
-Data2Meca('24-09-18','M1','DC-Comp_CK666',4438,PLOTD2M,MatfileFolder,FigureFolder);
-Data2Meca('25-09-18','M2','DC-Comp_CK666',4438,PLOTD2M,MatfileFolder,FigureFolder);
-
-Data2Meca('24-09-18','M2','DC-Comp_SMIFH2',4438,PLOTD2M,MatfileFolder,FigureFolder) ;
-Data2Meca('25-09-18','M1','DC-Comp_SMIFH2',4438,PLOTD2M,MatfileFolder,FigureFolder);
-
-
-Data2Meca('30-10-18','M1','DC-Comp_Blebbi',4438,PLOTD2M,MatfileFolder,FigureFolder);
-
-
-[a,b] =  Data2Meca('25-09-18','M1','DC-Comp_LatA500','r80',4438,PLOTD2M,MatfileFolder,FigureFolder);
+R2all = Data2MecaLoop_BigTable('28-08-18','M1','DC-Comp_Ctrl','R80',4415,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
+R2all = Data2MecaLoop_BigTable('28-08-18','M2','DC-Comp_Ctrl','R80',4415,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
+R2all = Data2MecaLoop_BigTable('24-09-18','M1','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
+R2all = Data2MecaLoop_BigTable('25-09-18','M2','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
+R2all = Data2MecaLoop_BigTable('30-10-18','M2','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
+R2all = Data2MecaLoop_BigTable('12-12-18','M1','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
 
 
 
-Meca2Plot('Comp_CK666',Cck,MatfileFolder,FigureFolder)
-Meca2Plot('Comp_SMIFH2',Cs,MatfileFolder,FigureFolder)
-Meca2Plot('Comp_Blebbi',Cb,MatfileFolder,FigureFolder)
-Meca2Plot('Comp_LatA500',Cl,MatfileFolder,FigureFolder)
+Data2MecaLoop_BigTable('24-09-18','M1','DC-Comp_CK666','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('25-09-18','M2','DC-Comp_CK666','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+
+Data2MecaLoop_BigTable('24-09-18','M2','DC-Comp_SMIFH2','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M) ;
+Data2MecaLoop_BigTable('25-09-18','M1','DC-Comp_SMIFH2','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+
+
+Data2MecaLoop_BigTable('30-10-18','M1','DC-Comp_Blebbi','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+
+
+Data2MecaLoop_BigTable('25-09-18','M1','DC-Comp_LatA500','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+
+
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Meca2Plot %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+
+%%%%%%%%%%%% Several R2 available : 0.7, 0.9 & 0.95
+
+fitparams = 'Strain100-R20.9';
+
+%% M450 mutant
+ConditionsM450Multi = {'ExpType','DC-Comp_Ctrl','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','DC-Comp_CK666','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','DC-Comp_SMIFH2','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','DC-Comp_Blebbi','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','DC-Comp_LatA500','TpsComp','1s','FitParams',fitparams;...
+    };
+
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM450Multi, ...
+{Cct,Cck,Cs,Cb,Cl},{'o','o','o','o','o'},...
+{'Ctrl','CK666','Smifh2','Blebbi','LatA'},'DCs',1)
 
 %% D2M pour comp differente longueur
 
