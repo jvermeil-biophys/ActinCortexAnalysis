@@ -163,9 +163,9 @@ nCell = length(FullCellList);
     nG1 = round(rand(1)*length(ptrG1));
     Delta2G1tmp = Deltas{kcond}{ptrG1(nG1)}.^2;
     ForceG1tmp = Forces{kcond}{ptrG1(nG1)};
-    col1 = (0.4+k/10)*[1 1 0];
-    col2 = (0.4+k/10)*[0 1 1];
-    col3 = (0.4+k/10)*[1 0 1];
+    col1 = [rand(1) rand(1) rand(1)];
+    col2 = [rand(1) rand(1) rand(1)];
+    col3 = [rand(1) rand(1) rand(1)];
     
     nG2 = round(rand(1)*length(ptrG2));
     Delta2G2tmp = Deltas{kcond}{ptrG2(nG2)}.^2;
@@ -177,16 +177,16 @@ nCell = length(FullCellList);
    
     subplot(2,2,1)
     hold on
-    xlabel('Normalized Delta²')
+    xlabel('Delta² (nm²)')
     ylabel('Force (pN)')
     title('Delta² normalized by max')
-    plot(Delta2G1tmp/max(Delta2G1tmp),ForceG1tmp,'-ok','markerfacecolor',col1)
-    plot(Delta2G2tmp/max(Delta2G2tmp),ForceG2tmp,'-ok','markerfacecolor',col2)
-    plot(Delta2G3tmp/max(Delta2G3tmp),ForceG3tmp,'-ok','markerfacecolor',col3)
+    plot(Delta2G1tmp/DefMax(ptrG1(nG1))^2,ForceG1tmp,'-ok','markerfacecolor',col1)
+    plot(Delta2G2tmp/DefMax(ptrG2(nG2))^2,ForceG2tmp,'-ok','markerfacecolor',col2)
+    plot(Delta2G3tmp/DefMax(ptrG3(nG3)),ForceG3tmp,'-ok','markerfacecolor',col3)
     
     subplot(2,2,2)
     hold on
-    xlabel('Delta² (nm²)')
+    xlabel('Normalized Delta²')
     ylabel('Force (pN)')
     title('Max Deformation 0-33%')
     fitlin = fitlm(Delta2G1tmp,ForceG1tmp);
@@ -215,7 +215,7 @@ nCell = length(FullCellList);
        
     end
 
-
+return
 %% prep figs
 
 if ncond <=2 % figures for 1 or less datasets

@@ -379,14 +379,14 @@ RemoveFromData(MatfileFolder,{'24-09-18_M1_P1_C1_R80','24-09-18_M1_P1_C3_R80','2
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 
 %% D2M pour these et papier
-R2all = [];
 
-R2all = Data2MecaLoop_BigTable('28-08-18','M1','DC-Comp_Ctrl','R80',4415,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
-R2all = Data2MecaLoop_BigTable('28-08-18','M2','DC-Comp_Ctrl','R80',4415,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
-R2all = Data2MecaLoop_BigTable('24-09-18','M1','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
-R2all = Data2MecaLoop_BigTable('25-09-18','M2','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
-R2all = Data2MecaLoop_BigTable('30-10-18','M2','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
-R2all = Data2MecaLoop_BigTable('12-12-18','M1','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M,R2all);
+
+Data2MecaLoop_BigTable('28-08-18','M1','DC-Comp_Ctrl','R80',4415,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('28-08-18','M2','DC-Comp_Ctrl','R80',4415,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('24-09-18','M1','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('25-09-18','M2','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('30-10-18','M2','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('12-12-18','M1','DC-Comp_Ctrl','R80',4438,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
 
 
 
@@ -413,7 +413,22 @@ Data2MecaLoop_BigTable('25-09-18','M1','DC-Comp_LatA500','R80',4438,MatfileFolde
 
 fitparams = 'Strain100-R20.9';
 
-%% M450 mutant
+%% M450 
+ConditionsM450DC = {'ExpType','DC-Comp_Ctrl','TpsComp','1s','FitParams',fitparams;...
+    };
+
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM450DC, ...
+{Cct},{'o'},...
+{'Ctrl'},'DCsCt',1)
+
+ConditionsM450DCLat = {'ExpType','DC-Comp_LatA500','TpsComp','1s','FitParams',fitparams;...
+    };
+
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM450DCLat, ...
+{Cl},{'o'},...
+{'LatA'},'DCsLat',1)
+
+%% M450 
 ConditionsM450Multi = {'ExpType','DC-Comp_Ctrl','TpsComp','1s','FitParams',fitparams;...
     'ExpType','DC-Comp_CK666','TpsComp','1s','FitParams',fitparams;...
     'ExpType','DC-Comp_SMIFH2','TpsComp','1s','FitParams',fitparams;...

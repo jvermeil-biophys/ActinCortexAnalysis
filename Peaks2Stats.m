@@ -93,23 +93,23 @@ if E == 2
     
     for ni = 1:nc
         
-        if MP{ni}.MedCortW > 0  % not taking data with a negative cortex thickness
+        if MP{ni}.MedCortW-11 > 0  % not taking data with a negative cortex thickness
             
             AcqName = MP{ni}.name;  % cell name
             
-            CortBot = MP{ni}.CortBot;
+            CortBot = MP{ni}.CortBot-11;
             CBotTot = [CBotTot CortBot]; % cortex bottom level (10%)
             
-            CortTop = MP{ni}.CortTop;
+            CortTop = MP{ni}.CortTop-11;
             CTopTot = [CTopTot CortTop]; % cortex top level (90%)
             
             CortActi = MP{ni}.CortActi;
             CActTot = [CActTot CortActi]; % cortex fluctuations amplitude
             
-            CortActiBeg = MP{ni}.CortActiBeg;
+            CortActiBeg = MP{ni}.CortActiBeg-11;
             CActBegTot = [CActBegTot CortActiBeg]; % cortex fluctuations amplitude for first half of long curves
             
-            CortActiEnd = MP{ni}.CortActiEnd;
+            CortActiEnd = MP{ni}.CortActiEnd-11;
             CActEndTot = [CActEndTot CortActiEnd]; % cortex fluctuations amplitude for second half of long curves
             
             CortAssym = MP{ni}.CortAssym;
@@ -118,7 +118,7 @@ if E == 2
             PeaksDet = PeaksDet + MP{ni}.npeaksD; % number of peaks detected
             PeaksKept = PeaksKept + MP{ni}.npeaksG; % number of peaks kept
             
-            MedCortW = MP{ni}.MedCortW;
+            MedCortW = MP{ni}.MedCortW-11;
             MedCTot = [MedCTot MedCortW]; % median cortex thickness
             
             D3 = MP{ni}.dist; % 3D distances
