@@ -301,8 +301,6 @@ end
 
 clear all
 
-
-
 %% 17-11-20 M450 100X
 
 names = {'1' '2' '3' '4'}
@@ -318,5 +316,34 @@ end
 
 clear all
 
+%% 16-12-20 M450 100X M1
+
+names = {'1' '2' '3' '4' '5'}
+
+
+for kn = 1:length(names)
+filename = ['D:\Matlab Analysis\Data_Joseph\Raw\20.12.16_Deptho\Deptho_M1\20-12-16_M1_PetriA2_aSFLnoDrug_Deptho_' names{kn} '_Results.txt'];
+stackname = ['D:\Matlab Analysis\Data_Joseph\Raw\20.12.16_Deptho\Deptho_M1\20-12-16_M1_PetriA2_aSFLnoDrug_Deptho_' names{kn} '.tif'];
+savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection\16-12-20_Deptho_M1_' names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 16-12-20 M450 100X M2
+
+names = {'1' '2' '3' '4'}
+
+
+for kn = 1:length(names)
+filename = ['D:\Matlab Analysis\Data_Joseph\Raw\20.12.16_Deptho\Deptho_M2\20-12-16_M2_PetriA1_aSFLnoDrug_Deptho_' names{kn} '_Results.txt'];
+stackname = ['D:\Matlab Analysis\Data_Joseph\Raw\20.12.16_Deptho\Deptho_M2\20-12-16_M2_PetriA1_aSFLnoDrug_Deptho_' names{kn} '.tif'];
+savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection\16-12-20_Deptho_M2_' names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
 
 

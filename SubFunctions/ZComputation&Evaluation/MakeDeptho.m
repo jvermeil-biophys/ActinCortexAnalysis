@@ -15,16 +15,16 @@ Xgood = mean(X(Mstd));
 Ygood = mean(Y(Mstd));
 
 
-Leng = 33; % longeur de la ligne a correler 55 pour 100X 33 pour 63X
-l2 = Leng*10;
-l = 300; % 500 pour 100X 300 pour 63X
-K = zeros(Lstack,2*l+1);
+lengthInput = 55; % longeur de la ligne a correler 55 pour 100X 33 pour 63X
+l2 = lengthInput*10;
+halfWidth = 500; % 500 pour 100X 300 pour 63X
+DepthoMatrix = zeros(Lstack,2*halfWidth+1);
 
 for i = 1:Lstack
     
-    I = imread(stackname,'tiff',i);
-    
+    currentImage = imread(stackname,'tiff',i);
     ptr = find(S==i);
+    
     if length(ptr) == 1
         Xtmp = X(ptr);
         Ytmp = Y(ptr);
@@ -36,79 +36,79 @@ for i = 1:Lstack
     rXtmp = round(Xtmp);
     rYtmp = round(Ytmp);
     
-    XinRoi = round((Xtmp - rXtmp +Leng +2 +1)*10);
+    XinRoi = round((Xtmp - rXtmp +lengthInput +2 +1)*10);
     YinRoi = round((Ytmp - rYtmp +3 +1)*10);
     
     try
-        ROI = I(rYtmp-3:rYtmp+3,rXtmp-Leng-2:rXtmp+Leng+2);
+        ROI = currentImage(rYtmp-3:rYtmp+3,rXtmp-lengthInput-2:rXtmp+lengthInput+2);
     catch
-        a= 1
+        a = 1
     end
     
     %%%%%% affichage de la selection pour les images selectionnée
     if ismember(i,[])
     figure
-    imshow(I)
+    imshow(currentImage)
     hold on
-%     plot(X,Y,'*-')
+    % plot(X,Y,'*-')
     plot(Xtmp,Ytmp,'*')
-    rectangle('Position',[rXtmp-Leng-2 rYtmp-3  2*Leng+4 6],'edgecolor','r')
+    rectangle('Position',[rXtmp-lengthInput-2, rYtmp-3, 2*lengthInput+4, 6],'edgecolor','r')
     end
     
     
     ROId = double(ROI);
     
-    [Xroi,Yroi] = meshgrid(rXtmp-Leng-2:rXtmp+Leng+2,rYtmp-3:rYtmp+3);
-    [Xroi2,Yroi2] = meshgrid(rXtmp-Leng-2:0.1:rXtmp+Leng+2,rYtmp-3:0.1:rYtmp+3);
+    [Xroi,Yroi] = meshgrid(rXtmp-lengthInput-2:rXtmp+lengthInput+2,rYtmp-3:rYtmp+3);
+    [Xroi2,Yroi2] = meshgrid(rXtmp-lengthInput-2:0.1:rXtmp+lengthInput+2,rYtmp-3:0.1:rYtmp+3);
     
     ROIint = interp2(Xroi,Yroi,ROId,Xroi2,Yroi2,'spline');
     
     u16ROIint = uint16(ROIint);
     
-    L =  u16ROIint(YinRoi,XinRoi-Leng*10:XinRoi+Leng*10);
+    DepthoLineOutput =  u16ROIint(YinRoi,XinRoi-lengthInput*10:XinRoi+lengthInput*10);
     
-    L = double(L);
+    DepthoLineOutput = double(DepthoLineOutput);
     
-    [Ml,iMl] = max(L(0.5*l2:1.5*l2));
-    [ml,iml] = min(L(0.5*l2:1.5*l2));
-    
-    
-    locsL = 1:length(L);
-    Lmask = (L > 0.5*(Ml-ml)+ml)&(locsL>0.5*l2)&(locsL<1.5*l2);
+    [Ml,iMl] = max(DepthoLineOutput(0.5*l2:1.5*l2));
+    [ml,iml] = min(DepthoLineOutput(0.5*l2:1.5*l2));
     
     
-    midL = round(mean(locsL(Lmask).*(L(Lmask)/mean(L(Lmask)))));
+    locsL = 1:length(DepthoLineOutput);
+    Lmask = (DepthoLineOutput > 0.5*(Ml-ml)+ml)&(locsL>0.5*l2)&(locsL<1.5*l2);
     
     
-    if midL+l>2*l2+1
-        midL = 2*l2+1-l;
-    elseif midL-l<1
-        midL = l +1;
+    midL = round(mean(locsL(Lmask).*(DepthoLineOutput(Lmask)/mean(DepthoLineOutput(Lmask)))));
+    
+    
+    if midL+halfWidth>2*l2+1
+        midL = 2*l2+1-halfWidth;
+    elseif midL-halfWidth<1
+        midL = halfWidth +1;
     elseif isnan(midL)
         midL = 701;
     end
     
 
-        L = L(midL-l:midL+l);
+        DepthoLineOutput = DepthoLineOutput(midL-halfWidth:midL+halfWidth);
 
     
-    L = (L + L(end:-1:1))/2;
+    DepthoLineOutput = (DepthoLineOutput + DepthoLineOutput(end:-1:1))/2;
     
-    K(i,:) = L;
+    DepthoMatrix(i,:) = DepthoLineOutput;
     
     
 end
 
 
-Lk = K(:,l);
+Lk = DepthoMatrix(:,halfWidth);
 Lks = smooth(Lk,'rlowess');
 
 [~,f] = max(Lks);
 
 figure
-imshow(uint16(K));
+imshow(uint16(DepthoMatrix));
 hold on
-plot(l,f,'r.')
+plot(halfWidth,f,'r.')
 
 figure
 hold on
@@ -116,6 +116,7 @@ plot(Lks,'k')
 plot(Lk,'m')
 plot(f,Lks(f),'*r')
 
+K = DepthoMatrix;
 save([savename '.mat'],'K','f','stepnm');
 
-imwrite(uint16(K),[savename '.tif'],'tiff');
+imwrite(uint16(DepthoMatrix),[savename '.tif'],'tiff');
