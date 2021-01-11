@@ -3,9 +3,9 @@ clear all;
 clc;
 
 %% Paths
-RawdataFolder = 'D:\Data\Raw';
-MatfileFolder = 'D:\Data\MatFile';
-FigureFolder = 'D:\Data\Figures';
+RawdataFolder = 'D:\Matlab Analysis\Data_Joseph\Raw';
+MatfileFolder = 'D:\Matlab Analysis\Data_Joseph\MatFiles';
+FigureFolder = 'D:\Matlab Analysis\Data_Joseph\Figures';
 
 set(0, 'defaultfigureposition', get(0, 'Screensize'));
 
@@ -50,6 +50,10 @@ PEAKS    = 1;
 ACTI  = 1;
 DIST   = 1;
 TIME = 1;
+
+%% Experimental Conditions
+
+%% 3T3
 
 return % stop execution here 
 
@@ -414,6 +418,13 @@ return % stop execution here
          Res2Var_wFluo_multiZ('17-04-19', '5mT', 'M1','RPE1',1 ,'Results',48,'15-03-19_Depthograph' ,AUTO,...
         RawdataFolder,MatfileFolder)
          Res2Var_wFluo_multiZ('17-04-19', '5mT', 'M2','RPE1',1 ,'Results',48,'15-03-19_Depthograph' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+    
+    %% 3T3
+    Res2Var_wFluo_multiZ('16-12-20', 'thickness5mT_disc20um', 'M1','3T3aSFL_nodrug',1 ,'Results',48,'16-12-20_Depthograph_M1' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('16-12-20', 'thickness5mT_disc20um', 'M2','3T3aSFL_nodrug',1 ,'Results',48,'16-12-20_Depthograph_M1' ,AUTO,...
         RawdataFolder,MatfileFolder)
     
     %% %%%%%%%%%%%%%%%%%%%%%%%%%%%% Inside/Outside Datas %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1174,7 +1185,13 @@ RemoveFromData(MatfileFolder,{'17-04-19_M1_P1_C3_5mT','11-04-19_M3_P1_C1_5mT'},'
       
     
     RemoveFromData(MatfileFolder,{'15-05-19_M1_P1_C5-1_5mT'},'Vim')
-   
+    
+    %% 3T3
+    NotSaved = {NotSaved{:},Var2Data_wFluo('16-12-20', 'thickness5mT_disc20um', 1.26, 'M1','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('16-12-20', 'thickness5mT_disc20um', 1.26, 'M2','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
     
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Data2Peaks %%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -1276,6 +1293,9 @@ Data2Peaks('DC_Inside_1mT',PLOTDP,MatfileFolder,FigureFolder);
 Data2Peaks('DC_Inside_3mT',PLOTDP,MatfileFolder,FigureFolder);
 Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
 
+    %% 3T3
+    Data2Peaks('3T3aSFL_nodrug',PLOTDP,MatfileFolder,FigureFolder);
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Peaks2Stats %%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -1366,16 +1386,24 @@ Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
     
     Peaks2Stats('DC_Inside_DMSO',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
 
+    %% 3T3
+    Peaks2Stats('3T3aSFL_nodrug',PLOTDP,alignlvl,MatfileFolder,FigureFolder);
   
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Stats2PLots %%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Stats2Plots %%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
     
-    CORT = 0;
-    PEAKS    = 0;
-    ACTI  = 0;
-    DIST   = 0;
+% Plot settings : chose what you want to plot
+    CORT = 1;
+    PEAKS = 1;
+    ACTI  = 1;
+    DIST = 1;
     TIME = 1;
     
-    Stats2Plots({'DictyAx2_DMSO','DictyAx2_LatA'},{Cdm,Cb},...
-        'DictyAx2LatA',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
+    Stats2Plots({'3T3aSFL_nodrug'},{Cdm},...
+        '3T3',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
+    
+%     Stats2Plots({'DictyAx2_DMSO','DictyAx2_LatA'},{Cdm,Cb},...
+%         'DictyAx2LatA',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
+
+
