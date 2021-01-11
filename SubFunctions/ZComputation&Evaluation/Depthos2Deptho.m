@@ -1,18 +1,18 @@
 % fuse depthograph together
 clear all
 
-path = 'D:\Data\Raw\EtalonnageZ\MultiZCorrection';
+path = 'D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection';
 
-savepath = 'D:\Data\Raw\EtalonnageZ\';
+savepath = 'D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\';
 
-date = '17-11-20';
+date = '16-12-20';
 
 num = {'1' '2' '3' '4'}
 ndeptho = length(num);
 
     for kdepth = 1:ndeptho
         
-        load([path '\' date '_DepthoM450_' num{kdepth} '.mat'])
+        load([path '\' date '_Deptho_M2_' num{kdepth} '.mat'])
         Kim{kdepth} = K;
         Foc(kdepth) = f;
         LengK(kdepth) = size(K,1);
@@ -52,9 +52,9 @@ ndeptho = length(num);
     figure
     imshow(imadjust(uint16(Ktot)))
     
-    save([savepath '\' date '_DepthographM450.mat'],'K','f','stepnm');
+    save([savepath '\' date '_Depthograph_M2.mat'],'K','f','stepnm');
     
-    imwrite(uint16(K),[savepath '\' date '_DepthographM450.tif'])
+    imwrite(uint16(K),[savepath '\' date '_Depthograph_M2.tif'])
     
     clear K* f*
     
