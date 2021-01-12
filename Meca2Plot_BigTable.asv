@@ -10,7 +10,7 @@ warning('off','all')
 close all
 set(0,'DefaultFigureWindowStyle','docked')
 set(0,'DefaultTextInterpreter','none');
-set(0,'DefaultAxesFontSize',20)
+set(0,'DefaultAxesFontSize',15)
 set(0,'DefaultTextInterpreter','Latex')
 set(0,'DefaultLineMarkerSize',8);
 
@@ -147,71 +147,180 @@ nCell = length(FullCellList);
 
   %% delta² vs force
     for kcond = 1:ncond
-    for kcomp = 1:length(Deltas{kcond})
+        ncomp = length(Deltas{kcond});
+    for kcomp = 1:ncomp
         
         DefMax(kcomp) = max(Deltas{kcond}{kcomp})/H0el{kcond}(kcomp);
         
+        InterpForce(kcomp,:) = interp1((Deltas{kcond}{kcomp}).^2./max((Deltas{kcond}{kcomp}).^2),Forces{kcond}{kcomp},0.1:0.01:1);
+        
     end
+    
+    MeanForce = nanmean(InterpForce,1);    
+    StdForce = nanstd(InterpForce,1);
     
     ptrG1 = find(DefMax>0 & DefMax<0.33);
     ptrG2 = find(DefMax>0.34 & DefMax<0.66);
     ptrG3 = find(DefMax>0.67 & DefMax<1);
     
     figure(100+kcond)
-    
-    for k = 1:3
-    nG1 = round(rand(1)*length(ptrG1));
-    Delta2G1tmp = Deltas{kcond}{ptrG1(nG1)}.^2;
-    ForceG1tmp = Forces{kcond}{ptrG1(nG1)};
-    col1 = [rand(1) rand(1) rand(1)];
-    col2 = [rand(1) rand(1) rand(1)];
-    col3 = [rand(1) rand(1) rand(1)];
-    
-    nG2 = round(rand(1)*length(ptrG2));
-    Delta2G2tmp = Deltas{kcond}{ptrG2(nG2)}.^2;
-    ForceG2tmp = Forces{kcond}{ptrG2(nG2)};
-    
-    nG3 = round(rand(1)*length(ptrG3));
-    Delta2G3tmp = Deltas{kcond}{ptrG3(nG3)}.^2;
-    ForceG3tmp = Forces{kcond}{ptrG3(nG3)};
-   
-    subplot(2,2,1)
     hold on
-    xlabel('Delta² (nm²)')
-    ylabel('Force (pN)')
-    title('Delta² normalized by max')
-    plot(Delta2G1tmp/DefMax(ptrG1(nG1))^2,ForceG1tmp,'-ok','markerfacecolor',col1)
-    plot(Delta2G2tmp/DefMax(ptrG2(nG2))^2,ForceG2tmp,'-ok','markerfacecolor',col2)
-    plot(Delta2G3tmp/DefMax(ptrG3(nG3)),ForceG3tmp,'-ok','markerfacecolor',col3)
     
-    subplot(2,2,2)
+    subplot(2,4,1:2)
     hold on
+    plot(0.1:0.01:1,MeanForce,'linewidth',2,'color',[0.5 0.5 0.5])
+    plot(0.1:0.01:1,MeanForce+StdForce,'--','linewidth',0.5,'color',[0.5 0.5 0.5])
+    plot(0.1:0.01:1,MeanForce-StdForce,'--','linewidth',0.5,'color',[0.5 0.5 0.5])
+    fill([0.1:0.01:1 1:-0.01:0.1 0.1],[MeanForce+StdForce MeanForce(end:-1:1)-StdForce(end:-1:1) ...
+    MeanForce(1)+StdForce(1)],[0.5 0.5 0.5],'facealpha',0.2,'edgecolor','none')
     xlabel('Normalized Delta²')
     ylabel('Force (pN)')
-    title('Max Deformation 0-33%')
-    fitlin = fitlm(Delta2G1tmp,ForceG1tmp);
-    plot(Delta2G1tmp,ForceG1tmp,'-ok','markerfacecolor',col1)
-    plot(Delta2G1tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G1tmp,'-b','linewidth',2)
-                  
-    subplot(2,2,3)
-    hold on
-    xlabel('Delta² (nm²)')
-    ylabel('Force (pN)')
-    title('Max Deformation 34-66%')
-    fitlin = fitlm(Delta2G2tmp,ForceG2tmp);
-    plot(Delta2G2tmp,ForceG2tmp,'-ok','markerfacecolor',col2)
-    plot(Delta2G2tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G2tmp,'-b','linewidth',2)
-   
-    subplot(2,2,4)
-    hold on
-    xlabel('Delta² (nm²)')
-    ylabel('Force (pN)')
-    title('Max Deformation 66-100%')
-    fitlin = fitlm(Delta2G3tmp,ForceG3tmp);
-    plot(Delta2G3tmp,ForceG3tmp,'-ok','markerfacecolor',col3)
-    plot(Delta2G3tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G3tmp,'-b','linewidth',2)
-    end             
+    xlim([0.1 1])
     
+    % group 1
+    nG11 = round(rand(1)*length(ptrG1));
+    DefMaxtmpG11 = DefMax(ptrG1(nG11));
+    Delta2G11tmp = Deltas{kcond}{ptrG1(nG11)}.^2;
+    ForceG11tmp = Forces{kcond}{ptrG1(nG11)};
+    
+    nG12 = round(rand(1)*length(ptrG1));
+    DefMaxtmpG12 = DefMax(ptrG1(nG12));
+    Delta2G12tmp = Deltas{kcond}{ptrG1(nG12)}.^2;
+    ForceG12tmp = Forces{kcond}{ptrG1(nG12)};
+    
+    subplot(2,4,3)
+    hold on
+    xlabel('Delta² (nm²)')
+%     ylabel('Force (pN)')
+    title(['MaxDef = ' num2str(round(100*DefMaxtmpG11)) '%'])
+    fitlin = fitlm(Delta2G11tmp,ForceG11tmp);
+    plot(Delta2G11tmp,ForceG11tmp,'-ok','markerfacecolor',0.5*[1 1 0])
+    plot(Delta2G11tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G11tmp,'-b','linewidth',2)
+  
+    subplot(2,4,4)
+    hold on
+    xlabel('Delta² (nm²)')
+%     ylabel('Force (pN)')
+    title(['MaxDef = ' num2str(round(100*DefMaxtmpG12)) '%'])
+    fitlin = fitlm(Delta2G12tmp,ForceG12tmp);
+    plot(Delta2G12tmp,ForceG12tmp,'-ok','markerfacecolor',0.8*[1 1 0])
+    plot(Delta2G12tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G12tmp,'-b','linewidth',2)
+   
+    % group 2
+     nG21 = round(rand(1)*length(ptrG2));
+    DefMaxtmpG21 = DefMax(ptrG2(nG21));
+    Delta2G21tmp = Deltas{kcond}{ptrG2(nG21)}.^2;
+    ForceG21tmp = Forces{kcond}{ptrG2(nG21)};
+    
+    nG22 = round(rand(1)*length(ptrG2));
+    DefMaxtmpG22 = DefMax(ptrG2(nG22));
+    Delta2G22tmp = Deltas{kcond}{ptrG2(nG22)}.^2;
+    ForceG22tmp = Forces{kcond}{ptrG2(nG22)};
+    
+    subplot(2,4,5)
+    hold on
+    xlabel('Delta² (nm²)','fontsize',15)
+    ylabel('Force (pN)')
+    title(['MaxDef = ' num2str(round(100*DefMaxtmpG21)) '%'])
+    fitlin = fitlm(Delta2G21tmp,ForceG21tmp);
+    plot(Delta2G21tmp,ForceG21tmp,'-ok','markerfacecolor',0.5*[1 0 1])
+    plot(Delta2G21tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G21tmp,'-b','linewidth',2)
+  
+    subplot(2,4,6)
+    hold on
+    xlabel('Delta² (nm²)')
+%     ylabel('Force (pN)')
+   title(['MaxDef = ' num2str(round(100*DefMaxtmpG22)) '%'])
+    fitlin = fitlm(Delta2G22tmp,ForceG22tmp);
+    plot(Delta2G22tmp,ForceG22tmp,'-ok','markerfacecolor',0.8*[1 0 1])
+    plot(Delta2G22tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G22tmp,'-b','linewidth',2)
+   
+    % group 3
+     nG31 = round(rand(1)*length(ptrG3))+1;
+    DefMaxtmpG31 = DefMax(ptrG3(nG31));
+    Delta2G31tmp = Deltas{kcond}{ptrG3(nG31)}.^2;
+    ForceG31tmp = Forces{kcond}{ptrG3(nG31)};
+    
+    nG32 = round(rand(1)*length(ptrG3))+1;
+    DefMaxtmpG32 = DefMax(ptrG3(nG32));
+    Delta2G32tmp = Deltas{kcond}{ptrG3(nG32)}.^2;
+    ForceG32tmp = Forces{kcond}{ptrG3(nG32)};
+    
+    subplot(2,4,7)
+    hold on
+    xlabel('Delta² (nm²)')
+%     ylabel('Force (pN)')
+    title(['MaxDef = ' num2str(round(100*DefMaxtmpG31)) '%'])
+    fitlin = fitlm(Delta2G31tmp,ForceG31tmp);
+    plot(Delta2G31tmp,ForceG31tmp,'-ok','markerfacecolor',0.5*[0 1 1])
+    plot(Delta2G31tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G31tmp,'-b','linewidth',2)
+  
+    subplot(2,4,8)
+    hold on
+    xlabel('Delta² (nm²)')
+%     ylabel('Force (pN)')
+   title(['MaxDef = ' num2str(round(100*DefMaxtmpG32)) '%'])
+    fitlin = fitlm(Delta2G32tmp,ForceG32tmp);
+    plot(Delta2G32tmp,ForceG32tmp,'-ok','markerfacecolor',0.8*[0 1 1])
+    plot(Delta2G32tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G32tmp,'-b','linewidth',2)
+   
+    
+    
+ %% old   
+    
+%     for k = 1:3
+%     nG1 = round(rand(1)*length(ptrG1));
+%     Delta2G1tmp = Deltas{kcond}{ptrG1(nG1)}.^2;
+%     ForceG1tmp = Forces{kcond}{ptrG1(nG1)};
+%     col1 = (0.4+k/10)*[1 1 0];
+%     col2 = (0.4+k/10)*[0 1 1];
+%     col3 = (0.4+k/10)*[1 0 1];
+%     
+%     nG2 = round(rand(1)*length(ptrG2));
+%     Delta2G2tmp = Deltas{kcond}{ptrG2(nG2)}.^2;
+%     ForceG2tmp = Forces{kcond}{ptrG2(nG2)};
+%     
+%     nG3 = round(rand(1)*length(ptrG3));
+%     Delta2G3tmp = Deltas{kcond}{ptrG3(nG3)}.^2;
+%     ForceG3tmp = Forces{kcond}{ptrG3(nG3)};
+%    
+%     subplot(2,2,1)
+%     hold on
+%     xlabel('Normalized Delta²')
+%     ylabel('Force (pN)')
+%     title('Delta² normalized by max')
+%     plot(Delta2G1tmp/max(Delta2G1tmp),ForceG1tmp,'-ok','markerfacecolor',col1)
+%     plot(Delta2G2tmp/max(Delta2G2tmp),ForceG2tmp,'-ok','markerfacecolor',col2)
+%     plot(Delta2G3tmp/max(Delta2G3tmp),ForceG3tmp,'-ok','markerfacecolor',col3)
+%     
+%     subplot(2,2,2)
+%     hold on
+%     xlabel('Delta² (nm²)')
+%     ylabel('Force (pN)')
+%     title('Max Deformation 0-33%')
+%     fitlin = fitlm(Delta2G1tmp,ForceG1tmp);
+%     plot(Delta2G1tmp,ForceG1tmp,'-ok','markerfacecolor',col1)
+%     plot(Delta2G1tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G1tmp,'-b','linewidth',2)
+%                   
+%     subplot(2,2,3)
+%     hold on
+%     xlabel('Delta² (nm²)')
+%     ylabel('Force (pN)')
+%     title('Max Deformation 34-66%')
+%     fitlin = fitlm(Delta2G2tmp,ForceG2tmp);
+%     plot(Delta2G2tmp,ForceG2tmp,'-ok','markerfacecolor',col2)
+%     plot(Delta2G2tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G2tmp,'-b','linewidth',2)
+%    
+%     subplot(2,2,4)
+%     hold on
+%     xlabel('Delta² (nm²)')
+%     ylabel('Force (pN)')
+%     title('Max Deformation 66-100%')
+%     fitlin = fitlm(Delta2G3tmp,ForceG3tmp);
+%     plot(Delta2G3tmp,ForceG3tmp,'-ok','markerfacecolor',col3)
+%     plot(Delta2G3tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G3tmp,'-b','linewidth',2)
+%     end             
+%     
        
     end
 
