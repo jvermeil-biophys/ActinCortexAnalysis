@@ -236,34 +236,17 @@ nCell = length(FullCellList);
     plot(Delta2G22tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G22tmp,'-b','linewidth',2)
    
     % group 3
-     nG31 = round(rand(1)*length(ptrG3));
+     nG31 = round(rand(1)*length(ptrG3))+1;
     DefMaxtmpG31 = DefMax(ptrG3(nG31));
     Delta2G31tmp = Deltas{kcond}{ptrG3(nG31)}.^2;
     ForceG31tmp = Forces{kcond}{ptrG3(nG31)};
     
-    nG32 = round(rand(1)*length(ptrG3));
+    nG32 = round(rand(1)*length(ptrG3))+1;
     DefMaxtmpG32 = DefMax(ptrG3(nG32));
     Delta2G32tmp = Deltas{kcond}{ptrG3(nG32)}.^2;
     ForceG32tmp = Forces{kcond}{ptrG3(nG32)};
     
-    subplot(2,4,7)
-    hold on
-    xlabel('Delta² (nm²)')
-%     ylabel('Force (pN)')
-    title(['MaxDef = ' num2str(round(100*DefMaxtmpG31)) '%'])
-    fitlin = fitlm(Delta2G31tmp,ForceG31tmp);
-    plot(Delta2G31tmp,ForceG31tmp,'-ok','markerfacecolor',0.5*[0 1 1])
-    plot(Delta2G31tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G31tmp,'-b','linewidth',2)
   
-    subplot(2,4,8)
-    hold on
-    xlabel('Delta² (nm²)')
-%     ylabel('Force (pN)')
-   title(['MaxDef = ' num2str(round(100*DefMaxtmpG32)) '%'])
-    fitlin = fitlm(Delta2G32tmp,ForceG32tmp);
-    plot(Delta2G32tmp,ForceG32tmp,'-ok','markerfacecolor',0.8*[0 1 1])
-    plot(Delta2G32tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G32tmp,'-b','linewidth',2)
-   
     
     
  %% old   
