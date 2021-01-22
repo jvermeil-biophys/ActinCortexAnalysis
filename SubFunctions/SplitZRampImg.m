@@ -1,4 +1,4 @@
-function [Sdown,Smid,Sup,Sramp] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg)
+function [Sdown,Smid,Sup,Sramp,Sfluo] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg,wFluo,nBlackImagesEachLoop)
 
 %
 % Splits the image list Sfull between list for down, middle and up images
@@ -25,7 +25,13 @@ Mdown = false(1,length(Sfull));
 Mmid  = Mdown;
 Mup   = Mdown;
 Mramp   = Mdown;
+Mfluo = Mdown;
 
+nbImgFluo = 0;
+if wFluo
+    nbImgFluo = 1;
+end
+    
 
 
 for i = 1:3:nimgbr-2 % going by three for the triplets of images before ramp
@@ -36,27 +42,29 @@ for i = 1:3:nimgbr-2 % going by three for the triplets of images before ramp
 
 end
 
-for i = nimgbr+1:nimgbr+nimgr % ramp images
+for i = nimgbr+1:nimgbr+nimgr - nBlackImagesEachLoop % ramp images
     Mramp =  Mramp|(mod(Sfull,nimg) == i);
 end
 
-for i = nimgbr+nimgr+1:3:nimg-1 % going by three for the triplets of images after ramp
+for i = nimgbr+nimgr+1 - nBlackImagesEachLoop:3: nimg - nbImgFluo - nBlackImagesEachLoop % going by three for the triplets of images after ramp
     
     Mdown = Mdown|(mod(Sfull,nimg) == i);
     Mmid = Mmid|(mod(Sfull,nimg) == i+1);
     Mup = Mup|(mod(Sfull,nimg) == i+2);
-
+    
 end
 
+%    Mup = Mup|(mod(Sfull,nimg) == 0); % last image of a loop is always an up image
 
-    Mup = Mup|(mod(Sfull,nimg) == 0); % last image of a loop is always an up image
-
+if wFluo
+    Mfluo = Mfluo|(mod(Sfull+nBlackImagesEachLoop*ones(1,max(Sfull)),nimg) == 0);
+end
 
 Sdown = Sfull(Mdown);
 Smid  = Sfull(Mmid) ;
 Sup   = Sfull(Mup)  ;
 Sramp = Sfull(Mramp);
-
+Sfluo = Sfull(Mfluo);
 
 
 end
