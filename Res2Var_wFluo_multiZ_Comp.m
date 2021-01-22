@@ -1,4 +1,4 @@
-function Res2Var_wFluo_multiZ_Comp(restype,date,tag,manip,specif,fich,depthoname,nimgbr,nimgr,nimg,...
+function Res2Var_wFluo_multiZ_Comp(restype,date,tag,manip,specif,fich,depthoname,nimgbr,nimgr,nimg,wFluo,...
     AUTO,datafolder,resfolder)
 
 %       Res2Var is using the imageJ particle analysis data to create
@@ -50,6 +50,13 @@ path =[datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2)]; % path to fold
 sf   = resfolder; % save folder
 
 mkdir([sf filesep 'R2V']) % create saving folder
+
+if wFluo
+    saveFluoFolder = [datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2) '_Fluo'];
+    if ~exist(saveFluoFolder, 'dir')
+        mkdir(saveFluoFolder)
+    end
+end
 
 savename=['R2V_' date '_' manip '_' tag '_' specif]; % saving name for matlab data file
 savenamecst=['R2V_' date '_' manip '_' tag 'cst_' specif ];
@@ -129,7 +136,7 @@ for ki=1:nacq
             
             try
                 
-                [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, depthoname, datafolder, AUTO);
+                [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesEachLoop] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO);
                 
                 kii = kii +1; % compteur de ficheir trouv�
                 
@@ -138,6 +145,8 @@ for ki=1:nacq
                 fprintf(['\nLoading of ' fieldname '...']);
                 BTMat = dlmread([path filesep fieldname],'\t',0,0);
                 cprintf('Com', ' OK\n\n')
+                
+                BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesEachLoop);
                 
                 % registering analyzed data in global matrix
                 MT{kii}.exp = name;
@@ -174,7 +183,7 @@ for ki=1:nacq
             
             
         else
-            [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, depthoname, datafolder, AUTO);
+            [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesEachLoop] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO);
             
             kii = kii +1; % compteur de ficheir trouv�
             
@@ -183,6 +192,8 @@ for ki=1:nacq
             fprintf(['\nLoading of ' fieldname '...']);
             BTMat = dlmread([path filesep fieldname],'\t',0,0);
             cprintf('Com', ' OK\n\n')
+            
+            BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesEachLoop);
             
             % registering analyzed data in global matrix
             MT{kii}.exp = name;
@@ -209,6 +220,23 @@ for ki=1:nacq
             fprintf('Partial saving...');
             save([sf filesep 'R2V' filesep savenamepart],'MT','ListD','ListF');
             cprintf('Com', ' OK\n\n\n')
+            
+            % Saving fluo images in a separated folder if necessary
+            if wFluo
+                fprintf('Saving fluo images...');
+                %saveFluoSubFolder = [datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2) '_Fluo'];
+                saveFluoSubFolder = [saveFluoFolder filesep name];
+                stackpath = [path filesep stackname];
+                if ~exist(saveFluoSubFolder, 'dir')
+                   mkdir(saveFluoSubFolder)
+                end
+                N = length(Sfluo);
+                for i = 1:N
+                    currentImageFluo = imread(stackpath,'tiff',i);
+                    imwrite(currentImageFluo, [saveFluoSubFolder filesep name '_Fluo_' num2str(Sfluo(i))])
+                end
+                fprintf(' OK\n\n\n')
+            end
             
         end
         
@@ -258,11 +286,18 @@ else
     cprintf('err','No file found ! Check parameters.')
 end
 
+
+
 end
+
+
+
+
+
 
 %%%%% Analysis function
 
-function [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, depthoname, datafolder, AUTO)
+function [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesEachLoop] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO)
 
 fprintf([restype ' ' date '_' manip '_' Noim '_' tag ' : \n\n']);
 
@@ -298,46 +333,45 @@ cprintf('Com', ' OK\n');
 fprintf('Checking video...');
 
 S = Mat(:,Ns);
+Sfull = 1:max(S);
 
+% Are there black images at the end of each loop ? And if yes, how many ?
+stackpath = [path filesep stackname];
+N_loop = floor(max(S)/nimg);
+nBlackImagesOfLoopEnd = zeros(N_loop, 1);
+for i_loop = 1:N_loop
+    i_image = i_loop*N_loop;
+    countBlackImages = 0;
+    currentImage = imread(stackpath,'tiff',i_image);
+    pixelSum = sum(sum(currentImage));
+    while pixelSum == 0
+        countBlackImages = countBlackImages + 1;
+        i_image = i_image - 1;
+        currentImage = imread(stackpath,'tiff',i_image);
+        pixelSum = sum(sum(currentImage));
+    end
+    nBlackImagesOfLoopEnd(i_loop) = countBlackImages;
+end
+% Is there always the same number of black images at the end of every loop ?
+if max(nBlackImagesOfLoopEnd) == min(nBlackImagesOfLoopEnd)
+    nBlackImagesEachLoop = nBlackImagesOfLoopEnd(1);
+else
+    "Cas merdique";
+end
+    
 %%% Creating list of images to separate image triplets for
 % constant part, and identifying ramp part without image
 % triplets
-Sfull = 1:max(S);
+[Sdown,Smid,Sup,Sramp,Sfluo] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg,wFluo,nBlackImagesEachLoop);
 
-[Sdown,Smid,Sup,Sramp] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg);
+L = min([length(Sdown) length(Smid) length(Sup)]);
 
-l = min([length(Sdown) length(Smid) length(Sup)]);
-
-Sdown = Sdown(1:l);
-Smid  = Smid(1:l) ;
-Sup   = Sup(1:l)  ;
+Sdown = Sdown(1:L);
+Smid  = Smid(1:L) ;
+Sup   = Sup(1:L)  ;
 
 Sall = [Sdown;Smid;Sup];
 %%% end of creating list
-
-stackpath = [path filesep stackname];% complete path for loading tif stack
-
-cols = [];
-
-for is = 1:max(S)
-    Itmp = imread(stackpath,'tiff',is);
-    
-    % checking if image is black
-    IntTot = sum(sum(Itmp));
-    if IntTot == 0
-        [~, col] = find(Sall == is);
-        cols = [cols col];
-    end
-    
-end
-
-Sdown(cols) = [];
-Smid(cols) = [];
-Sup(cols) = [];
-
-
-Sall = [Sdown;Smid;Sup];
-
 
 
 cprintf('Com', ' OK\n');
@@ -478,4 +512,19 @@ dzrmp = dzrmp*1.33/1.52; % correction for optical index changes between air and 
 cprintf('Com', ' OK\n');
 %%% end of computing dz
 
+end
+
+
+% Correct the file data to get good correspondance between images and data in case there are black images at the end of
+% each loop
+function BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesEachLoop)
+    if nBlackImagesEachLoop > 0
+        [nRows, nCols] = size(BTMat);
+        N = floor(nRows/nimg);
+        for i = 1:N
+            BTMat = [BTMat(1:i*nimg,:) ; zeros(nBlackImagesEachLoop, nCols) ; BTMat(i*nimg+1:end,:)];
+            index_endOfRamp = (i-1)*nimg+nimgbr+nimgr;
+            BTMat(index_endOfRamp-nBlackImagesEachLoop+1:index_endOfRamp,:) = [];
+        end    
+    end   
 end
