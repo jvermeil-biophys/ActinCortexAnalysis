@@ -131,12 +131,10 @@ for kcond = 1:ncond
     CompNums{kcond} = BigTable(ptrcond,'CompNum').Variables;
     CompTimes{kcond} = BigTable(ptrcond,'CompTime').Variables;
     
-    
     Deltas{kcond} = BigTable(ptrcond,'Delta').Variables;
     Forces{kcond} = BigTable(ptrcond,'Force').Variables;   
-    H0el{kcond} = BigTable(ptrcond,'H0el').Variables;   
     
-    
+   
 end
 
 FullCellList = unique(vertcat(UniqueCellList{:}));
@@ -150,7 +148,7 @@ nCell = length(FullCellList);
         ncomp = length(Deltas{kcond});
     for kcomp = 1:ncomp
         
-        DefMax(kcomp) = max(Deltas{kcond}{kcomp})/H0el{kcond}(kcomp);
+        DefMax(kcomp) = max(1000*Deltas{kcond}{kcomp})/(3*H0FIT{kcond}(kcomp));
         
         InterpForce(kcomp,:) = interp1((Deltas{kcond}{kcomp}).^2./max((Deltas{kcond}{kcomp}).^2),Forces{kcond}{kcomp},0.1:0.01:1);
         
@@ -159,9 +157,12 @@ nCell = length(FullCellList);
     MeanForce = nanmean(InterpForce,1);    
     StdForce = nanstd(InterpForce,1);
     
-    ptrG1 = find(DefMax>0 & DefMax<0.33);
-    ptrG2 = find(DefMax>0.34 & DefMax<0.66);
-    ptrG3 = find(DefMax>0.67 & DefMax<1);
+    ptrG1 = find(DefMax>0 & DefMax<0.11);
+    length(ptrG1)
+    ptrG2 = find(DefMax>0.12 & DefMax<0.22);
+    length(ptrG2)
+    ptrG3 = find(DefMax>0.23 & DefMax<33);
+    length(ptrG3)
     
     figure(100+kcond)
     hold on
@@ -175,7 +176,8 @@ nCell = length(FullCellList);
     MeanForce(1)+StdForce(1)],[0.5 0.5 0.5],'facealpha',0.2,'edgecolor','none')
     xlabel('Normalized Delta²')
     ylabel('Force (pN)')
-    xlim([0.1 1])
+    xlim([0 1])
+    ylim([0 1200])
     
     % group 1
     nG11 = round(rand(1)*length(ptrG1));
@@ -190,8 +192,7 @@ nCell = length(FullCellList);
     
     subplot(2,4,3)
     hold on
-    xlabel('Delta² (nm²)')
-%     ylabel('Force (pN)')
+    xlabel('Delta² (µm²)')
     title(['MaxDef = ' num2str(round(100*DefMaxtmpG11)) '%'])
     fitlin = fitlm(Delta2G11tmp,ForceG11tmp);
     plot(Delta2G11tmp,ForceG11tmp,'-ok','markerfacecolor',0.5*[1 1 0])
@@ -199,8 +200,7 @@ nCell = length(FullCellList);
   
     subplot(2,4,4)
     hold on
-    xlabel('Delta² (nm²)')
-%     ylabel('Force (pN)')
+    xlabel('Delta² (µm²)')
     title(['MaxDef = ' num2str(round(100*DefMaxtmpG12)) '%'])
     fitlin = fitlm(Delta2G12tmp,ForceG12tmp);
     plot(Delta2G12tmp,ForceG12tmp,'-ok','markerfacecolor',0.8*[1 1 0])
@@ -219,7 +219,7 @@ nCell = length(FullCellList);
     
     subplot(2,4,5)
     hold on
-    xlabel('Delta² (nm²)','fontsize',15)
+    xlabel('Delta² (µm²)','fontsize',15)
     ylabel('Force (pN)')
     title(['MaxDef = ' num2str(round(100*DefMaxtmpG21)) '%'])
     fitlin = fitlm(Delta2G21tmp,ForceG21tmp);
@@ -228,8 +228,7 @@ nCell = length(FullCellList);
   
     subplot(2,4,6)
     hold on
-    xlabel('Delta² (nm²)')
-%     ylabel('Force (pN)')
+    xlabel('Delta² (µm²)')
    title(['MaxDef = ' num2str(round(100*DefMaxtmpG22)) '%'])
     fitlin = fitlm(Delta2G22tmp,ForceG22tmp);
     plot(Delta2G22tmp,ForceG22tmp,'-ok','markerfacecolor',0.8*[1 0 1])
@@ -246,7 +245,22 @@ nCell = length(FullCellList);
     Delta2G32tmp = Deltas{kcond}{ptrG3(nG32)}.^2;
     ForceG32tmp = Forces{kcond}{ptrG3(nG32)};
     
+    subplot(2,4,7)
+    hold on
+    xlabel('Delta² (µm²)')
+    title(['MaxDef = ' num2str(round(100*DefMaxtmpG31)) '%'])
+    fitlin = fitlm(Delta2G31tmp,ForceG31tmp);
+    plot(Delta2G31tmp,ForceG31tmp,'-ok','markerfacecolor',0.5*[0 1 1])
+    plot(Delta2G31tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G31tmp,'-b','linewidth',2)
   
+    subplot(2,4,8)
+    hold on
+    xlabel('Delta² (µm²)')
+   title(['MaxDef = ' num2str(round(100*DefMaxtmpG32)) '%'])
+    fitlin = fitlm(Delta2G32tmp,ForceG32tmp);
+    plot(Delta2G32tmp,ForceG32tmp,'-ok','markerfacecolor',0.8*[0 1 1])
+    plot(Delta2G32tmp,fitlin.Coefficients.Estimate(1)+fitlin.Coefficients.Estimate(2)*Delta2G32tmp,'-b','linewidth',2)
+   
     
     
  %% old   
@@ -278,7 +292,7 @@ nCell = length(FullCellList);
 %     
 %     subplot(2,2,2)
 %     hold on
-%     xlabel('Delta² (nm²)')
+%     xlabel('Delta² (µm²)')
 %     ylabel('Force (pN)')
 %     title('Max Deformation 0-33%')
 %     fitlin = fitlm(Delta2G1tmp,ForceG1tmp);
@@ -287,7 +301,7 @@ nCell = length(FullCellList);
 %                   
 %     subplot(2,2,3)
 %     hold on
-%     xlabel('Delta² (nm²)')
+%     xlabel('Delta² (µm²)')
 %     ylabel('Force (pN)')
 %     title('Max Deformation 34-66%')
 %     fitlin = fitlm(Delta2G2tmp,ForceG2tmp);
@@ -296,7 +310,7 @@ nCell = length(FullCellList);
 %    
 %     subplot(2,2,4)
 %     hold on
-%     xlabel('Delta² (nm²)')
+%     xlabel('Delta² (µm²)')
 %     ylabel('Force (pN)')
 %     title('Max Deformation 66-100%')
 %     fitlin = fitlm(Delta2G3tmp,ForceG3tmp);

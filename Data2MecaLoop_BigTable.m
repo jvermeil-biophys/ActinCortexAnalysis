@@ -375,9 +375,9 @@ if exist([path filesep loadname],'file')
                         TcompFit = Tcomp(1:ptrFit);
                         
                         % H < H0
-                        FcompFit(HcompFit>H0tmp) = [];
-                        TcompFit(HcompFit>H0tmp) = [];
-                        HcompFit(HcompFit>H0tmp) = [];
+                        FcompFit(HcompFit>H0tmp | HcompFit<0) = [];
+                        TcompFit(HcompFit>H0tmp | HcompFit<0) = [];
+                        HcompFit(HcompFit>H0tmp | HcompFit<0) = [];
                                               
                         
                         
@@ -422,7 +422,15 @@ if exist([path filesep loadname],'file')
                             break
                         end
                         
+                                         %%% pour papier
+                    DeltaChad = H0chadFit - HcompFit; % H0chadFit
+                    
+                   %%%
+
+                   
                     end
+                    
+                    
                     else
                         canBeFitted = 0;
                     notsavedtext = 'Not enough points';
@@ -473,10 +481,7 @@ if exist([path filesep loadname],'file')
                         sffMeca = [subFigureFolder filesep specif filesep 'ForceDist&StressStrain'];
     mkdir([sffMeca filesep 'LinCheck_H0el'])
     
-                     %%% pour papier
-                    Delta_10pc = H0el - Hcomp; % H0chadFit
                     
-                   %%%
                     
                     
                     Fcompfromfitchad = FFF(HcompFit);
@@ -733,7 +738,7 @@ if exist([path filesep loadname],'file')
                     end
                 end
                 
-                
+
                 
                 
                 %%% [data saving] %%%                               
@@ -751,8 +756,8 @@ if exist([path filesep loadname],'file')
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
                     BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};      
                     BigTable(CurrentTableLine,'Hysteresis') = {Hyst};   
-                    BigTable(CurrentTableLine,'Delta') = {Delta_10pc};
-                    BigTable(CurrentTableLine,'Force') = {Fcomp};   
+                    BigTable(CurrentTableLine,'Delta') = {DeltaChad};
+                    BigTable(CurrentTableLine,'Force') = {FcompFit};   
                     BigTable(CurrentTableLine,'H0el') = {H0el};   
                     
                     
@@ -774,7 +779,7 @@ if exist([path filesep loadname],'file')
                     BigTable(CurrentTableLine,'CiEChadwick') = {EchadFitCI};
                     BigTable(CurrentTableLine,'R2Chadwick') = {R2chad};    
                     BigTable(CurrentTableLine,'Hysteresis') = {Hyst};   
-                    BigTable(CurrentTableLine,'Delta') = {Delta_10pc};
+                    BigTable(CurrentTableLine,'Delta') = {DeltaChad};
                     BigTable(CurrentTableLine,'Force') = {Fcomp};      
                     BigTable(CurrentTableLine,'H0el') = {H0el};          
                    
