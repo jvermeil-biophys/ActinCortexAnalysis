@@ -114,20 +114,39 @@ for kf=1:nf
             
             DayFolder = [AcqName(7:8) '.' AcqName(4:5) '.' AcqName(1:2)];
             
-            Img = imread([rawdatafolder filesep DayFolder filesep MR{kc}.stack]);  
+            Img = imread([rawdatafolder filesep DayFolder filesep Acqname '.tif'])   
             
             figure
-            imshow(imadjust(Img))
-            hold on
-            title('Select diameter (2clicks)')
+            imshow(Img)
+            hold 
             
-            [Xc, Yc] = ginput(2);
             
-            close
             
-            Radius = sqrt(diff(Xc)^2+diff(Yc)^2)/2*pixelconv;  % in µm
-            Volume = 4/3*pi*Radius.^3; % cell as a sphere
             
+            VolPath = [rawdatafolder filesep DayFolder filesep VolName];
+            
+            if exist(VolPath)
+                
+                Mat=dlmread(VolPath,'\t',1,0);
+                
+                %%% identification of columns of interest
+                fid = fopen(VolPath);
+                HeadAll = fgetl(fid);
+                fclose(fid);
+                HeadCell = textscan(HeadAll,'%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s');
+                HeadTable = [HeadCell{:}];
+                
+                Nl = find(strcmp(HeadTable,'Length')) +1 ;
+                %%% end of identification
+                
+                Radii = Mat(:,14)/2*pixelconv;  % in µm
+                Volumes = 4/3*pi*Radii.^3; % cell as a sphere
+                Volume = mean(Volumes) % avg over video (µm^3)
+                
+            else
+                Volume = NaN;
+                
+            end
 
             %% if cell has double pinching we look for the second
             % pinching of the same cell to do cross corelation

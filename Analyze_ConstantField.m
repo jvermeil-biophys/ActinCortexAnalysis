@@ -1192,19 +1192,21 @@ RemoveFromData(MatfileFolder,{'17-04-19_M1_P1_C3_5mT','11-04-19_M3_P1_C1_5mT'},'
     
 %% Data principale
 
-Data2Peaks('DCLA_DMSO',PLOTDP,MatfileFolder,FigureFolder);
+Data2Peaks('DCLA_DMSO',PLOTDP,MatfileFolder,FigureFolder,RawdataFolder);
     
+Data2Peaks('DCLA_SMIFH2',PLOTDP,MatfileFolder,FigureFolder,RawdataFolder);
+    
+Data2Peaks('DCLA_CK666',PLOTDP,MatfileFolder,FigureFolder,RawdataFolder);
+
+Data2Peaks('DCLA_Blebbi',PLOTDP,MatfileFolder,FigureFolder,RawdataFolder);
+
 Data2Peaks('DCLA_NoDrug',PLOTDP,MatfileFolder,FigureFolder);
     
 Data2Peaks('DCLA_LatA500',PLOTDP,MatfileFolder,FigureFolder);
-
-Data2Peaks('DCLA_Blebbi',PLOTDP,MatfileFolder,FigureFolder);
      
 Data2Peaks('DCLA_Y27',PLOTDP,MatfileFolder,FigureFolder);
     
-Data2Peaks('DCLA_SMIFH2',PLOTDP,MatfileFolder,FigureFolder);
-    
-Data2Peaks('DCLA_CK666',PLOTDP,MatfileFolder,FigureFolder);
+
 
 Data2Peaks('DCLA_CalA1',PLOTDP,MatfileFolder,FigureFolder);
 Data2Peaks('DCLA_CalA3',PLOTDP,MatfileFolder,FigureFolder);
@@ -1290,15 +1292,15 @@ Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
 
     
 	Peaks2Stats('DCLA_DMSO',PLOTPS,alignlvl,MatfileFolder,FigureFolder); 
-    
-    Peaks2Stats('DCLA_NoDrug',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
-    
+     
     Peaks2Stats('DCLA_Blebbi',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
     
     Peaks2Stats('DCLA_SMIFH2',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
     
     Peaks2Stats('DCLA_CK666',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
     
+    Peaks2Stats('DCLA_NoDrug',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
+   
     Peaks2Stats('DCLA_CalA1',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
     
     Peaks2Stats('DCLA_CalA3',PLOTPS,alignlvl,MatfileFolder,FigureFolder);
@@ -1396,6 +1398,16 @@ Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
     %% papier
         Stats2Plots({'DCLA_DMSO','DCLA_CK666','DCLA_Smifh2','DCLA_Blebbi','DCLA_LatA500'},{'Ctrl','CK666','Smifh2','Blebbi','LatA'},{Cdm,Cck,Cs,Cb,Cl},...
         'Paper_Main',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
+    
+            Stats2Plots({'DCLA_DMSO','DCLA_CK666','DCLA_Smifh2','DCLA_Blebbi'},{'Ctrl','CK666','Smifh2','Blebbi'},{Cdm,Cck,Cs,Cb},...
+        'Paper_MainVol',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
+    
+    
+    
+        Stats2Plots({'DCLA_DMSO'},{'Ctrl'},{Cdm},...
+        'Paper_CtrlVol',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
+    
+    
     
         Stats2Plots({'DCLA_DMSO','DCLA_Nase','DCLA_LatA500','DCLA_LatNase','DCLA_LatTryp'},{'Ctrl','Nase','LatA','LatA+Nase','LatA+Tryp'},{Cdm,Cnd,Cl,Cl/2,Cl/2},...
         'Paper_NaseTryp',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)

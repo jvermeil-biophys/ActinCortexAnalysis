@@ -206,8 +206,9 @@ if CORT
         plot(Volume{kC},CortThick{kC},'ok','markerfacecolor',col{kC})
     end
     
-    ylabel('Cortex thickness (nm)','interpreter','tex','fontsize',30,'fontname','serif')
-    xlabel('Cell volume (µm^3)','interpreter','tex','fontsize',30,'fontname','serif')
+    ylabel('Cortex thickness (nm)','interpreter','latex','fontsize',30)
+    xlabel('Cell volume ($µm_3$)','interpreter','latex','fontsize',30)
+    
     % save figure
     fig = gcf;
     saveas(fig,[ff2 filesep 'CortThickVolume.fig'],'fig')

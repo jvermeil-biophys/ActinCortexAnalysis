@@ -120,9 +120,9 @@ if E == 2
             PeaksKept = PeaksKept + MP{ni}.npeaksG; % number of peaks kept
             
             MedCortW = MP{ni}.MedCortW-11;
-            MedCTot = [MedCTot MedCortW]; % median cortex thickness
+            MedCTot = [MedCTot MP{ni}.]; % median cortex thickness
             
-            Vol = [Vol MP{ni}.Volume]; % median cortex thickness
+            Vol = [Vol MedCortW]; % median cortex thickness
             
             D3 = MP{ni}.dist; % 3D distances
             DY = MP{ni}.dy;
@@ -274,7 +274,6 @@ if E == 2
     MS.CortActis = CActTot;
     MS.CortAssyms = CAssTot;
     MS.MedCortWs = MedCTot;
-    MS.Volumes = Vol;
     MS.Acticurves = ActiCurves;
     MS.lags = Lags;
     MS.corrs = Corrs;

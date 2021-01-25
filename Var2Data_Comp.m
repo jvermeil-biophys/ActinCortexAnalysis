@@ -1,5 +1,5 @@
-function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
-    ,nimgtot,CompDur,Db,resfolder,figurefolder)
+function [Thick,For] = Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
+    ,nimgtot,CompDur,Db,resfolder,figurefolder,Thick,For)
 
 %
 %       Var2Data is taking the .mat file (from Res2Var) containing the trajectories of each
@@ -319,6 +319,11 @@ if exist([path filesep loadname],'file')
                     else
                         
                         RmpDat{k} = [Stmp Ttmp D3tmp Ftmp Btmp dztmp];
+                        
+                        if length(D3tmp) == 95
+                            Thick = [Thick D3tmp*1000-Db];
+                            For = [For Ftmp];
+                        end
                         
                     end
                     
