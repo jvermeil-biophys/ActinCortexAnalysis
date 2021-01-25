@@ -136,7 +136,7 @@ for ki=1:nacq
             
             try
                 
-                [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesEachLoop] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO);
+                [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO);
                 
                 kii = kii +1; % compteur de ficheir trouv�
                 
@@ -146,7 +146,7 @@ for ki=1:nacq
                 BTMat = dlmread([path filesep fieldname],'\t',0,0);
                 cprintf('Com', ' OK\n\n')
                 
-                BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesEachLoop);
+                BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesOfLoopEnd);
                 
                 % registering analyzed data in global matrix
                 MT{kii}.exp = name;
@@ -183,7 +183,7 @@ for ki=1:nacq
             
             
         else
-            [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesEachLoop] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO);
+            [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO);
             
             kii = kii +1; % compteur de ficheir trouv�
             
@@ -193,7 +193,7 @@ for ki=1:nacq
             BTMat = dlmread([path filesep fieldname],'\t',0,0);
             cprintf('Com', ' OK\n\n')
             
-            BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesEachLoop);
+            BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesOfLoopEnd);
             
             % registering analyzed data in global matrix
             MT{kii}.exp = name;
@@ -232,8 +232,8 @@ for ki=1:nacq
                 end
                 N = length(Sfluo);
                 for i = 1:N
-                    currentImageFluo = imread(stackpath,'tiff',i);
-                    imwrite(currentImageFluo, [saveFluoSubFolder filesep name '_Fluo_' num2str(Sfluo(i))])
+                    currentImageFluo = imread(stackpath,'tiff',Sfluo(i));
+                    imwrite(currentImageFluo, [saveFluoSubFolder filesep name '_Fluo_' num2str(Sfluo(i)) '.tif'])
                 end
                 fprintf(' OK\n\n\n')
             end
@@ -297,7 +297,7 @@ end
 
 %%%%% Analysis function
 
-function [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesEachLoop] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO)
+function [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO)
 
 fprintf([restype ' ' date '_' manip '_' Noim '_' tag ' : \n\n']);
 
@@ -333,14 +333,14 @@ cprintf('Com', ' OK\n');
 fprintf('Checking video...');
 
 S = Mat(:,Ns);
-Sfull = 1:max(S);
+N_loop = ceil(max(S)/nimg);
+Sfull = 1:N_loop*nimg;
 
 % Are there black images at the end of each loop ? And if yes, how many ?
 stackpath = [path filesep stackname];
-N_loop = floor(max(S)/nimg);
 nBlackImagesOfLoopEnd = zeros(N_loop, 1);
 for i_loop = 1:N_loop
-    i_image = i_loop*N_loop;
+    i_image = i_loop*nimg;
     countBlackImages = 0;
     currentImage = imread(stackpath,'tiff',i_image);
     pixelSum = sum(sum(currentImage));
@@ -352,17 +352,18 @@ for i_loop = 1:N_loop
     end
     nBlackImagesOfLoopEnd(i_loop) = countBlackImages;
 end
-% Is there always the same number of black images at the end of every loop ?
-if max(nBlackImagesOfLoopEnd) == min(nBlackImagesOfLoopEnd)
-    nBlackImagesEachLoop = nBlackImagesOfLoopEnd(1);
-else
-    "Cas merdique";
-end
+
+% % Is there always the same number of black images at the end of every loop ?
+% if max(nBlackImagesOfLoopEnd) == min(nBlackImagesOfLoopEnd)
+%     nBlackImagesEachLoop = nBlackImagesOfLoopEnd(1);
+% else
+%     "Cas merdique";
+% end
     
 %%% Creating list of images to separate image triplets for
 % constant part, and identifying ramp part without image
 % triplets
-[Sdown,Smid,Sup,Sramp,Sfluo] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg,wFluo,nBlackImagesEachLoop);
+[Sdown,Smid,Sup,Sramp,Sfluo] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg,wFluo,nBlackImagesOfLoopEnd);
 
 L = min([length(Sdown) length(Smid) length(Sup)]);
 
@@ -517,14 +518,14 @@ end
 
 % Correct the file data to get good correspondance between images and data in case there are black images at the end of
 % each loop
-function BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesEachLoop)
-    if nBlackImagesEachLoop > 0
+function BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesOfLoopEnd)
+    if max(nBlackImagesOfLoopEnd) > 0
         [nRows, nCols] = size(BTMat);
         N = floor(nRows/nimg);
-        for i = 1:N
-            BTMat = [BTMat(1:i*nimg,:) ; zeros(nBlackImagesEachLoop, nCols) ; BTMat(i*nimg+1:end,:)];
-            index_endOfRamp = (i-1)*nimg+nimgbr+nimgr;
-            BTMat(index_endOfRamp-nBlackImagesEachLoop+1:index_endOfRamp,:) = [];
+        for i_loop = 1:N
+            BTMat = [BTMat(1:i_loop*nimg,:) ; zeros(nBlackImagesOfLoopEnd(i_loop), nCols) ; BTMat(i_loop*nimg+1:end,:)];
+            index_endOfRamp = (i_loop-1)*nimg+nimgbr+nimgr;
+            BTMat(index_endOfRamp-nBlackImagesOfLoopEnd(i_loop)+1:index_endOfRamp,:) = [];
         end    
     end   
 end
