@@ -270,13 +270,21 @@ if exist([path filesep loadname],'file')
             
             cyclevect = 1:ncycle; % list of loops
             
-            bgnrmp = (cyclevect-1)*nimgtot+(nimgtot-nimgr)/2+1; % begining of ramps
-            bgncst = (cyclevect-1)*nimgtot+1; % begining of constant parts
+            % Initialize begining of ramps parts
+            count = 0;
+            bgnrmp = zeros(ncycle,1);
+            for i = 1:length(Srmp)
+                if Srmp(i) > count*nimgtot
+                    bgnrmp(count+1) = Srmp(i);
+                    count = count+1;
+                end
+            end
             
+            bgncst = (cyclevect-1)*nimgtot+1; % begining of constant parts
             
             for k = cyclevect
                 
-                m = ismember(Srmp,bgnrmp(k):bgnrmp(k)+nimgr-1); % image indicices for compression n°k
+                m = ismember(Srmp,bgnrmp(k):bgnrmp(k)+nimgr-1); % image indicies for compression n°k
                 Stmp = Srmp(m);
                 D3tmp = D3rmp(m);
                 Ftmp = Frmp(m);
