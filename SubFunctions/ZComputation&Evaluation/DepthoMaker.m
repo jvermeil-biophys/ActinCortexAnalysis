@@ -346,4 +346,104 @@ end
 
 clear all
 
+%% 18-01-21 M450 100X M1
 
+names = {'1' '2' '3' '4' '5'};
+folderPath = 'D:\Matlab Analysis\Data_Joseph\Raw\21.01.18_Deptho\Deptho_M1';
+fileName = '21-01-18_M1_PetriE1_aSFLdoxy_Deptho_';
+saveFileName = '21-01-18_Deptho_M1_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 18-01-21 M450 100X M2
+
+names = {'1' '2' '3' '4' '5'};
+folderPath = 'D:\Matlab Analysis\Data_Joseph\Raw\21.01.18_Deptho\Deptho_M2';
+fileName = '21-01-18_M2_PetriE3_aSFLnodrug_Deptho_';
+saveFileName = '21-01-18_Deptho_M2_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 18-01-21 M450 100X M3
+
+names = {'1' '2' '3' '4' '5'};
+folderPath = 'D:\Matlab Analysis\Data_Joseph\Raw\21.01.18_Deptho\Deptho_M3';
+fileName = '21-01-18_M3_PetriE4_aSFLdoxy_Deptho_';
+saveFileName = '21-01-18_Deptho_M3_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-01-21 M450 100X M1
+
+names = {'1' '2' '3' '4' '5' '6'};
+folderPath = 'D:\Matlab Analysis\Data_Joseph\Raw\21.01.21_Deptho\Deptho_M1';
+fileName = '21-01-21_M1_PetriF4_aSFLnodrug_Deptho_';
+saveFileName = '21-01-21_Deptho_M1_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-01-21 M450 100X M2
+
+names = {'1' '2' '3'};
+folderPath = 'D:\Matlab Analysis\Data_Joseph\Raw\21.01.21_Deptho\Deptho_M2';
+fileName = '21-01-21_M2_PetriF1_aSFLdoxy_Deptho_';
+saveFileName = '21-01-21_Deptho_M2_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-01-21 M450 100X M3
+
+names = {'1' '2' '3' '4' '5'};
+folderPath = 'D:\Matlab Analysis\Data_Joseph\Raw\21.01.21_Deptho\Deptho_M3';
+fileName = '21-01-21_M3_PetriF3_aSFLnodrug_Deptho_';
+saveFileName = '21-01-21_Deptho_M3_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
