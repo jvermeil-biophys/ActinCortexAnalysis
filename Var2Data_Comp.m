@@ -62,6 +62,8 @@ loadname=['R2V_' date '_' manip '_' tag '_' specif '.mat']; % name to load previ
 pixelconv=1/15.8; % 100X
 % pixelconv=1/9.7; % 63X
 
+PLOT = 0;
+
 if exist([path filesep loadname],'file')
     
     fprintf(['\n\nLoading file ' loadname '\n'])
@@ -75,6 +77,40 @@ if exist([path filesep loadname],'file')
             name = MT{kc}.exp;
             
             fprintf(['Cell : ' name '\n\n'])
+            
+%             %% FIGURE %%
+%             if PLOT
+%                 figcurve = figure;
+%                 hold on
+%                 
+%                 yyaxis left
+%                 axl = gca;
+%                 axl.YColor = [0 0 0];
+%                 ylabel('Cortex thickness (nm)','FontName','Serif')
+%                 plot([T(1) T(end)],[0 0],'--k','handlevisibility','off')
+%                 plot(T,D3,'k-','linewidth',1)
+%                 plot(Tcst,D3cst,'ok','markerfacecolor','b')
+%                 plot(Trmp,D3rmp,'o','markerfacecolor','r','markersize',5,'markeredgecolor','none')
+%                 
+%                 yyaxis right
+%                 axr = gca; % Get Current Axes
+%                 axr.YColor = [0 0 0];
+%                 plot(T,B,'r-o','markersize',3)
+%                 ylabel('Champ (mT)','FontName','Serif')
+%                 
+%                 if contains(specif,'M270')
+%                     ylim([0 800])
+%                 else
+%                     ylim([0 2500])
+%                 end
+%                 
+%                 title(currentCellName{i})
+%                 
+%                 xlabel('Time(s)','FontName','Serif')
+%                 
+%                 
+%                 %                 close
+%             end
             
             %% Constant part
             fprintf('Retrieving data for constant part... ');
@@ -258,6 +294,86 @@ if exist([path filesep loadname],'file')
             
             
             cprintf('Com', [' OK.\n']);
+            
+%             %% FIGURES %%
+%             if PLOT
+% 
+%                 figure(figcurve);
+%                 hold on
+%                 yyaxis left
+%                 if SAVING_CRITERION
+% 
+%                     plot(RampData{ii}(:,2),RampData{ii}(:,3)*1000-DIAMETER,'o','markerfacecolor','g','markersize',6,'markeredgecolor','none')
+% 
+%                 else
+% 
+%                     text(mean(RampData{ii}(:,2)),(max(RampData{ii}(:,3)*1000-DIAMETER)*1.2),...
+%                         notsavedtext,...
+%                         'HorizontalAlignment','center')
+%                 end
+% 
+%                 saveas(figcurve,[sffDistCurve filesep currentCellName{i}],'png')
+%                 saveas(figcurve,[sffDistCurve filesep currentCellName{i}],'fig')
+% 
+%                 figure
+%                 if SAVING_CRITERION
+%                     sgtitle(['Chadwick model for ' currentCellName{i} ' - ' num2str(ii)])
+%                 else
+%                     sgtitle(['NOT SAVED DATA - Chadwick model for ' currentCellName{i} ' - ' num2str(ii)])
+%                 end
+%                 subplot(221)
+%                 hold on
+%                 title(['Force-Thickness, Echad = ' num2str(Echadtmp/1000,'%.1f') 'kPa'])
+%                 plot(Dup*1000,Fup,'-*b','linewidth',1.1)
+%                 plot(Ddown*1000,Fdown,'-*r','linewidth',1.1)
+%                 plot(HcompFit*1000,Fcompfromfitchad,'-m','linewidth',3)
+%                 plot(Hcomp*1000,FFF(Hcomp),'xm','linewidth',1.5,'handlevisibility','off')
+%                 ylabel('Force (pN)','FontName','Serif')
+%                 xlabel('Thickness (nm)','FontName','Serif')
+% 
+%                 % xlim([220 500])
+% 
+%                 subplot(222)
+%                 hold on
+%                 title(['Stress-Strain, ChadR2 = ' num2str(R2chad)])
+%                 plot(StrainChad*100,StressChad,'ok','linewidth',1.5)
+%                 xlabel('Chadwick Strain (%)','FontName','Serif')
+%                 ylabel('Chadwick Stress (Pa)','FontName','Serif')
+% 
+%                 %                                 xlim([0 25])
+%                 %                                 ylim([0 700])
+% 
+% 
+%                 subplot(223)
+%                 hold on
+%                 title('Evolution of H0 with loops')
+%                 plot(0:cpt,[H0prev(2:end) H0tmp]*1000,'ko-','markerfacecolor','c')
+%                 xlabel('Loop n°','FontName','Serif')
+%                 ylabel('H0 (nm)','FontName','Serif')
+% 
+% 
+%                 subplot(224)
+%                 hold on
+%                 title('Evolution of strain rate in time')
+%                 plot(Tinterp-Tinterp(1),StrainRate*100,'-ko','markerfacecolor','m')
+%                 plot(Tinterp-Tinterp(1),ExpStrainRateInterp*100,'-ks','markerfacecolor','r')
+% 
+%                 xlabel('Time during compression (s)','FontName','Serif')
+%                 ylabel('Strain Rate ($s^{-1}$)','FontName','Serif','interpreter','latex')
+%                 legend('theoretical','experimental')
+%                 legend('location','best')
+% 
+%                 yl = ylim;
+%                 ylim([-5 yl(2)]);
+% 
+%                 fig = gcf;
+%                 saveas(fig,[sffMeca filesep currentCellName{i} '-' num2str(ii)],'png')
+%                 saveas(fig,[sffMeca filesep currentCellName{i} '-' num2str(ii)],'fig')
+% 
+%                 if ~SAVING_CRITERION
+%                     close
+%                 end
+%             end
 
             
             %% Ramp splitting

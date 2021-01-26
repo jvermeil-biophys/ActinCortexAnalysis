@@ -188,6 +188,7 @@ figure(8)
 hold on
 title('Hysteresis')
 
+
 ymax1 = 0;
 ymax2 = 0;
 
@@ -264,7 +265,7 @@ for kcond = 1:ncond
     end
     
     
-    %% Module vs Epaisseur d�part
+    %% Module vs Epaisseur depart
     
     figure(3)
     hold on
@@ -279,6 +280,7 @@ for kcond = 1:ncond
     ax.XTickLabelRotation = 45;
     
     L3.String{end} = Lab{kcond};
+    
     
 end
 
