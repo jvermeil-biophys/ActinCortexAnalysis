@@ -85,7 +85,7 @@ DIST = 1;
 TIME = 0;
 
 % for d2m
-PLOTD2M = 0; % plot choice
+PLOTD2M = 1; % plot choice
 VERBOSED2M = 0; % text display choice
 
 
@@ -346,9 +346,7 @@ Res2Var_wFluo_multiZ_Comp('Results','04-11-20','R50_2s','M1','DictyDB_M450',1:2,
 Res2Var_wFluo_multiZ_Comp('Results','04-11-20','R90_2s','M2','DictyDB_M270',1,...
     '27-10-20_DepthographM270',18,133,169,AUTO,RawdataFolder,MatfileFolder)
 
-%% 3T3 Joseph 
-
-% (Internship aSFL nodrug vs. aSFL doxy)
+%% 3T3 Joseph - Internship aSFL nodrug vs. aSFL doxy
 
 Res2Var_wFluo_multiZ_Comp('Results','04-08-20','R40','M1','3T3aSFL_BSA_nodrugs',1,...
     '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
@@ -362,6 +360,23 @@ Res2Var_wFluo_multiZ_Comp('Results','05-08-20','R40','M1','3T3aSFL_BSA_doxy',1,.
     '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','07-08-20','R40','M1','3T3aSFL_BSA_doxy',1,...
     '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
+
+%% 3T3 Joseph - aSFL 3T3 on 20µm disc patterns of fibronectin 
+% nodrug refers to the control, doxy to the activated cells expressing a membrane - cortex linker.
+
+FLUO = false;
+Res2Var_wFluo_multiZ_Comp('Results','18-01-21','R40_disc20um','M1','3T3aSFL_doxy',1,...
+    '21-01-18_Deptho_M1',18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+FLUO = true;
+Res2Var_wFluo_multiZ_Comp('Results','18-01-21','R40_disc20um_wFluo','M1','3T3aSFL_doxy',1,...
+    '21-01-18_Deptho_M1',18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+Res2Var_wFluo_multiZ_Comp('Results','18-01-21','R40_disc20um_wFluo','M2','3T3aSFL_nodrug',1,...
+    '21-01-18_Deptho_M2',18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+Res2Var_wFluo_multiZ_Comp('Results','18-01-21','R40_disc20um_wFluo','M3','3T3aSFL_doxy',1,...
+    '21-01-18_Deptho_M3',18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -470,19 +485,6 @@ Stats2Plots({'DictyAx2_DMSO','DictyAx2_M270'},{Cdm,Cwt27},'DictyBeadsSize',CORT,
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Var2Data Comp %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
-
-%% 3T3 Joseph 
-
-% (Internship aSFL nodrug vs. aSFL doxy)
-
-Var2Data_Comp('04-08-20','R40',1.15,'M1','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
-Var2Data_Comp('05-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
-Var2Data_Comp('07-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
-
-Var2Data_Comp('04-08-20','R40',1.15,'M2','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
-Var2Data_Comp('05-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
-Var2Data_Comp('07-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
-
 
 %% M450 Ax2 DMSO/LatA (Nishit)
 
@@ -625,21 +627,29 @@ Var2Data_Comp('04-11-20','R50_2s',0.85,'M1','DictyDB_M450',133,169,'1s',4504,Mat
 
 Var2Data_Comp('04-11-20','R90_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,MatfileFolder,FigureFolder);
 
+%% 3T3 Joseph (Internship aSFL nodrug vs. aSFL doxy)
+
+Var2Data_Comp('04-08-20','R40',1.15,'M1','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('05-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('07-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,MatfileFolder,FigureFolder);
+
+Var2Data_Comp('04-08-20','R40',1.15,'M2','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('05-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
+Var2Data_Comp('07-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,MatfileFolder,FigureFolder);
+
+%% 3T3 Joseph - aSFL 3T3 on 20µm disc patterns of fibronectin
+Var2Data_Comp('18-01-21','R40_disc20um',1.23,'M1','3T3aSFL_doxy',133,169,'1s',4504,MatfileFolder,FigureFolder);
+
+Var2Data_Comp('18-01-21','R40_disc20um_wFluo',1.23,'M1','3T3aSFL_doxy',133,170,'1s',4504,MatfileFolder,FigureFolder);
+
+Var2Data_Comp('18-01-21','R40_disc20um_wFluo',1.23,'M2','3T3aSFL_nodrug',133,170,'1s',4504,MatfileFolder,FigureFolder);
+
+Var2Data_Comp('18-01-21','R40_disc20um_wFluo',1.23,'M3','3T3aSFL_doxy',133,170,'1s',4504,MatfileFolder,FigureFolder);
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Data2Meca w/ Loop %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 
-%% 3T3 Joseph 
-
-% (Internship aSFL nodrug vs. aSFL doxy)
-
-Data2MecaLoop_BigTable('04-08-20','M1','3T3aSFL_BSA_nodrugs','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('05-08-20','M2','3T3aSFL_BSA_nodrugs','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('07-08-20','M2','3T3aSFL_BSA_nodrugs','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-
-Data2MecaLoop_BigTable('04-08-20','M2','3T3aSFL_BSA_doxy','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('05-08-20','M1','3T3aSFL_BSA_doxy','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('07-08-20','M1','3T3aSFL_BSA_doxy','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
 
 
 %% MultiTime Comp M450 Ax2 (Nishit)
@@ -781,6 +791,25 @@ Data2MecaLoop_BigTable('21-10-20','M2','DictyDB_M270','R90_24s',2691,MatfileFold
 Data2MecaLoop_BigTable('04-11-20','M1','DictyDB_M450','R50_2s',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
 Data2MecaLoop_BigTable('04-11-20','M2','DictyDB_M270','R90_2s',2691,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
 
+%% 3T3 Joseph 
+
+% (Internship aSFL nodrug vs. aSFL doxy)
+
+Data2MecaLoop_BigTable('04-08-20','M1','3T3aSFL_BSA_nodrugs','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('05-08-20','M2','3T3aSFL_BSA_nodrugs','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('07-08-20','M2','3T3aSFL_BSA_nodrugs','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+
+Data2MecaLoop_BigTable('04-08-20','M2','3T3aSFL_BSA_doxy','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('05-08-20','M1','3T3aSFL_BSA_doxy','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('07-08-20','M1','3T3aSFL_BSA_doxy','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+
+%% 3T3 Joseph - aSFL 3T3 on 20µm disc patterns of fibronectin
+Data2MecaLoop_BigTable('18-01-21','M1','3T3aSFL_doxy','R40_disc20um',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('18-01-21','M1','3T3aSFL_doxy','R40_disc20um_wFluo',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('18-01-21','M2','3T3aSFL_nodrug','R40_disc20um_wFluo',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('18-01-21','M3','3T3aSFL_doxy','R40_disc20um_wFluo',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Meca2Plot %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -789,17 +818,7 @@ Data2MecaLoop_BigTable('04-11-20','M2','DictyDB_M270','R90_2s',2691,MatfileFolde
 
 fitparams = 'Strain100-R20.9';
 
-%% 3T3 Joseph 
 
-% (Internship aSFL nodrug vs. aSFL doxy)
-
-Conditions3T3vsDictys = {'ExpType','3T3aSFL_BSA_nodrugs','TpsComp','1s','FitParams',fitparams;...
-    'ExpType','DictyDB_WT','TpsComp','1s','FitParams',fitparams;...
-    };
-
-Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3vsDictys, ...
-    {CaSFLnodrug,Cwt},{'o','o'},...
-    {'3T3 aSFL non activated','Dictys Ax2 WT'},'3T3_BSA_noDrugVsDictys',1)
 
 %% 3T3 Joseph 
 
@@ -812,6 +831,7 @@ Conditions3T3aSFL = {'ExpType','3T3aSFL_BSA_nodrugs','TpsComp','1s','FitParams',
 Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3aSFL, ...
     {CaSFLnodrug,CaSFLdoxy},{'o','o'},...
     {'aSFL nodrug','aSFL doxy'},'3T3_BSA_noDrugVsDoxy',1)
+
 %% M450 mutant
 ConditionsM450Multi = {'ExpType','DictyDB_WT','TpsComp','1s','FitParams',fitparams;...
     'ExpType','DictyDB_FimA','TpsComp','1s','FitParams',fitparams;...
@@ -823,6 +843,28 @@ ConditionsM450Multi = {'ExpType','DictyDB_WT','TpsComp','1s','FitParams',fitpara
 Meca2Plot_BigTable(MatfileFolder,FigureFolder,ConditionsM450Multi, ...
 {Cwt,Cfim,CaA,CaC,Csev},{'o','o','o','o','o'},...
 {'WT','FimA-','abpA-','abpC-','SevA-'},'M450Mutants',1)
+
+%% 3T3vsDicty Joseph & Val
+
+% (Internship aSFL nodrug vs. aSFL doxy)
+
+Conditions3T3vsDictys = {'ExpType','3T3aSFL_BSA_nodrugs','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','DictyDB_WT','TpsComp','1s','FitParams',fitparams;...
+    };
+
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3vsDictys, ...
+    {CaSFLnodrug,Cwt},{'o','o'},...
+    {'3T3 aSFL non activated','Dictys Ax2 WT'},'3T3_BSA_noDrugVsDictys',1)
+
+%% 3T3 patterns Joseph
+
+Conditions3T3aSFL = {'ExpType','3T3aSFL_nodrug','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','3T3aSFL_doxy','TpsComp','1s','FitParams',fitparams;...
+    };
+
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3aSFL, ...
+    {CaSFLnodrug,CaSFLdoxy},{'o','o'},...
+    {'aSFL nodrug','aSFL doxy'},'3T3patterns_noDrugVsDoxy',1)
 
 %% Dicty NS Multitime
 ConditionsM450NSMulti = {'ExpType','DictyAx2-Comp','TpsComp','1s','FitParams',fitparams;...
