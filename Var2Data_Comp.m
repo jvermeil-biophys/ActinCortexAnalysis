@@ -1,5 +1,5 @@
 function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
-    ,nimgtot,CompDur,Db,resfolder,figurefolder)
+    ,nimgtot,CompDur,Db,PLOT,resfolder,figurefolder)
 
 %
 %       Var2Data is taking the .mat file (from Res2Var) containing the trajectories of each
@@ -48,7 +48,7 @@ path = [resfolder filesep 'R2V']; % data from previous program
 
 datenow = datestr(now,'yy-mm-dd'); % today
 
-subFigureFolder = [figurefolder filesep datenow filesep 'Meca' filesep specif]; % where to save figs
+subFigureFolder = [figurefolder filesep datenow filesep 'Meca' filesep specif filesep 'BFDZcurves']; % where to save figs
 mkdir(subFigureFolder);
 
 mkdir([resfolder filesep 'V2D']); % where to save analyzed data
@@ -61,8 +61,6 @@ loadname=['R2V_' date '_' manip '_' tag '_' specif '.mat']; % name to load previ
 % conversion factor from pixel to microns
 pixelconv=1/15.8; % 100X
 % pixelconv=1/9.7; % 63X
-
-PLOT = 0;
 
 if exist([path filesep loadname],'file')
     
@@ -78,39 +76,6 @@ if exist([path filesep loadname],'file')
             
             fprintf(['Cell : ' name '\n\n'])
             
-%             %% FIGURE %%
-%             if PLOT
-%                 figcurve = figure;
-%                 hold on
-%                 
-%                 yyaxis left
-%                 axl = gca;
-%                 axl.YColor = [0 0 0];
-%                 ylabel('Cortex thickness (nm)','FontName','Serif')
-%                 plot([T(1) T(end)],[0 0],'--k','handlevisibility','off')
-%                 plot(T,D3,'k-','linewidth',1)
-%                 plot(Tcst,D3cst,'ok','markerfacecolor','b')
-%                 plot(Trmp,D3rmp,'o','markerfacecolor','r','markersize',5,'markeredgecolor','none')
-%                 
-%                 yyaxis right
-%                 axr = gca; % Get Current Axes
-%                 axr.YColor = [0 0 0];
-%                 plot(T,B,'r-o','markersize',3)
-%                 ylabel('Champ (mT)','FontName','Serif')
-%                 
-%                 if contains(specif,'M270')
-%                     ylim([0 800])
-%                 else
-%                     ylim([0 2500])
-%                 end
-%                 
-%                 title(currentCellName{i})
-%                 
-%                 xlabel('Time(s)','FontName','Serif')
-%                 
-%                 
-%                 %                 close
-%             end
             
             %% Constant part
             fprintf('Retrieving data for constant part... ');
@@ -295,85 +260,56 @@ if exist([path filesep loadname],'file')
             
             cprintf('Com', [' OK.\n']);
             
-%             %% FIGURES %%
-%             if PLOT
-% 
-%                 figure(figcurve);
-%                 hold on
-%                 yyaxis left
-%                 if SAVING_CRITERION
-% 
-%                     plot(RampData{ii}(:,2),RampData{ii}(:,3)*1000-DIAMETER,'o','markerfacecolor','g','markersize',6,'markeredgecolor','none')
-% 
-%                 else
-% 
-%                     text(mean(RampData{ii}(:,2)),(max(RampData{ii}(:,3)*1000-DIAMETER)*1.2),...
-%                         notsavedtext,...
-%                         'HorizontalAlignment','center')
-%                 end
-% 
-%                 saveas(figcurve,[sffDistCurve filesep currentCellName{i}],'png')
-%                 saveas(figcurve,[sffDistCurve filesep currentCellName{i}],'fig')
-% 
-%                 figure
-%                 if SAVING_CRITERION
-%                     sgtitle(['Chadwick model for ' currentCellName{i} ' - ' num2str(ii)])
-%                 else
-%                     sgtitle(['NOT SAVED DATA - Chadwick model for ' currentCellName{i} ' - ' num2str(ii)])
-%                 end
-%                 subplot(221)
-%                 hold on
-%                 title(['Force-Thickness, Echad = ' num2str(Echadtmp/1000,'%.1f') 'kPa'])
-%                 plot(Dup*1000,Fup,'-*b','linewidth',1.1)
-%                 plot(Ddown*1000,Fdown,'-*r','linewidth',1.1)
-%                 plot(HcompFit*1000,Fcompfromfitchad,'-m','linewidth',3)
-%                 plot(Hcomp*1000,FFF(Hcomp),'xm','linewidth',1.5,'handlevisibility','off')
-%                 ylabel('Force (pN)','FontName','Serif')
-%                 xlabel('Thickness (nm)','FontName','Serif')
-% 
-%                 % xlim([220 500])
-% 
-%                 subplot(222)
-%                 hold on
-%                 title(['Stress-Strain, ChadR2 = ' num2str(R2chad)])
-%                 plot(StrainChad*100,StressChad,'ok','linewidth',1.5)
-%                 xlabel('Chadwick Strain (%)','FontName','Serif')
-%                 ylabel('Chadwick Stress (Pa)','FontName','Serif')
-% 
-%                 %                                 xlim([0 25])
-%                 %                                 ylim([0 700])
-% 
-% 
-%                 subplot(223)
-%                 hold on
-%                 title('Evolution of H0 with loops')
-%                 plot(0:cpt,[H0prev(2:end) H0tmp]*1000,'ko-','markerfacecolor','c')
-%                 xlabel('Loop n°','FontName','Serif')
-%                 ylabel('H0 (nm)','FontName','Serif')
-% 
-% 
-%                 subplot(224)
-%                 hold on
-%                 title('Evolution of strain rate in time')
-%                 plot(Tinterp-Tinterp(1),StrainRate*100,'-ko','markerfacecolor','m')
-%                 plot(Tinterp-Tinterp(1),ExpStrainRateInterp*100,'-ks','markerfacecolor','r')
-% 
-%                 xlabel('Time during compression (s)','FontName','Serif')
-%                 ylabel('Strain Rate ($s^{-1}$)','FontName','Serif','interpreter','latex')
-%                 legend('theoretical','experimental')
-%                 legend('location','best')
-% 
-%                 yl = ylim;
-%                 ylim([-5 yl(2)]);
-% 
-%                 fig = gcf;
-%                 saveas(fig,[sffMeca filesep currentCellName{i} '-' num2str(ii)],'png')
-%                 saveas(fig,[sffMeca filesep currentCellName{i} '-' num2str(ii)],'fig')
-% 
-%                 if ~SAVING_CRITERION
-%                     close
-%                 end
-%             end
+            %% FIGURES %%
+            if PLOT
+
+                figure(kc)
+                figure('DefaultAxesFontSize',11)
+                ax1 = subplot(5,1,1);
+                title(ax1, name)
+                hold on
+                plot(T,B,'b-')
+%                 xlabel('Time(s)','FontName','Serif')
+                xticklabels(ax1,{})
+                ylabel('Magnetic Field (mT)','FontName','Serif')
+                
+                ax2 = subplot(5,1,2);
+                hold on
+                plot(T,F,'r-')
+%                 xlabel('Time(s)','FontName','Serif')
+                xticklabels(ax2,{})
+                ylabel('Force (pN)','FontName','Serif')
+                
+                ax3 = subplot(5,1,3);
+                hold on
+                plot(T,D2,'m-')
+                plot(T,D2,'kx')
+%                 xlabel('Time(s)','FontName','Serif')
+                xticklabels(ax3,{})
+                ylabel('D2','FontName','Serif')
+                
+                ax4 = subplot(5,1,4);
+                hold on
+                plot(T,dz,'g-')
+                plot(T,dz,'kx')
+%                 xlabel('Time(s)','FontName','Serif')
+                ylabel('dz','FontName','Serif')
+                
+                ax5 = subplot(5,1,5);
+                hold on
+                plot(T,D3,'c-')
+                plot(T,D3,'kx')
+                xlabel('Time(s)','FontName','Serif')
+                ylabel('D3','FontName','Serif')
+                
+                linkaxes([ax1,ax2,ax3,ax4,ax5],'x')
+                
+                fig = gcf;
+                
+                saveas(fig,[subFigureFolder filesep 'BFDZcurves_' name '.png'],'png')
+                saveas(fig,[subFigureFolder filesep 'BFDZcurves_' name '.fig'],'fig')
+                
+            end
 
             
             %% Ramp splitting
@@ -510,6 +446,11 @@ if exist([path filesep loadname],'file')
         
         
     end
+    
+    if PLOT
+        close all
+    end
+    
 end
 
 
