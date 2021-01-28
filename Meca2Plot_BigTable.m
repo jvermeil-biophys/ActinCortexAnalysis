@@ -33,6 +33,20 @@ mkdir(sff)
 
 load([resfolder filesep 'MecaDataTable'])
 
+pathTableFluo = "D:\Matlab Analysis\Data_Joseph\MatFiles\FluorescenceAnalysis.csv";
+% tableFluo = readtable(pathTableFluo, 'HeaderLines',1,'Format','%s%s%u'); 'DatetimeType'
+tableFluo = readtable(pathTableFluo, 'HeaderLines',1,'DatetimeType','text','TextType','string');
+tableFluo.uniqueID = strcat(tableFluo.('date'), '_', tableFluo.('id'));
+tableFluoMeca = innerjoin(tableFluo, BigTable, 'LeftKeys', 'uniqueID', 'RightKeys', 'CellName');
+% [G, FluoResults] = findgroups(tableFluoMeca.uniqueID);
+[G, FluoResults] = findgroups(tableFluoMeca(:,'uniqueID'));
+% meanValues = splitapply(@nanmean,tableFluoMeca.EChadwick,tableFluoMeca.H0Chadwick,tableFluoMeca.SurroundingThickness,tableFluoMeca.fluoLevel,G);
+
+FluoResults.meanEChadwick = splitapply(@nanmean,tableFluoMeca.('EChadwick'),G);
+FluoResults.meanH0Chadwick = splitapply(@nanmean,tableFluoMeca.('H0Chadwick'),G);
+FluoResults.meanSurroundingThickness = splitapply(@nanmean,tableFluoMeca.('SurroundingThickness'),G);
+FluoResults.meanFluoLevel = splitapply(@nanmean,tableFluoMeca.('fluoLevel'),G);
+
 if ~(size(Cond,1) == length(Col) && size(Cond,1) == length(Lab) && length(Lab) == length(Col))
     error('Numbers of conditions, colors, and lables don''t match !')
 end
@@ -243,6 +257,12 @@ i_FigHysteresis = i_figure;
 i_figure = i_figure + 1;
 hold on
 title('Hysteresis')
+
+figure(i_figure)
+i_FigFluo = i_figure;
+i_figure = i_figure + 1;
+hold on
+title('Fluo')
 
 
 ymax1 = 0;
@@ -561,10 +581,10 @@ for ii = 1:length(H0Beeswarm)
     plot([ii-0.45 ii+0.45],[nanmedian(H0Beeswarm{ii}) nanmedian(H0Beeswarm{ii})],'k--','linewidth',1.3)
 end
 
-% first comp of each cell in another color
-set(0,'DefaultLineMarkerSize',10);
-plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','r','xNames',Lab,'spreadWidth',1)
-set(0,'DefaultLineMarkerSize',8);
+% % first comp of each cell in another color
+% set(0,'DefaultLineMarkerSize',10);
+% plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','r','xNames',Lab,'spreadWidth',1)
+% set(0,'DefaultLineMarkerSize',8);
 
 ylabel('H0 init ramp')
 
@@ -609,10 +629,10 @@ for ii = 1:length(H0Beeswarm)
     plot([ii-0.45 ii+0.45],[nanmedian(H0Beeswarm{ii}) nanmedian(H0Beeswarm{ii})],'k--','linewidth',1.3)
 end
 
-% first comp of each cell in another color
-set(0,'DefaultLineMarkerSize',10);
-plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','r','xNames',Lab,'spreadWidth',1)
-set(0,'DefaultLineMarkerSize',8);
+% % first comp of each cell in another color
+% set(0,'DefaultLineMarkerSize',10);
+% plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','r','xNames',Lab,'spreadWidth',1)
+% set(0,'DefaultLineMarkerSize',8);
 
 ylabel('Median thickness around this ramp (nm)')
 
@@ -704,10 +724,10 @@ for ii = 1:length(H0Beeswarm)
     plot([ii-0.45 ii+0.45],[nanmedian(H0Beeswarm{ii}) nanmedian(H0Beeswarm{ii})],'k--','linewidth',1.3)
 end
 
-% first comp of each cell in another color
-set(0,'DefaultLineMarkerSize',10);
-plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','r','xNames',Lab,'spreadWidth',1)
-set(0,'DefaultLineMarkerSize',8);
+% % first comp of each cell in another color
+% set(0,'DefaultLineMarkerSize',10);
+% plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','r','xNames',Lab,'spreadWidth',1)
+% set(0,'DefaultLineMarkerSize',8);
 
 ylabel('Fitted thickness for this ramp (nm)')
 
@@ -798,10 +818,10 @@ for ii = 1:length(Hyst)
     plot([ii-0.45 ii+0.45],[nanmedian(Hyst{ii})  nanmedian(Hyst{ii})],'k--','linewidth',1.3)
 end
 
-% first comp of each cell in another color
-set(0,'DefaultLineMarkerSize',10);
-plotSpread_V(HystFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
-set(0,'DefaultLineMarkerSize',8);
+% % first comp of each cell in another color
+% set(0,'DefaultLineMarkerSize',10);
+% plotSpread_V(HystFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
+% set(0,'DefaultLineMarkerSize',8);
 
 
 ylabel('Hysteresis')
@@ -851,6 +871,42 @@ for kcond = 1:ncond
     ylabel('H0EXP (nm)')
     
 end
+
+
+%% Fluo quantif
+    
+    figure(i_FigFluo)
+    
+    Efluo = FluoResults.meanEChadwick;
+    H0fit = FluoResults.meanH0Chadwick;
+    H0sur = FluoResults.meanSurroundingThickness;
+    Ifluo = FluoResults.meanFluoLevel;
+    
+    subplot(1,2,1)
+    hold on
+    plot(Ifluo,Efluo,['k' 'o'],'markerfacecolor','r')
+    xlabel('Fluo Intensity (a.u.)')
+    ylabel('average Echad (kPa)')
+    ax = gca;
+    ax.XTickLabelRotation = 45;
+    
+    subplot(1,2,2)
+    hold on
+    plot(Ifluo,H0fit,['k' 'o'],'markerfacecolor','m')
+    plot(Ifluo,H0sur,['k' 'o'],'markerfacecolor','c')
+    xlabel('Fluo Intensity (a.u.)')
+    ylabel('average H0 (nm)')
+    currentLegend = legend;
+    currentLegend.String = {'H0 from fit' 'H0 btw ramps'};
+    ax = gca;
+    ax.XTickLabelRotation = 45;
+    
+    
+
+
+
+
+
 
 %% per cell plot vs tps comp
 if strcmp(answer,'Yes')
@@ -934,8 +990,23 @@ if ncond >=2
     
     figure(i_FigSurroundingThicknessDistrib)
     fig = gca;
-    saveas(fig,[sff filesep 'SurroundingThicknessChadBeeswarm.png'],'png')
-    saveas(fig,[sff filesep 'SurroundingThicknessChadBeeswarm.fig'],'fig')
+    saveas(fig,[sff filesep 'SurroundingThicknessBeeswarm.png'],'png')
+    saveas(fig,[sff filesep 'SurroundingThicknessBeeswarm.fig'],'fig')
+    
+    figure(i_FigH0SURPerCellDistrib)
+    fig = gca;
+    saveas(fig,[sff filesep 'SurroundingThicknessPerCellBeeswarm.png'],'png')
+    saveas(fig,[sff filesep 'SurroundingThicknessPerCellBeeswarm.fig'],'fig')
+    
+    figure(i_FigFittedThicknessDistrib)
+    fig = gca;
+    saveas(fig,[sff filesep 'FitThicknessChadBeeswarm.png'],'png')
+    saveas(fig,[sff filesep 'FitThicknessChadBeeswarm.fig'],'fig')
+    
+    figure(i_FigH0FITPerCellDistrib)
+    fig = gca;
+    saveas(fig,[sff filesep 'FitThicknessChadPerCellBeeswarm.png'],'png')
+    saveas(fig,[sff filesep 'FitThicknessChadPerCellBeeswarm.fig'],'fig')
     
     figure(i_FigEandH0vsTime)
     fig = gca;
@@ -946,6 +1017,10 @@ if ncond >=2
     fig = gca;
     saveas(fig,[sff filesep 'Hysteresis.png'],'png')
     saveas(fig,[sff filesep 'Hysteresis.fig'],'fig')
+    
+
+    
+    
 end
 
 
