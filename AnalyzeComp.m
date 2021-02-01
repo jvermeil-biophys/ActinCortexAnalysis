@@ -30,6 +30,8 @@ Cl  = [150 0 255]./255; % Latranculin
 Cwt = [20 109 159]./255; % WT
 CaSFLnodrug = [182 109 106]./255; % aSFLnodrug
 CaSFLdoxy = [255 255 109]./255; % aSFLdoxy
+CaSFLnodrug = [255 255 109]./255;; % aSFLnodrug
+CaSFLdoxy = 'c'; % aSFLdoxy
 
 % diff rates
 C02 = [30 240 60]./255;
