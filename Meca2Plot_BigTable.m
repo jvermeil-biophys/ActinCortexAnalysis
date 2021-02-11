@@ -33,19 +33,21 @@ mkdir(sff)
 
 load([resfolder filesep 'MecaDataTable'])
 
-pathTableFluo = "D:\Matlab Analysis\Data_Joseph\MatFiles\FluorescenceAnalysis.csv";
+pathTableFluo = "D:\Matlab Analysis\Data_Joseph\MatFiles\FluorescenceAnalysisV2.txt";
 % tableFluo = readtable(pathTableFluo, 'HeaderLines',1,'Format','%s%s%u'); 'DatetimeType'
-tableFluo = readtable(pathTableFluo, 'HeaderLines',1,'DatetimeType','text','TextType','string');
-tableFluo.uniqueID = strcat(tableFluo.('date'), '_', tableFluo.('id'));
-tableFluoMeca = innerjoin(tableFluo, BigTable, 'LeftKeys', 'uniqueID', 'RightKeys', 'CellName');
+tableFluo = readtable(pathTableFluo,'DatetimeType','text','TextType','string','Delimiter',','); % , 'HeaderLines',1
+%tableFluo.uniqueID = strcat(tableFluo.('date'), '_', tableFluo.('id'));
+tableFluoMeca = innerjoin(tableFluo, BigTable, 'LeftKeys', 'cellID', 'RightKeys', 'CellName');
+tableFluoMeca(tableFluoMeca.Validated == 0,:)=[];
 % [G, FluoResults] = findgroups(tableFluoMeca.uniqueID);
-[G, FluoResults] = findgroups(tableFluoMeca(:,'uniqueID'));
+[G, cellIDtable, dateTable] = findgroups(tableFluoMeca(:,'cellID'),tableFluoMeca(:,'ExpDay'));
 % meanValues = splitapply(@nanmean,tableFluoMeca.EChadwick,tableFluoMeca.H0Chadwick,tableFluoMeca.SurroundingThickness,tableFluoMeca.fluoLevel,G);
-
+FluoResults = cellIDtable;
+FluoResults.date = dateTable.Variables;
 FluoResults.meanEChadwick = splitapply(@nanmean,tableFluoMeca.('EChadwick'),G);
 FluoResults.meanH0Chadwick = splitapply(@nanmean,tableFluoMeca.('H0Chadwick'),G);
 FluoResults.meanSurroundingThickness = splitapply(@nanmean,tableFluoMeca.('SurroundingThickness'),G);
-FluoResults.meanFluoLevel = splitapply(@nanmean,tableFluoMeca.('fluoLevel'),G);
+FluoResults.meanFluoLevel = splitapply(@nanmean,tableFluoMeca.('meanFluoPeakAmplitude'),G);
 
 if ~(size(Cond,1) == length(Col) && size(Cond,1) == length(Lab) && length(Lab) == length(Col))
     error('Numbers of conditions, colors, and lables don''t match !')
@@ -877,23 +879,29 @@ end
     
     figure(i_FigFluo)
     
-    Efluo = FluoResults.meanEChadwick;
-    H0fit = FluoResults.meanH0Chadwick;
-    H0sur = FluoResults.meanSurroundingThickness;
-    Ifluo = FluoResults.meanFluoLevel;
+    datesList = unique(FluoResults.date);
+    nDates = length(datesList);
+    plotSymbols = ['o', '>', 's', 'd', '<'];
+    for i=1:nDates
+        currentDateMask = strcmp(FluoResults.date, datesList(i));
+        subplot(1,2,1)
+        hold on
+        plot(FluoResults.meanFluoLevel(currentDateMask),FluoResults.meanEChadwick(currentDateMask),['k' plotSymbols(i)],'markerfacecolor','r')
+        subplot(1,2,2)
+        hold on
+        plot(FluoResults.meanFluoLevel(currentDateMask),FluoResults.meanSurroundingThickness(currentDateMask),['k' plotSymbols(i)],'markerfacecolor','m')
+        plot(FluoResults.meanFluoLevel(currentDateMask),FluoResults.meanH0Chadwick(currentDateMask),['k' plotSymbols(i)],'markerfacecolor','c')
+    end
     
     subplot(1,2,1)
     hold on
-    plot(Ifluo,Efluo,['k' 'o'],'markerfacecolor','r')
     xlabel('Fluo Intensity (a.u.)')
     ylabel('average Echad (kPa)')
     ax = gca;
     ax.XTickLabelRotation = 45;
-    
+
     subplot(1,2,2)
     hold on
-    plot(Ifluo,H0fit,['k' 'o'],'markerfacecolor','m')
-    plot(Ifluo,H0sur,['k' 'o'],'markerfacecolor','c')
     xlabel('Fluo Intensity (a.u.)')
     ylabel('average H0 (nm)')
     currentLegend = legend;
