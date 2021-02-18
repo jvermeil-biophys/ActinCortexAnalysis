@@ -1,5 +1,5 @@
-function Var2Data_Comp(date,tag,Bcorrec,manip,specif,nimgr...
-    ,nimgtot,CompDur,Db,PLOT,resfolder,figurefolder)
+function Var2Data_Comp(date,tag,manip,tableExperimentalConditions,specif,nimgr...
+    ,nimgtot,COMPRESSIONDURATION,PLOT,resfolder,figurefolder, ExportDataFolder)
 
 %
 %       Var2Data is taking the .mat file (from Res2Var) containing the trajectories of each
@@ -42,7 +42,20 @@ set(groot, 'defaultLegendInterpreter','latex');
 set(groot, 'defaultTextInterpreter','latex');
 set(groot,'DefaultAxesFontSize',30)
 
+%% Extracting parameters from tableExperimentalConditions
+ExperimentalConditions = getExperimentalConditions(tableExperimentalConditions, date, manip);
+if strcmp(ExperimentalConditions.experimentType, "DEFAULT")
+    cprintf('red',['\nWARNING : Experimental conditions not found in ' 'D:\Matlab Analysis\ActinCortexAnalysis\ExperimentalData' filesep 'ExperimentalConditions.csv' ' \n' 'Working now with default parameters, which are probably not accurate ! \n'])
+end
 
+SCALEPixelPerUm = ExperimentalConditions.scalePixelPerUm;
+DIAMETER = ExperimentalConditions.beadDiameter;
+BEADTYPE = ExperimentalConditions.beadType;
+MAGNETICFIELDCORR = ExperimentalConditions.magneticFieldCorrection;
+COMPRESSIONDURATION = ExperimentalConditions.compressionDuration;
+% WITHFLUO = boolean(ExperimentalConditions.withFluoImages);
+
+%%
 % folder with initial data and were to save analysed data
 path = [resfolder filesep 'R2V']; % data from previous program
 
@@ -58,10 +71,6 @@ savename=['V2D_' date '_' manip '_' tag '_' specif]; % name for saving
 loadname=['R2V_' date '_' manip '_' tag '_' specif '.mat']; % name to load previous data
 
 
-% conversion factor from pixel to microns
-pixelconv=1/15.8; % 100X
-% pixelconv=1/9.7; % 63X
-
 if exist([path filesep loadname],'file')
     
     fprintf(['\n\nLoading file ' loadname '\n'])
@@ -74,11 +83,11 @@ if exist([path filesep loadname],'file')
             VALID = 1;
             name = MT{kc}.exp;
             
-            fprintf(['Cell : ' name '\n\n'])
+            cprintf(['Cell : ' name '\n\n'])
             
             
             %% Constant part
-            fprintf('Retrieving data for constant part... ');
+            cprintf('Retrieving data for constant part... ');
             
             Scst = MT{kc}.Scst; % list of image with beads tracked on it
             
@@ -96,21 +105,20 @@ if exist([path filesep loadname],'file')
             % conversion in nm
             xpcst = [X1cst,X2cst];
             ypcst = [Y1cst,Y2cst];
-            xcst=xpcst*pixelconv;
-            ycst=ypcst*pixelconv;
+            xcst=xpcst*SCALEPixelPerUm;
+            ycst=ypcst*SCALEPixelPerUm;
             
             % Computation of distance between beads
-            Dcst = abs(xcst(:,2)-xcst(:,1));
-            D2cst = ((xcst(:,2)-xcst(:,1)).^2 + (ycst(:,2)-ycst(:,1)).^2).^0.5;
+            dxcst = abs(xcst(:,2)-xcst(:,1));
             dycst = abs(ycst(:,1)-ycst(:,2));
-            D2cst =(Dcst.^2+dycst.^2).^0.5;
+            D2cst =(dxcst.^2+dycst.^2).^0.5;
             D3cst = (D2cst.^2+dzcst.^2).^0.5;
             
             cprintf('Com', [' OK.\n']);
             
             
             %% Compression part
-            fprintf('Retrieving data for compressions');
+            cprintf('Retrieving data for compressions');
             
             Srmp = MT{kc}.Srmp; % list of image with beads tracked on it
             
@@ -125,58 +133,69 @@ if exist([path filesep loadname],'file')
             % Z data for both beads
             dzrmp = MT{kc}.dzrmp/1000; % in nm
             
+            % Ramp Index for each data point
+            idxRamp = MT{kc}.idxRamp;
+            
             % conversion in nm
             xprmp = [X1rmp,X2rmp];
             yprmp = [Y1rmp,Y2rmp];
-            xrmp=xprmp*pixelconv;
-            yrmp=yprmp*pixelconv;
+            xrmp=xprmp*SCALEPixelPerUm;
+            yrmp=yprmp*SCALEPixelPerUm;
             
             % Computation of distance between beads
-            Drmp = abs(xrmp(:,2)-xrmp(:,1));
+            dxrmp = abs(xrmp(:,2)-xrmp(:,1));
             dyrmp = abs(yrmp(:,1)-yrmp(:,2));
-            D2rmp =(Drmp.^2+dyrmp.^2).^0.5;
+            D2rmp =(dxrmp.^2+dyrmp.^2).^0.5;
             D3rmp = (D2rmp.^2+dzrmp.^2).^0.5;
             
             cprintf('Com', [' OK.\n']);
             
             
             %% Time curve and force computation
-            fprintf('Reconstruction of data in time...');
+            cprintf('Reconstruction of data in time...');
             
             % putting cs and ramp data together
             D3all = [D3cst; D3rmp];
             D2all = [D2cst; D2rmp];
+            dxall = [dxcst; dxrmp];
+            dyall = [dycst; dyrmp];
             dzall = [dzcst; dzrmp];
-            Dall = [Dcst; Drmp];
             Sall = [Scst; Srmp];
+            idxRamp_all = [zeros(length(Scst), 1); idxRamp'];
             
             % referencing by image number
             D3ind = [Sall D3all];
             D2ind = [Sall D2all];
-            Dind = [Sall Dall];
+            dxind = [Sall dxall];
+            dyind = [Sall dyall];
             dzind = [Sall dzall];
+            idxRamp_ind = [Sall idxRamp_all];
             
             % sorting by image number
             D3sort = sortrows(D3ind);
             D2sort = sortrows(D2ind);
-            Dsort = sortrows(Dind);
+            dxsort = sortrows(dxind);
+            dysort = sortrows(dyind);
             dzsort = sortrows(dzind);
+            idxRamp_sort = sortrows(idxRamp_ind);
             
             % retrieving data sorted in time
             D3 = D3sort(:,2);
             D2 = D2sort(:,2);
-            Dx = Dsort(:,2);
+            dx = dxsort(:,2);
+            dy = dysort(:,2);
             dz = dzsort(:,2);
+            idxRamp_all = idxRamp_sort(:,2);
             S = D3sort(:,1);            
             
             cprintf('Com', [' OK.\n']);
             
             
-            fprintf('Creation of time and magnetic field vectors...');
+            cprintf('Creation of time and magnetic field vectors...');
             
             BTMat = MT{kc}.BTMat; % loading data gathered from _Field.txt file
             
-             Bfull = BTMat(:,1)*Bcorrec; % magnetic field for all images
+            Bfull = BTMat(:,1)*MAGNETICFIELDCORR; % magnetic field for all images
             
             Tfull = (BTMat(:,2)-BTMat(1,2))/1000;% timepoints of all images
             
@@ -208,14 +227,14 @@ if exist([path filesep loadname],'file')
             
             cprintf('Com', [' OK.\n']);
             
-            fprintf('Creation of force vector...');
+            cprintf('Creation of force vector...');
             
             
             
             % Dipolar force
             
             D3nm = D3*1000; % in nm
-            Dxnm = Dx*1000; % in nm
+            dxnm = dx*1000; % in nm
             
             if contains(specif,'M270') % for M270 beads
                 
@@ -227,7 +246,7 @@ if exist([path filesep loadname],'file')
                 
             end
             
-            V = 4/3*pi*(Db/2)^3; % bead volume [nm^3]
+            V = 4/3*pi*(DIAMETER/2)^3; % bead volume [nm^3]
             
             m = M.*10^-9*V; % dipolar moment [A.nm^2]
             
@@ -249,7 +268,7 @@ if exist([path filesep loadname],'file')
             
             mtot = Mtot.*10^-9*V; % corrected dipolar moment
             
-            anglefactor=abs(3*(Dxnm./D3nm).^2-1); % angle between chain and field direction
+            anglefactor=abs(3*(dxnm./D3nm).^2-1); % angle between chain and field direction
             
             F = 3*10^5.*anglefactor.*mtot.^2./D3nm.^4; % force [pN]
             
@@ -313,7 +332,7 @@ if exist([path filesep loadname],'file')
 
             
             %% Ramp splitting
-            fprintf('Splitting ramps...')
+            cprintf('Splitting ramps...')
             
             FullRmpDat = [Srmp Trmp D3rmp Frmp Brmp dzrmp]; % all data relative to ramps
             
@@ -323,13 +342,20 @@ if exist([path filesep loadname],'file')
             cyclevect = 1:ncycle; % list of loops
             
             % Initialize begining of ramps parts
-            count = 0;
+            count = 1;
+            idxRamp2 = zeros(1, length(Srmp));
             bgnrmp = zeros(ncycle,1);
             for i = 1:length(Srmp)
                 if Srmp(i) > count*nimgtot
-                    bgnrmp(count+1) = Srmp(i);
+                    bgnrmp(count) = Srmp(i);
                     count = count+1;
                 end
+                idxRamp2(i) = count;
+            end
+            
+            test_idxRamp = (idxRamp == idxRamp2);
+            if ~(sum(test_idxRamp) == length(test_idxRamp))
+                error
             end
             
             bgncst = (cyclevect-1)*nimgtot+1; % begining of constant parts
@@ -337,12 +363,14 @@ if exist([path filesep loadname],'file')
             for k = cyclevect
                 
                 m = ismember(Srmp,bgnrmp(k):bgnrmp(k)+nimgr-1); % image indicies for compression n°k
+                
                 Stmp = Srmp(m);
                 D3tmp = D3rmp(m);
                 Ftmp = Frmp(m);
                 Btmp = Brmp(m);
                 Ttmp = Trmp(m);
                 dztmp = dzrmp(m);
+                idxRampTmp = idxRamp(m);
                 
                 % removal of points with a big dz jump
                 ddz = diff(dztmp);
@@ -354,6 +382,7 @@ if exist([path filesep loadname],'file')
                     Btmp(ptrdel) = [];
                     Ttmp(ptrdel) = [];
                     dztmp(ptrdel) = [];
+                    idxRampTmp(ptrdel) = [];
                     ddz=diff(dztmp);
                     length(ptrdel)
                 end
@@ -383,7 +412,7 @@ if exist([path filesep loadname],'file')
                         
                     else
                         
-                        RmpDat{k} = [Stmp Ttmp D3tmp Ftmp Btmp dztmp];
+                        RmpDat{k} = [Stmp Ttmp D3tmp Ftmp Btmp dztmp idxRampTmp'];
                         
                     end
                     
@@ -395,7 +424,7 @@ if exist([path filesep loadname],'file')
                     CstRmp{k} = 'NoPts';
                 end
                 
-                CompDuration{k} = CompDur; % duration of ramp
+                CompDuration{k} = COMPRESSIONDURATION; % duration of ramp
                 
             end
             
@@ -420,17 +449,20 @@ if exist([path filesep loadname],'file')
             
             if VALID % storing data in global matrix MR
                 
-                fprintf('Variable creation...');
+                cprintf('Variable creation...');
                 
                 MR{kc}.name = name;
                 MR{kc}.D3=D3;
                 MR{kc}.D2=D2;
+                MR{kc}.dx=dx;
+                MR{kc}.dy=dy;
                 MR{kc}.dz=dz;
                 MR{kc}.B=B;
                 MR{kc}.F=F;
                 MR{kc}.time = T;
                 MR{kc}.S = S;
-                MR{kc}.RampData = {RmpDat, FullRmpDat,CompDuration, CstRmp};
+                MR{kc}.idxRamp_all=idxRamp_all;
+                MR{kc}.RampData = {RmpDat, FullRmpDat, CompDuration, CstRmp};
                 MR{kc}.CstData  = CstDat;
                 
                 cprintf('Com', [' OK.\n\n']);
@@ -457,13 +489,13 @@ end
 EE = exist('MR','var');
 
 if EE == 1
-    fprintf('Saving data...');
+    cprintf('Saving data...');
     save([resfolder filesep 'V2D' filesep savename],'MR');
+    ExportTimeSeries(MR, ExportDataFolder);
     cprintf('Com', [' OK.\n\n']);
-    
-    fprintf([num2str(kc) ' datasets analyzed\n\n\n\n']);
+    cprintf([num2str(kc) ' datasets analyzed\n\n\n\n']);
 else
     
-    fprintf('No existing file in the given list. \nCheck for a path error. \n\n');
+    cprintf('No existing file in the given list. \nCheck for a path error. \n\n');
     
 end

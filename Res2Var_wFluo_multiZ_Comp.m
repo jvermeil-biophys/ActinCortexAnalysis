@@ -1,4 +1,4 @@
-function Res2Var_wFluo_multiZ_Comp(restype,date,tag,manip,specif,fich,depthoname,nimgbr,nimgr,nimg,wFluo,...
+function Res2Var_wFluo_multiZ_Comp(restype,date,tag,manip,specif,fich,depthoname,tableExperimentalConditions,nimgbr,nimgr,nimg,wFluo,...
     AUTO,datafolder,resfolder)
 
 %       Res2Var is using the imageJ particle analysis data to create
@@ -18,12 +18,12 @@ function Res2Var_wFluo_multiZ_Comp(restype,date,tag,manip,specif,fich,depthoname
 %       AUTO,datafolder,resfolder)
 %
 %       restype : extension of text file (ex: 'Results' or  'Inside')
-%       date : date of experiment 'dd-mm-yy'
+%       date : date of experiment 'yy-mm-dd'
 %       tag : tag present on the tif and txt files (ex: 'R40', 'R90_Multi')
 %       manip : 'manip' number (ex: 'M1' ou 'M2' etc...),
 %       specif : experimental condiion (ex: 'Dicty_WT')
 %       fich : chambers to analyze for the condition (ex: 1 or [1:3])
-%       depthoname : depthograph (ex:'19-05-20_DepthographM450')
+%       depthoname : depthograph (ex:'20-05-27_DepthographM450')
 %       nimgbr : nb img in a loop before a ramp
 %       nimgr : nb img in a ramp
 %       nimg : nb img total in a loop
@@ -38,6 +38,16 @@ set(0,'DefaultFigureWindowStyle','docked') % defining default figure window for 
 
 warning('off','all') % removing wrning (orange text) display in consol
 
+%% Extracting parameters from tableExperimentalConditions
+ExperimentalConditions = getExperimentalConditions(tableExperimentalConditions, date, manip);
+if strcmp(ExperimentalConditions.experimentType, "DEFAULT")
+    cprintf('red',['\nWARNING : Experimental conditions not found in ' 'D:\Matlab Analysis\ActinCortexAnalysis\ExperimentalData' filesep 'ExperimentalConditions.csv' ' \n' 'Working now with default parameters, which are probably not accurate ! \n'])
+end
+
+OPTICALINDEXCORRECTION = ExperimentalConditions.opticalIndexCorrection;
+% WITHFLUO = boolean(ExperimentalConditions.withFluoImages);
+
+%%
 % Displaying automode status
 if AUTO
     cprintf('red','\n\n[AUTOMODE : ON]\n\n')
@@ -46,7 +56,7 @@ else
 end
 
 % data and saving folders
-path =[datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2)]; % path to folder with raw data
+path =[datafolder filesep date(1:2) '.' date(4:5) '.' date(7:8)]; % path to folder with raw data
 sf   = resfolder; % save folder
 
 mkdir([sf filesep 'R2V']) % create saving folder
@@ -136,7 +146,7 @@ for ki=1:nacq
             
             try
                 
-                [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO);
+                [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, idxRamp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, OPTICALINDEXCORRECTION, AUTO);
                 
                 kii = kii +1; % compteur de ficheir trouv�
                 
@@ -146,12 +156,13 @@ for ki=1:nacq
                 BTMat = dlmread([path filesep fieldname],'\t',0,0);
                 cprintf('Com', ' OK\n\n')
                 
-                BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesOfLoopEnd);
+                BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesOfLoopEnd); 
+                % If N black images detected in given loop, this removes N data points at the end of the ramp and add N
+                % "mock data points" (zeros) at the black image location in the stack (they won't be analysed).
                 
                 % registering analyzed data in global matrix
                 MT{kii}.exp = name;
                 MT{kii}.stack = stackname;
-                MT{kii}.Sramp = Sramp;
                 
                 MT{kii}.Scst = Scst;
                 MT{kii}.xcst = [X1cst X2cst];
@@ -163,6 +174,8 @@ for ki=1:nacq
                 MT{kii}.yrmp = [Y1rmp Y2rmp];
                 MT{kii}.dzrmp = dzrmp;
                 
+                MT{kii}.isInRamp = isInRamp;
+                MT{kii}.idxRamp = idxRamp;
                 MT{kii}.BTMat = BTMat;
                 
                 % marking file as analyzed
@@ -183,7 +196,7 @@ for ki=1:nacq
             
             
         else
-            [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO);
+            [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, idxRamp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, OPTICALINDEXCORRECTION, AUTO);
             
             kii = kii +1; % compteur de ficheir trouv�
             
@@ -198,7 +211,6 @@ for ki=1:nacq
             % registering analyzed data in global matrix
             MT{kii}.exp = name;
             MT{kii}.stack = stackname;
-            MT{kii}.Sramp = Sramp;
             
             MT{kii}.Scst = Scst;
             MT{kii}.xcst = [X1cst X2cst];
@@ -210,6 +222,7 @@ for ki=1:nacq
             MT{kii}.yrmp = [Y1rmp Y2rmp];
             MT{kii}.dzrmp = dzrmp;
             
+            MT{kii}.idxRamp = idxRamp;
             MT{kii}.BTMat = BTMat;
             
             % marking file as analyzed
@@ -271,7 +284,7 @@ if exist('MT')
             MT2{kii}.S = MT{kii}.Scst;
             MT2{kii}.x = MT{kii}.xcst;
             MT2{kii}.y = MT{kii}.ycst;
-            MT2{kii}.dz = MT{kii}.dzcst;            
+            MT2{kii}.dz = MT{kii}.dzcst;
             MT2{kii}.BTMat = MT{kii}.BTMat;
 
         end
@@ -297,7 +310,7 @@ end
 
 %%%%% Analysis function
 
-function [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sramp, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, AUTO)
+function [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, idxRamp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim,  path, resname, tag, restype, stackname, name, nimg, nimgbr, nimgr, wFluo, depthoname, datafolder, OPTICALINDEXCORRECTION, AUTO)
 
 fprintf([restype ' ' date '_' manip '_' Noim '_' tag ' : \n\n']);
 
@@ -363,7 +376,7 @@ end
 %%% Creating list of images to separate image triplets for
 % constant part, and identifying ramp part without image
 % triplets
-[Sdown,Smid,Sup,Sramp,Sfluo] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg,wFluo,nBlackImagesOfLoopEnd);
+[Sdown, Smid, Sup, Sramp, Sfluo, idxRamp] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg,wFluo,nBlackImagesOfLoopEnd);
 
 L = min([length(Sdown) length(Smid) length(Sup)]);
 
@@ -455,7 +468,7 @@ Scst = Sall(m);
 
 
 
-% redefinition de p1 et p2 apr�s la r�cuperation des "bon" x
+% redefinition de p1 et p2 apres la recuperation des "bon" x
 % pour les partie cst en force
 p1cst = ismember(Stot,Scst);
 p2cst = ismember(Stot,Scst);
@@ -474,10 +487,24 @@ X2rmp = X2tot(p2rmp);
 Y1rmp = Y1tot(p1rmp);
 Y2rmp = Y2tot(p2rmp);
 
+
+
 STD1rmp = Mat(ptr1(p1rmp),Nstdmean);
 STD2rmp = Mat(ptr2(p2rmp),Nstdmean);
 
 Srmp = Stot(p1rmp);
+
+ptrTot = ismember(Sfull,Stot);
+idxRamp = idxRamp(ptrTot);
+idxRamp = idxRamp(p1rmp);
+
+
+% m2cst = ismember(Sfull,Scst);
+% m2rmp = ismember(Sfull,Srmp);
+% m2 = m2cst | m2rmp;
+% isInRamp = isInRamp(m2);
+% idxRamp = idxRamp(m2);
+
 %%% end of getting best focus
 
 cprintf('Com', ' OK\n');
@@ -505,10 +532,8 @@ dzrmp = dztot(ismember(stot,Srmp));
 dzcst = dztot(ismember(stot,Scst));
 
 
-dzcst = dzcst*1.33/1.52; % correction for optical index changes between air and oil (100X)
-
-
-dzrmp = dzrmp*1.33/1.52; % correction for optical index changes between air and oil (100X)
+dzcst = dzcst*OPTICALINDEXCORRECTION; % correction for optical index changes between cell medium and objective immersion fluid (example : OPTICALINDEXCORRECTION = 1.33/1.52 for cells in water and objective in oil)
+dzrmp = dzrmp*OPTICALINDEXCORRECTION; 
 
 cprintf('Com', ' OK\n');
 %%% end of computing dz
