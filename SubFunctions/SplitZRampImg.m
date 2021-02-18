@@ -1,4 +1,4 @@
-function [Sdown,Smid,Sup,Sramp,Sfluo] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg,wFluo,nBlackImagesOfLoopEnd)
+function [Sdown,Smid,Sup,Sramp,Sfluo, idxRamp] = SplitZRampImg(Sfull,nimgbr,nimgr,nimg,wFluo,nBlackImagesOfLoopEnd)
 
 %
 % Splits the image list Sfull between list for down, middle and up images
@@ -26,8 +26,9 @@ N_loop = ceil(N/nimg);
 Mdown = false(1,N_loop*nimg);
 Mmid  = Mdown;
 Mup   = Mdown;
-Mramp   = Mdown;
+Mramp = Mdown;
 Mfluo = Mdown;
+countRamp = zeros(1,N_loop*nimg);
 
 nbImgFluo = 0;
 if wFluo
@@ -46,6 +47,7 @@ for i_loop = 1:N_loop
     for i = nimgbr+1 : nimgbr+nimgr - nBlackImagesOfLoopEnd(i_loop) % ramp images
         position = i + (i_loop-1)*nimg;
         Mramp(position) = true;
+        countRamp(position) = i_loop;
     end
 
     for i = nimgbr+nimgr+1 - nBlackImagesOfLoopEnd(i_loop):3:nimg-nbImgFluo - nBlackImagesOfLoopEnd(i_loop) % going by three for the triplets of images after ramp
@@ -94,6 +96,7 @@ Smid  = Sfull(Mmid) ;
 Sup   = Sfull(Mup)  ;
 Sramp = Sfull(Mramp);
 Sfluo = Sfull(Mfluo);
+idxRamp = countRamp;
 
 
 end
