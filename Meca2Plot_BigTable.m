@@ -189,9 +189,27 @@ i_FigEvH0 = i_figure;
 i_figure = i_figure + 1;
 hold on
 title('E v H0')
-L3 = legend;
+L_EvH0 = legend;
 xlabel('Thickness before comp(nm)')
 ylabel('E chad (kPa)')
+
+figure(i_figure)
+i_FigEvHSUR = i_figure;
+i_figure = i_figure + 1;
+hold on
+title('E v HSUR')
+L_EvHSUR = legend;
+xlabel('Thickness between compression (nm)')
+ylabel('E chad (kPa)')
+
+figure(i_figure)
+i_FigHFITvHSUR = i_figure;
+i_figure = i_figure + 1;
+hold on
+title('H0FIT v H0SUR')
+L_HFITvHSUR = legend;
+xlabel('Thickness fitted by Chadwick (nm)')
+ylabel('Thickness between compression (nm)')
 
 figure(i_figure)
 i_FigEchadDistrib = i_figure;
@@ -357,7 +375,39 @@ for kcond = 1:ncond
     ax.YScale = 'log';
     ax.XTickLabelRotation = 45;
     
-    L3.String{end} = Lab{kcond};
+    L_EvH0.String{end} = Lab{kcond};
+    
+    %% Module vs Epaisseur surrounding
+    
+    figure(i_FigEvHSUR)
+    hold on
+    plot(H0SUR{kcond},E0chad{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
+    
+    if ncond == 2
+        ratioEH{kcond} = (E0chad{kcond}./H0SUR{kcond})/median(E0chad{kcond});
+    end
+    
+    ax = gca;
+    ax.YScale = 'log';
+    ax.XTickLabelRotation = 45;
+    
+    L_EvHSUR.String{end} = Lab{kcond};
+    
+    %% Epaisseur fit vs Epaisseur surrounding
+    
+    figure(i_FigHFITvHSUR)
+    hold on
+    plot(H0FIT{kcond},H0SUR{kcond},['k' Sym{kcond}],'markerfacecolor',Col{kcond})
+    
+    if ncond == 2
+        ratioEH{kcond} = (H0SUR{kcond}./H0FIT{kcond})/median(H0SUR{kcond});
+    end
+    
+    ax = gca;
+    %ax.YScale = 'log';
+    ax.XTickLabelRotation = 45;
+    
+    L_HFITvHSUR.String{end} = Lab{kcond};
     
     
 end
@@ -981,6 +1031,16 @@ if ncond >=2
     saveas(fig,[sff filesep 'EchadVh0.png'],'png')
     saveas(fig,[sff filesep 'EchadVh0.fig'],'fig')
     
+    figure(i_FigEvHSUR)
+    fig = gca;
+    saveas(fig,[sff filesep 'EchadVhSur.png'],'png')
+    saveas(fig,[sff filesep 'EchadVhSur.fig'],'fig')
+    
+    figure(i_FigHFITvHSUR)
+    fig = gca;
+    saveas(fig,[sff filesep 'hFitVhSur.png'],'png')
+    saveas(fig,[sff filesep 'hFitVhSur.fig'],'fig')
+    
     figure(i_FigEchadDistrib)
     fig = gca;
     saveas(fig,[sff filesep 'E0chad.png'],'png')
@@ -1025,6 +1085,11 @@ if ncond >=2
     fig = gca;
     saveas(fig,[sff filesep 'Hysteresis.png'],'png')
     saveas(fig,[sff filesep 'Hysteresis.fig'],'fig')
+    
+    figure(i_FigFluo)
+    fig = gca;
+    saveas(fig,[sff filesep 'FluoIntVsEandH.png'],'png')
+    saveas(fig,[sff filesep 'FluoIntVsEandH.fig'],'fig')
     
 
     

@@ -1,4 +1,4 @@
-function Data2MecaLoop_BigTable(date,manip,specif,tag,DIAMETER,resfolder,figurefolder,PLOT,VERBOSE)
+function Data2MecaLoop_BigTable(date,manip,tableExperimentalConditions,specif,tag,resfolder,figurefolder,PLOT,VERBOSE)
 
 % This version computes h0 first based on the first 15 points, then computes E for
 % each data point in the compression using this h0. Then, on the longest
@@ -17,8 +17,14 @@ R2CRITERION = 0.9;
 
 SAVING_CRITERIONs = [];
 
-% constante
-RADIUS = DIAMETER/2000; % Rayon de la bille en µm
+%% Extracting parameters from tableExperimentalConditions
+ExperimentalConditions = getExperimentalConditions(tableExperimentalConditions, date, manip);
+if strcmp(ExperimentalConditions.experimentType, "DEFAULT")
+    cprintf('red',['\nWARNING : Experimental conditions not found in ' 'D:\Matlab Analysis\ActinCortexAnalysis\ExperimentalData' filesep 'ExperimentalConditions.csv' ' \n' 'Working now with default parameters, which are probably not accurate ! \n'])
+end
+% constantes
+DIAMETER = tableExperimentalConditions.beadDiameter;
+RADIUSum = DIAMETER/2000; % Rayon de la bille en µm
 
 %% params and settings
 
@@ -342,7 +348,7 @@ if exist([path filesep loadname],'file')
                         
                         if LoopCont
                             %% utilisation du h0 pour calculer contrainte
-                            Contrainte = Fcomp ./ (2*pi*RADIUS*(H0tmp - Hcomp));
+                            Contrainte = Fcomp ./ (2*pi*RADIUSum*(H0tmp - Hcomp));
                             
                             MaxCont = max(Contrainte);
                             
@@ -382,7 +388,7 @@ if exist([path filesep loadname],'file')
                         
                         try
                             
-                            FFF = fit(HcompFit,FcompFit,fitchad,'problem',{RADIUS},'Start',[1000 H0tmp],... % [1000 H0el] [H0el 1000]
+                            FFF = fit(HcompFit,FcompFit,fitchad,'problem',{RADIUSum},'Start',[1000 H0tmp],... % [1000 H0el] [H0el 1000]
                                 'Lower',[-Inf -Inf],'Upper',[Inf Inf]);
                             % Starting values : 1000 for FcompFit, H0tmpfor H0.
                             
@@ -470,7 +476,7 @@ if exist([path filesep loadname],'file')
                     
                     Fcompfromfitchad = FFF(HcompFit);
                     
-                    StressChad = Fcomp(Hcomp<H0chadFit) ./ (pi*RADIUS*(H0chadFit - Hcomp(Hcomp<H0chadFit)));
+                    StressChad = Fcomp(Hcomp<H0chadFit) ./ (pi*RADIUSum*(H0chadFit - Hcomp(Hcomp<H0chadFit)));
                     
                     StrainChad = (H0chadFit - Hcomp(Hcomp<H0chadFit)) / (3*H0chadFit);
                     
@@ -488,7 +494,7 @@ if exist([path filesep loadname],'file')
                     Fdot = diff(Fup)./diff(Tup);
                     Fdotinterp = interp1(Tmid,Fdot,Tinterp,'spline');
                     
-                    StrainRate = 0.5.*sqrt(1./(6.*pi.*RADIUS.*Finterp.*H0chadFit.*EchadFit)).*Fdotinterp; %
+                    StrainRate = 0.5.*sqrt(1./(6.*pi.*RADIUSum.*Finterp.*H0chadFit.*EchadFit)).*Fdotinterp; %
                     
                     
                     Deltadot  = diff(-smooth(Dup,8))./diff(Tup); % pas besoin de H0 pour la dérivée
@@ -790,6 +796,7 @@ if exist([path filesep loadname],'file')
     end   
 end
 
+save([resfolder filesep 'MecaDataTable'],'BigTable');
 save([resfolder filesep 'MecaDataTable'],'BigTable');
 
 pctgsaved = nCompOk/nCompTot*100;

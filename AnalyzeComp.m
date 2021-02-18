@@ -8,8 +8,10 @@ warning('off')
 %% Paths
 RawdataFolder = 'D:\Matlab Analysis\Data_Joseph\Raw';
 MatfileFolder = 'D:\Matlab Analysis\Data_Joseph\MatFiles';
-DropboxDataFolder = '';
 FigureFolder = 'D:\Matlab Analysis\Data_Joseph\Figures';
+ExperimentalDataFolder = 'D:\Matlab Analysis\ActinCortexAnalysis\ExperimentalData';
+ExportDataFolder = 'D:\Matlab Analysis\ActinCortexAnalysis\DataAnalysis';
+DropboxDataFolder = '';
 
 %% Options
 set(0, 'defaultfigureposition', get(0, 'Screensize'));
@@ -98,22 +100,8 @@ VERBOSED2M = 0; % text display choice
 fitparams = 'Strain100-R20.9';
 
 % Load experimental conditions file
-pathExperimentalConditions = [MatfileFolder filesep 'ExperimentalConditions.csv'];
-tableExperimentalConditions = readtable(pathExperimentalConditions,'DatetimeType','text','TextType','string','Delimiter',',','HeaderLines',1);
-if isa(tableExperimentalConditions.magneticFieldCorrection,'string')
-    tableExperimentalConditions.magneticFieldCorrection = str2double(replace(tableExperimentalConditions.magneticFieldCorrection,',','.'));
-end
-if isa(tableExperimentalConditions.scalePixelPerUm,'string')
-    tableExperimentalConditions.scalePixelPerUm = str2double(replace(tableExperimentalConditions.scalePixelPerUm,',','.'));
-end
-if isa(tableExperimentalConditions.opticalIndexCorrection,'string')
-    numbers = split(tableExperimentalConditions.opticalIndexCorrection, '/');
-    if isa(numbers,'string')
-        numbers = replace(numbers,',','.');
-        numbers = str2double(numbers);
-    end
-    tableExperimentalConditions.opticalIndexCorrection = numbers(:,1) ./ numbers(:,2);
-end
+pathExperimentalConditions = [ExperimentalDataFolder filesep 'ExperimentalConditions.csv'];
+tableExperimentalConditions = loadTableExperimentalConditions(pathExperimentalConditions);
 
 
 return % stop execution here
@@ -369,40 +357,40 @@ Res2Var_wFluo_multiZ_Comp('Results','04-11-20','R90_2s','M2','DictyDB_M270',1,..
 
 %% 3T3 Joseph - Internship aSFL nodrug vs. aSFL doxy
 
-Res2Var_wFluo_multiZ_Comp('Results','04-08-20','R40','M1','3T3aSFL_BSA_nodrugs',1,...
-    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
-Res2Var_wFluo_multiZ_Comp('Results','05-08-20','R40','M2','3T3aSFL_BSA_nodrugs',1,...
-    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
-Res2Var_wFluo_multiZ_Comp('Results','07-08-20','R40','M2','3T3aSFL_BSA_nodrugs',1,...
-    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
-Res2Var_wFluo_multiZ_Comp('Results','04-08-20','R40','M2','3T3aSFL_BSA_doxy',1,...
-    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
-Res2Var_wFluo_multiZ_Comp('Results','05-08-20','R40','M1','3T3aSFL_BSA_doxy',1,...
-    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
-Res2Var_wFluo_multiZ_Comp('Results','07-08-20','R40','M1','3T3aSFL_BSA_doxy',1,...
-    '20-02-20_Depthograph100x',24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','20-08-04','R40','M1','3T3aSFL_BSA_nodrugs',1,...
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','20-08-05','R40','M2','3T3aSFL_BSA_nodrugs',1,...
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','20-08-07','R40','M2','3T3aSFL_BSA_nodrugs',1,...
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','20-08-04','R40','M2','3T3aSFL_BSA_doxy',1,...
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','20-08-05','R40','M1','3T3aSFL_BSA_doxy',1,...
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','20-08-07','R40','M1','3T3aSFL_BSA_doxy',1,...
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
 
 %% 3T3 Joseph - aSFL 3T3 on 20µm disc patterns of fibronectin 
 % nodrug refers to the control, doxy to the activated cells expressing a membrane - cortex linker.
 
 FLUO = false;
-Res2Var_wFluo_multiZ_Comp('Results','18-01-21','R40_disc20um','M1','3T3aSFL_doxy',1,...
-    '21-01-18_Deptho_M1',18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','21-01-18','R40_disc20um','M1','3T3aSFL_doxy',1,...
+    '21-01-18_Deptho_M1',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
 FLUO = true;
-Res2Var_wFluo_multiZ_Comp('Results','18-01-21','R40_disc20um_wFluo','M1','3T3aSFL_doxy',1,...
-    '21-01-18_Deptho_M1',18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
-Res2Var_wFluo_multiZ_Comp('Results','18-01-21','R40_disc20um_wFluo','M2','3T3aSFL_nodrug',1,...
-    '21-01-18_Deptho_M2',18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
-Res2Var_wFluo_multiZ_Comp('Results','18-01-21','R40_disc20um_wFluo','M3','3T3aSFL_doxy',1,...
-    '21-01-18_Deptho_M3',18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','21-01-18','R40_disc20um_wFluo','M1','3T3aSFL_doxy',1,...
+    '21-01-18_Deptho_M1',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','21-01-18','R40_disc20um_wFluo','M2','3T3aSFL_nodrug',1,...
+    '21-01-18_Deptho_M2',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','21-01-18','R40_disc20um_wFluo','M3','3T3aSFL_doxy',1,...
+    '21-01-18_Deptho_M3',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
 FLUO = true;
 Res2Var_wFluo_multiZ_Comp('Results','21-01-21','R40_disc20um_wFluo','M1','3T3aSFL_nodrug',1,...
-    '21-01-21_Deptho_M1',18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+    '21-01-21_Deptho_M1',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','21-01-21','R40_disc20um_wFluo','M2','3T3aSFL_doxy',1,...
-    '21-01-21_Deptho_M2',18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+    '21-01-21_Deptho_M2',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','21-01-21','R40_disc20um_wFluo','M3','3T3aSFL_nodrug',1,...
-    '21-01-21_Deptho_M1',18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+    '21-01-21_Deptho_M1',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -655,28 +643,28 @@ Var2Data_Comp('04-11-20','R90_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,Mat
 
 %% 3T3 Joseph (Internship aSFL nodrug vs. aSFL doxy)
 PLOTV2D = 0;
-Var2Data_Comp('04-08-20','R40',1.15,'M1','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
-Var2Data_Comp('05-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
-Var2Data_Comp('07-08-20','R40',1.15,'M2','3T3aSFL_BSA_nodrugs',95,143,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-08-04','R40','M1',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('20-08-05','R40','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('20-08-07','R40','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
-Var2Data_Comp('04-08-20','R40',1.15,'M2','3T3aSFL_BSA_doxy',95,143,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
-Var2Data_Comp('05-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
-Var2Data_Comp('07-08-20','R40',1.15,'M1','3T3aSFL_BSA_doxy',95,143,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
+Var2Data_Comp('20-08-04','R40','M2',tableExperimentalConditions,'3T3aSFL_BSA_doxy',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('20-08-05','R40','M1',tableExperimentalConditions,'3T3aSFL_BSA_doxy',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('20-08-07','R40','M1',tableExperimentalConditions,'3T3aSFL_BSA_doxy',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
 %% 3T3 Joseph - aSFL 3T3 on 20µm disc patterns of fibronectin
 
 PLOTV2D = 1;
 
-Var2Data_Comp('18-01-21','R40_disc20um',1.23,'M1','3T3aSFL_doxy',133,169,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-01-18','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL_doxy',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder, ExportDataFolder); %,ExportDataFolder);
 
-Var2Data_Comp('18-01-21','R40_disc20um_wFluo',1.23,'M1','3T3aSFL_doxy',133,170,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
-Var2Data_Comp('18-01-21','R40_disc20um_wFluo',1.23,'M2','3T3aSFL_nodrug',133,170,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
-Var2Data_Comp('18-01-21','R40_disc20um_wFluo',1.23,'M3','3T3aSFL_doxy',133,170,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-01-18','R40_disc20um_wFluo','M1',tableExperimentalConditions,'3T3aSFL_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('21-01-18','R40_disc20um_wFluo','M2',tableExperimentalConditions,'3T3aSFL_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('21-01-18','R40_disc20um_wFluo','M3',tableExperimentalConditions,'3T3aSFL_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
 PLOTV2D = 1;
-Var2Data_Comp('21-01-21','R40_disc20um_wFluo',1.23,'M1','3T3aSFL_nodrug',133,170,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
-Var2Data_Comp('21-01-21','R40_disc20um_wFluo',1.23,'M2','3T3aSFL_doxy',133,170,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
-Var2Data_Comp('21-01-21','R40_disc20um_wFluo',1.23,'M3','3T3aSFL_nodrug',133,170,'1s',4504,PLOTV2D,MatfileFolder,FigureFolder);
+Var2Data_Comp('21-01-21','R40_disc20um_wFluo','M1',tableExperimentalConditions,'3T3aSFL_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('21-01-21','R40_disc20um_wFluo','M2',tableExperimentalConditions,'3T3aSFL_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('21-01-21','R40_disc20um_wFluo','M3',tableExperimentalConditions,'3T3aSFL_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Data2Meca w/ Loop %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -827,23 +815,23 @@ Data2MecaLoop_BigTable('04-11-20','M2','DictyDB_M270','R90_2s',2691,MatfileFolde
 
 % (Internship aSFL nodrug vs. aSFL doxy)
 
-Data2MecaLoop_BigTable('04-08-20','M1','3T3aSFL_BSA_nodrugs','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('05-08-20','M2','3T3aSFL_BSA_nodrugs','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('07-08-20','M2','3T3aSFL_BSA_nodrugs','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('20-08-04','M1',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('20-08-05','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('20-08-07','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 
-Data2MecaLoop_BigTable('04-08-20','M2','3T3aSFL_BSA_doxy','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('05-08-20','M1','3T3aSFL_BSA_doxy','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('07-08-20','M1','3T3aSFL_BSA_doxy','R40',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('20-08-04','M2',tableExperimentalConditions,'3T3aSFL_BSA_doxy','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('20-08-05','M1',tableExperimentalConditions,'3T3aSFL_BSA_doxy','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('20-08-07','M1',tableExperimentalConditions,'3T3aSFL_BSA_doxy','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 
 %% 3T3 Joseph - aSFL 3T3 on 20µm disc patterns of fibronectin
-Data2MecaLoop_BigTable('18-01-21','M1','3T3aSFL_doxy','R40_disc20um',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('18-01-21','M1','3T3aSFL_doxy','R40_disc20um_wFluo',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('18-01-21','M2','3T3aSFL_nodrug','R40_disc20um_wFluo',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('18-01-21','M3','3T3aSFL_doxy','R40_disc20um_wFluo',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-01-18','M1',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-01-18','M1',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-01-18','M2',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-01-18','M3',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 
-Data2MecaLoop_BigTable('21-01-21','M1','3T3aSFL_nodrug','R40_disc20um_wFluo',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('21-01-21','M2','3T3aSFL_doxy','R40_disc20um_wFluo',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('21-01-21','M3','3T3aSFL_nodrug','R40_disc20um_wFluo',4504,MatfileFolder,FigureFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-01-21','M1',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-01-21','M2',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-01-21','M3',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -901,6 +889,18 @@ Conditions3T3aSFL = {'ExpType','3T3aSFL_nodrug','TpsComp','1s','FitParams',fitpa
 Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3aSFL, ...
     {CaSFLnodrug,CaSFLdoxy},{'o','o'},...
     {'aSFL nodrug','aSFL doxy'},'3T3patterns_noDrugVsDoxy',1)
+
+%% 3T3 patterns vs supsension Joseph
+
+Conditions3T3aSFLsupsVsAdh = {'ExpType','3T3aSFL_BSA_nodrugs','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','3T3aSFL_BSA_doxy','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','3T3aSFL_nodrug','TpsComp','1s','FitParams',fitparams;...
+    'ExpType','3T3aSFL_doxy','TpsComp','1s','FitParams',fitparams;...
+    };
+
+Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3aSFLsupsVsAdh, ...
+    {CaSFLnodrug,CaSFLdoxy,CaSFLnodrug,CaSFLdoxy},{'o','o','^','^'},...
+    {'aSFL nodrug BSA','aSFL doxy BSA', 'aSFL nodrug fibro','aSFL doxy fibro'},'3T3patterns_supsVsAdh_noDrugVsDoxy',1)
 
 %% Dicty NS Multitime
 ConditionsM450NSMulti = {'ExpType','DictyAx2-Comp','TpsComp','1s','FitParams',fitparams;...
