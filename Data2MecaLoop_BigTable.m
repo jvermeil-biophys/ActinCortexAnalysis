@@ -1,4 +1,4 @@
-function Data2MecaLoop_BigTable(date,manip,tableExperimentalConditions,specif,tag,resfolder,figurefolder,PLOT,VERBOSE)
+function Data2MecaLoop_BigTable(date,manip,tableExperimentalConditions,specif,tag,resfolder,figurefolder,ExportDataFolder,PLOT,VERBOSE)
 
 % This version computes h0 first based on the first 15 points, then computes E for
 % each data point in the compression using this h0. Then, on the longest
@@ -23,7 +23,7 @@ if strcmp(ExperimentalConditions.experimentType, "DEFAULT")
     cprintf('red',['\nWARNING : Experimental conditions not found in ' 'D:\Matlab Analysis\ActinCortexAnalysis\ExperimentalData' filesep 'ExperimentalConditions.csv' ' \n' 'Working now with default parameters, which are probably not accurate ! \n'])
 end
 % constantes
-DIAMETER = tableExperimentalConditions.beadDiameter;
+DIAMETER = ExperimentalConditions.beadDiameter;
 RADIUSum = DIAMETER/2000; % Rayon de la bille en µm
 
 %% params and settings
@@ -796,8 +796,16 @@ if exist([path filesep loadname],'file')
     end   
 end
 
+%% Save and export the table
+
 save([resfolder filesep 'MecaDataTable'],'BigTable');
-save([resfolder filesep 'MecaDataTable'],'BigTable');
+
+excludeCols = {'RawDataTDFB'};
+
+writetable(removevars(BigTable,excludeCols),[ExportDataFolder filesep 'Global_MecaData']);
+
+aSFL_Table = BigTable(contains(BigTable.ExpType, '3T3aSFL'),:);
+writetable(removevars(aSFL_Table,excludeCols),[ExportDataFolder filesep '3T3aSFL_MecaData']);
 
 pctgsaved = nCompOk/nCompTot*100;
 

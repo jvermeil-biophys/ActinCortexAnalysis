@@ -105,8 +105,8 @@ if exist([path filesep loadname],'file')
             % conversion in nm
             xpcst = [X1cst,X2cst];
             ypcst = [Y1cst,Y2cst];
-            xcst=xpcst*SCALEPixelPerUm;
-            ycst=ypcst*SCALEPixelPerUm;
+            xcst=xpcst/SCALEPixelPerUm;
+            ycst=ypcst/SCALEPixelPerUm;
             
             % Computation of distance between beads
             dxcst = abs(xcst(:,2)-xcst(:,1));
@@ -139,8 +139,8 @@ if exist([path filesep loadname],'file')
             % conversion in nm
             xprmp = [X1rmp,X2rmp];
             yprmp = [Y1rmp,Y2rmp];
-            xrmp=xprmp*SCALEPixelPerUm;
-            yrmp=yprmp*SCALEPixelPerUm;
+            xrmp=xprmp/SCALEPixelPerUm;
+            yrmp=yprmp/SCALEPixelPerUm;
             
             % Computation of distance between beads
             dxrmp = abs(xrmp(:,2)-xrmp(:,1));
@@ -491,7 +491,7 @@ EE = exist('MR','var');
 if EE == 1
     cprintf('Saving data...');
     save([resfolder filesep 'V2D' filesep savename],'MR');
-    ExportTimeSeries(MR, ExportDataFolder);
+    ExportTimeSeries(MR, [ExportDataFolder filesep TimeSeriesData]);
     cprintf('Com', [' OK.\n\n']);
     cprintf([num2str(kc) ' datasets analyzed\n\n\n\n']);
 else

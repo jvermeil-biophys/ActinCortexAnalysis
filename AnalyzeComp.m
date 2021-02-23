@@ -357,18 +357,19 @@ Res2Var_wFluo_multiZ_Comp('Results','04-11-20','R90_2s','M2','DictyDB_M270',1,..
 
 %% 3T3 Joseph - Internship aSFL nodrug vs. aSFL doxy
 
+FLUO = false;
 Res2Var_wFluo_multiZ_Comp('Results','20-08-04','R40','M1','3T3aSFL_BSA_nodrugs',1,...
-    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,FLUO,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','20-08-05','R40','M2','3T3aSFL_BSA_nodrugs',1,...
-    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,FLUO,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','20-08-07','R40','M2','3T3aSFL_BSA_nodrugs',1,...
-    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,FLUO,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','20-08-04','R40','M2','3T3aSFL_BSA_doxy',1,...
-    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,FLUO,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','20-08-05','R40','M1','3T3aSFL_BSA_doxy',1,...
-    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,FLUO,AUTO,RawdataFolder,MatfileFolder)
 Res2Var_wFluo_multiZ_Comp('Results','20-08-07','R40','M1','3T3aSFL_BSA_doxy',1,...
-    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,AUTO,RawdataFolder,MatfileFolder)
+    '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
 %% 3T3 Joseph - aSFL 3T3 on 20µm disc patterns of fibronectin 
 % nodrug refers to the control, doxy to the activated cells expressing a membrane - cortex linker.
@@ -642,7 +643,7 @@ Var2Data_Comp('04-11-20','R50_2s',0.85,'M1','DictyDB_M450',133,169,'1s',4504,Mat
 Var2Data_Comp('04-11-20','R90_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,MatfileFolder,FigureFolder);
 
 %% 3T3 Joseph (Internship aSFL nodrug vs. aSFL doxy)
-PLOTV2D = 0;
+PLOTV2D = 1;
 Var2Data_Comp('20-08-04','R40','M1',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('20-08-05','R40','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('20-08-07','R40','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
