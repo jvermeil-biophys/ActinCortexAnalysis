@@ -3,9 +3,9 @@ clear all;
 clc;
 
 %% Paths
-RawdataFolder = 'D:\Matlab Analysis\Data_Joseph\Raw';
-MatfileFolder = 'D:\Matlab Analysis\Data_Joseph\MatFiles';
-FigureFolder = 'D:\Matlab Analysis\Data_Joseph\Figures';
+RawdataFolder = 'C:\Users\Anumita\Desktop\Data\Raw';
+MatfileFolder = 'C:\Users\Anumita\Desktop\Data\Matfile';
+FigureFolder = 'C:\Users\Anumita\Desktop\Data\Figures';
 
 set(0, 'defaultfigureposition', get(0, 'Screensize'));
 
