@@ -1,5 +1,5 @@
 Experimental Conditions,,,,,,,,,,,,,,,,,,
-date,manip,experimentType,drug,substrate,objective magnification,scale pixel per um ,objective immersion,optical index correction,magnetic field correction,cell type,cell subtype,bead type,bead diameter,normal field,ramp field,compression duration,with fluo images,comments
+date,manip,experimentType,drug,substrate,objective magnification,scale pixel per um,objective immersion,optical index correction,magnetic field correction,cell type,cell subtype,bead type,bead diameter,normal field,ramp field,compression duration,with fluo images,comments
 DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,100X,"15,8",oil,1.33/1.52,"1,15",DEFAULT,DEFAULT,M450,4503,5,3;40,1s,0,
 20-08-04,M1,compressions and constant field,none,BSA coated glass,100X,"15,8",oil,1.33/1.52,"1,15",3T3,aSFL,M450,4503,10,3;40,1s,0,
 20-08-04,M2,compressions and constant field,doxycyclin,BSA coated glass,100X,"15,8",oil,1.33/1.52,"1,15",3T3,aSFL,M450,4503,10,3;40,1s,0,
