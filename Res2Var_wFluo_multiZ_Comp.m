@@ -62,7 +62,7 @@ sf   = resfolder; % save folder
 mkdir([sf filesep 'R2V']) % create saving folder
 
 if wFluo
-    saveFluoFolder = [datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2) '_Fluo'];
+    saveFluoFolder = [datafolder filesep date(1:2) '.' date(4:5) '.' date(7:8) '_Fluo'];
     if ~exist(saveFluoFolder, 'dir')
         mkdir(saveFluoFolder)
     end
@@ -97,11 +97,11 @@ if E1 == 2 || E2 == 2
     end
     
     %%% identifying already analyzed data and making a list
-    c = 1; % counter
+    count = 1; % counter
     for i = 1:length(ListD)
         if not(isempty(ListD{i}))
-            newlistD{c} =  ListD{i};
-            c = c +1;
+            newlistD{count} =  ListD{i};
+            count = count +1;
         end
     end
     ListD = newlistD;

@@ -9,8 +9,8 @@ function [ListDep, ListFor] = get_fich_name(listP)
 % ListP = list of chambers (ex : 1, 1:3, [1 3])
 %
 
-nc = 30; % max number of vidéos 
-ni = 15; % max number of interface
+nc = 100; % max number of vidéos 
+ni = 5; % max number of interface
 
 
 listC = 1:nc; 

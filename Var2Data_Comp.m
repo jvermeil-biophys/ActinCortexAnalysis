@@ -491,7 +491,7 @@ EE = exist('MR','var');
 if EE == 1
     cprintf('Saving data...');
     save([resfolder filesep 'V2D' filesep savename],'MR');
-    ExportTimeSeries(MR, [ExportDataFolder filesep TimeSeriesData]);
+    ExportTimeSeries(MR, [ExportDataFolder filesep 'TimeSeriesData']);
     cprintf('Com', [' OK.\n\n']);
     cprintf([num2str(kc) ' datasets analyzed\n\n\n\n']);
 else

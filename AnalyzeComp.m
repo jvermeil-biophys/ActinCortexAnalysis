@@ -6,11 +6,11 @@ warning('off')
 
 %% Paths & options
 %% Paths
-RawdataFolder = 'D:\Matlab Analysis\Data_Joseph\Raw';
-MatfileFolder = 'D:\Matlab Analysis\Data_Joseph\MatFiles';
-FigureFolder = 'D:\Matlab Analysis\Data_Joseph\Figures';
-ExperimentalDataFolder = 'D:\Matlab Analysis\ActinCortexAnalysis\ExperimentalData';
-ExportDataFolder = 'D:\Matlab Analysis\ActinCortexAnalysis\DataAnalysis';
+RawdataFolder = 'D:\MagneticPincherData\Raw';
+MatfileFolder = 'D:\MagneticPincherData\MatFiles';
+FigureFolder = 'D:\MagneticPincherData\Figures';
+ExperimentalDataFolder = 'C:\Users\JosephVermeil\Desktop\ActinCortexAnalysis\ExperimentalData';
+ExportDataFolder = 'C:\Users\JosephVermeil\Desktop\ActinCortexAnalysis\DataAnalysis';
 DropboxDataFolder = '';
 
 %% Options
@@ -32,7 +32,7 @@ Cl  = [150 0 255]./255; % Latranculin
 Cwt = [20 109 159]./255; % WT
 CaSFLnodrug = [182 109 106]./255; % aSFLnodrug
 CaSFLdoxy = [255 255 109]./255; % aSFLdoxy
-CaSFLnodrug = [255 255 109]./255;; % aSFLnodrug
+CaSFLnodrug = [255 255 109]./255; % aSFLnodrug
 CaSFLdoxy = 'c'; % aSFLdoxy
 
 % diff rates
@@ -815,7 +815,7 @@ Data2MecaLoop_BigTable('04-11-20','M2','DictyDB_M270','R90_2s',2691,MatfileFolde
 %% 3T3 Joseph 
 
 % (Internship aSFL nodrug vs. aSFL doxy)
-
+PLOTD2M = 0;
 Data2MecaLoop_BigTable('20-08-04','M1',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 Data2MecaLoop_BigTable('20-08-05','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 Data2MecaLoop_BigTable('20-08-07','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
@@ -839,10 +839,9 @@ Data2MecaLoop_BigTable('21-01-21','M3',tableExperimentalConditions,'3T3aSFL_nodr
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Meca2Plot %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 
-%%%%%%%%%%%% Several R2 available : 0.7, 0.9 & 0.95
+%% %%%%%%%%% Several R2 available : 0.7, 0.9 & 0.95
 
 fitparams = 'Strain100-R20.9';
-
 
 
 %% 3T3 Joseph 
