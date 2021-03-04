@@ -1,6 +1,6 @@
-function DoSuccessStats(ExpTypes,FitParams,exclusionvect)
+function DoSuccessStats(Folder,ExpTypes,FitParams,exclusionvect)
 
-load('D:\Matlab Analysis\Data_Joseph\MatFiles\MecaDataTable.mat')
+load([Folder filesep 'MecaDataTable.mat'])
 
 if ~exist('exclusionvect','var')
     

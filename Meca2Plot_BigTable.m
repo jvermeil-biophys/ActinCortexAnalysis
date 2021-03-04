@@ -33,7 +33,9 @@ mkdir(sff)
 
 load([resfolder filesep 'MecaDataTable'])
 
-pathTableFluo = "D:\Matlab Analysis\Data_Joseph\MatFiles\FluorescenceAnalysisV2.txt";
+
+%% Get fluo data
+pathTableFluo = "C:\Users\JosephVermeil\Desktop\ActinCortexAnalysis\DataAnalysis\FluoQuantification.txt";
 % tableFluo = readtable(pathTableFluo, 'HeaderLines',1,'Format','%s%s%u'); 'DatetimeType'
 tableFluo = readtable(pathTableFluo,'DatetimeType','text','TextType','string','Delimiter',','); % , 'HeaderLines',1
 %tableFluo.uniqueID = strcat(tableFluo.('date'), '_', tableFluo.('id'));
@@ -49,6 +51,17 @@ FluoResults.meanH0Chadwick = splitapply(@nanmean,tableFluoMeca.('H0Chadwick'),G)
 FluoResults.meanSurroundingThickness = splitapply(@nanmean,tableFluoMeca.('SurroundingThickness'),G);
 FluoResults.meanFluoLevel = splitapply(@nanmean,tableFluoMeca.('meanFluoPeakAmplitude'),G);
 
+%% filter excluded cells
+pathTableExcluded = "C:\Users\JosephVermeil\Desktop\ActinCortexAnalysis\ExperimentalData\ExcludedCells.txt";
+tableExcluded = readtable(pathTableExcluded,'TextType','string','Delimiter',',','ReadVariableNames',0); % , 'HeaderLines',1
+tableExcluded.Properties.VariableNames{1}='cellID';
+listExcluded = tableExcluded.cellID;
+BigTable.manuallyExcluded = false(height(BigTable),1);
+for i=1:length(listExcluded)
+    BigTable.manuallyExcluded = BigTable.manuallyExcluded | strcmp(BigTable.CellName,listExcluded(i));
+end
+
+%%
 if ~(size(Cond,1) == length(Col) && size(Cond,1) == length(Lab) && length(Lab) == length(Col))
     error('Numbers of conditions, colors, and lables don''t match !')
 end
@@ -71,14 +84,13 @@ if ~isempty(varargin)
             
             excludevecttmp = strcmp(BigTable(:,condex{1}).Variables,condex{2});
             excludevect = excludevect | excludevecttmp;
-            
         end
     end
 end
 
 
 %list of valid datas and info on non valid
-VALIDptr = BigTable.Validated & ~excludevect;
+VALIDptr = BigTable.Validated & ~BigTable.manuallyExcluded & ~excludevect;
 
 ptrexptypes = find(ismember(Cond(1,:),'ExpType'))+1;
 
@@ -88,7 +100,7 @@ ptrfitP= find(ismember(Cond(1,:),'FitParams'))+1;
 
 fitPList = Cond(:,ptrfitP);
 
-DoSuccessStats(unique(exptypesList),unique(fitPList),excludevect)
+DoSuccessStats(resfolder,unique(exptypesList),unique(fitPList),excludevect)
 
 % identifying changes between conditions
 
@@ -142,6 +154,9 @@ for kcond = 1:ncond
     H0BEF{kcond} = BigTable(ptrcond,'PreviousThickness').Variables;
     H0FIT{kcond} = BigTable(ptrcond,'H0Chadwick').Variables;
     H0FITFirst{kcond} = BigTable(ptrcond&ptrfirst,'H0Chadwick').Variables;
+    
+    PatternRadius = 20e-6;
+    Eeffectif{kcond} = (E0chad{kcond}.*(H0FIT{kcond}*1e-9).^2)/PatternRadius;
     
     CellIdList{kcond} = BigTable(ptrcond,'CellName').Variables;
     UniqueCellList{kcond} = unique(CellIdList{kcond});
@@ -284,6 +299,19 @@ i_figure = i_figure + 1;
 hold on
 title('Fluo')
 
+figure(i_figure)
+i_FigEeff = i_figure;
+i_figure = i_figure + 1;
+hold on
+title('E effectif')
+
+figure(i_figure)
+i_FigEeffPerCell = i_figure;
+i_figure = i_figure + 1;
+hold on
+title('E effectif par cellule')
+
+
 
 ymax1 = 0;
 ymax2 = 0;
@@ -418,6 +446,7 @@ CellVsCond_Echad = cell(ncond,nCell);
 CellVsCond_H0EXP = cell(ncond,nCell);
 CellVsCond_H0SUR = cell(ncond,nCell);
 CellVsCond_H0FIT = cell(ncond,nCell);
+CellVsCond_Eeffectif = cell(ncond,nCell);
 CellVsCond_ID = cell(ncond,nCell);
 
 for kc = 1:nCell
@@ -429,6 +458,7 @@ for kc = 1:nCell
         CellVsCond_H0EXP{kcond,kc} = H0EXP{kcond}(ptrcell);
         CellVsCond_H0SUR{kcond,kc} = H0SUR{kcond}(ptrcell);
         CellVsCond_H0FIT{kcond,kc} = H0FIT{kcond}(ptrcell);
+        CellVsCond_Eeffectif{kcond,kc} = Eeffectif{kcond}(ptrcell);
         CellVsCond_ID{kcond,kc} = strcat(FullCellList(kc), CondID(kcond));
         
     end
@@ -455,7 +485,7 @@ end
 % set(0,'DefaultLineMarkerSize',10);
 % plotSpread_V(E0chadFirst,'distributionMarkers',Sym,'distributionColors','y','xNames',Lab,'spreadWidth',1)
 % set(0,'DefaultLineMarkerSize',8);
-% 
+
 ylabel('Echad (kPa)')
 
 if SigDisplay
@@ -823,7 +853,7 @@ plotSpread_V(H0FITCell,'distributionMarkers',Sym,'distributionColors',Col,'xName
 for ii = 1:length(H0FITCell)
     plot([ii-0.45 ii+0.45],[nanmedian(H0FITCell{ii})  nanmedian(H0FITCell{ii})],'k--','linewidth',1.3)
 end
-ylabel('H0 surrounding per cell (nm)')
+ylabel('H0 fitted per cell (nm)')
 
 if SigDisplay
     distsize = prctile(horzcat(H0FITCell{:}),98);
@@ -850,8 +880,88 @@ ax = gca;
 ax.XTickLabelRotation = 45;
 
 
+% Eeffectif
+
+figure(i_FigEeff)
+ax = gca;
+ax.YColor = [0 0 0];
+ax.LineWidth = 1.5;
+box on
+
+plotSpread_V(Eeffectif,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+for ii = 1:length(Eeffectif)
+    plot([ii-0.45 ii+0.45],[nanmedian(Eeffectif{ii}) nanmedian(Eeffectif{ii})],'k--','linewidth',1.3)
+end
+
+% % first comp of each cell in another color
+% set(0,'DefaultLineMarkerSize',10);
+% plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','r','xNames',Lab,'spreadWidth',1)
+% set(0,'DefaultLineMarkerSize',8);
+
+ylabel('K effectif = E * H0^2/R (N/m)')
+
+if SigDisplay
+    distsize = prctile(vertcat(Eeffectif{:}),95);
+    plotheight = distsize;
+    for ii = 1:length(E0chad)-1
+        for jj = ii+1:length(Eeffectif)
+            sigtxt = DoParamStats(Eeffectif{ii},Eeffectif{jj});
+            if ~strcmp(sigtxt,'NS')
+                plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
+                plotheight = plotheight+ 0.05*distsize;
+            end
+        end
+    end
+    ylim([0 plotheight])
+end
+ax = gca;
+ax.XTickLabelRotation = 45;
+
+% avg Eeffectif per cell
+
+figure(i_FigEeffPerCell)
+ax = gca;
+ax.YColor = [0 0 0];
+ax.LineWidth = 1.5;
+box on
+
+for kcond = 1:ncond
+    EeffectifCell{kcond} = [];
+    for kc = 1:nCell
+        EeffectifCell{kcond} = [EeffectifCell{kcond} nanmean(CellVsCond_Eeffectif{kcond,kc})];
+    end
+end
+
+plotSpread_V(EeffectifCell,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
+for ii = 1:length(EeffectifCell)
+    plot([ii-0.45 ii+0.45],[nanmedian(EeffectifCell{ii})  nanmedian(EeffectifCell{ii})],'k--','linewidth',1.3)
+end
+ylabel('K effectif par cellule (N/m)')
+
+if SigDisplay
+    distsize = prctile(horzcat(EeffectifCell{:}),98);
+    plotheight = distsize;
+    for ii = 1:length(EeffectifCell)-1
+        for jj = ii+1:length(EeffectifCell)
+            sigtxt = DoParamStats(EeffectifCell{ii},EeffectifCell{jj});
+            if ~strcmp(sigtxt,'NS')
+                plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
+                plotheight = plotheight + 0.05*distsize;
+            else
+                plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
+                plotheight = plotheight + 0.05*distsize;
+            end
+        end
+    end
+    ylim([0 plotheight])
+end
 
 
+ax = gca;
+ax.XTickLabelRotation = 45;
 
 
 
