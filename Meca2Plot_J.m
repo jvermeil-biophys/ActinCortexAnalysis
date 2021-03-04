@@ -260,26 +260,26 @@ saveas(fig,[sff filesep 'EchadDist2confInt.fig'],'fig')
 
 %% Test plot Joseph
 
-figure
-subplot(1,4,1);
-hold on
-boxplot(cell2mat(Echad_Median))
-plot(ones(length(cell2mat(Echad_Median)),1), cell2mat(Echad_Median), 'bo')
-
-subplot(1,4,2);
-hold on
-boxplot(cell2mat(Echad_Std))
-plot(ones(length(cell2mat(Echad_Std)),1), cell2mat(Echad_Std), 'bo')
-
-subplot(1,4,3);
-hold on
-boxplot(cell2mat(Echad_WeightedMean))
-plot(ones(length(cell2mat(Echad_WeightedMean)),1), cell2mat(Echad_WeightedMean), 'bo')
-
-subplot(1,4,4);
-hold on
-boxplot(cell2mat(Echad_WeightedStd))
-plot(ones(length(cell2mat(Echad_WeightedStd)),1), cell2mat(Echad_WeightedStd), 'bo')
+% figure
+% subplot(1,4,1);
+% hold on
+% boxplot(cell2mat(Echad_Median))
+% plot(ones(length(cell2mat(Echad_Median)),1), cell2mat(Echad_Median), 'bo')
+% 
+% subplot(1,4,2);
+% hold on
+% boxplot(cell2mat(Echad_Std))
+% plot(ones(length(cell2mat(Echad_Std)),1), cell2mat(Echad_Std), 'bo')
+% 
+% subplot(1,4,3);
+% hold on
+% boxplot(cell2mat(Echad_WeightedMean))
+% plot(ones(length(cell2mat(Echad_WeightedMean)),1), cell2mat(Echad_WeightedMean), 'bo')
+% 
+% subplot(1,4,4);
+% hold on
+% boxplot(cell2mat(Echad_WeightedStd))
+% plot(ones(length(cell2mat(Echad_WeightedStd)),1), cell2mat(Echad_WeightedStd), 'bo')
 
 % plotSpread(data,[],[],{'25 pts','100 pts','300 pts'})
 

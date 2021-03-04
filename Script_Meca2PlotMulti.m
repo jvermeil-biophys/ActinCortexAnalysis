@@ -30,7 +30,7 @@ Cflo63opti30 = [0 210 110]./255; % Flottante 63X 30% optiprep
 
 
 %% Get Data
-DataFolder = 'D:\Matlab Analysis\Data_Joseph\MatFiles\D2M';
+DataFolder = 'D:\MagneticPincherData\MatFiles\D2M';
 cd(DataFolder)
 SaveFolder = 'C:\Users\JosephVermeil\Desktop\Figures';
 
@@ -516,17 +516,19 @@ saveas(fig,[SaveFolder filesep '3T3aSFL_E_Chad_withPLL.fig'],'fig')
     
 % BSA 100X 7.5% optiprep
 Ebsa100opti7 =[];
+H0bsa100opti7 = [];
 ECIbsa100opti7 = [];
 
-DATESbsa100opti7 = {'27-05-20_M1','25-05-20_M1','22-05-20_M1','20-05-20_M1','20-05-20_M2'};
+DATESbsa100opti7 = {'20-05-27_M1','20-05-25_M1','20-05-22_M1','20-05-20_M1','20-05-20_M2'};
 
 bsaCellCount = 0;
 
 for k = 1:length(DATESbsa100opti7)
     
-    load(['./D2M_' DATESbsa100opti7{k} '_DictyAx2_DMSO.mat'])
+    load([DataFolder filesep 'D2M_' DATESbsa100opti7{k} '_DictyAx2_DMSO.mat'])
     
     Ebsa100opti7 =[Ebsa100opti7 cell2mat(cellfun(@transpose,Echad,'UniformOutput',false))];
+    H0bsa100opti7 =[H0bsa100opti7 cell2mat(cellfun(@transpose,ChadsH0,'UniformOutput',false))];
     ECIbsa100opti7 = [ECIbsa100opti7 cell2mat(cellfun(@transpose,EchadConf,'UniformOutput',false))];
     
     currentName = '';
@@ -546,19 +548,22 @@ EchadWeightbsa100opti7 = (Ebsa100opti7./ECIbsa100opti7).^2;
 EchadWeightedMeanbsa100opti7 = sum(Ebsa100opti7.*EchadWeightbsa100opti7)/sum(EchadWeightbsa100opti7);
 
 
+
 % PLL 100X 7.5% optiprep
 
 Epll100opti7J =[];
+H0pll100opti7J =[];
 ECIpll100opti7J = [];
 
-DATESpll100opti7J = {'24-07-20_M1'};
+DATESpll100opti7J = {'20-07-24_M1'};
 
 pllCellCount = 0;
 for k = 1:length(DATESpll100opti7J)
     
-    load(['./D2M_' DATESpll100opti7J{k} '_DictyAx2_PLLJ-7-5opti.mat'])
+    load([DataFolder filesep 'D2M_' DATESpll100opti7J{k} '_DictyAx2_PLLJ-7-5opti.mat'])
     
     Epll100opti7J =[Epll100opti7J cell2mat(cellfun(@transpose,Echad,'UniformOutput',false))];
+    H0pll100opti7J =[H0pll100opti7J cell2mat(cellfun(@transpose,ChadsH0,'UniformOutput',false))];
     ECIpll100opti7J = [ECIpll100opti7J cell2mat(cellfun(@transpose,EchadConf,'UniformOutput',false))];
     
     currentName = '';
@@ -583,16 +588,18 @@ EchadWeightedMeanpll100opti7J = sum(Epll100opti7J.*EchadWeightpll100opti7J)/sum(
 % Flottante 63X 7.5% optiprep
 
 Eflo63opti7 =[];
+H0flo63opti7 = [];
 ECIflo63opti7 = [];
 
-DATESflo63opti7 = {'06-08-20_M1'};
+DATESflo63opti7 = {'20-08-06_M1'};
 
 floatCellCount = 0;
 for k = 1:length(DATESflo63opti7)
     
-    load(['./D2M_' DATESflo63opti7{k} '_DictyComp_Float-7-80.mat'])
+    load([DataFolder filesep 'D2M_' DATESflo63opti7{k} '_DictyComp_Float-7-80.mat'])
     
     Eflo63opti7 =[Eflo63opti7 cell2mat(cellfun(@transpose,Echad,'UniformOutput',false))];
+    H0flo63opti7 =[H0flo63opti7 cell2mat(cellfun(@transpose,ChadsH0,'UniformOutput',false))];
     ECIflo63opti7 = [ECIflo63opti7 cell2mat(cellfun(@transpose,EchadConf,'UniformOutput',false))];
     
     currentName = '';
@@ -619,10 +626,10 @@ display(['Cells for Echad, pll - N = ' num2str(pllCellCount)])
 display(['Ramps for Echad, pll - N = ' num2str(length(Epll100opti7J))])
 display(['Cells for Echad, float - N = ' num2str(floatCellCount)])
 display(['Ramps for Echad, float - N = ' num2str(length(Eflo63opti7))])
-
+display('\n')
 % Plot
 
-figure 
+figure(1)
 ax = gca;
 ax.YColor = [0 0 0];
 ax.LineWidth = 1.5;
@@ -678,7 +685,70 @@ ylim(yl);
 fig = gcf;
 saveas(fig,[SaveFolder filesep 'DICTYS_E_Chad2.png'],'png')
 saveas(fig,[SaveFolder filesep 'DICTYS_E_Chad.fig'],'fig')
+hold off
 
+%
+
+
+figure(2)
+ax = gca;
+ax.YColor = [0 0 0];
+ax.LineWidth = 1.5;
+box on
+
+
+data = {H0flo63opti7,H0bsa100opti7,H0pll100opti7J};
+colorslist = {Cflo63opti30,Cbsa100opti7,Cpll100opti7};
+nameslist = {'Floating','BSA','PLL'};
+
+
+
+
+set(0,'DefaultLineMarkerSize',6);
+h = plotSpread_V(data,'distributionMarkers',{'o','o','o'},'distributionColors', ...
+    colorslist,'xNames',nameslist,'spreadWidth',0.8);
+
+h{3}.XTickLabelRotation = 0;
+
+% weighted average
+plot([0.55 1.45],[median(H0flo63opti7) median(H0flo63opti7)],'r--','linewidth',2)
+plot([1.55 2.45],[median(H0bsa100opti7) median(H0bsa100opti7)],'r--','linewidth',2)
+plot([2.55 3.45],[median(H0pll100opti7J) median(H0pll100opti7J)],'r--','linewidth',2)
+
+
+text(1.7, median(H0bsa100opti7) + 20, num2str(median(H0bsa100opti7),'%.1f'),'HorizontalAlignment','center','fontsize',22,'color','k','FontWeight','bold')
+text(2.7, median(H0pll100opti7J) + 20, num2str(median(H0pll100opti7J),'%.1f'),'HorizontalAlignment','center','fontsize',22,'color','k','FontWeight','bold')
+text(0.7, median(H0flo63opti7) + 20, num2str(median(H0flo63opti7),'%.1f'),'HorizontalAlignment','center','fontsize',22,'color','k','FontWeight','bold')
+
+%stats
+
+plotheight = 700;
+
+for ii = 1:length(data)-1
+    for jj = ii+1:length(data)
+        
+        sigtxt = DoParamStats(data{ii},data{jj});
+        
+        plot([ii jj],[plotheight plotheight],'k-','linewidth',1.5)
+        text((ii+jj)/2, plotheight+12, sigtxt,'HorizontalAlignment','center','fontsize',18)
+        
+        plotheight = plotheight+35;
+    end
+end
+
+
+ylabel({'Thickness (nm) - Chadwick'}, 'fontsize', 26)
+title('Cortical Thickness of Dictyostelium with different substrates conditions')
+hold on
+
+yl = [0 plotheight+5];
+ylim(yl);
+
+fig = gcf;
+saveas(fig,[SaveFolder filesep 'DICTYS_H0_Chad.png'],'png')
+saveas(fig,[SaveFolder filesep 'DICTYS_H0_Chad.fig'],'fig')
+
+hold off
 
 %% extra functions
 function [txt,p] = DoParamStats(A,B)

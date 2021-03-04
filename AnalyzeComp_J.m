@@ -3,13 +3,13 @@ clear all;
 clc;
 
 %% Paths & options
-GeneralFolder = 'D:\Matlab Analysis\';
-RawdataFolder = [GeneralFolder 'Data_Joseph\Raw']; % Raw data localisation
-MatfileFolder = [GeneralFolder 'Data_Joseph\Matfiles']; % for saving data in .mat
+GeneralFolder = 'D:\MagneticPincherData\';
+RawdataFolder = [GeneralFolder 'Raw']; % Raw data localisation
+MatfileFolder = [GeneralFolder 'Matfiles']; % for saving data in .mat
 % SecondarySaveFolder = ''; % secondary spot for backup saving
-FigureFolder = [GeneralFolder 'Data_Joseph\Figures']; % folder for saving figures
+FigureFolder = [GeneralFolder 'Figures']; % folder for saving figures
 
-PLOT = 1
+PLOT = 1;
 
 
 % Paramètres de couleurs par drogues
@@ -522,20 +522,20 @@ if 0
     
     % Dictys
     PLOT = 0;
-    Data2Meca_J('27-05-20','M1','R40','DictyAx2_DMSO',ExperimentalConditionsDictysBSA2,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
-    Data2Meca_J('25-05-20','M1','R40','DictyAx2_DMSO',ExperimentalConditionsDictysBSA,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
-    Data2Meca_J('22-05-20','M1','R40','DictyAx2_DMSO',ExperimentalConditionsDictysBSA,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+    Data2Meca_J('20-05-27','M1','R40','DictyAx2_DMSO',ExperimentalConditionsDictysBSA2,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+    Data2Meca_J('20-05-25','M1','R40','DictyAx2_DMSO',ExperimentalConditionsDictysBSA,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+    Data2Meca_J('20-05-22','M1','R40','DictyAx2_DMSO',ExperimentalConditionsDictysBSA,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
     Data2Meca_J('20-05-20','M2','R40','DictyAx2_DMSO',ExperimentalConditionsDictysBSA,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
     Data2Meca_J('20-05-20','M1','R40','DictyAx2_DMSO',ExperimentalConditionsDictysBSA,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
     
     
-    Data2Meca_J('06-08-20','M1','R40float','DictyComp_Float-7-80',ExperimentalConditionsFloat,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
-    Data2Meca_J('08-07-20','M1','R40float','DictyComp_Float-30-80',ExperimentalConditionsFloat,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
-    Data2Meca_J('23-06-20','M1','R40float','DictyComp_Float-30-80',ExperimentalConditionsFloat,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+    Data2Meca_J('20-08-06','M1','R40float','DictyComp_Float-7-80',ExperimentalConditionsFloat,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+    Data2Meca_J('20-07-08','M1','R40float','DictyComp_Float-30-80',ExperimentalConditionsFloat,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+    Data2Meca_J('20-06-23','M1','R40float','DictyComp_Float-30-80',ExperimentalConditionsFloat,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
     
-    Data2Meca_J('04-08-20','M2','R40PLL','DictyAx2_PLL-7-5opti',ExperimentalConditionsDictysPLL2,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
-    Data2Meca_J('24-07-20','M1','R40PLLJ','DictyAx2_PLLJ-7-5opti',ExperimentalConditionsDictysPLL,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
-    Data2Meca_J('26-06-20','M1','R40PLLJ','DictyComp_PLLJ-30opti',ExperimentalConditionsDictysPLL,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+    Data2Meca_J('20-08-04','M2','R40PLL','DictyAx2_PLL-7-5opti',ExperimentalConditionsDictysPLL2,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+    Data2Meca_J('20-07-24','M1','R40PLLJ','DictyAx2_PLLJ-7-5opti',ExperimentalConditionsDictysPLL,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
+    Data2Meca_J('20-06-26','M1','R40PLLJ','DictyComp_PLLJ-30opti',ExperimentalConditionsDictysPLL,PLOT,RawdataFolder,MatfileFolder,FigureFolder,EXCLUDED);
     
     
     
