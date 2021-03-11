@@ -30,10 +30,10 @@ Cl  = [150 0 255]./255; % Latranculin
 
 % Couleurs pour 3T3
 Cwt = [20 109 159]./255; % WT
-CaSFLnodrug = [182 109 106]./255; % aSFLnodrug
+CaSFLnodrug = 'y'; % aSFLnodrug
 CaSFLdoxy = [255 255 109]./255; % aSFLdoxy
 CaSFLnodrug = [255 255 109]./255; % aSFLnodrug
-CaSFLdoxy = 'c'; % aSFLdoxy
+CaSFLdoxy = 'r'; % aSFLdoxy
 
 % diff rates
 C02 = [30 240 60]./255;

@@ -156,7 +156,7 @@ for kcond = 1:ncond
     H0FITFirst{kcond} = BigTable(ptrcond&ptrfirst,'H0Chadwick').Variables;
     
     PatternRadius = 20e-6;
-    Eeffectif{kcond} = (E0chad{kcond}.*(H0FIT{kcond}*1e-9).^2)/PatternRadius;
+    Eeffectif{kcond} = (E0chad{kcond}.*(H0SUR{kcond}*1e-9).^2)/PatternRadius;
     
     CellIdList{kcond} = BigTable(ptrcond,'CellName').Variables;
     UniqueCellList{kcond} = unique(CellIdList{kcond});
@@ -303,13 +303,13 @@ figure(i_figure)
 i_FigEeff = i_figure;
 i_figure = i_figure + 1;
 hold on
-title('E effectif')
+title('K_AFM')
 
 figure(i_figure)
 i_FigEeffPerCell = i_figure;
 i_figure = i_figure + 1;
 hold on
-title('E effectif par cellule')
+title('K_AFM per cell')
 
 
 
@@ -473,6 +473,8 @@ figure(i_FigEchadDistrib)
 ax = gca;
 ax.YColor = [0 0 0];
 ax.LineWidth = 1.5;
+ax.YScale = 'log';
+%set(gca, 'YScale', 'log')
 box on
 
 % all data
@@ -496,13 +498,33 @@ if SigDisplay
             sigtxt = DoParamStats(E0chad{ii},E0chad{jj});
             if ~strcmp(sigtxt,'NS')
                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
-                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-                plotheight = plotheight + 0.05*distsize;
+                text((ii+jj)/2, plotheight * 10^(0.03), sigtxt,'HorizontalAlignment','center','fontsize',13) %+0.005*distsize
+                plotheight = plotheight * 10^(0.2);
+            else
+                plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+                text((ii+jj)/2, plotheight * 10^(0.09), sigtxt,'HorizontalAlignment','center','fontsize',13) %+0.005*distsize
+                plotheight = plotheight * 10^(0.2);
             end
         end
     end
     ylim([0 plotheight])
 end
+% 
+% if SigDisplay
+%     distsize = prctile(vertcat(E0chad{:}),98);
+%     plotheight = distsize;
+%     for ii = 1:length(E0chad)-1
+%         for jj = ii+1:length(E0chad)
+%             sigtxt = DoParamStats(E0chad{ii},E0chad{jj});
+%             if ~strcmp(sigtxt,'NS')
+%                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+%                 text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
+%                 plotheight = plotheight + 0.05*distsize;
+%             end
+%         end
+%     end
+%     ylim([0 plotheight])
+% end
 
 ax = gca;
 ax.XTickLabelRotation = 45;
@@ -520,6 +542,7 @@ figure(i_FigEchadPerCellDistrib)
 ax = gca;
 ax.YColor = [0 0 0];
 ax.LineWidth = 1.5;
+ax.YScale = 'log';
 box on
 
 for kcond = 1:ncond
@@ -539,7 +562,6 @@ for ii = 1:length(E0chadCell)
 end
 ylabel('Echad Average par cell (kPa)')
 
-
 if SigDisplay
     distsize = prctile(horzcat(E0chadCell{:}),98);
     plotheight = distsize;
@@ -548,13 +570,33 @@ if SigDisplay
             sigtxt = DoParamStats(E0chadCell{ii},E0chadCell{jj});
             if ~strcmp(sigtxt,'NS')
                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
-                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-                plotheight = plotheight + 0.05*distsize;
+                text((ii+jj)/2, plotheight * 10^(0.03), sigtxt,'HorizontalAlignment','center','fontsize',13) %+0.005*distsize
+                plotheight = plotheight * 10^(0.2);
+            else
+                plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+                text((ii+jj)/2, plotheight * 10^(0.09), sigtxt,'HorizontalAlignment','center','fontsize',13) %+0.005*distsize
+                plotheight = plotheight * 10^(0.2);
             end
         end
     end
     ylim([0 plotheight])
 end
+% 
+% if SigDisplay
+%     distsize = prctile(horzcat(E0chadCell{:}),98);
+%     plotheight = distsize;
+%     for ii = 1:length(E0chadCell)-1
+%         for jj = ii+1:length(E0chadCell)
+%             sigtxt = DoParamStats(E0chadCell{ii},E0chadCell{jj});
+%             if ~strcmp(sigtxt,'NS')
+%                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+%                 text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
+%                 plotheight = plotheight + 0.05*distsize;
+%             end
+%         end
+%     end
+%     ylim([0 plotheight])
+% end
 
 
 ax = gca;
@@ -572,6 +614,7 @@ figure(i_FigEchadStdPerCellDistrib)
 ax = gca;
 ax.YColor = [0 0 0];
 ax.LineWidth = 1.5;
+ax.YScale = 'log';
 box on
 
 for kcond = 1:ncond
@@ -886,6 +929,7 @@ figure(i_FigEeff)
 ax = gca;
 ax.YColor = [0 0 0];
 ax.LineWidth = 1.5;
+ax.YScale = 'log';
 box on
 
 plotSpread_V(Eeffectif,'distributionMarkers',Sym,'distributionColors',Col,'xNames',Lab,'spreadWidth',1)
@@ -898,23 +942,44 @@ end
 % plotSpread_V(H0BeeswarmFirst,'distributionMarkers',Sym,'distributionColors','r','xNames',Lab,'spreadWidth',1)
 % set(0,'DefaultLineMarkerSize',8);
 
-ylabel('K effectif = E * H0^2/R (N/m)')
+ylabel('K_AFM (N/m) [ = E*H^2/R]')
 
 if SigDisplay
-    distsize = prctile(vertcat(Eeffectif{:}),95);
+    distsize = prctile(vertcat(Eeffectif{:}),98);
     plotheight = distsize;
-    for ii = 1:length(E0chad)-1
+    for ii = 1:length(Eeffectif)-1
         for jj = ii+1:length(Eeffectif)
             sigtxt = DoParamStats(Eeffectif{ii},Eeffectif{jj});
             if ~strcmp(sigtxt,'NS')
                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
-                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-                plotheight = plotheight+ 0.05*distsize;
+                text((ii+jj)/2, plotheight * 10^(0.03), sigtxt,'HorizontalAlignment','center','fontsize',13) %+0.005*distsize
+                plotheight = plotheight * 10^(0.2);
+            else
+                plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+                text((ii+jj)/2, plotheight * 10^(0.09), sigtxt,'HorizontalAlignment','center','fontsize',13) %+0.005*distsize
+                plotheight = plotheight * 10^(0.2);
             end
         end
     end
     ylim([0 plotheight])
 end
+
+% if SigDisplay
+%     distsize = prctile(vertcat(Eeffectif{:}),95);
+%     plotheight = distsize;
+%     for ii = 1:length(Eeffectif)-1
+%         for jj = ii+1:length(Eeffectif)
+%             sigtxt = DoParamStats(Eeffectif{ii},Eeffectif{jj});
+%             if ~strcmp(sigtxt,'NS')
+%                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
+%                 text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
+%                 plotheight = plotheight+ 0.05*distsize;
+%             end
+%         end
+%     end
+%     ylim([0 plotheight])
+% end
+
 ax = gca;
 ax.XTickLabelRotation = 45;
 
@@ -924,6 +989,7 @@ figure(i_FigEeffPerCell)
 ax = gca;
 ax.YColor = [0 0 0];
 ax.LineWidth = 1.5;
+ax.YScale = 'log';
 box on
 
 for kcond = 1:ncond
@@ -937,7 +1003,7 @@ plotSpread_V(EeffectifCell,'distributionMarkers',Sym,'distributionColors',Col,'x
 for ii = 1:length(EeffectifCell)
     plot([ii-0.45 ii+0.45],[nanmedian(EeffectifCell{ii})  nanmedian(EeffectifCell{ii})],'k--','linewidth',1.3)
 end
-ylabel('K effectif par cellule (N/m)')
+ylabel('K_AFM per cell (N/m) [ = E*H^2/R]')
 
 if SigDisplay
     distsize = prctile(horzcat(EeffectifCell{:}),98);
@@ -947,12 +1013,12 @@ if SigDisplay
             sigtxt = DoParamStats(EeffectifCell{ii},EeffectifCell{jj});
             if ~strcmp(sigtxt,'NS')
                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
-                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-                plotheight = plotheight + 0.05*distsize;
+                text((ii+jj)/2, plotheight * 10^(0.03), sigtxt,'HorizontalAlignment','center','fontsize',13) %+0.005*distsize
+                plotheight = plotheight * 10^(0.2);
             else
                 plot([ii+0.05 jj-0.05],[plotheight plotheight],'k-','linewidth',1.5)
-                text((ii+jj)/2, plotheight + 0.015*distsize, sigtxt,'HorizontalAlignment','center','fontsize',13)
-                plotheight = plotheight + 0.05*distsize;
+                text((ii+jj)/2, plotheight * 10^(0.09), sigtxt,'HorizontalAlignment','center','fontsize',13) %+0.005*distsize
+                plotheight = plotheight * 10^(0.2);
             end
         end
     end
@@ -1050,7 +1116,7 @@ end
         subplot(1,2,2)
         hold on
         plot(FluoResults.meanFluoLevel(currentDateMask),FluoResults.meanSurroundingThickness(currentDateMask),['k' plotSymbols(i)],'markerfacecolor','m')
-        plot(FluoResults.meanFluoLevel(currentDateMask),FluoResults.meanH0Chadwick(currentDateMask),['k' plotSymbols(i)],'markerfacecolor','c')
+        %plot(FluoResults.meanFluoLevel(currentDateMask),FluoResults.meanH0Chadwick(currentDateMask),['k' plotSymbols(i)],'markerfacecolor','c')
     end
     
     subplot(1,2,1)
@@ -1065,7 +1131,7 @@ end
     xlabel('Fluo Intensity (a.u.)')
     ylabel('average H0 (nm)')
     currentLegend = legend;
-    currentLegend.String = {'H0 from fit' 'H0 btw ramps'};
+    currentLegend.String = {'H0 btw ramps'}; %  {'H0 from fit' 'H0 btw ramps'};
     ax = gca;
     ax.XTickLabelRotation = 45;
     
@@ -1201,7 +1267,15 @@ if ncond >=2
     saveas(fig,[sff filesep 'FluoIntVsEandH.png'],'png')
     saveas(fig,[sff filesep 'FluoIntVsEandH.fig'],'fig')
     
-
+    figure(i_FigEeff)
+    fig = gca;
+    saveas(fig,[sff filesep 'Eeff.png'],'png')
+    saveas(fig,[sff filesep 'Eeff.fig'],'fig')
+    
+    figure(i_FigEeffPerCell)
+    fig = gca;
+    saveas(fig,[sff filesep 'EeffPerCell.png'],'png')
+    saveas(fig,[sff filesep 'EeffPerCell.fig'],'fig')
     
     
 end
