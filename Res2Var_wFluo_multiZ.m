@@ -1,4 +1,4 @@
-function Res2Var_wFluo_multiZ(date,tag,manip,specif,fich,resfile,nimg,depthoname,AUTO,...
+function Res2Var_wFluo_multiZ(date,tag,manip,specif,fich,resfile,nimg,depthoname,wFluo,AUTO,tableExperimentalConditions,...
     datafolder,resfolder)
 
 %       Res2Var is using the imageJ particle analysis data to create
@@ -35,6 +35,16 @@ set(0,'DefaultFigureWindowStyle','docked') % defining default figure window for 
 
 warning('off','all') % removing warning (orange text) display in consol
 
+%% Extracting parameters from tableExperimentalConditions
+ExperimentalConditions = getExperimentalConditions(tableExperimentalConditions, date, manip);
+if strcmp(ExperimentalConditions.experimentType, "DEFAULT")
+    cprintf('red',['\nWARNING : Experimental conditions not found in ' 'D:\Matlab Analysis\ActinCortexAnalysis\ExperimentalData' filesep 'ExperimentalConditions.csv' ' \n' 'Working now with default parameters, which are probably not accurate ! \n'])
+end
+
+OPTICALINDEXCORRECTION = ExperimentalConditions.opticalIndexCorrection;
+% WITHFLUO = boolean(ExperimentalConditions.withFluoImages);
+
+%%
 % Displaying automode status
 if AUTO
     cprintf('red','\n\n[AUTOMODE : ON]\n\n')
@@ -43,15 +53,20 @@ else
 end
 
 % data and saving folders
-path =[datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2)]; % path to folder with raw data
+path =[datafolder filesep date(1:2) '.' date(4:5) '.' date(7:8)]; % path to folder with raw data
 sf   = resfolder; % save folder
 
 mkdir([sf filesep 'R2V']) % create saving folder
 
+if wFluo
+    saveFluoFolder = [datafolder filesep date(1:2) '.' date(4:5) '.' date(7:8) '_Fluo'];
+    if ~exist(saveFluoFolder, 'dir')
+        mkdir(saveFluoFolder)
+    end
+end
+
 savename=['R2V_' date '_' manip '_' tag '_' specif]; % saving name for matlab data file
-
 savenamepart=[savename '_Part'] ; % saving name for saving of partial data file
-
 cprintf('Unt',['\n\n' date '_' manip '_' specif '_AUTO=' num2str(AUTO) '\n\n'])
 
 % retrieving list of all possible file names
@@ -123,7 +138,7 @@ for ki=1:nacq
             try
                 
                 % main analysis code (present at the end of present code file)
-                [S, X1, X2, Y1, Y2, dz, STD1, STD2] = doAnalysis(date, manip, Noim, tag, path, resname, resfile, stackname, name, nimg, depthoname, datafolder, AUTO);
+                [S, X1, X2, Y1, Y2, dz, STD1, STD2] = doAnalysis(date, manip, Noim, tag, path, resname, resfile, stackname, name, nimg, depthoname, datafolder, OPTICALINDEXCORRECTION, AUTO);
                 
                 kii = kii +1; % number of analyzed videos
                 
@@ -160,7 +175,7 @@ for ki=1:nacq
         else
             
             % main analysis code (present at the end of present code file)
-            [S, X1, X2, Y1, Y2, dz, STD1, STD2] = doAnalysis(date, manip, Noim, tag, path, resname, resfile, stackname, name, nimg, depthoname, datafolder, AUTO);
+            [S, X1, X2, Y1, Y2, dz, STD1, STD2] = doAnalysis(date, manip, Noim, tag, path, resname, resfile, stackname, name, nimg, depthoname, datafolder, OPTICALINDEXCORRECTION, AUTO);
             
             kii = kii +1; % number of analyzed videos
             
@@ -189,6 +204,29 @@ for ki=1:nacq
             save([sf filesep 'R2V' filesep savenamepart],'MT','ListD','ListF');
             cprintf('Com', ' OK\n\n\n')
             
+            % Saving fluo images in a separated folder if necessary
+            if wFluo
+                fprintf('Saving fluo images...');
+                %saveFluoSubFolder = [datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2) '_Fluo'];
+                saveFluoSubFolder = [saveFluoFolder filesep name];
+                stackpath = [path filesep stackname];
+                if ~exist(saveFluoSubFolder, 'dir')
+                   mkdir(saveFluoSubFolder)
+                end
+                slice = nimg + 1;
+                Sfluo = [];
+                while slice <= max(S) + 1
+                    Sfluo = [Sfluo slice];
+                    slice = slice + nimg + 1;
+                end
+                N = length(Sfluo);
+                for i = 1:N
+                    currentImageFluo = imread(stackpath,'tiff',Sfluo(i));
+                    imwrite(currentImageFluo, [saveFluoSubFolder filesep name '_Fluo_' num2str(Sfluo(i)) '.tif'])
+                end
+                fprintf(' OK\n\n\n')
+            end
+            
         end
     end
 end
@@ -213,7 +251,7 @@ end
 
 %%%%% Analysis function
 
-function [S, X1, X2, Y1, Y2, dz, STD1, STD2] = doAnalysis(date, manip, Noim, tag, path, resname, resfile, stackname, name, nimg, depthoname, datafolder, AUTO)
+function [S, X1, X2, Y1, Y2, dz, STD1, STD2] = doAnalysis(date, manip, Noim, tag, path, resname, resfile, stackname, name, nimg, depthoname, datafolder, OPTICALINDEXCORRECTION, AUTO)
 fprintf(['Results ' date '_' manip '_' Noim '_' tag ' : \n\n']);
 
 % reading imageJ file
@@ -372,7 +410,7 @@ dz = DzCalc_Zcorr_multiZ(X1tot,X1,Y1tot,Y1,X2tot,...
 
 dz = smooth(dz,'rlowess');
 
-dz = dz*1.33/1.52; % correction for optical index changes between air and oil (100X)
+dz = dz*OPTICALINDEXCORRECTION; % correction for optical index changes between medium and objective immersion liquid
 
 cprintf('Com', ' OK\n');
 %%% end of computing dz

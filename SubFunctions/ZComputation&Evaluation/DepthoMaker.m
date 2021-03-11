@@ -447,3 +447,37 @@ savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection' fi
 end
 
 clear all
+
+%% 21-02-10 M450 100X M1
+
+names = {'1' '2' '3' '4' '5' '6'};
+folderPath = 'D:\MagneticPincherData\Raw\21.02.10_Deptho\Deptho_M1';
+fileName = '21.02.10_Deptho_M1_';
+saveFileName = '21-02-10_Deptho_M1_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-02-10 M450 100X M2
+
+names = {'1' '2' '3' '4' '5' '6' '7'};
+folderPath = 'D:\MagneticPincherData\Raw\21.02.10_Deptho\Deptho_M2';
+fileName = 'deptho_';
+saveFileName = '21-02-10_Deptho_M2_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all

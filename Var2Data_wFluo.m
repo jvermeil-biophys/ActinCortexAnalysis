@@ -1,4 +1,4 @@
-function NotSaved = Var2Data_wFluo(date,tag,Bcorrec,manip,specif,Db,resfolder)
+function NotSaved = Var2Data_wFluo(date,tag,manip,specif,tableExperimentalConditions,PLOT,resfolder,figurefolder,ExportDataFolder)
 
 %
 %       Var2Data is taking the .mat file (from Res2Var) containing the trajectories of each
@@ -43,10 +43,26 @@ set(groot, 'defaultLegendInterpreter','latex');
 set(groot, 'defaultTextInterpreter','latex');
 set(groot,'DefaultAxesFontSize',30)
 
+%% Extracting parameters from tableExperimentalConditions
+ExperimentalConditions = getExperimentalConditions(tableExperimentalConditions, date, manip);
+if strcmp(ExperimentalConditions.experimentType, "DEFAULT")
+    cprintf('red',['\nWARNING : Experimental conditions not found in ' 'D:\Matlab Analysis\ActinCortexAnalysis\ExperimentalData' filesep 'ExperimentalConditions.csv' ' \n' 'Working now with default parameters, which are probably not accurate ! \n'])
+end
+
+SCALEPixelPerUm = ExperimentalConditions.scalePixelPerUm;
+DIAMETER = ExperimentalConditions.beadDiameter;
+BEADTYPE = ExperimentalConditions.beadType;
+MAGNETICFIELDCORR = ExperimentalConditions.magneticFieldCorrection;
+% WITHFLUO = boolean(ExperimentalConditions.withFluoImages);
+
+%%
 % folder with initial data and were to save analysed data
 path = [resfolder filesep 'R2V'];
 
 datenow = datestr(now,'yy-mm-dd'); % today
+
+subFigureFolder = [figurefolder filesep datenow filesep 'Thickness' filesep specif filesep 'BFDZcurves']; % where to save figs
+mkdir(subFigureFolder);
 
 mkdir([resfolder filesep 'V2D']) % create directory
 
@@ -56,9 +72,6 @@ savenamepart=[savename '_Part'] ; % partial saving name
 
 loadname=['R2V_' date '_' manip '_' tag '_' specif '.mat']; % inital data
 
-% conversion factor from pixel to microns
-pixelconv=1/15.8; % 100X
-% pixelconv=1/9.7; % 63X
 
 if exist([path filesep loadname],'file')
     
@@ -105,7 +118,7 @@ if exist([path filesep loadname],'file')
 
             BTMat = MT{kc}.BTMat; % retrieving data from _Field.txt file
   
-            B = Bcorrec*BTMat(S,1); % adjusted magnetic field
+            B = MAGNETICFIELDCORR*BTMat(S,1); % adjusted magnetic field
             T = (BTMat(S,2)-BTMat(1,2))/1000; % time starting at 0 in seconds
 
             ImgSep = median(round(diff(T)/0.1)*0.1); % approximation of time between two images
@@ -118,12 +131,12 @@ if exist([path filesep loadname],'file')
             fprintf('Beads distance computation...');
             
             % Conversion from pixels to nm
-            dx = dxp*pixelconv*1000; % along the field
-            dy = dyp*pixelconv*1000; % perpendicular to the field in the observation plan
+            dx = dxp*1000/SCALEPixelPerUm; % along the field
+            dy = dyp*1000/SCALEPixelPerUm; % perpendicular to the field in the observation plan
                 
             % distance computation
             D3tot = sqrt(dx.^2+dy.^2+dz.^2); % center to center distance
-            D3 = D3tot - Db; % surface to surface distance (object thickness)
+            D3 = D3tot - DIAMETER; % surface to surface distance (object thickness)
             Dyz = sqrt(dy.^2+dz.^2); % distance in the plan perpendicular to the field
             D2 = sqrt(dx.^2+dy.^2); % distance in the observation plan
             
@@ -136,7 +149,7 @@ if exist([path filesep loadname],'file')
             % problem with magnetic field
             if ~contains(specif,'Sep') && ~contains(tag,'R') % not used if experiment is observation of beads separation when field is turned off, or if constant data from compression experiment
                 
-                mB = find(B < 0.8*Bcorrec*str2double(tag(1:end-2))); % if magnetic field is lower than 80% of expected value (indication of coils or BOP problems during experiments)
+                mB = find(B < 0.8*MAGNETICFIELDCORR*str2double(tag(1:end-2))); % if magnetic field is lower than 80% of expected value (indication of coils or BOP problems during experiments)
                 ptrdel = [ptrdel mB'];
                 
             end
@@ -189,6 +202,7 @@ if exist([path filesep loadname],'file')
             % deletion
             ptrdel = unique(ptrdel);
             D3(ptrdel) = [];
+            D2(ptrdel) = [];
             D3tot(ptrdel) = [];
             Dyz(ptrdel) = [];
             T(ptrdel) = [];
@@ -197,6 +211,7 @@ if exist([path filesep loadname],'file')
             dx(ptrdel) = [];
             B(ptrdel) = [];
             S(ptrdel) = [];
+            
 
             if ddzcount>49 % if there are too many successive points in a jump curve is considered invalid
                 Valid = 0;           
@@ -222,30 +237,20 @@ if exist([path filesep loadname],'file')
                 
             end
             
-            V = 4/3*pi*(Db/2)^3; % bead volume [nm^3]
-            
+            V = 4/3*pi*(DIAMETER/2)^3; % bead volume [nm^3]
             m = M.*10^-9*V; % dipolar moment [A.nm^2]
-           
             Bind = 2*10^5*m./(D3tot.^3); % induction field from one bead on the other
-
             Nvois = 1; % number of beads in contact
-            
             Btot = B + Nvois*Bind;% corrected B for neighbours
             
             if contains(specif,'M270') % for M270 beads
-                
                 Mtot = 0.74257*1.05*1600*(0.001991*Btot.^3+17.54*Btot.^2+153.4*Btot)./(Btot.^2+35.53*Btot+158.1); % corrected magnetization
-
             else % for M450 beads
-                
                 Mtot = 1.05*1600*(0.001991*Btot.^3+17.54*Btot.^2+153.4*Btot)./(Btot.^2+35.53*Btot+158.1); % corrected magnetization
-                
             end
             
             mtot = Mtot.*10^-9*V; % corrected dipolar moment
-            
             anglefactor=abs(3*(dx./D3tot).^2-1); % angle between chain and field direction
-            
             F = 3*10^5.*anglefactor.*mtot.^2./D3tot.^4; % force [pN]
             
             cprintf('Com', [' OK.\n']);
@@ -271,30 +276,82 @@ if exist([path filesep loadname],'file')
                 cprintf('err', ' Not saved\n');
             end
             
-
+            
             
             if Valid
-            fprintf('Variable creation...');
+                
+                %% FIGURES %%
+                if PLOT
+                    figure(kc)
+                    figure('DefaultAxesFontSize',11)
+                    ax1 = subplot(5,1,1);
+                    title(ax1, name)
+                    hold on
+                    plot(T,B,'b-')
+    %                 xlabel('Time(s)','FontName','Serif')
+                    xticklabels(ax1,{})
+                    ylabel('Magnetic Field (mT)','FontName','Serif')
+
+                    ax2 = subplot(5,1,2);
+                    hold on
+                    plot(T,F,'r-')
+    %                 xlabel('Time(s)','FontName','Serif')
+                    xticklabels(ax2,{})
+                    ylabel('Force (pN)','FontName','Serif')
+
+                    ax3 = subplot(5,1,3);
+                    hold on
+                    plot(T,D2,'m-')
+                    plot(T,D2,'kx')
+    %                 xlabel('Time(s)','FontName','Serif')
+                    xticklabels(ax3,{})
+                    ylabel('D2','FontName','Serif')
+
+                    ax4 = subplot(5,1,4);
+                    hold on
+                    plot(T,dz,'g-')
+                    plot(T,dz,'kx')
+    %                 xlabel('Time(s)','FontName','Serif')
+                    ylabel('dz','FontName','Serif')
+
+                    ax5 = subplot(5,1,5);
+                    hold on
+                    plot(T,D3,'c-')
+                    plot(T,D3,'kx')
+                    xlabel('Time(s)','FontName','Serif')
+                    ylabel('D3','FontName','Serif')
+
+                    linkaxes([ax1,ax2,ax3,ax4,ax5],'x')
+
+                    fig = gcf;
+
+                    saveas(fig,[subFigureFolder filesep 'BFDZcurves_' name '.png'],'png')
+                    saveas(fig,[subFigureFolder filesep 'BFDZcurves_' name '.fig'],'fig')
+
+                end
+                
+                fprintf('Variable creation...');
             
                 MR{kc}.name = name;
                 MR{kc}.stack = MT{kc}.stack;
                 MR{kc}.F=F;
                 MR{kc}.dx=dx;
                 MR{kc}.D2=D2;
-                MR{kc}.D3=D3;            
+                MR{kc}.D3=D3;
                 MR{kc}.dz=dz;
                 MR{kc}.dy=dy;
                 MR{kc}.Dyz=Dyz;
                 MR{kc}.B=B;
                 MR{kc}.time = T;
                 MR{kc}.S = S;
+                MR{kc}.idxRamp_all = zeros(length(T), 1);
               
 
-                cprintf('Com', [' OK.\n\n']);                             
+                cprintf('Com', [' OK.\n\n']);
                 
                 fprintf('Partial saving...');
                 save([resfolder filesep 'V2D' filesep savenamepart],'MR');
-               cprintf('Com', [' OK.\n']);
+                cprintf('Com', [' OK.\n']);
             else
                 NotSaved = {NotSaved{:}, name}; % if not saved, store name
             end
@@ -309,10 +366,12 @@ end
 
 EE = exist('MR');
 
+
 if EE == 1
     fprintf('\n\nComplete saving...');
     save([resfolder filesep 'V2D' filesep savename],'MR');
     delete([resfolder filesep 'V2D' filesep savenamepart '.mat']); % removing partial save file
+    ExportTimeSeries(MR, [ExportDataFolder filesep 'TimeSeriesData']);
     cprintf('Com', [' OK.\n\n']);
     
     fprintf([num2str(kc) ' data set analyzed.\n\n\n\n']);

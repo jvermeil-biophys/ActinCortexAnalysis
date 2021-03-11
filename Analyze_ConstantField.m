@@ -3,9 +3,12 @@ clear all;
 clc;
 
 %% Paths
-RawdataFolder = 'D:\Matlab Analysis\Data_Joseph\Raw';
-MatfileFolder = 'D:\Matlab Analysis\Data_Joseph\MatFiles';
-FigureFolder = 'D:\Matlab Analysis\Data_Joseph\Figures';
+RawdataFolder = 'D:\MagneticPincherData\Raw';
+MatfileFolder = 'D:\MagneticPincherData\MatFiles';
+FigureFolder = 'D:\MagneticPincherData\Figures';
+ExperimentalDataFolder = 'C:\Users\JosephVermeil\Desktop\ActinCortexAnalysis\ExperimentalData';
+ExportDataFolder = 'C:\Users\JosephVermeil\Desktop\ActinCortexAnalysis\DataAnalysis';
+DropboxDataFolder = '';
 
 set(0, 'defaultfigureposition', get(0, 'Screensize'));
 
@@ -52,6 +55,9 @@ DIST   = 1;
 TIME = 1;
 
 %% Experimental Conditions
+% Load experimental conditions file
+pathExperimentalConditions = [ExperimentalDataFolder filesep 'ExperimentalConditions.csv'];
+tableExperimentalConditions = loadTableExperimentalConditions(pathExperimentalConditions);
 
 %% 3T3
 
@@ -421,11 +427,23 @@ return % stop execution here
         RawdataFolder,MatfileFolder)
     
     %% 3T3
-    Res2Var_wFluo_multiZ('16-12-20', 'thickness5mT_disc20um', 'M1','3T3aSFL_nodrug',1 ,'Results',48,'16-12-20_Depthograph_M1' ,AUTO,...
+    FLUO = false;
+    Res2Var_wFluo_multiZ('20-12-16', 'thickness5mT_disc20um', 'M1','3T3aSFL_nodrug',1 ,'Results',48,'16-12-20_Depthograph_M1',FLUO, AUTO, tableExperimentalConditions,...
         RawdataFolder,MatfileFolder)
     
-    Res2Var_wFluo_multiZ('16-12-20', 'thickness5mT_disc20um', 'M2','3T3aSFL_nodrug',1 ,'Results',48,'16-12-20_Depthograph_M1' ,AUTO,...
+    Res2Var_wFluo_multiZ('20-12-16', 'thickness5mT_disc20um', 'M2','3T3aSFL_nodrug',1 ,'Results',48,'16-12-20_Depthograph_M1',FLUO, AUTO, tableExperimentalConditions,...
         RawdataFolder,MatfileFolder)
+    
+    FLUO = true;
+    Res2Var_wFluo_multiZ('21-02-10', 'thickness5mT_disc20um_wFluo', 'M1','3T3aSFL_nodrug',1 ,'Results',297,'21-02-10_Deptho_M1',FLUO, AUTO, tableExperimentalConditions,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-02-10', 'thickness5mT_disc20um_wFluo', 'M2','3T3aSFL_doxy',1 ,'Results',297,'21-02-10_Deptho_M2',FLUO, AUTO, tableExperimentalConditions,...
+        RawdataFolder,MatfileFolder)
+    
+    FLUO = false;
+    Res2Var_wFluo_multiZ_Comp('Results','20-08-04','R40','M1','3T3aSFL_BSA_nodrugs',1,...
+        '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,FLUO,AUTO,RawdataFolder,MatfileFolder)
     
     %% %%%%%%%%%%%%%%%%%%%%%%%%%%%% Inside/Outside Datas %%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -1187,11 +1205,19 @@ RemoveFromData(MatfileFolder,{'17-04-19_M1_P1_C3_5mT','11-04-19_M3_P1_C1_5mT'},'
     RemoveFromData(MatfileFolder,{'15-05-19_M1_P1_C5-1_5mT'},'Vim')
     
     %% 3T3
-    NotSaved = {NotSaved{:},Var2Data_wFluo('16-12-20', 'thickness5mT_disc20um', 1.26, 'M1','3T3aSFL_nodrug',4504,...
-        MatfileFolder)};
+    PLOTV2D = false;
+    NotSaved = {NotSaved{:},Var2Data_wFluo('20-12-16', 'thickness5mT_disc20um', 'M1','3T3aSFL_nodrug',tableExperimentalConditions,PLOT,...
+        MatfileFolder, FigureFolder)};
     
-    NotSaved = {NotSaved{:},Var2Data_wFluo('16-12-20', 'thickness5mT_disc20um', 1.26, 'M2','3T3aSFL_nodrug',4504,...
-        MatfileFolder)};
+    NotSaved = {NotSaved{:},Var2Data_wFluo('20-12-16', 'thickness5mT_disc20um', 'M2','3T3aSFL_nodrug',tableExperimentalConditions,PLOT,...
+        MatfileFolder, FigureFolder)};
+    
+    PLOTV2D = true;
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-02-10', 'thickness5mT_disc20um_wFluo', 'M1','3T3aSFL_nodrug',tableExperimentalConditions,PLOTV2D,...
+        MatfileFolder, FigureFolder,ExportDataFolder)};
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-02-10', 'thickness5mT_disc20um_wFluo', 'M2','3T3aSFL_doxy',tableExperimentalConditions,PLOTV2D,...
+        MatfileFolder, FigureFolder,ExportDataFolder)};
     
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Data2Peaks %%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
