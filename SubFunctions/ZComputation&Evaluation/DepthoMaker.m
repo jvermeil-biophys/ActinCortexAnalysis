@@ -447,3 +447,89 @@ savename = ['D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection' fi
 end
 
 clear all
+
+%% 21-02-10 M450 100X M1
+
+names = {'1' '2' '3' '4' '5' '6'};
+folderPath = 'D:\ActinCortex_Data\Raw\21.02.10_Deptho\M1';
+fileName = '21.02.10_Deptho_M1_';
+saveFileName = '21-02-10_Deptho_M1_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\ActinCortex_Data\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-02-15 M450 100X M1
+
+names = {'1' '2' '3' '4' '5' '6'};
+folderPath = 'D:\ActinCortex_Data\Raw\21.02.15_Deptho\M1';
+fileName = '21.02.15_Deptho_M1_';
+saveFileName = '21-02-15_Deptho_M1_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\ActinCortex_Data\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-02-15 M450 100X M2
+
+names = {'1' '2' '3' '4' '5' '6'};
+folderPath = 'D:\ActinCortex_Data\Raw\21.02.15_Deptho\M2';
+fileName = '21.02.15_Deptho_M2_';
+saveFileName = '21-02-15_Deptho_M2_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\ActinCortex_Data\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+%% 21-02-15 M450 100X M3
+
+names = {'1' '2' '3' '4' '5' '6'};
+folderPath = 'D:\ActinCortex_Data\Raw\21.02.15_Deptho\M3';
+fileName = '21.02.15_Deptho_M3_';
+saveFileName = '21-02-15_Deptho_M3_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\ActinCortex_Data\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-03-05 M450 100X M3
+
+names = {'1' '2' '3' '4' '5' '6'};
+folderPath = 'D:\ActinCortex_Data\Raw\21.03.05_Deptho\M2';
+fileName = '21.03.05_Deptho_M2_';
+saveFileName = '21-03-05_Deptho_M2_';
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\ActinCortex_Data\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+

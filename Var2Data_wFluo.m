@@ -50,7 +50,7 @@ datenow = datestr(now,'yy-mm-dd'); % today
 
 mkdir([resfolder filesep 'V2D']) % create directory
 
-savename=['V2D_' date '_' manip '_' specif]; % saving name
+savename=['V2D_' date '_' manip '_' specif '_' tag]; % saving name
 
 savenamepart=[savename '_Part'] ; % partial saving name
 

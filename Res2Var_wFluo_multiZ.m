@@ -43,7 +43,7 @@ else
 end
 
 % data and saving folders
-path =[datafolder filesep date(7:8) '.' date(4:5) '.' date(1:2)]; % path to folder with raw data
+path =[datafolder filesep date(1:2) '.' date(4:5) '.' date(7:8)]; % path to folder with raw data
 sf   = resfolder; % save folder
 
 mkdir([sf filesep 'R2V']) % create saving folder

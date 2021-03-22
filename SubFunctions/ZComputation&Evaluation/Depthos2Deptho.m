@@ -1,13 +1,14 @@
 % fuse depthograph together
 clear all
 
-path = 'D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection';
-savepath = 'D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\';
+path = 'D:\ActinCortex_Data\Raw\EtalonnageZ\MultiZCorrection';
+savepath = 'D:\ActinCortex_Data\Raw\EtalonnageZ\';
 
-date = '21-01-21';
-genericName = [date '_Deptho_M1'];
+date = '21-03-05';
+genericName = [date '_Deptho_M2'];
 
-folderContent = dir('D:\Matlab Analysis\Data_Joseph\Raw\EtalonnageZ\MultiZCorrection');
+
+folderContent = dir('D:\ActinCortex_Data\Raw\EtalonnageZ\MultiZCorrection');
 nFiles = length(folderContent);
 
 ndeptho = 0;

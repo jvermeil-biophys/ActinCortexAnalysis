@@ -3,9 +3,9 @@ clear all;
 clc;
 
 %% Paths
-RawdataFolder = 'C:\Users\Anumita\Desktop\Data\Raw';
-MatfileFolder = 'C:\Users\Anumita\Desktop\Data\Matfile';
-FigureFolder = 'C:\Users\Anumita\Desktop\Data\Figures';
+RawdataFolder = 'D:\ActinCortex_Data\Raw';
+MatfileFolder = 'D:\ActinCortex_Data\Matfile';
+FigureFolder = 'D:\ActinCortex_Data\Figures';
 
 set(0, 'defaultfigureposition', get(0, 'Screensize'));
 
@@ -51,9 +51,7 @@ ACTI  = 1;
 DIST   = 1;
 TIME = 1;
 
-%% Experimental Conditions
 
-%% 3T3
 
 return % stop execution here 
 
@@ -427,6 +425,35 @@ return % stop execution here
     Res2Var_wFluo_multiZ('16-12-20', 'thickness5mT_disc20um', 'M2','3T3aSFL_nodrug',1 ,'Results',48,'16-12-20_Depthograph_M1' ,AUTO,...
         RawdataFolder,MatfileFolder)
     
+ %% 3T3 on pattern with Doxy
+    Res2Var_wFluo_multiZ('21-02-10', 'thickness5mT_disc20um_wFluo', 'M1','3T3aSFL_nodrug',1 ,'Results',297,'21-02-10_Deptho_M1' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+
+%% 3T3 on pattern - no drugs
+    Res2Var_wFluo_multiZ('21-02-15', 'thickness5mT_disc20um', 'M1','3T3aSFL_nodrug',1 ,'Results',297,'21-02-15_Deptho_M1' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-02-15', 'thickness5mT_disc10um', 'M1','3T3aSFL_nodrug',1 ,'Results',297,'21-02-15_Deptho_M1' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-02-15', 'thickness5mT_disc10um', 'M2','3T3aSFL_nodrug',1 ,'Results',297,'21-02-15_Deptho_M2' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-02-15', 'thickness5mT_disc25um', 'M3','3T3aSFL_nodrug',1 ,'Results',297,'21-02-15_Deptho_M3' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-03-05', 'thickness5mT_disc20um', 'M1','3T3aSFL_nodrug',1 ,'Results',297,'21-03-05_Deptho_M1' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+
+    Res2Var_wFluo_multiZ('21-03-05', 'thickness5mT_disc10um', 'M2','3T3aSFL_nodrug',1 ,'Results',297,'21-03-05_Deptho_M2' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-03-05', 'thickness5mT_disc20um', 'M2','3T3aSFL_nodrug',1 ,'Results',297,'21-03-05_Deptho_M2' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-03-05', 'thickness5mT_disc25um', 'M3','3T3aSFL_nodrug',1 ,'Results',297,'21-03-05_Deptho_M3' ,AUTO,...
+        RawdataFolder,MatfileFolder)
+
     %% %%%%%%%%%%%%%%%%%%%%%%%%%%%% Inside/Outside Datas %%%%%%%%%%%%%%%%%%%%%%%%%
     
     %% Manip etalonnage paula et vieux 0%
@@ -1193,6 +1220,36 @@ RemoveFromData(MatfileFolder,{'17-04-19_M1_P1_C3_5mT','11-04-19_M3_P1_C1_5mT'},'
     NotSaved = {NotSaved{:},Var2Data_wFluo('16-12-20', 'thickness5mT_disc20um', 1.26, 'M2','3T3aSFL_nodrug',4504,...
         MatfileFolder)};
     
+    %% 3T3 on patterns with Doxy
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-02-10', 'thickness5mT_disc20um_wFluo', 1.26, 'M1','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+    %% 3T3 on patterns - no drugs
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-02-15', 'thickness5mT_disc20um', 1.26, 'M1','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-02-15', 'thickness5mT_disc10um', 1.26, 'M1','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+ 
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-02-15', 'thickness5mT_disc10um', 1.26, 'M2','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-02-15', 'thickness5mT_disc25um', 1.26, 'M3','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-03-05', 'thickness5mT_disc20um', 1.26, 'M1','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+ 
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-03-05', 'thickness5mT_disc10um', 1.26, 'M2','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-03-05', 'thickness5mT_disc20um', 1.26, 'M2','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-03-05', 'thickness5mT_disc25um', 1.26, 'M3','3T3aSFL_nodrug',4504,...
+        MatfileFolder)};
+    
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Data2Peaks %%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -1405,5 +1462,175 @@ Data2Peaks('DC_Inside_5mT',PLOTDP,MatfileFolder,FigureFolder);
     
 %     Stats2Plots({'DictyAx2_DMSO','DictyAx2_LatA'},{Cdm,Cb},...
 %         'DictyAx2LatA',CORT,DIST,PEAKS,ACTI,TIME,alignlvl,MatfileFolder,FigureFolder)
+%% Thickness/Fluctuations on various pattern sizes
 
+%Plotting thickness for all pattern sizes
+folder = 'D:/ActinCortex_Data/Matfile/V2D/';
+p = {};
 
+meds = {};
+bar_low = {};
+bar_high = {};
+
+bead = 4504;
+filelist = dir(folder);
+cnt10 = 1;
+cnt20 = 1;
+cnt25 = 1;
+%Segregating and categorising data by pattern size
+for i = 3:length(filelist)
+    if contains(filelist(i).name, 'disc10um')
+        load(strcat('D:/ActinCortex_Data/Matfile/V2D/', filelist(i).name))
+        for j = 1:length(MR)
+            p.name{cnt10, 1} = MR{j}.name;
+            dist = MR{j}.D3;
+            dist(dist > 9000) = NaN; %Removing some annoying points (just 2 in this case)
+            p.dist{cnt10, 1} = dist;    
+            p.t{cnt10, 1} =  MR{j}.time;
+            p.f{cnt10, 1} = MR{j}.F;
+            p.meds{cnt10, 1} = median(dist,'omitnan');
+            p.low{cnt10, 1} = prctile(dist, 10);
+            p.high{cnt10, 1} = prctile(dist, 90);
+            cnt10 = cnt10 + 1;
+        end 
+    end
+    if contains(filelist(i).name, 'disc20um')
+         load(strcat('D:/ActinCortex_Data/Matfile/V2D/', filelist(i).name))
+         for j = 1:length(MR)
+            p.name{cnt20, 2} = MR{j}.name;
+            dist = MR{j}.D3;
+            dist(dist > 10000) = NaN; %Removing some annoying points (just 2 in this case)
+            p.t{cnt20, 2} =  MR{j}.time;
+            p.dist{cnt20, 2} = dist;   
+            p.f{cnt20, 2} = MR{j}.F;
+            p.meds{cnt20, 2} = median(dist,'omitnan');
+            p.low{cnt20, 2} = prctile(dist, 10);
+            p.high{cnt20, 2} = prctile(dist, 90);
+            cnt20 = cnt20 + 1;
+         end
+    end
+    if contains(filelist(i).name, 'disc25um')
+         load(strcat('D:/ActinCortex_Data/Matfile/V2D/', filelist(i).name))
+         for j = 1:length(MR)
+            p.name{cnt25, 3} = MR{j}.name;
+            dist = MR{j}.D3; 
+            dist(dist > 10000) = NaN; %Removing some annoying points (just 2 in this case)
+            p.t{cnt25, 3} = MR{j}.time;
+            p.dist{cnt25, 3} = dist;  
+            p.f{cnt25, 3} = MR{j}.F;
+            p.meds{cnt25, 3} = median(dist,'omitnan');
+            p.low{cnt25, 3} = prctile(dist, 10);
+            p.high{cnt25, 3} = prctile(dist, 90);
+            cnt25 = cnt25 + 1;
+         end
+    end
+end
+
+fx=@(x)any(isempty(x));
+ind=cellfun(fx,p.dist);
+p.dist(ind)={NaN};
+
+ind=cellfun(fx,p.t);
+p.t(ind)={NaN};
+
+ind=cellfun(fx,p.name);
+p.name(ind)={''};
+
+oscils = [5,7];
+bad = [2,5];
+
+A = 1:length(p.dist);
+except = [4,6];  
+L=arrayfun(@(x) A==x,except,'uni',0);
+A(any(cat(3,L{:}),3)) = [];
+
+%Plotting thickness on each pattern
+figure(1); hold on;
+for i = A
+    h1 = plot(p.t{i,1}, p.dist{i,1});
+    if isempty(p.name{i,1}) ~= 1
+        leg{i} = p.name{i,1}(16:17);
+    end
+end
+hold off;
+legend(string(leg));
+
+figure(2); hold on;
+leg = {};
+for i = A
+    h2 = plot(p.t{i,2}, p.dist{i,2});
+    if isempty(p.name{i,2}) ~= 1
+        leg{i} = p.name{i,2}(16:17);
+    end
+end
+hold off;
+legend(string(leg));
+
+figure(3); hold on;
+leg = {};
+for i = A 
+    h3 = plot(p.t{i,3}, p.dist{i,3});
+    if isempty(p.name{i,3}) ~= 1
+        leg{i} = p.name{i,3}(16:17);
+    end
+end
+hold off;
+legend(string(leg));
+
+%All plots
+figure; hold on;
+for i = A
+    h1 = plot(p.t{i,1}, p.dist{i,1}, 'black');
+end
+for i = 1:length(p.dist)
+    h2 = plot(p.t{i,2}, p.dist{i,2}, 'blue');
+end
+for i = [2,3]
+    h3 = plot(p.t{i,3}, p.dist{i,3}, 'red');
+end
+hold off;
+legend([h1 h2 h3], ['10um'; '20um'; '25um']);
+
+%Plotting median and fluctuations
+p.meds = cell2mat(reshape(p.meds, 1, numel(p.meds)));
+p.low =  cell2mat(reshape(p.low, 1, numel(p.low)));
+p.high = cell2mat(reshape(p.high, 1, numel(p.high)));
+
+p.meds(4) = []; p.meds(5) = []; p.meds(8) = []; p.meds(10) = []; 
+p.low(4) = []; p.low(5) = []; p.low(8) = []; p.low(10) = [];
+p.high(4) = []; p.high(5) = []; p.high(8) = []; p.high(10) = []; 
+
+data = {p.dist{1:3}, p.dist{5}, p.dist{7:9}, p.dist{14:15}};
+labs = [1,2,5,6,3,4,5,3,4];
+for i =1:length(data)
+    name{i} = strcat('C',num2str(labs(i)));
+%     err = [p.low(i), p.high(i)];
+end
+figure; hold on;
+plotSpread(data,'xNames', name, 'distributionColors', 'cyan');
+p.low1 = p.meds - p.low;
+p.high1 = p.high-p.meds;
+e10=errorbar(1:4, p.meds(1:4), p.low1(1:4), p.high1(1:4), 'O');
+e20=errorbar(5:7, p.meds(5:7), p.low1(5:7), p.high1(5:7), 'o');
+e25=errorbar(8:9, p.meds(8:9), p.low1(8:9), p.high1(8:9), 'o');
+set(gca, 'XTick',1:length(p.meds));
+xlim([0,10]);
+e10.Color = [0 0 0];
+e20.Color = [0 0 1];
+e25.Color = [1 0 0];
+e10.LineWidth = 1.25;
+e20.LineWidth = 1.25;
+e25.LineWidth = 1.25;
+legend('Spread','10um','20um','25um');
+hold off;
+
+figure; hold on;
+fluct = p.high - p.low;
+f10=scatter(fluct(1:4), p.meds(1:4), 'o','filled','blue');
+f20=scatter(fluct(5:7), p.meds(5:7), 'o','filled','red');
+f25=scatter(fluct(8:9), p.meds(8:9), 'o','filled','black');
+hold off;
+legend('10um', '20um', '25um');
+xlabel('Fluctuations (nm)');
+ylabel('Median thickness (nm)');
+title('Median Thickness vs. Fluctuations - All patterns');
