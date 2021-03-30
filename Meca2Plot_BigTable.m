@@ -74,11 +74,8 @@ excludevect = zeros(height(BigTable),1);
 if ~isempty(varargin)
     
     if ismember('Exclude',varargin(1:2:end))
-        
-        
-        
         ptrex = find(ismember(varargin(1:2:end),'Exclude'));
-        
+ 
         for kex = 1:length(ptrex)
             condex = varargin{ptrex(kex)*2};
             
@@ -106,6 +103,31 @@ DoSuccessStats(resfolder,unique(exptypesList),unique(fitPList),excludevect)
 
 CondID = [];
 
+
+%% Export a nice structure
+SubsetBigTable = BigTable(contains(BigTable.ExpType, '3T3'),:);
+[G, cellIDTable, expTypeTable] = findgroups(SubsetBigTable(:,'CellName') ,SubsetBigTable(:,'ExpType'));
+% meanValues = splitapply(@nanmean,tableFluoMeca.EChadwick,tableFluoMeca.H0Chadwick,tableFluoMeca.SurroundingThickness,tableFluoMeca.fluoLevel,G);
+ExportSummaryTable = cellIDTable;
+expTypeTable.ExpType(strcmp(expTypeTable.ExpType, '3T3aSFL_BSA_nodrugs')) = '3T3aSFL_nonAdhered_nodrug';
+expTypeTable.ExpType(strcmp(expTypeTable.ExpType, '3T3aSFL_BSA_doxy')) = '3T3aSFL_nonAdhered_doxycyclin';
+expTypeTable.ExpType(strcmp(expTypeTable.ExpType, '3T3aSFL_nodrug')) = '3T3aSFL_Adhered20umFibro_nodrug';
+expTypeTable.ExpType(strcmp(expTypeTable.ExpType, '3T3aSFL_doxy')) = '3T3aSFL_Adhered20umFibro_doxycyclin';
+ExportSummaryTable.ExperimentType = expTypeTable.Variables;
+ExportSummaryTable.meanEfitChadwick = splitapply(@nanmean,SubsetBigTable.('EChadwick'),G);
+ExportSummaryTable.meanH0fitChadwick = splitapply(@nanmean,SubsetBigTable.('H0Chadwick'),G);
+ExportSummaryTable.meanH0surrounding = splitapply(@nanmean,SubsetBigTable.('SurroundingThickness'),G);
+ExpTypesList = unique(ExportSummaryTable.ExperimentType,'rows');
+for i = 1:length(ExpTypesList)
+    %tempStruct = struct([]);
+    tempTable = ExportSummaryTable(strcmp(ExportSummaryTable.ExperimentType, ExpTypesList(i)),:);
+    %tempStruct = struct('ExpType', ExpTypesList(i), 'CellName', tempTable.CellName, 'meanEfitChadwick', tempTable.meanEfitChadwick, 'meanH0fitChadwick', tempTable.meanH0fitChadwick, 'meanH0surrounding', tempTable.meanH0surrounding);
+    ExportSummaryStructure(i) = struct('ExpType', ExpTypesList(i), 'CellName', tempTable.CellName, 'meanEfitChadwick', tempTable.meanEfitChadwick, 'meanH0fitChadwick', tempTable.meanH0fitChadwick, 'meanH0surrounding', tempTable.meanH0surrounding);
+end
+save(['C:\Users\JosephVermeil\Desktop\ActinCortexAnalysis\DataAnalysis' filesep 'ExportDataForJulien'],'ExportSummaryTable', 'ExportSummaryStructure');
+
+
+%%
 for k =2:2:size(Cond,2)
     
     if length(unique(Cond(:,k))) >1
