@@ -802,10 +802,10 @@ save([resfolder filesep 'MecaDataTable'],'BigTable');
 
 excludeCols = {'RawDataTDFB'};
 
-writetable(removevars(BigTable,excludeCols),[ExportDataFolder filesep 'Global_MecaData']);
+writetable(removevars(BigTable,excludeCols),[ExportDataFolder filesep 'Global_MecaData' '.csv'],'Delimiter',';');
 
 aSFL_Table = BigTable(contains(BigTable.ExpType, '3T3aSFL'),:);
-writetable(removevars(aSFL_Table,excludeCols),[ExportDataFolder filesep '3T3aSFL_MecaData']);
+writetable(removevars(aSFL_Table,excludeCols),[ExportDataFolder filesep '3T3aSFL_MecaData' '.csv'],'Delimiter',';');
 
 pctgsaved = nCompOk/nCompTot*100;
 
