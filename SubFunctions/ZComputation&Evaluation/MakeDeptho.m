@@ -100,8 +100,16 @@ for i = 1:Lstack
 end
 
 
+
 Lk = DepthoMatrix(:,halfWidth);
 Lks = smooth(Lk,'rlowess');
+
+% Experimental new code !
+for i = 100:301
+    if(Lk(i) < 0.9 * Lks(i))
+        DepthoMatrix(i,:) = DepthoMatrix(i-1,:);
+    end
+end
 
 [~,f] = max(Lks);
 

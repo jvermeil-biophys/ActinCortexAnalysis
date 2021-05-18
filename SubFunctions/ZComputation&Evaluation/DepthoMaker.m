@@ -481,3 +481,156 @@ savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep sa
 end
 
 clear all
+
+%% 21-04-21 M450 100X M1
+date = '21.04.21';
+date2 = [date(1:2) '-' date(4:5) '-' date(7:8)];
+manip = 'M1';
+names = {'1' '2' '3' '4' '5' '6' '7'};
+folderPath = ['D:\MagneticPincherData\Raw\' date '_Deptho\Deptho_' manip];
+fileName = [date2 '_Deptho_' manip '_'];
+saveFileName = [date2 '_Deptho_' manip '_'];
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-04-21 M450 100X M2
+date = '21.04.21';
+date2 = [date(1:2) '-' date(4:5) '-' date(7:8)];
+manip = 'M2';
+names = {'1' '2' '3' '4' '5' '6' '7'};
+folderPath = ['D:\MagneticPincherData\Raw\' date '_Deptho\Deptho_' manip];
+fileName = [date2 '_Deptho_' manip '_'];
+saveFileName = [date2 '_Deptho_' manip '_'];
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-04-23 M450 100X M1
+date = '21.04.23';
+date2 = [date(1:2) '-' date(4:5) '-' date(7:8)];
+manip = 'M1';
+names = {'1' '2' '5' '6'};
+folderPath = ['D:\MagneticPincherData\Raw\' date '_Deptho\Deptho_' manip];
+fileName = [date2 '_Deptho_' manip '_'];
+saveFileName = [date2 '_Deptho_' manip '_'];
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-04-23 M450 100X M2
+date = '21.04.23';
+date2 = [date(1:2) '-' date(4:5) '-' date(7:8)];
+manip = 'M2';
+names = {'1' '2' '3' '4' '5' '6'};
+folderPath = ['D:\MagneticPincherData\Raw\' date '_Deptho\Deptho_' manip];
+fileName = [date2 '_Deptho_' manip '_'];
+saveFileName = [date2 '_Deptho_' manip '_'];
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-04-27 M450 100X M1
+date = '21.04.27';
+date2 = [date(1:2) '-' date(4:5) '-' date(7:8)];
+manip = 'M1';
+names = {'1' '2' '3' '4' '5' '6'};
+folderPath = ['D:\MagneticPincherData\Raw\' date '_Deptho\Deptho_' manip];
+fileName = [date2 '_Deptho_' manip '_'];
+saveFileName = [date2 '_Deptho_' manip '_'];
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-04-27 M450 100X M2
+date = '21.04.27';
+date2 = [date(1:2) '-' date(4:5) '-' date(7:8)];
+manip = 'M2';
+names = {'1' '2' '3' '4' '5'};
+folderPath = ['D:\MagneticPincherData\Raw\' date '_Deptho\Deptho_' manip];
+fileName = [date2 '_Deptho_' manip '_'];
+saveFileName = [date2 '_Deptho_' manip '_'];
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-04-28 M450 100X M1
+date = '21.04.28';
+date2 = [date(1:2) '-' date(4:5) '-' date(7:8)];
+manip = 'M1';
+names = {'1' '2' '3' '4' '5' '6' '7'};
+folderPath = ['D:\MagneticPincherData\Raw\' date '_Deptho\Deptho_' manip];
+fileName = [date2 '_Deptho_' manip '_'];
+saveFileName = [date2 '_Deptho_' manip '_'];
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+
+%% 21-04-28 M450 100X M2
+date = '21.04.28';
+date2 = [date(1:2) '-' date(4:5) '-' date(7:8)];
+manip = 'M2';
+names = {'1' '2' '3' '4' '5' '6' '7'};
+folderPath = ['D:\MagneticPincherData\Raw\' date '_Deptho\Deptho_' manip];
+fileName = [date2 '_Deptho_' manip '_'];
+saveFileName = [date2 '_Deptho_' manip '_'];
+
+for kn = 1:length(names)
+filename = [folderPath filesep fileName names{kn} '_Results.txt'];
+stackname = [folderPath filesep fileName names{kn} '.tif'];
+savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
+     [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
+[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+end
+
+clear all
+

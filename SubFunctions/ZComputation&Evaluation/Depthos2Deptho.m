@@ -4,9 +4,9 @@ clear all
 path = 'D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection';
 savepath = 'D:\MagneticPincherData\Raw\EtalonnageZ\';
 
-date = '21-02-10';
+date = '21-04-28';
 %genericName = [date '_Deptho_M2'];
-genericName = [date '_Deptho_M1'];
+genericName = [date '_Deptho_M2'];
 
 folderContent = dir('D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection');
 nFiles = length(folderContent);

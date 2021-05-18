@@ -441,6 +441,20 @@ return % stop execution here
     Res2Var_wFluo_multiZ('21-02-10', 'thickness5mT_disc20um_wFluo', 'M2','3T3aSFL_doxy',1 ,'Results',297,'21-02-10_Deptho_M2',FLUO, AUTO, tableExperimentalConditions,...
         RawdataFolder,MatfileFolder)
     
+    FLUO = true;
+    Res2Var_wFluo_multiZ('21-04-21', 'thickness5mT_disc20um_wFluo', 'M1','3T3aSFL_nodrug',1 ,'Results',297,'21-04-21_Deptho_M1',FLUO, AUTO, tableExperimentalConditions,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-04-21', 'thickness5mT_disc20um_wFluo', 'M2','3T3aSFL_doxy',1 ,'Results',297,'21-04-21_Deptho_M2',FLUO, AUTO, tableExperimentalConditions,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-04-23', 'thickness5mT_disc20um_wFluo', 'M1','3T3aSFL_doxy',1 ,'Results',297,'21-04-23_Deptho_M1',FLUO, AUTO, tableExperimentalConditions,...
+        RawdataFolder,MatfileFolder)
+    
+    Res2Var_wFluo_multiZ('21-04-23', 'thickness5mT_disc20um_wFluo', 'M2','3T3aSFL_nodrug',1 ,'Results',297,'21-04-23_Deptho_M2',FLUO, AUTO, tableExperimentalConditions,...
+        RawdataFolder,MatfileFolder)
+    
+    
     FLUO = false;
     Res2Var_wFluo_multiZ_Comp('Results','20-08-04','R40','M1','3T3aSFL_BSA_nodrugs',1,...
         '20-02-20_Depthograph100x',tableExperimentalConditions,24,95,143,FLUO,AUTO,RawdataFolder,MatfileFolder)
@@ -1217,6 +1231,20 @@ RemoveFromData(MatfileFolder,{'17-04-19_M1_P1_C3_5mT','11-04-19_M3_P1_C1_5mT'},'
         MatfileFolder, FigureFolder,ExportDataFolder)};
     
     NotSaved = {NotSaved{:},Var2Data_wFluo('21-02-10', 'thickness5mT_disc20um_wFluo', 'M2','3T3aSFL_doxy',tableExperimentalConditions,PLOTV2D,...
+        MatfileFolder, FigureFolder,ExportDataFolder)};
+    
+    PLOTV2D = true;
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-04-21', 'thickness5mT_disc20um_wFluo', 'M1','3T3aSFL_nodrug',tableExperimentalConditions,PLOTV2D,...
+        MatfileFolder, FigureFolder,ExportDataFolder)};
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-04-21', 'thickness5mT_disc20um_wFluo', 'M2','3T3aSFL_doxy',tableExperimentalConditions,PLOTV2D,...
+        MatfileFolder, FigureFolder,ExportDataFolder)};
+    
+    PLOTV2D = true;
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-04-23', 'thickness5mT_disc20um_wFluo', 'M1','3T3aSFL_doxy',tableExperimentalConditions,PLOTV2D,...
+        MatfileFolder, FigureFolder,ExportDataFolder)};
+    
+    NotSaved = {NotSaved{:},Var2Data_wFluo('21-04-23', 'thickness5mT_disc20um_wFluo', 'M2','3T3aSFL_nodrug',tableExperimentalConditions,PLOTV2D,...
         MatfileFolder, FigureFolder,ExportDataFolder)};
     
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%

@@ -1,5 +1,5 @@
 function tableExperimentalConditions = loadTableExperimentalConditions(path)
-    tableExperimentalConditions = readtable(path,'DatetimeType','text','TextType','string','Delimiter',',','HeaderLines',1);
+    tableExperimentalConditions = readtable(path,'DatetimeType','text','TextType','string','Delimiter',';','HeaderLines',0);
     if isa(tableExperimentalConditions.magneticFieldCorrection,'string')
         tableExperimentalConditions.magneticFieldCorrection = str2double(replace(tableExperimentalConditions.magneticFieldCorrection,',','.'));
     end
