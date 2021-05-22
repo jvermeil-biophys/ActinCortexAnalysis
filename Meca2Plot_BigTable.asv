@@ -1140,7 +1140,6 @@ end
         hold on
         plot(FluoResults.meanFluoLevel(currentDateMask),FluoResults.meanSurroundingThickness(currentDateMask),['k' plotSymbols(i)],'markerfacecolor','m')
         %plot(FluoResults.meanFluoLevel(currentDateMask),FluoResults.meanH0Chadwick(currentDateMask),['k' plotSymbols(i)],'markerfacecolor','c')
-        L_fluo.String{end} = Lab{kcond};
     end
     
     subplot(1,2,1)
@@ -1148,7 +1147,6 @@ end
     xlabel('Fluo Intensity (a.u.)')
     ylabel('average Echad (kPa)')
     ax = gca;
-    
     ax.XTickLabelRotation = 45;
 
     subplot(1,2,2)

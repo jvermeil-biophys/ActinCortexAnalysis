@@ -855,12 +855,11 @@ Data2MecaLoop_BigTable('21-01-21','M1',tableExperimentalConditions,'3T3aSFL_nodr
 Data2MecaLoop_BigTable('21-01-21','M2',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 Data2MecaLoop_BigTable('21-01-21','M3',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 
-PLOTD2M = 0;
-Data2MecaLoop_BigTable('21-04-27','M1',tableExperimentalConditions,'3T3aSFL-6FP_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('21-04-27','M2',tableExperimentalConditions,'3T3aSFL-6FP_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-04-27','M1',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-04-27','M2',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 
-Data2MecaLoop_BigTable('21-04-28','M1',tableExperimentalConditions,'3T3aSFL-6FP_doxy','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
-Data2MecaLoop_BigTable('21-04-28','M2',tableExperimentalConditions,'3T3aSFL-6FP_nodrug','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-04-28','M1',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+Data2MecaLoop_BigTable('21-04-28','M2',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -908,7 +907,7 @@ Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3vsDictys, ...
     {CaSFLnodrug,Cwt},{'o','o'},...
     {'3T3 aSFL non activated','Dictys Ax2 WT'},'3T3_BSA_noDrugVsDictys',1)
 
-%% 3T3 patterns aSFL Joseph
+%% 3T3 patterns Joseph
 
 Conditions3T3aSFL = {'ExpType','3T3aSFL_nodrug','TpsComp','1s','FitParams',fitparams;...
     'ExpType','3T3aSFL_doxy','TpsComp','1s','FitParams',fitparams;...
@@ -917,29 +916,6 @@ Conditions3T3aSFL = {'ExpType','3T3aSFL_nodrug','TpsComp','1s','FitParams',fitpa
 Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3aSFL, ...
     {CaSFLnodrug,CaSFLdoxy},{'o','o'},...
     {'aSFL nodrug','aSFL doxy'},'3T3patterns_noDrugVsDoxy',1)
-
-%% 3T3 patterns aSFL-6FP  Joseph
-
-Conditions3T3aSFL6FP = {'ExpType','3T3aSFL-6FP_nodrug','TpsComp','1s','FitParams',fitparams;...
-    'ExpType','3T3aSFL-6FP_doxy','TpsComp','1s','FitParams',fitparams;...
-    };
-
-Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3aSFL6FP, ...
-    {CaSFLnodrug,CaSFLdoxy},{'>','>'},...
-    {'aSFL-6FP nodrug','aSFL-6FP doxy'},'3T3patterns_aSFL6FP_noDrugVsDoxy',1)
-
-
-%% 3T3 patterns aSFL vs aSFL-6FP  Joseph
-
-Conditions3T3aSFLVs6FP = {'ExpType','3T3aSFL_nodrug','TpsComp','1s','FitParams',fitparams;...
-    'ExpType','3T3aSFL_doxy','TpsComp','1s','FitParams',fitparams;...
-    'ExpType','3T3aSFL-6FP_nodrug','TpsComp','1s','FitParams',fitparams;...
-    'ExpType','3T3aSFL-6FP_doxy','TpsComp','1s','FitParams',fitparams;...
-    };
-
-Meca2Plot_BigTable(MatfileFolder,FigureFolder,Conditions3T3aSFLVs6FP, ...
-    {CaSFLnodrug,CaSFLdoxy,CaSFLnodrug,CaSFLdoxy},{'^','^','>','>'},...
-    {'aSFL nodrug','aSFL doxy', 'aSFL-6FP nodrug','aSFL-6FP doxy'},'3T3patterns_aSFLvsaSFL6FP_noDrugVsDoxy',1)
 
 %% 3T3 patterns vs supsension Joseph
 
