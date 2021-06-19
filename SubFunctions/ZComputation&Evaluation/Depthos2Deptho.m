@@ -4,7 +4,7 @@ clear all
 path = 'D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection';
 savepath = 'D:\MagneticPincherData\Raw\EtalonnageZ\';
 
-date = '21-04-28';
+date = '21-06-17';
 %genericName = [date '_Deptho_M2'];
 genericName = [date '_Deptho_M2'];
 

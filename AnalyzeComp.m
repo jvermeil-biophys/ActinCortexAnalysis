@@ -393,6 +393,8 @@ Res2Var_wFluo_multiZ_Comp('Results','21-01-21','R40_disc20um_wFluo','M2','3T3aSF
 Res2Var_wFluo_multiZ_Comp('Results','21-01-21','R40_disc20um_wFluo','M3','3T3aSFL_nodrug',1,...
     '21-01-21_Deptho_M3',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
+% aSFL-6FP
+
 FLUO = true;
 Res2Var_wFluo_multiZ_Comp('Results','21-04-27','R40_disc20um_wFluo','M1','3T3aSFL-6FP_nodrug',1,...
     '21-04-27_Deptho_M1',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
@@ -405,6 +407,18 @@ Res2Var_wFluo_multiZ_Comp('Results','21-04-28','R40_disc20um','M1','3T3aSFL-6FP_
 Res2Var_wFluo_multiZ_Comp('Results','21-04-28','R40_disc20um','M2','3T3aSFL-6FP_nodrug',1,...
     '21-04-28_Deptho_M2',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
+% aSFL-A8
+
+FLUO = false;
+Res2Var_wFluo_multiZ_Comp('Results','21-06-16','R40_disc20um','M1','3T3aSFL-A8_nodrug',1,...
+    '21-06-16_Deptho_M1',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','21-06-16','R40_disc20um','M2','3T3aSFL-A8_doxy',1,...
+    '21-06-16_Deptho_M2',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+Res2Var_wFluo_multiZ_Comp('Results','21-06-17','R40_disc20um','M1','3T3aSFL-A8_doxy',1,...
+    '21-06-17_Deptho_M1',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+Res2Var_wFluo_multiZ_Comp('Results','21-06-17','R40_disc20um','M2','3T3aSFL-A8_nodrug',1,...
+    '21-06-17_Deptho_M2',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Var2Data Classic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -679,6 +693,8 @@ Var2Data_Comp('21-01-21','R40_disc20um_wFluo','M1',tableExperimentalConditions,'
 Var2Data_Comp('21-01-21','R40_disc20um_wFluo','M2',tableExperimentalConditions,'3T3aSFL_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-01-21','R40_disc20um_wFluo','M3',tableExperimentalConditions,'3T3aSFL_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
+% aSFL-6FP
+
 PLOTV2D = 1;
 Var2Data_Comp('21-04-27','R40_disc20um_wFluo','M1',tableExperimentalConditions,'3T3aSFL-6FP_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-04-27','R40_disc20um_wFluo','M2',tableExperimentalConditions,'3T3aSFL-6FP_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
@@ -686,6 +702,16 @@ Var2Data_Comp('21-04-27','R40_disc20um_wFluo','M2',tableExperimentalConditions,'
 PLOTV2D = 1;
 Var2Data_Comp('21-04-28','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL-6FP_doxy',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-04-28','R40_disc20um','M2',tableExperimentalConditions,'3T3aSFL-6FP_nodrug',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+
+% aSFL-A8
+
+PLOTV2D = 1;
+Var2Data_Comp('21-06-16','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL-A8_nodrug',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('21-06-16','R40_disc20um','M2',tableExperimentalConditions,'3T3aSFL-A8_doxy',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+
+PLOTV2D = 1;
+Var2Data_Comp('21-06-17','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL-A8_doxy',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('21-06-17','R40_disc20um','M2',tableExperimentalConditions,'3T3aSFL-A8_nodrug',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
