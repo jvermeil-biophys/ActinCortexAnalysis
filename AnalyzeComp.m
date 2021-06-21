@@ -862,31 +862,59 @@ Data2MecaLoop_BigTable('04-11-20','M2','DictyDB_M270','R90_2s',2691,MatfileFolde
 %% 3T3 Joseph 
 
 % (Internship aSFL nodrug vs. aSFL doxy)
-PLOTD2M = 0;
+PLOTD2M = 1;
 Data2MecaLoop_BigTable('20-08-04','M1',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('20-08-05','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('20-08-07','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
-
+close all
 Data2MecaLoop_BigTable('20-08-04','M2',tableExperimentalConditions,'3T3aSFL_BSA_doxy','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('20-08-05','M1',tableExperimentalConditions,'3T3aSFL_BSA_doxy','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('20-08-07','M1',tableExperimentalConditions,'3T3aSFL_BSA_doxy','R40',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 
 %% 3T3 Joseph - aSFL 3T3 on 20µm disc patterns of fibronectin
 Data2MecaLoop_BigTable('21-01-18','M1',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('21-01-18','M1',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('21-01-18','M2',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('21-01-18','M3',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 
 Data2MecaLoop_BigTable('21-01-21','M1',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('21-01-21','M2',tableExperimentalConditions,'3T3aSFL_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('21-01-21','M3',tableExperimentalConditions,'3T3aSFL_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 
-PLOTD2M = 0;
+% aSFL-6FP
+PLOTD2M = 1;
 Data2MecaLoop_BigTable('21-04-27','M1',tableExperimentalConditions,'3T3aSFL-6FP_nodrug','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('21-04-27','M2',tableExperimentalConditions,'3T3aSFL-6FP_doxy','R40_disc20um_wFluo',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
-
+close all
 Data2MecaLoop_BigTable('21-04-28','M1',tableExperimentalConditions,'3T3aSFL-6FP_doxy','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 Data2MecaLoop_BigTable('21-04-28','M2',tableExperimentalConditions,'3T3aSFL-6FP_nodrug','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
+
+% aSFL-A8
+PLOTD2M = 1;
+Data2MecaLoop_BigTable('21-06-16','M1',tableExperimentalConditions,'3T3aSFL-A8_nodrug','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
+Data2MecaLoop_BigTable('21-06-16','M2',tableExperimentalConditions,'3T3aSFL-A8_doxy','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
+
+Data2MecaLoop_BigTable('21-06-17','M1',tableExperimentalConditions,'3T3aSFL-A8_doxy','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
+Data2MecaLoop_BigTable('21-06-17','M2',tableExperimentalConditions,'3T3aSFL-A8_nodrug','R40_disc20um',MatfileFolder,FigureFolder,ExportDataFolder,PLOTD2M,VERBOSED2M);
+close all
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%

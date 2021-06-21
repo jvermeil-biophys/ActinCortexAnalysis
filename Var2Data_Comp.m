@@ -342,12 +342,12 @@ if exist([path filesep loadname],'file')
             cyclevect = 1:ncycle; % list of loops
             
             % Initialize begining of ramps parts
-            count = 1;
+            count = 0;
             idxRamp2 = zeros(1, length(Srmp));
             bgnrmp = zeros(ncycle,1);
             for i = 1:length(Srmp)
-                if Srmp(i) > count*nimgtot
-                    bgnrmp(count) = Srmp(i);
+                if Srmp(i) > (count)*nimgtot
+                    bgnrmp(count+1) = Srmp(i);
                     count = count+1;
                 end
                 idxRamp2(i) = count;
