@@ -669,7 +669,7 @@ Var2Data_Comp('04-11-20','R50_2s',0.85,'M1','DictyDB_M450',133,169,'1s',4504,Mat
 Var2Data_Comp('04-11-20','R90_2s',0.85,'M2','DictyDB_M270',133,169,'1s',2691,MatfileFolder,FigureFolder);
 
 %% 3T3 Joseph (Internship aSFL nodrug vs. aSFL doxy)
-PLOTV2D = 1;
+PLOTV2D = 0;
 Var2Data_Comp('20-08-04','R40','M1',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('20-08-05','R40','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('20-08-07','R40','M2',tableExperimentalConditions,'3T3aSFL_BSA_nodrugs',95,143,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
@@ -680,7 +680,7 @@ Var2Data_Comp('20-08-07','R40','M1',tableExperimentalConditions,'3T3aSFL_BSA_dox
 
 %% 3T3 Joseph - aSFL 3T3 on 20µm disc patterns of fibronectin
 
-PLOTV2D = 1;
+PLOTV2D = 0;
 
 Var2Data_Comp('21-01-18','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL_doxy',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder, ExportDataFolder); %,ExportDataFolder);
 
@@ -688,28 +688,28 @@ Var2Data_Comp('21-01-18','R40_disc20um_wFluo','M1',tableExperimentalConditions,'
 Var2Data_Comp('21-01-18','R40_disc20um_wFluo','M2',tableExperimentalConditions,'3T3aSFL_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-01-18','R40_disc20um_wFluo','M3',tableExperimentalConditions,'3T3aSFL_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
-PLOTV2D = 1;
+PLOTV2D = 0;
 Var2Data_Comp('21-01-21','R40_disc20um_wFluo','M1',tableExperimentalConditions,'3T3aSFL_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-01-21','R40_disc20um_wFluo','M2',tableExperimentalConditions,'3T3aSFL_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-01-21','R40_disc20um_wFluo','M3',tableExperimentalConditions,'3T3aSFL_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
 % aSFL-6FP
 
-PLOTV2D = 1;
+PLOTV2D = 0;
 Var2Data_Comp('21-04-27','R40_disc20um_wFluo','M1',tableExperimentalConditions,'3T3aSFL-6FP_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-04-27','R40_disc20um_wFluo','M2',tableExperimentalConditions,'3T3aSFL-6FP_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
-PLOTV2D = 1;
+PLOTV2D = 0;
 Var2Data_Comp('21-04-28','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL-6FP_doxy',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-04-28','R40_disc20um','M2',tableExperimentalConditions,'3T3aSFL-6FP_nodrug',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
 % aSFL-A8
 
-PLOTV2D = 1;
+PLOTV2D = 0;
 Var2Data_Comp('21-06-16','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL-A8_nodrug',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-06-16','R40_disc20um','M2',tableExperimentalConditions,'3T3aSFL-A8_doxy',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
-PLOTV2D = 1;
+PLOTV2D = 0;
 Var2Data_Comp('21-06-17','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL-A8_doxy',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-06-17','R40_disc20um','M2',tableExperimentalConditions,'3T3aSFL-A8_nodrug',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 

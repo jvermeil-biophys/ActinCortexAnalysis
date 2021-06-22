@@ -198,20 +198,23 @@ if exist([path filesep loadname],'file')
             Bfull = BTMat(:,1)*MAGNETICFIELDCORR; % magnetic field for all images
             
             Tfull = (BTMat(:,2)-BTMat(1,2))/1000;% timepoints of all images
-            
+            Tabso = (BTMat(:,2))/1000;
             % Here is a correction for an error in labview :
             % at the begining of each loop there is an extra signal from
             % the camera registered as an image which does not exist. Here we
             % remove it and compensate by adding the right time point at
             % the end of the loop
             Tfull2 = [Tfull(2:end); Tfull(end)+0.05];
+            Tabso2 = [Tabso(2:end); Tabso(end)+0.05];
             ncycle = round(Scst(end)/nimgtot);
             kcycle = [1:ncycle] * nimgtot;
-            Tfull2(kcycle) = Tfull2(kcycle-1)+0.05;            
+            Tfull2(kcycle) = Tfull2(kcycle-1)+0.05;
+            Tabso2(kcycle) = Tabso2(kcycle-1)+0.05; 
             Bfull2 = [Bfull(2:end); Bfull(end)];
             Bfull2(kcycle) = Bfull2(kcycle-1);
             
             T = Tfull2(S); % timepoints for images kept (1 point per triplet)
+            Tabs = Tabso2(S); % Absolute timepoints for images kept (1 point per triplet)
             B = Bfull2(S); % field for for images kept (1 point per triplet)
             
             ptrcst = ismember(S,Scst);
@@ -460,6 +463,7 @@ if exist([path filesep loadname],'file')
                 MR{kc}.B=B;
                 MR{kc}.F=F;
                 MR{kc}.time = T;
+                MR{kc}.timeAbs = Tabs;
                 MR{kc}.S = S;
                 MR{kc}.idxRamp_all=idxRamp_all;
                 MR{kc}.RampData = {RmpDat, FullRmpDat, CompDuration, CstRmp};
