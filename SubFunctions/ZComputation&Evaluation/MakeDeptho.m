@@ -1,4 +1,4 @@
-function [K,f,stepnm] = MakeDeptho(STD,X,Y,S,stackname,savename,stepnm)
+function [K,f,f_HD,stepnm] = MakeDeptho(STD,X,Y,S,stackname,savename,stepnm)
 
 % step en nm entre les images
 
@@ -103,6 +103,7 @@ end
 
 Lk = DepthoMatrix(:,halfWidth);
 Lks = smooth(Lk,'rlowess');
+Lks_HD = interp(Lks,4);
 
 % Experimental new code !
 for i = 100:301
@@ -112,6 +113,7 @@ for i = 100:301
 end
 
 [~,f] = max(Lks);
+[~,f_HD] = max(Lks_HD);
 
 figure
 imshow(uint16(DepthoMatrix));
@@ -125,6 +127,6 @@ plot(Lk,'m')
 plot(f,Lks(f),'*r')
 
 K = DepthoMatrix;
-save([savename '.mat'],'K','f','stepnm');
+save([savename '.mat'],'K','f','f_HD','stepnm');
 
 imwrite(uint16(DepthoMatrix),[savename '.tif'],'tiff');

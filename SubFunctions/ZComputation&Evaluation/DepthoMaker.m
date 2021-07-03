@@ -7,7 +7,7 @@ filename = ['G:\Raw\EtalonnageZ\NotUsed\New_030218\K' names{kn} '_20n_Results.tx
 stackname = ['G:\Raw\EtalonnageZ\NotUsed\New_030218\K' names{kn} '_20n.tif'];
 savename = ['D:\Data\Raw\EtalonnageZ\MultiZCorrection\03-02-18_Depthograph_' names{kn}];
     [VarName1,Area,Mean,StdDev,Min,Max,X,Y,XM,YM,Major,Minor,Angle1,Slice] = importfileOld(filename);
-[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+[K,f,f_HD,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
 end
 
 clear all
@@ -20,7 +20,7 @@ filename = ['D:\Data\Raw\18.05.17_Zkimo\DCMed_7pcOpti_Kymo20nm_' names{kn} '_Res
 stackname = ['D:\Data\Raw\18.05.17_Zkimo\DCMed_7pcOpti_Kymo20nm_' names{kn} '.tif'];
 savename = ['D:\Data\Raw\EtalonnageZ\MultiZCorrection\17-05-18_Depthograph_' names{kn}];
     [VarName1,Area,StdDev,XM,YM,Slice] = importfileDeptho2(filename);
-[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+[K,f,f_HD,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
 end
 
 clear all
@@ -687,7 +687,7 @@ filename = [folderPath filesep fileName names{kn} '_Results.txt'];
 stackname = [folderPath filesep fileName names{kn} '.tif'];
 savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
      [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
-[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+[K,f,f_HD,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
 end
 
 clear all
@@ -706,7 +706,7 @@ filename = [folderPath filesep fileName names{kn} '_Results.txt'];
 stackname = [folderPath filesep fileName names{kn} '.tif'];
 savename = ['D:\MagneticPincherData\Raw\EtalonnageZ\MultiZCorrection' filesep saveFileName names{kn}];
      [VarName1, Area, StdDev, XM, YM, Slice] = importfile_161220(filename);
-[K,f,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
+[K,f,f_HD,stepnm] = MakeDeptho(StdDev,XM,YM,Slice,stackname,savename,20);
 end
 
 clear all
