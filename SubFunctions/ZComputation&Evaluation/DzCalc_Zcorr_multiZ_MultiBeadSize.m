@@ -70,11 +70,11 @@ I = Id./RIme; % normalized depthograph
 firstimg = imread(stackname,'tiff',1); % first image of the stack
 simg = size(firstimg); % size in pixel of images in this stack
 
-Sdone = []; % list of analyzed images
+Sdone1 = []; % list of analyzed images
 
 
 for i = 1:Ls % going through images
-    if not(ismember(S(i),Sdone)) % checking that image has not been analyzed yet
+    if not(ismember(S(i),Sdone1)) % checking that image has not been analyzed yet
         
         % loading of the 3 images that constitute the Z triplet
         if ismember(S(i),Sdown)
@@ -140,11 +140,12 @@ for i = 1:Ls % going through images
                 
                 [x,y] = find(Xmeshtmp>0&Xmeshtmp<=simg(1)&Ymeshtmp>0&Ymeshtmp<=simg(2)); % Actual fraction of the ROI
                 
- try
-                ROItmp = interp2(Xmeshtmp(unique(x),unique(y)),Ymeshtmp(unique(x),unique(y)),ROI1d,Xmeshtmp,Ymeshtmp,'spline'); % interpolation
- catch
-     themall
- end
+                try
+                    ROItmp = interp2(Xmeshtmp(unique(x),unique(y)),Ymeshtmp(unique(x),unique(y)),ROI1d,Xmeshtmp,Ymeshtmp,'spline'); % interpolation
+                catch
+                     themall
+                end
+             
                 ROI1d = ROItmp;
                 
             end
@@ -180,7 +181,10 @@ for i = 1:Ls % going through images
             
         end
         
-
+        Sdone1 = [Sdone1 Slist]; % Adding the three images of the triplet to the list of analyzed images
+        
+    end
+end
 
         
     %% PART II    
@@ -212,11 +216,11 @@ I = Id./RIme; % normalized depthograph
 firstimg = imread(stackname,'tiff',1); % first image of the stack
 simg = size(firstimg); % size in pixel of images in this stack
 
-Sdone = []; % list of analyzed images
+Sdone2 = []; % list of analyzed images
 
 
 for i = 1:Ls % going through images
-    if not(ismember(S(i),Sdone)) % checking that image has not been analyzed yet
+    if not(ismember(S(i),Sdone2)) % checking that image has not been analyzed yet
         
         % loading of the 3 images that constitute the Z triplet
         if ismember(S(i),Sdown)
@@ -321,6 +325,11 @@ for i = 1:Ls % going through images
             clear MVtmp MPtmp
         end
         
+        Sdone2 = [Sdone2 Slist]; % Adding the three images of the triplet to the list of analyzed images
+        
+    end
+end        
+
         
         
         
@@ -329,9 +338,9 @@ for i = 1:Ls % going through images
         
         
         
-
+for i = 1:Ls % going through images
         
-        Sdone = [Sdone Slist]; % Adding the three images of the triplet to the list of analyzed images
+%         Sdone = [Sdone Slist]; % Adding the three images of the triplet to the list of analyzed images
         
 
         % sorting correlations with alignement constraints 
@@ -383,8 +392,8 @@ for i = 1:Ls % going through images
         dzdown(i) = (focalZ2-Zdown2)-(focalZ1-Zdown1) - beadSizeMismatchOffset;
         Wdzdown(i) = Wdown1+Wdown2;
         
-    end
 end
+
 
 dzcalc = sum([dzup.*Wdzup; dzmid.*Wdzmid; dzdown.*Wdzdown],1)./(sum([Wdzup; Wdzmid; Wdzdown],1))*stepnm; % computing dz on as the weighted average of dz on each Z triplet, with the correlation values as weight.
 

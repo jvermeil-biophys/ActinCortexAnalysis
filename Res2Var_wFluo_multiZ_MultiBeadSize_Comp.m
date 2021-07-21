@@ -1,4 +1,4 @@
-function Res2Var_wFluo_multiZ__MultiBeadSize_Comp(restype,date,tag,manip,specif,fich,depthonameSB,depthonameLB,tableExperimentalConditions,nimgbr,nimgr,nimg,wFluo,...
+function Res2Var_wFluo_multiZ_MultiBeadSize_Comp(restype,date,tag,manip,specif,fich,depthonameSB,depthonameLB,tableExperimentalConditions,nimgbr,nimgr,nimg,wFluo,...
     AUTO,datafolder,resfolder)
 
 %       Res2Var is using the imageJ particle analysis data to create
@@ -48,8 +48,9 @@ OPTICALINDEXCORRECTION = ExperimentalConditions.opticalIndexCorrection;
 MultiBeadSizes = false;
 BEADTYPE = ExperimentalConditions.beadType;
 DIAMETER = ExperimentalConditions.beadDiameter;
+SCALE = ExperimentalConditions.scalePixelPerUm;
 if (contains(BEADTYPE, '_'))
-    MultiBeadSizes = true
+    MultiBeadSizes = true;
     diameters = split(DIAMETER,"_");
     diameters = str2double(diameters);
     iL = 1 + (max(diameters) == diameters(2));
@@ -166,7 +167,7 @@ for ki=1:nacq
                 
                 [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, idxRamp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim, path, resname, tag, restype, stackname,...
                                                                                                                                                         name, nimg, nimgbr, nimgr, wFluo,depthonameSB,depthonameLB, datafolder, ...
-                                                                                                                                                        OPTICALINDEXCORRECTION, DIAMETERS, DIAMETERL, DELTA, AUTO);
+                                                                                                                                                        OPTICALINDEXCORRECTION, DIAMETERS, DIAMETERL, DELTA, SCALE, AUTO);
                 
                 kii = kii +1; % compteur de ficheir trouv�
                 
@@ -218,7 +219,7 @@ for ki=1:nacq
         else
             [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, idxRamp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim, path, resname, tag, restype, stackname,...
                                                                                                                                                         name, nimg, nimgbr, nimgr, wFluo, depthonameSB,depthonameLB, datafolder, ...
-                                                                                                                                                        OPTICALINDEXCORRECTION, DIAMETERS, DIAMETERL, DELTA, AUTO);
+                                                                                                                                                        OPTICALINDEXCORRECTION, DIAMETERS, DIAMETERL, DELTA, SCALE, AUTO);
                                                                                                                                                     
             kii = kii +1; % compteur de ficheir trouv�
             
@@ -334,7 +335,7 @@ end
 
 function [Srmp, X1rmp, X2rmp, Y1rmp, Y2rmp, dzrmp, idxRamp, Scst, X1cst, X2cst, Y1cst, Y2cst, dzcst, Sfluo, nBlackImagesOfLoopEnd] = doAnalysis(date, manip, Noim, path, resname, tag, restype, stackname,...
                                                                                                                                                         name, nimg, nimgbr, nimgr, wFluo, depthonameSB,depthonameLB, datafolder, ...
-                                                                                                                                                        OPTICALINDEXCORRECTION, DIAMETERS, DIAMETERL, DELTA, AUTO)
+                                                                                                                                                        OPTICALINDEXCORRECTION, DIAMETERS, DIAMETERL, DELTA, SCALE, AUTO)
 
 fprintf([restype ' ' date '_' manip '_' Noim '_' tag ' : \n\n']);
 
@@ -534,7 +535,7 @@ cprintf('Com', ' OK\n');
 
 % whosWho = true if the big bead corresponds to pos X1, Y1 and false otherwise. Thus, to ensure we have big bead in 1
 % and small in 2, we'll switch between 1 & 2 if whosWho is false.
-whosWho = AsymmetricBeadPair_findWhosWho(X1cst(0),Y1cst(0),X2cst(0),Y2cst(0),Scst(0),stackpath, DIAMETERL, DIAMETERS);
+whosWho = AsymmetricBeadPair_findWhosWho(X1cst(1),Y1cst(1),X2cst(1),Y2cst(1),Scst(1),stackpath, DIAMETERL, DIAMETERS, SCALE);
 if whosWho == false
     X1tot_tmp = X1tot;
     Y1tot_tmp = Y1tot;
@@ -604,11 +605,11 @@ function BTMat = correctionFieldData(BTMat, nimg, nimgbr, nimgr, nBlackImagesOfL
 end
 
 
-function whosWho = AsymmetricBeadPair_findWhosWho(X1,Y1,X2,Y2,S,stackpath,diameterL,diameterS)
+function whosWho = AsymmetricBeadPair_findWhosWho(X1,Y1,X2,Y2,S,stackpath,diameterL,diameterS,scale)
 
-H = ceil(diameterL/2);
-W = ceil(diameterL/2);
-
+H = ceil(diameterL*scale*0.001/2);
+W = ceil(diameterL*scale*0.001/2);
+pixR1 = {[ceil(Y1)-H ceil(Y1)+H],[ceil(X1)-W ceil(X1)+W]};
 ROI1 = imread(stackpath,'tiff',S,'pixelregion',{[ceil(Y1)-H ceil(Y1)+H],[ceil(X1)-W ceil(X1)+W]});
 % figure(1)
 % colormap(gray(65535));
@@ -620,7 +621,7 @@ counts1bis = smooth(counts1,3);
 max1 = max(counts1bis);
 % figure(2)
 % plot(binLocations1, counts1bis)
-
+pixR2 = {[ceil(Y2)-H ceil(Y2)+H],[ceil(X2)-W ceil(X2)+W]};
 ROI2 = imread(stackpath,'tiff',S,'pixelregion',{[ceil(Y2)-H ceil(Y2)+H],[ceil(X2)-W ceil(X2)+W]});
 % figure(3)
 % colormap(gray(65535));
@@ -634,3 +635,5 @@ max2 = max(counts2bis);
 % plot(binLocations2, counts2bis)
 
 whosWho = (max1 > max2);
+
+end

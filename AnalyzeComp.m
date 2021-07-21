@@ -420,6 +420,12 @@ Res2Var_wFluo_multiZ_Comp('Results','21-06-17','R40_disc20um','M1','3T3aSFL-A8_d
 Res2Var_wFluo_multiZ_Comp('Results','21-06-17','R40_disc20um','M2','3T3aSFL-A8_nodrug',1,...
     '21-06-17_Deptho_M2',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
+%% MultiBead sizes
+FLUO = false;
+Res2Var_wFluo_multiZ_MultiBeadSize_Comp('Results','21-07-08','R40_disc20um','M1.1','3T3aSFL_270in-450out',1,...
+    '21-07-08_Deptho270_M1','21-07-08_Deptho450_M1',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Var2Data Classic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
