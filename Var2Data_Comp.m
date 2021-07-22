@@ -145,7 +145,7 @@ if exist([path filesep loadname],'file')
             % Computation of distance between beads
             dxrmp = abs(xrmp(:,2)-xrmp(:,1));
             dyrmp = abs(yrmp(:,1)-yrmp(:,2));
-            D2rmp =(dxrmp.^2+dyrmp.^2).^0.5;
+            D2rmp = (dxrmp.^2+dyrmp.^2).^0.5;
             D3rmp = (D2rmp.^2+dzrmp.^2).^0.5;
             
             cprintf('Com', [' OK.\n']);
@@ -239,41 +239,83 @@ if exist([path filesep loadname],'file')
             D3nm = D3*1000; % in nm
             dxnm = dx*1000; % in nm
             
-            if contains(specif,'M270') % for M270 beads
+%             if contains(specif,'M270') % for M270 beads
+            if contains(BEADTYPE,'M270') && contains(BEADTYPE,'M450')
                 
-                M = 0.74257*1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % magnetization [A.m^-1]
+                M1 = 0.74257*1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % 270
+                M2 = 1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % 450
+
+                diameters = split(DIAMETER,"_");
+                diameters = str2double(diameters);
+                V1 = 4/3*pi*(min(diameters)/2)^3; % bead volume [nm^3]
+                V2 = 4/3*pi*(max(diameters)/2)^3; % bead volume [nm^3]
                 
-            else % for M450 beads
+
+                m1 = M1.*10^-9*V1; % dipolar moment [A.nm^2]
+                m2 = M2.*10^-9*V2; % dipolar moment [A.nm^2]
+
+                Bind1 = 2*10^5*m1./(D3nm.^3); % induction field from one bead on the other
+                Bind2 = 2*10^5*m2./(D3nm.^3);
+
+                Nvois = 1; % number of beads in contact
+
+                Btot1 = B + Nvois*Bind2;% corrected B for neighbours
+                Btot2 = B + Nvois*Bind1;% corrected B for neighbours
                 
-                M = 1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % magnetization [A.m^-1]
+                Mtot1 = 0.74257*1.05*1600*(0.001991*Btot1.^3+17.54*Btot1.^2+153.4*Btot1)./(Btot1.^2+35.53*Btot1+158.1);
+                Mtot2 = 1.05*1600*(0.001991*Btot2.^3+17.54*Btot2.^2+153.4*Btot2)./(Btot2.^2+35.53*Btot2+158.1);
+                Mtot = (Mtot1.*Mtot2).^0.5;
                 
-            end
+                mtot1 = Mtot.*10^-9*V1; % corrected dipolar moment
+                mtot2 = Mtot.*10^-9*V2;
             
-            V = 4/3*pi*(DIAMETER/2)^3; % bead volume [nm^3]
-            
-            m = M.*10^-9*V; % dipolar moment [A.nm^2]
-            
-            Bind = 2*10^5*m./(D3nm.^3); % induction field from one bead on the other
-            
-            Nvois = 1; % number of beads in contact
-            
-            Btot = B + Nvois*Bind;% corrected B for neighbours
-            
-            if contains(specif,'M270')
-                
-                Mtot = 0.74257*1.05*1600*(0.001991*Btot.^3+17.54*Btot.^2+153.4*Btot)./(Btot.^2+35.53*Btot+158.1);
+                anglefactor=abs(3*(dxnm./D3nm).^2-1); % angle between chain and field direction
+
+                F = 3*10^5.*anglefactor.*mtot1.*mtot2./D3nm.^4; % force [pN]
                 
             else
                 
-                Mtot = 1.05*1600*(0.001991*Btot.^3+17.54*Btot.^2+153.4*Btot)./(Btot.^2+35.53*Btot+158.1);
+                
+                if contains(BEADTYPE,'M270') % for M270 beads
+
+                    M = 0.74257*1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % magnetization [A.m^-1]
+
+                elseif contains(BEADTYPE,'M450') % for M450 beads
+
+                    M = 1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % magnetization [A.m^-1]
+
+                end
+            
+                DIAMETER = str2double(DIAMETER);
+            
+                V = 4/3*pi*(DIAMETER/2)^3; % bead volume [nm^3]
+
+                m = M.*10^-9*V; % dipolar moment [A.nm^2]
+
+                Bind = 2*10^5*m./(D3nm.^3); % induction field from one bead on the other
+
+                Nvois = 1; % number of beads in contact
+
+                Btot = B + Nvois*Bind;% corrected B for neighbours
+
+                if contains(BEADTYPE,'M270') % for M270 beads
+
+                    Mtot = 0.74257*1.05*1600*(0.001991*Btot.^3+17.54*Btot.^2+153.4*Btot)./(Btot.^2+35.53*Btot+158.1);
+
+                elseif contains(BEADTYPE,'M450') % for M450 beads
+
+                    Mtot = 1.05*1600*(0.001991*Btot.^3+17.54*Btot.^2+153.4*Btot)./(Btot.^2+35.53*Btot+158.1);
+                    
+                end
+                
+                mtot = Mtot.*10^-9*V; % corrected dipolar moment
+            
+                anglefactor=abs(3*(dxnm./D3nm).^2-1); % angle between chain and field direction
+
+                F = 3*10^5.*anglefactor.*mtot.^2./D3nm.^4; % force [pN]
                 
             end
-            
-            mtot = Mtot.*10^-9*V; % corrected dipolar moment
-            
-            anglefactor=abs(3*(dxnm./D3nm).^2-1); % angle between chain and field direction
-            
-            F = 3*10^5.*anglefactor.*mtot.^2./D3nm.^4; % force [pN]
+           
             
             
             Fcst = F(ptrcst); % force during constant part

@@ -1,5 +1,5 @@
-function dzcalc = DzCalc_Zcorr_multiZ_multiBeads(Xbigtot,Xbig,Ybigtot,Ybig,Xsmalltot,...
-                Xsmall,Ysmalltot,Ysmall,Stot,S,stackname,Sdown,Smid,Sup,depthonameBig,depthonameSmall,depthofolder)
+function dzcalc = DzCalc_Zcorr_multiZ_multiBeadSize2(Xbigtot,Xbig,Ybigtot,Ybig,Xsmalltot,...
+                Xsmall,Ysmalltot,Ysmall,Stot,S,stackname,Sdown,Smid,Sup,depthonameBig,depthonameSmall,DIAMETERL,DIAMETERS,DELTA,depthofolder)
 % renvoi dz 
 % tic
 
@@ -10,8 +10,11 @@ lsmall = 80; % longeur de la ligne a correler
 l2small = 90;
 Lengsmall = l2small/10;
 
+R = DIAMETERL/2;
+r = DIAMETERS/2;
 
-% image de référence et normalization ligne par ligne
+
+% image de rÃ©fÃ©rence et normalization ligne par ligne
 load([depthofolder filesep 'EtalonnageZ\' depthonameSmall '.mat']);
 if exist('Ktot')
     KSmall = Ktot;
@@ -36,7 +39,7 @@ lbig = 450; % longeur de la ligne a correler
 l2big = 500;
 Lengbig = l2big/10;
 
-% image de référence et normalization ligne par ligne
+% image de rÃ©fÃ©rence et normalization ligne par ligne
 load([depthofolder filesep 'EtalonnageZ\' depthonameBig '.mat']);
 if exist('Ktot')
     KBig = Ktot;
@@ -55,7 +58,7 @@ Imebig = mean(Idbig,2);
 RImebig = double(repmat(Imebig,1,2*lbig+1));
 Ibig = Idbig./RImebig;
 
-
+beadSizeMismatchOffset = (DELTA - (R-r))/stepnm;
 
 Sdone = [];
 
@@ -280,7 +283,7 @@ end
         
         %% calcul dz
         
-% on veut multipos(:,1/2) décroissant -> l'indice 1 correspond la curvelo,
+% on veut multipos(:,1/2) dÃ©croissant -> l'indice 1 correspond la curvelo,
 % la correlation pour l'image du bas de la bille, qui doit conc correler
 % vers la fin du depthograph, et donc avoir l'indice le plus grand
 
@@ -313,11 +316,11 @@ end
     [Zup1,Wup1,Zmid1,Wmid1,Zdown1,Wdown1] = Corr2Zs(Bool1,Str,MultiPos1,MultiVal1,ValSum1,fBig);
     [Zup2,Wup2,Zmid2,Wmid2,Zdown2,Wdown2] = Corr2Zs(Bool2,Str,MultiPos2,MultiVal2,ValSum2,fSmall);
 
-    dzup(i) = Zup2-Zup1;
+    dzup(i) = Zup2-Zup1 - beadSizeMismatchOffset;
     Wdzup(i) = Wup1+Wup2;
-    dzmid(i) = Zmid2-Zmid1;
+    dzmid(i) = Zmid2-Zmid1 - beadSizeMismatchOffset;
     Wdzmid(i) = Wmid1+Wmid2;
-    dzdown(i) = Zdown2-Zdown1;
+    dzdown(i) = Zdown2-Zdown1 - beadSizeMismatchOffset;
     Wdzdown(i) = Wdown1+Wdown2;
     
     end

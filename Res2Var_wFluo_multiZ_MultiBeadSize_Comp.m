@@ -563,11 +563,11 @@ end
 fprintf('Computing z and dz...');
 
 % dz for triplet in constant part
-dzcst = DzCalc_Zcorr_multiZ_MultiBeadSize(X1tot,X1cst,Y1tot,Y1cst,X2tot,...
-    X2cst,Y2tot,Y2cst,Stot,Scst,stackpath,Sdown,Smid,Sup,depthonameSB,depthonameLB,DIAMETERL,DIAMETERS,DELTA,datafolder);
+dzcst = DzCalc_Zcorr_multiZ_multiBeadSize2(X1tot,X1cst,Y1tot,Y1cst,X2tot,...
+    X2cst,Y2tot,Y2cst,Stot,Scst,stackpath,Sdown,Smid,Sup,depthonameLB,depthonameSB,DIAMETERL,DIAMETERS,DELTA,datafolder);
 
 % dz during ramps
-dzrmp = DzCalc_Zcorr_MultiBeadSize(X1rmp,Y1rmp,X2rmp,Y2rmp,Srmp,stackpath,depthonameSB,depthonameLB,DIAMETERL,DIAMETERS,DELTA,datafolder);
+dzrmp = DzCalc_Zcorr_MultiBeadSize(X1rmp,Y1rmp,X2rmp,Y2rmp,Srmp,stackpath,depthonameLB,depthonameSB,DIAMETERL,DIAMETERS,DELTA,datafolder);
 
 % sorting dzs
 dzmat = [Scst dzcst';Srmp dzrmp'];

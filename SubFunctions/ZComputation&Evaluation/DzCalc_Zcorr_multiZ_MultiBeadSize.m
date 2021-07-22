@@ -37,16 +37,10 @@ r = DIAMETERS/2;
 
 
         %% PART I
-        
-        
-        
-        
-        
+
 
 % loading depthograph
 load([depthofolder filesep 'EtalonnageZ\' depthonameLB '.mat']);
-
-
 
 % some old depthographs are saved with 'Ktot' and 'fmin' instaed of 'K' and 'f'
 if exist('Ktot')

@@ -1,4 +1,4 @@
-function dzcalc = DzCalc_Zcorr_MultiBeadSize(X1,Y1,X2,Y2,S,stackname,depthonameSB,depthonameLB,DIAMETERL,DIAMETERS,DELTA,depthofolder)
+function dzcalc = DzCalc_Zcorr_MultiBeadSize(X1,Y1,X2,Y2,S,stackname,depthonameLB,depthonameSB,DIAMETERL,DIAMETERS,DELTA,depthofolder)
 
 %
 % Computes dz in micron by correlating a line of pixel from the beads image
@@ -31,7 +31,7 @@ r = DIAMETERS/2;
 %% PART I
 
 % loading depthograph
-load([depthofolder filesep 'EtalonnageZ\' depthoname '.mat']);
+load([depthofolder filesep 'EtalonnageZ\' depthonameLB '.mat']);
 
 % some old depthographs are saved with 'Ktot' and 'fmin' instaed of 'K' and 'f'
 if exist('Ktot')
@@ -53,6 +53,7 @@ I = Id./RIme; % normalized depthograph
 firstimg = imread(stackname,'tiff',1); % first image of the stack
 simg = size(firstimg); % size in pixel of images in this stack
 
+MP1 = [];
 
 for i = 1:Ls % going through images
     
@@ -122,16 +123,18 @@ for i = 1:Ls % going through images
     L1 = (L1(l/10+1:end-l/10) + L1(end-l/10:-1:l/10+1))/2;    
     
     % bead 1
-    [~,MP1,~] = ComputeZCorrel(L1,I); % computing line correlation on kimograph
+    [~,MP1_i,~] = ComputeZCorrel(L1,I); % computing line correlation on kimograph
 
-  
+    MP1 = [MP1 MP1_i(1)];
+
+end
     
     
 %% PART II
 
 
 % loading depthograph
-load([depthofolder filesep 'EtalonnageZ\' depthoname '.mat']);
+load([depthofolder filesep 'EtalonnageZ\' depthonameSB '.mat']);
 
 % some old depthographs are saved with 'Ktot' and 'fmin' instaed of 'K' and 'f'
 if exist('Ktot')
@@ -155,6 +158,7 @@ I = Id./RIme; % normalized depthograph
 firstimg = imread(stackname,'tiff',1); % first image of the stack
 simg = size(firstimg); % size in pixel of images in this stack
 
+MP2 = [];
 
 for i = 1:Ls % going through images
     
@@ -229,20 +233,23 @@ for i = 1:Ls % going through images
     
     
     % bead 2
-    [~,MP2,~] = ComputeZCorrel(L2,I); % computing line correlation on kimograph
+    [~,MP2_i,~] = ComputeZCorrel(L2,I); % computing line correlation on kimograph
+    
+    MP2 = [MP2 MP2_i(1)];
 
-
+end
 
 %% PART III
+for i = 1:Ls % going through images
     
     beadSizeMismatchOffset = (DELTA - (R-r))/stepnm;
-    Z1 = f-MP1(1); % Z for first bead, computed as the position on the kimograph relative to the focus
-    Z2 = f-MP2(1); % Z for second bead, computed as the position on the kimograph relative to the focus
+    Z1 = f-MP1(i); % Z for first bead, computed as the position on the kimograph relative to the focus
+    Z2 = f-MP2(i); % Z for second bead, computed as the position on the kimograph relative to the focus
     dzcalc(i) = Z2-Z1 - beadSizeMismatchOffset; % Z distance between the two beads in voxel
     
 end
 
-dzcalc = -dzcalc*stepnm; % cponversion in nanometers
+dzcalc = dzcalc*stepnm; % cponversion in nanometers
 
 end
 
