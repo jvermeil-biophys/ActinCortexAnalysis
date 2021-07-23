@@ -425,6 +425,9 @@ FLUO = false;
 Res2Var_wFluo_multiZ_MultiBeadSize_Comp('Results','21-07-08','R40_disc20um','M1.1','3T3aSFL_270in-450out',1,...
     '21-07-08_Deptho270_M1','21-07-08_Deptho450_M1',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
+Res2Var_wFluo_multiZ_MultiBeadSize_Comp('Results','21-07-08','R40_disc20um','M3','3T3aSFL_450in-270out',1,...
+    '21-07-08_Deptho270_M3','21-07-08_Deptho450_M3',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Var2Data Classic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -723,6 +726,9 @@ Var2Data_Comp('21-06-17','R40_disc20um','M2',tableExperimentalConditions,'3T3aSF
 %% MultiBead sizes
 PLOTV2D = 1;
 Var2Data_Comp('21-07-08','R40_disc20um','M1.1',tableExperimentalConditions,'3T3aSFL_270in-450out',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+
+PLOTV2D = 1;
+Var2Data_Comp('21-07-08','R40_disc20um','M3',tableExperimentalConditions,'3T3aSFL_450in-270out',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 % 
 % ('Results','21-07-08','R40_disc20um','M1.1','3T3aSFL_270in-450out',1,...
 %     '21-07-08_Deptho270_M1','21-07-08_Deptho450_M1',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
