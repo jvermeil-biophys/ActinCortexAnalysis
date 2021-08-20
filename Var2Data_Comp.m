@@ -55,6 +55,13 @@ MAGNETICFIELDCORR = ExperimentalConditions.magneticFieldCorrection;
 COMPRESSIONDURATION = ExperimentalConditions.compressionDuration;
 % WITHFLUO = boolean(ExperimentalConditions.withFluoImages);
 
+if ~(contains(BEADTYPE,'M270') && contains(BEADTYPE,'M450'))
+    if contains(DIAMETER,'_')
+        diameters = split(DIAMETER,"_");
+        DIAMETER = str2double(diameters(1));
+    end
+end
+
 %%
 % folder with initial data and were to save analysed data
 path = [resfolder filesep 'R2V']; % data from previous program
@@ -276,17 +283,16 @@ if exist([path filesep loadname],'file')
             else
                 
                 
+                
                 if contains(BEADTYPE,'M270') % for M270 beads
-
                     M = 0.74257*1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % magnetization [A.m^-1]
 
                 elseif contains(BEADTYPE,'M450') % for M450 beads
-
                     M = 1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1); % magnetization [A.m^-1]
 
                 end
             
-                DIAMETER = str2double(DIAMETER);
+                
             
                 V = 4/3*pi*(DIAMETER/2)^3; % bead volume [nm^3]
 
