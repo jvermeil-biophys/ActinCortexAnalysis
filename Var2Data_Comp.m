@@ -62,6 +62,13 @@ if ~(contains(BEADTYPE,'M270') && contains(BEADTYPE,'M450'))
     end
 end
 
+try
+    DIAMETER = str2double(DIAMETER);
+catch
+    DIAMETER = DIAMETER;
+end
+   
+
 %%
 % folder with initial data and were to save analysed data
 path = [resfolder filesep 'R2V']; % data from previous program

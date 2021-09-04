@@ -438,6 +438,17 @@ Res2Var_wFluo_multiZ_MultiBeadSize_Comp('Results','21-07-08','R40_disc20um','M4'
     '21-07-08_Deptho450_M4','21-07-08_Deptho450_M4',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
 
+%% 3T3aSFL A11 Smifh2 experiments
+
+FLUO = false;
+Res2Var_wFluo_multiZ_Comp('Results','21-09-01','R40_disc20um','M1','3T3aSFL_dmso',1,...
+    '21-09-01_Deptho_M1',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+FLUO = false;
+Res2Var_wFluo_multiZ_Comp('Results','21-09-01','R40_disc20um','M2','3T3aSFL_smifh2',1,...
+    '21-09-01_Deptho_M2',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Var2Data Classic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -747,6 +758,13 @@ Var2Data_Comp('21-07-08','R40_disc20um','M4',tableExperimentalConditions,'3T3aSF
 % 
 % ('Results','21-07-08','R40_disc20um','M1.1','3T3aSFL_270in-450out',1,...
 %     '21-07-08_Deptho270_M1','21-07-08_Deptho450_M1',tableExperimentalConditions,18,133,169,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+
+%% 3T3aSFL A11 Smifh2 experiments
+
+PLOTV2D = 1;
+Var2Data_Comp('21-09-01','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL_dmso',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('21-09-01','R40_disc20um','M2',tableExperimentalConditions,'3T3aSFL_smifh2',133,169,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
