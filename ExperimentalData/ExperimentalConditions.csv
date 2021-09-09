@@ -43,8 +43,8 @@
 41;21-09-01;M2;compressions;smifh2;20um fibronectin discs;100X;15.8;oil;0.875;1.11;3T3;aSFL;M450;4503;0;5;3_40;1s;False;3;169_133;;
 42;21-09-02;M1;compressions;smifh2;20um fibronectin discs;100X;15.8;oil;0.875;1.11;3T3;aSFL;M450;4503;0;5;3_40;1s;False;3;169_133;;
 43;21-09-02;M2;compressions;dmso;20um fibronectin discs;100X;15.8;oil;0.875;1.11;3T3;aSFL;M450;4503;0;5;3_40;1s;False;3;169_133;;
-44;21-09-02;M3;compressions;smifh2. doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.11;3T3;aSFL;M450;4503;0;5;3_40;1s;True;3;170_133_1;;
-45;21-09-02;M4;compressions;dmso doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.11;3T3;aSFL;M450;4503;0;5;3_40;1s;True;3;170_133_1;;
+44;21-09-02;M3;compressions;smifh2, doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.11;3T3;aSFL;M450;4503;0;5;3_40;1s;True;3;170_133_1;;
+45;21-09-02;M4;compressions;dmso, doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.11;3T3;aSFL;M450;4503;0;5;3_40;1s;True;3;170_133_1;;
 46;21-09-08;M1;compressions;doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.102;3T3;aSFL-6FP-2;M450;4503;0;5;3_40;1s;False;3;169_133;;
 47;21-09-08;M2;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.14;3T3;aSFL-6FP-2;M450;4503;0;5;3_40;1s;False;3;169_133;;
 48;21-09-08;M3;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.112;3T3;aSFL-6FP-2;M450;4503;0;5;3_40;1s;True;3;170_133_1;;
