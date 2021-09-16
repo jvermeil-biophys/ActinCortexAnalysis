@@ -485,6 +485,18 @@ FLUO = true;
 Res2Var_wFluo_multiZ_Comp('Results','21-09-08','R40_disc20um','M4','3T3aSFL-6FP-2_doxy',1,...
     '21-09-08_Deptho_M4',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
 
+%% 3T3aSFL A8-2 (high expresser clone 2) experiments
+
+FLUO = true;
+Res2Var_wFluo_multiZ_Comp('Results','21-09-09','R40_disc20um','M1','3T3aSFL-A8-2_doxy',1,...
+    '21-09-09_Deptho_M1',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+FLUO = true;
+Res2Var_wFluo_multiZ_Comp('Results','21-09-09','R40_disc20um','M2','3T3aSFL-A8-2_nodrug',1,...
+    '21-09-09_Deptho_M2',tableExperimentalConditions,18,133,170,FLUO,AUTO,RawdataFolder,MatfileFolder)
+
+
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Var2Data Classic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
@@ -810,12 +822,18 @@ Var2Data_Comp('21-09-02','R40_disc20um','M4',tableExperimentalConditions,'3T3aSF
 
 %% 3T3aSFL F8 (Long linker clone 2) experiments
 
-
 PLOTV2D = 1;
 Var2Data_Comp('21-09-08','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL-6FP-2_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-09-08','R40_disc20um','M2',tableExperimentalConditions,'3T3aSFL-6FP-2_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-09-08','R40_disc20um','M3',tableExperimentalConditions,'3T3aSFL-6FP-2_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 Var2Data_Comp('21-09-08','R40_disc20um','M4',tableExperimentalConditions,'3T3aSFL-6FP-2_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+
+
+%% 3T3aSFL A8-2 (high expresser clone 2) experiments
+
+PLOTV2D = 1;
+Var2Data_Comp('21-09-09','R40_disc20um','M1',tableExperimentalConditions,'3T3aSFL-A8-2_doxy',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
+Var2Data_Comp('21-09-09','R40_disc20um','M2',tableExperimentalConditions,'3T3aSFL-A8-2_nodrug',133,170,'1s',PLOTV2D,MatfileFolder,FigureFolder,ExportDataFolder);
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%
