@@ -66,9 +66,8 @@ BLUE  = '\033[36m' # blue
 RED  = '\033[31m' # red
 GREEN = '\033[32m' # green
 
+
 # %% (1) Utility functions
-
-
 
 def getExperimentalConditions(experimentalDataDir, save = False):
     """"Import the table with all the conditions in a clean way"""
@@ -619,12 +618,17 @@ class PincherTimeLapse:
             self.dictLog['UIxy'][:,i,0] = dfLog[xkey].values
             self.dictLog['UIxy'][:,i,1] = dfLog[ykey].values
         
-    def computeThreshold(self, method = 'otsu', factor = 0.35):
-        # TBC
-#         factorT = 0.8*(self.D == 4.5) + 0.6*(self.D == 2.7)
-        factorT = 0.35
-        threshold = factorT*filters.threshold_otsu(self.I)
+    def computeThreshold(self, method, factorT):
+        threshold = 0
+        end_z = 2*self.loop_totalSize
+        if method == 'otsu':
+            threshold = factorT*filters.threshold_otsu(self.I[:end_z])
+        elif method == 'max_entropy':
+            bitDepth = util.dtype_limits(self.I[:end_z])[1]+1
+            I8 = util.img_as_ubyte(self.I[:end_z])
+            threshold = factorT*max_entropy_threshold(I8)*(bitDepth/(2**8))
         self.threshold = threshold
+        
         
     def testThresholding(self):
         I_test = self.I[self.nS//2]
@@ -633,7 +637,8 @@ class PincherTimeLapse:
         ax.imshow(I_thresh, cmap = 'gray')
         fig.show()
         
-    def uiThresholding(self, method, factorT = 0.6):
+        
+    def uiThresholding(self, method, factorT):
         threshold = 0
         end_z = 2*self.loop_totalSize
         if method == 'otsu':
@@ -1979,7 +1984,7 @@ class Trajectory:
         
 def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, timeSeriesDataDir,
          dates, manips, wells, cells, depthoNames, expDf, 
-         methodT, factorT, redoAllSteps = False):
+         methodT, factorT, redoAllSteps = False, MatlabStyle = False):
     
     start = time.time()
     
@@ -2073,7 +2078,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         
         ### 0.9 - Import or determine global threshold
         MDpath = fP[:-4] + '_MetaDataPY.txt'
-        if redoAllSteps:
+        if MatlabStyle:
+            PTL.computeThreshold(method = methodT, factorT = factorT)
+        elif redoAllSteps:
             PTL.uiThresholding(method = methodT, factorT = factorT)
         else:
             try:
@@ -2102,6 +2109,11 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         if redoAllSteps:
             pass
         elif os.path.isfile(resFilePath):
+            PTL.importBeadsDetectResult(resFilePath)
+            resFileImported = True
+        
+        if MatlabStyle:
+            resFilePath = fP[:-4] + '_Results.txt'
             PTL.importBeadsDetectResult(resFilePath)
             resFileImported = True
         
@@ -2388,9 +2400,12 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     
     plt.close('all')
     
+    listTrajDicts = []
+    for iB in range(PTL.NB):
+        listTrajDicts.append(PTL.listTrajectories[iB].dict)
     
         ### 7.2 - Return the last objects, for optional verifications
-    return(PTL, timeSeries_DF, dfLogF)
+    return(listTrajDicts, timeSeries_DF, dfLogF)
 
 
 
