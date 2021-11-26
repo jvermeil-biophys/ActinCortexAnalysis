@@ -61,10 +61,11 @@ dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
 # 5. Global constants
 SCALE_100X = 15.8 # pix/µm 
 NORMAL  = '\033[0m'
-ORANGE  = '\033[33m' # orange
-BLUE  = '\033[36m' # blue
 RED  = '\033[31m' # red
 GREEN = '\033[32m' # green
+ORANGE  = '\033[33m' # orange
+BLUE  = '\033[36m' # blue
+
 
 # %% (1) Utility functions
 
