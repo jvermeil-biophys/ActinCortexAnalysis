@@ -112,7 +112,6 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = False)
 
-
 # %% 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% M1
 dates = '21.10.18'
@@ -124,6 +123,7 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = False)
+
 # %%%% M2
 dates = '21.10.18'
 manips, wells, cells = 2, 1, 'all'
@@ -134,7 +134,6 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = False)
-
 
 # %% Next manipe
 

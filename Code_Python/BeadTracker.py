@@ -3004,11 +3004,11 @@ def depthoMaker(dirPath, savePath, specif, saveLabel, scale, beadType = 'M450', 
         # If the bead was not acceptable (for instance too close to the edge of the image)
         # then BD.validBead will be False
         if not BD.validBead:
-            print('Not acceptable file: ' + f)
+            print(RED + 'Not acceptable file: ' + f + NORMAL)
             
         # Else, we can proceed.
         else: 
-            print('Job done for the file: ' + f)
+            print(BLUE + 'Job done for the file: ' + f + NORMAL)
 
             # Creation of the z profiles
             BD.buildDeptho(plot)
@@ -3083,15 +3083,15 @@ def depthoMaker(dirPath, savePath, specif, saveLabel, scale, beadType = 'M450', 
     fig.suptitle(beadType)
     fig.show()
 
-    depthoSavePath = os.path.join(savePath, saveLabel + '_' + beadType + '_step' + str(step) + '_Deptho.tif')
+    depthoSavePath = os.path.join(savePath, saveLabel + '_Deptho.tif')
     io.imsave(depthoSavePath, finalDeptho)
-    metadataPath = os.path.join(savePath, saveLabel + '_' + beadType + '_step' + str(step) + '_Metadata.csv')
+    metadataPath = os.path.join(savePath, saveLabel + '_Metadata.csv')
     with open(metadataPath, 'w') as f:
         f.write('step;focus')
         f.write('\n')
         f.write(str(step) + ';' + str(Zfocus))
 
-    print('ok')
+    print(GREEN + 'ok' + NORMAL)
                
         
 # Finished !
