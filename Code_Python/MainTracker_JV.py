@@ -77,6 +77,27 @@ timeSeriesDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Dat
 experimentalDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Data_Experimental"
 expDf = getExperimentalConditions(experimentalDataDir, save = False)
 
+# %%%% Plot last traj
+
+PTL.listFrames[-500].show()
+for iB in range(PTL.NB):
+    T = PTL.listTrajectories[iB]
+    ax = plt.gca()
+    T.plot(ax, iB)
+
+
+# fig, ax = plt.subplots(1,1)
+# X1, Y1 = listTrajDicts[0]['X'], listTrajDicts[0]['Y']
+# X2, Y2 = listTrajDicts[1]['X'], listTrajDicts[1]['Y']
+# ax.plot(X1, Y1, 'r-')
+# ax.plot(X2, Y2, 'b-')
+    
+# fig.show()
+
+# %%%%
+plt.close('all')
+
+
 # %% New manipes
 
 # %%% Next manipe
@@ -94,15 +115,6 @@ listTrajDicts, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, dept
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.8, 
                                   redoAllSteps = False)
-# %%%% 21.10.25_M1 C1 plot traj
-
-fig, ax = plt.subplots(1,1)
-X1, Y1 = listTrajDicts[0]['X'], listTrajDicts[0]['Y']
-X2, Y2 = listTrajDicts[1]['X'], listTrajDicts[1]['Y']
-ax.plot(X1, Y1, 'r-')
-ax.plot(X2, Y2, 'b-')
-    
-fig.show()
 
 
 # %%%% 21.10.25_M1
@@ -162,7 +174,7 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
 
 # %%%% 21.01.21_M1 - juste une cellule pour commencer
 dates = '21.01.21'
-manips, wells, cells = 1, 1, 1
+manips, wells, cells = 2, 1, [9]
 depthoNames = '21.01.21_M1_M450_step20_100X'
 
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -170,6 +182,8 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.8, 
                                   redoAllSteps = False, MatlabStyle = True)
+
+
 
 # %%%% 21.01.21_M1
 dates = '21.01.21'
@@ -217,7 +231,7 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   redoAllSteps = False, MatlabStyle = True)
 
 # %%%% 21.01.18_M2
-dates = '21.01.18''
+dates = '21.01.18'
 manips, wells, cells = 2, 1, 'all'
 depthoNames = '21.01.18_M2_M450_step20_100X'
 
@@ -228,7 +242,7 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   redoAllSteps = False, MatlabStyle = True)
 
 # %%%% 21.01.18_M3
-dates = '21.01.18''
+dates = '21.01.18'
 manips, wells, cells = 3, 1, 'all'
 depthoNames = '21.01.18_M3_M450_step20_100X'
 

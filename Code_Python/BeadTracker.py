@@ -18,6 +18,7 @@ import re
 import time
 import pyautogui
 import matplotlib
+import traceback
 # import cv2
 
 # import scipy
@@ -37,6 +38,7 @@ pd.set_option('mode.chained_assignment',None)
 # Here we use this mode because displaying images 
 # in new windows is more convenient for this code.
 # %matplotlib qt 
+matplotlib.use('Qt5Agg')
 # To switch back to inline display, use : 
 # %matplotlib widget or %matplotlib inline
 # matplotlib.rcParams.update({'figure.autolayout': True})
@@ -1675,11 +1677,14 @@ class Trajectory:
             previousZ = -1
             while iF <= max(self.dict['iF']):
 
-# ############################ TEST ###################################
-#                 plot = 0
-#                 if iF <= 21:# or (iF < 190 and iF > 150):
-#                     plot = 1
-# ############################ TEST ###################################
+# ######################### IMPORTANT ! ###############################
+# ####### Decomment these lines to enable some plots ##################
+                
+                # plot = 0
+                # if iF >= 840 and iF <= 860:# or (iF < 190 and iF > 150):
+                #     plot = 1
+                
+# ############################ OK?! ###################################
     
                 if iF not in self.dict['iF']:
                     iF += 1
@@ -1718,134 +1723,158 @@ class Trajectory:
         
                      
     def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, maxDz = 40, plot = 0):
-        Nframes = len(framesNuplet)
-        listStatus_1 = [F.status for F in framesNuplet]
-        listXY = [[self.dict['X'][np.where(self.dict['iF']==iF)][0], 
-                   self.dict['Y'][np.where(self.dict['iF']==iF)][0]] for iF in iFNuplet]
-        listiS = [self.dict['iS'][np.where(self.dict['iF']==iF)][0] for iF in iFNuplet]        
-        cleanSize = getDepthoCleanSize(self.D, self.scale)
-        hdSize = self.deptho.shape[1]
-        depthoDepth = self.deptho.shape[0]
-        listProfiles = np.zeros((Nframes, hdSize))
-        listROI = []
-        for i in range(Nframes):
-            xx = np.arange(0, 5)
-            yy = np.arange(0, cleanSize)
-            try:
-                X, Y, iS = int(np.round(listXY[i][0])), int(np.round(listXY[i][1])), listiS[i] # > We could also try to recenter the image to keep a subpixel resolution here
-                # line that is 5 pixels wide
-                profileROI = framesNuplet[i].F[Y-cleanSize//2:Y+cleanSize//2+1, X-2:X+3]
-                f = interpolate.interp2d(xx, yy, profileROI, kind='cubic')
-                # Now use the obtained interpolation function and plot the result:
-                xxnew = xx
-                yynew = np.linspace(0, cleanSize, hdSize)
-                profileROI_hd = f(xxnew, yynew)
-            
-            except: # If the vertical slice doesn't work, try the horizontal one
-                print(ORANGE + 'error with the vertical slice -> trying with horizontal one')
-                print('iFNuplet')
-                print(iFNuplet)
-                print('Roi')
-                print(Y-2,Y+3, X-cleanSize//2,X+cleanSize//2+1)
-                print('' + NORMAL)
-                
-                xx, yy = yy, xx
-                X, Y, iS = int(np.round(listXY[i][0])), int(np.round(listXY[i][1])), listiS[i] # > We could also try to recenter the image to keep a subpixel resolution here
-                # line that is 5 pixels wide
-                profileROI = framesNuplet[i].F[Y-2:Y+3, X-cleanSize//2:X+cleanSize//2+1]
-                f = interpolate.interp2d(xx, yy, profileROI, kind='cubic')
-                # Now use the obtained interpolation function and plot the result:
-                xxnew = np.linspace(0, cleanSize, hdSize)
-                yynew = yy
-                profileROI_hd = f(xxnew, yynew).T
-
-            listROI.append(profileROI)
-
-            listProfiles[i,:] = profileROI_hd[:,5//2] * (1/5)
-            for j in range(1, 1 + 5//2):
-                listProfiles[i,:] += profileROI_hd[:,5//2-j] * (1/5)
-                listProfiles[i,:] += profileROI_hd[:,5//2+j] * (1/5)       
-
-        listProfiles = listProfiles.astype(np.uint16)
-
-
-        # now use listStatus_1, listProfiles, self.deptho + data about the jump between Nuplets ! (TBA) 
-        # to compute the correlation function
-        nVoxels = int(np.round(self.Zstep/self.depthoStep))
-
-        listDistances = np.zeros((Nframes, depthoDepth))
-        listZ = np.zeros(Nframes, dtype = int)
-        for i in range(Nframes):
-            listDistances[i] = squareDistance(self.deptho, listProfiles[i], normalize = True) # Utility functions
-            listZ[i] = np.argmin(listDistances[i])
-        # Translate the profiles that must be translated (status 1 & 3 if Nup = 3)
-        # and don't move the others (status 2 if Nup = 3 or the 1 profile when Nup = 1)
-        if Nup > 1:
-            finalDists = assembleDists(listDistances, listStatus_1, Nup, nVoxels)
-        elif Nup == 1:
-            finalDists = listDistances
-        
-        sumFinalD = np.sum(finalDists, axis = 0)
-        if previousZ == -1 or Nup > 1:
-            Z = np.argmin(sumFinalD)
-        elif Nup == 1 and previousZ != -1:
-#             print(previousZ-maxDz, previousZ+maxDz)
-            Z = previousZ-maxDz + np.argmin(sumFinalD[previousZ-maxDz:previousZ+maxDz])
-
-        # PLOT
-        if plot >= 1:
-            fig, axes = plt.subplots(5, 3)
-            im = framesNuplet[0].F
-            X2, Y2 = listXY[0][0], listXY[0][1]
-            
-            pStart, pStop = np.percentile(im, (1, 99))
-            axes[0,0].imshow(im, vmin = pStart, vmax = 1.5*pStop, cmap = 'gray')
-            col_im = 'cyan'
-            dx, dy = 10, 60
-            axes[0,0].plot([X2], [Y2], marker = '+', color = 'red')
-            axes[0,0].plot([X2-dx,X2-dx], [Y2-dy,Y2+dy], ls = '--', color = col_im)
-            axes[0,0].plot([X2+dx,X2+dx], [Y2-dy,Y2+dy], ls = '--', color = col_im)
-            axes[0,0].plot([X2-dx,X2+dx], [Y2-dy,Y2-dy], ls = '--', color = col_im)
-            axes[0,0].plot([X2-dx,X2+dx], [Y2+dy,Y2+dy], ls = '--', color = col_im)
-            
-            axes[0,1].imshow(self.deptho)
-            # TEST !!! # -> Works well !
-            XL0, YL0 = axes[0,1].get_xlim(), axes[0,1].get_ylim()
-            extent = (XL0[0], YL0[0]*(5/3), YL0[0], YL0[1])
-            axes[0,1].imshow(self.deptho, extent = extent)
-            # TEST !!! #
-
-            pixLineHD = np.arange(0, hdSize, 1)
-            zPos = np.arange(0, depthoDepth, 1)
-            col = ['orange', 'gold', 'green']
+        try:
+            Nframes = len(framesNuplet)
+            listStatus_1 = [F.status for F in framesNuplet]
+            listXY = [[self.dict['X'][np.where(self.dict['iF']==iF)][0], 
+                       self.dict['Y'][np.where(self.dict['iF']==iF)][0]] for iF in iFNuplet]
+            listiS = [self.dict['iS'][np.where(self.dict['iF']==iF)][0] for iF in iFNuplet]        
+            cleanSize = getDepthoCleanSize(self.D, self.scale)
+            hdSize = self.deptho.shape[1]
+            depthoDepth = self.deptho.shape[0]
+            listProfiles = np.zeros((Nframes, hdSize))
+            listROI = []
             for i in range(Nframes):
-#                 axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], [listZ[i], listZ[i]], ls = '--', c = col[i])
-                axes[1,i].imshow(listROI[i])
-                #
-                axes[2,i].plot(pixLineHD, listProfiles[i])
-                #
-                axes[3,i].plot(zPos, listDistances[i])
-                limy3 = axes[3,i].get_ylim()
-                min_i = np.argmin(listDistances[i])
-                axes[3,i].plot([min_i,min_i],limy3,ls = '--', c = col[i])
-                #
-                axes[4,i].plot(zPos, finalDists[i])
-                limy4 = axes[4,i].get_ylim()
-                min_i = np.argmin(finalDists[i])
-                axes[4,i].plot([min_i,min_i],limy4,ls = '--', c = col[i])
-
-#             axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], [Z,Z], ls = '--', c = 'red')
-            axes[0,2].plot(zPos, sumFinalD)
-            limy0 = axes[0,2].get_ylim()
-            axes[0,2].plot([Z,Z],limy0,ls = '-', c = 'red')
-            axes[0,2].plot([previousZ,previousZ],limy0,ls = '--', c = 'pink')
-            axes[0,2].plot([previousZ-maxDz,previousZ-maxDz],limy0,ls = '--', c = 'cyan')
-            axes[0,2].plot([previousZ+maxDz,previousZ+maxDz],limy0,ls = '--', c = 'cyan')
-
-            fig.suptitle('Frames ' + str(iFNuplet) + ' ; Z = ' + str(Z))
-            fig.show()
-
-        return(Z)
+                xx = np.arange(0, 5)
+                yy = np.arange(0, cleanSize)
+                try:
+                    X, Y, iS = int(np.round(listXY[i][0])), int(np.round(listXY[i][1])), listiS[i] # > We could also try to recenter the image to keep a subpixel resolution here
+                    # line that is 5 pixels wide
+                    profileROI = framesNuplet[i].F[Y-cleanSize//2:Y+cleanSize//2+1, X-2:X+3]
+                    f = interpolate.interp2d(xx, yy, profileROI, kind='cubic')
+                    # Now use the obtained interpolation function and plot the result:
+                    xxnew = xx
+                    yynew = np.linspace(0, cleanSize, hdSize)
+                    profileROI_hd = f(xxnew, yynew)
+                
+                except: # If the vertical slice doesn't work, try the horizontal one
+                    print(ORANGE + 'error with the vertical slice -> trying with horizontal one')
+                    print('iFNuplet')
+                    print(iFNuplet)
+                    print('Roi')
+                    print(Y-2,Y+3, X-cleanSize//2,X+cleanSize//2+1)
+                    print('' + NORMAL)
+                    
+                    xx, yy = yy, xx
+                    X, Y, iS = int(np.round(listXY[i][0])), int(np.round(listXY[i][1])), listiS[i] # > We could also try to recenter the image to keep a subpixel resolution here
+                    # line that is 5 pixels wide
+                    profileROI = framesNuplet[i].F[Y-2:Y+3, X-cleanSize//2:X+cleanSize//2+1]
+                    f = interpolate.interp2d(xx, yy, profileROI, kind='cubic')
+                    # Now use the obtained interpolation function and plot the result:
+                    xxnew = np.linspace(0, cleanSize, hdSize)
+                    yynew = yy
+                    profileROI_hd = f(xxnew, yynew).T
+    
+                listROI.append(profileROI)
+    
+                listProfiles[i,:] = profileROI_hd[:,5//2] * (1/5)
+                for j in range(1, 1 + 5//2):
+                    listProfiles[i,:] += profileROI_hd[:,5//2-j] * (1/5)
+                    listProfiles[i,:] += profileROI_hd[:,5//2+j] * (1/5)       
+    
+            listProfiles = listProfiles.astype(np.uint16)
+    
+    
+            # now use listStatus_1, listProfiles, self.deptho + data about the jump between Nuplets ! (TBA) 
+            # to compute the correlation function
+            nVoxels = int(np.round(self.Zstep/self.depthoStep))
+    
+            listDistances = np.zeros((Nframes, depthoDepth))
+            listZ = np.zeros(Nframes, dtype = int)
+            for i in range(Nframes):
+                listDistances[i] = squareDistance(self.deptho, listProfiles[i], normalize = True) # Utility functions
+                listZ[i] = np.argmin(listDistances[i])
+            # Translate the profiles that must be translated (status 1 & 3 if Nup = 3)
+            # and don't move the others (status 2 if Nup = 3 or the 1 profile when Nup = 1)
+            if Nup > 1:
+                finalDists = assembleDists(listDistances, listStatus_1, Nup, nVoxels)
+            elif Nup == 1:
+                finalDists = listDistances
+                
+            sumFinalD = np.sum(finalDists, axis = 0)
+            if previousZ == -1 or Nup > 1: # First image OR triplets => No restriction
+                Z = np.argmin(sumFinalD)
+            elif Nup == 1 and previousZ != -1: # Not first image AND singlet => Restriction
+    #             print(previousZ-maxDz, previousZ+maxDz)
+                limInf = max(previousZ-maxDz, 0)
+                limSup = min(previousZ+maxDz, depthoDepth)
+                Z = limInf + np.argmin(sumFinalD[limInf:limSup])
+    
+            # PLOT
+            if plot >= 1:
+                fig, axes = plt.subplots(5, 3)
+                im = framesNuplet[0].F
+                X2, Y2 = listXY[0][0], listXY[0][1]
+                
+                pStart, pStop = np.percentile(im, (1, 99))
+                axes[0,0].imshow(im, vmin = pStart, vmax = 1.5*pStop, cmap = 'gray')
+                col_im = 'cyan'
+                dx, dy = 10, 60
+                axes[0,0].plot([X2], [Y2], marker = '+', color = 'red')
+                axes[0,0].plot([X2-dx,X2-dx], [Y2-dy,Y2+dy], ls = '--', color = col_im)
+                axes[0,0].plot([X2+dx,X2+dx], [Y2-dy,Y2+dy], ls = '--', color = col_im)
+                axes[0,0].plot([X2-dx,X2+dx], [Y2-dy,Y2-dy], ls = '--', color = col_im)
+                axes[0,0].plot([X2-dx,X2+dx], [Y2+dy,Y2+dy], ls = '--', color = col_im)
+                
+                axes[0,1].imshow(self.deptho)
+                # TEST !!! # -> Works well !
+                XL0, YL0 = axes[0,1].get_xlim(), axes[0,1].get_ylim()
+                extent = (XL0[0], YL0[0]*(5/3), YL0[0], YL0[1])
+                axes[0,1].imshow(self.deptho, extent = extent)
+                # TEST !!! #
+    
+                pixLineHD = np.arange(0, hdSize, 1)
+                zPos = np.arange(0, depthoDepth, 1)
+                col = ['orange', 'gold', 'green']
+                for i in range(Nframes):
+    #                 axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], [listZ[i], listZ[i]], ls = '--', c = col[i])
+                    axes[1,i].imshow(listROI[i])
+                    #
+                    axes[2,i].plot(pixLineHD, listProfiles[i])
+                    #
+                    axes[3,i].plot(zPos, listDistances[i])
+                    limy3 = axes[3,i].get_ylim()
+                    min_i = np.argmin(listDistances[i])
+                    axes[3,i].plot([min_i,min_i],limy3,ls = '--', c = col[i])
+                    #
+                    axes[4,i].plot(zPos, finalDists[i])
+                    limy4 = axes[4,i].get_ylim()
+                    min_i = np.argmin(finalDists[i])
+                    axes[4,i].plot([min_i,min_i],limy4,ls = '--', c = col[i])
+    
+    #             axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], [Z,Z], ls = '--', c = 'red')
+                axes[0,2].plot(zPos, sumFinalD)
+                limy0 = axes[0,2].get_ylim()
+                axes[0,2].plot([Z,Z],limy0,ls = '-', c = 'red')
+                axes[0,2].plot([previousZ,previousZ],limy0,ls = '--', c = 'pink')
+                axes[0,2].plot([previousZ-maxDz,previousZ-maxDz],limy0,ls = '--', c = 'cyan')
+                axes[0,2].plot([previousZ+maxDz,previousZ+maxDz],limy0,ls = '--', c = 'cyan')
+                
+                iSNuplet = [F.iS+1 for F in framesNuplet]
+                fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
+                fig.show()
+    
+            return(Z)
+        
+        except Exception:
+            print(RED + '')
+            traceback.print_exc()
+            print('\n')
+            print(ORANGE + 'Error with the Z detection')
+            print('iFNuplet')
+            print(iFNuplet)
+            print('Roi')
+            print(Y-2,Y+3, X-cleanSize//2,X+cleanSize//2+1)
+            print('Deptho shape')
+            print(self.deptho.shape)
+            print('Shapes of listDistances, finalDists, sumFinalD')
+            print(listDistances.shape)
+            print(finalDists.shape)
+            print(sumFinalD.shape)
+            print('previousZ, previousZ-maxDz, previousZ+maxDz')
+            print(previousZ, previousZ-maxDz, previousZ+maxDz)
+            print('' + NORMAL)
+            
     
     def keepBestStdOnly(self):
         dictBestStd = {}
@@ -2000,8 +2029,10 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         fileList = os.listdir(rd)
         for f in fileList:
             if isFileOfInterest(f, manips, wells, cells):
-                imagesToAnalyse.append(f)
-                imagesToAnalyse_Paths.append(os.path.join(rd, f))    
+                fPath = os.path.join(rd, f)
+                if os.path.isfile(fPath[:-4] + '_Field.txt'):
+                    imagesToAnalyse.append(f)
+                    imagesToAnalyse_Paths.append(os.path.join(rd, f))    
 
         ### 0.2 - Begining of the Main Loop
     
@@ -2398,14 +2429,14 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     print(BLUE + str(time.time()-start) + NORMAL)
     print(BLUE + '\n' + NORMAL)
     
-    plt.close('all')
+    # plt.close('all')
     
     listTrajDicts = []
     for iB in range(PTL.NB):
         listTrajDicts.append(PTL.listTrajectories[iB].dict)
     
         ### 7.2 - Return the last objects, for optional verifications
-    return(listTrajDicts, timeSeries_DF, dfLogF)
+    return(PTL, timeSeries_DF, dfLogF)
 
 
 
