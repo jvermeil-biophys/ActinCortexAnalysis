@@ -36,10 +36,6 @@ pd.set_option('mode.chained_assignment',None)
 # Here we use this mode because displaying images 
 # in new windows is more convenient for this code.
 matplotlib.use('Qt5Agg')
-# %matplotlib qt 
-# To switch back to inline display, use : 
-# %matplotlib widget or %matplotlib inline
-# matplotlib.rcParams.update({'figure.autolayout': True})
 
 SMALLER_SIZE = 8
 SMALL_SIZE = 12
@@ -81,16 +77,46 @@ timeSeriesDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Dat
 experimentalDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Data_Experimental"
 expDf = getExperimentalConditions(experimentalDataDir, save = False)
 
+# %%%% Plot last traj
 
-# %% Next manipe
+PTL.listFrames[-500].show()
+for iB in range(PTL.NB):
+    T = PTL.listTrajectories[iB]
+    ax = plt.gca()
+    T.plot(ax, iB)
+
+
+# fig, ax = plt.subplots(1,1)
+# X1, Y1 = listTrajDicts[0]['X'], listTrajDicts[0]['Y']
+# X2, Y2 = listTrajDicts[1]['X'], listTrajDicts[1]['Y']
+# ax.plot(X1, Y1, 'r-')
+# ax.plot(X2, Y2, 'b-')
+    
+# fig.show()
+
+# %%%%
+plt.close('all')
+
+
+# %% New manipes
+
+# %%% Next manipe
 # %%%% 
 
-# %% Next manipe
-# %%%%
 
+# %%% 21.10.25, compressions of 3T3, M1 = M450, M2 = M270
+# %%%% 21.10.25_M1 C1 Seulement
+dates = '21.10.25'
+manips, wells, cells = 1, 1, 1
+depthoNames = '21.10.25_M1_M450_100X_step20'
 
-# %% 21.10.25, compressions of 3T3, M1 = M450, M2 = M270
-# %%%% M1
+listTrajDicts, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False)
+
+# %%%% 21.10.25_M1
 dates = '21.10.25'
 manips, wells, cells = 1, 1, 'all'
 depthoNames = '21.10.25_M1_M450_100X_step20'
@@ -101,10 +127,10 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   expDf, methodT = 'max_entropy', factorT = 0.8, 
                                   redoAllSteps = False)
 
-# %%%% M2
+# %%%% 21.10.25_M2
 dates = '21.10.25'
 manips, wells, cells = 2, 1, 'all'
-depthoNames = '21.10.25_M2_M270_100X_step20'
+depthoNames = '21.10.25_M2_M450_100X_step20'
 
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
@@ -112,8 +138,8 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = False)
 
-# %% 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
-# %%%% M1
+# %%% 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
+# %%%% 21.10.18_M1
 dates = '21.10.18'
 manips, wells, cells = 1, 1, 'all'
 depthoNames = '21.10.18_M1_M270_100X_step20'
@@ -124,7 +150,7 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = False)
 
-# %%%% M2
+# %%%% 21.10.18_M2
 dates = '21.10.18'
 manips, wells, cells = 2, 1, 'all'
 depthoNames = '21.10.18_M2_M450_100X_step20'
@@ -132,14 +158,98 @@ depthoNames = '21.10.18_M2_M450_100X_step20'
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
-                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
                                   redoAllSteps = False)
 
-# %% Next manipe
-
-# %% Next manipe
 
 
+
+# %% Older manipes
+
+# %%% Next manipe
+# %%%% 
+
+# %%% 21.01.21, compressions of 3T3, M450, M1 = doxy, M2 = control, M3 = doxy
+
+# %%%% 21.01.21_M1 - juste une cellule pour commencer
+dates = '21.01.21'
+manips, wells, cells = 2, 1, [9]
+depthoNames = '21.01.21_M1_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
+
+
+# %%%% 21.01.21_M1
+dates = '21.01.21'
+manips, wells, cells = 1, 1, 'all'
+depthoNames = '21.01.21_M1_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
+# %%%% 21.01.21_M2
+dates = '21.01.21'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '21.01.21_M2_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
+# %%%% 21.01.21_M3
+dates = '21.01.21'
+manips, wells, cells = 3, 1, 'all'
+depthoNames = '21.01.21_M3_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
+# %%% 21.01.18, compressions of 3T3, M450, M1 = control, M2 = doxy, M3 = control
+# %%%% 21.01.18_M1
+dates = '21.01.18'
+manips, wells, cells = ['1-1', '1-2'], 1, 'all'
+depthoNames = '21.01.18_M1_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
+# %%%% 21.01.18_M2
+dates = '21.01.18'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '21.01.18_M2_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
+# %%%% 21.01.18_M3
+dates = '21.01.18'
+manips, wells, cells = 3, 1, 'all'
+depthoNames = '21.01.18_M3_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True)
 
 
 
