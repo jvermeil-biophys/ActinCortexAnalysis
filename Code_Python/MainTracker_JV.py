@@ -116,7 +116,6 @@ listTrajDicts, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, dept
                                   expDf, methodT = 'max_entropy', factorT = 0.8, 
                                   redoAllSteps = False)
 
-
 # %%%% 21.10.25_M1
 dates = '21.10.25'
 manips, wells, cells = 1, 1, 'all'
