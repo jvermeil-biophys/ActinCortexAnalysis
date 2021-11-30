@@ -88,8 +88,6 @@ expDf = getExperimentalConditions(experimentalDataDir, save = False)
 # %% Next manipe
 # %%%%
 
-# %% Next manipe
-# %%%%
 
 
 # %% EXAMPLE -- 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
