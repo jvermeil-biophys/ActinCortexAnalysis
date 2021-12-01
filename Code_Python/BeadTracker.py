@@ -655,7 +655,7 @@ class PincherTimeLapse:
                 os.makedirs(fluoDirPath)
                 for i in range(self.nLoop):
                     j = int(((i+1)*self.loop_totalSize) - 1 - self.blackFramesPerLoop[i])
-                    Ifluo = I[j]
+                    Ifluo = self.I[j]
                     path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
                     io.imsave(path, Ifluo)
                 
@@ -2793,7 +2793,7 @@ class BeadDeptho:
         if validBead:
             # Detect or infer the size of the beads we are measuring
             if self.beadType == 'detect' or self.D0 == 0:
-                counts, binEdges = np.histogram(self.I[self.z_max,y1:y2,x1:x2].ravel(), bins=256)
+                counts, binEdges = np.histogram(self.I[self.z_max,my:My,mx:Mx].ravel(), bins=256)
                 peaks, peaksProp = find_peaks(counts, height=100, threshold=None, distance=None, prominence=None, \
                                    width=None, wlen=None, rel_height=0.5, plateau_size=None)
                 peakThreshVal = 1000
