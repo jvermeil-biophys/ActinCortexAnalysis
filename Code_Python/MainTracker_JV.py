@@ -97,11 +97,46 @@ for iB in range(PTL.NB):
 # %%%%
 plt.close('all')
 
-
-# %% New manipes
+# %%% Next manipe
+# %%%% 
 
 # %%% Next manipe
 # %%%% 
+
+# %%% 21.12.08, compressions of 3T3, M1 = M270, M2 = M450
+# %%%% 21.12.08_M1 C1 Seulement
+dates = '21.12.08'
+manips, wells, cells = 1, 2, 4
+depthoNames = '21.12.08_M1_M270_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False)
+
+
+# %%%% 21.12.08_M1
+dates = '21.12.08'
+manips, wells, cells = 1, 2, 'all'
+depthoNames = '21.12.08_M1_M270_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False)
+
+# %%%% 21.12.08_M2
+dates = '21.12.08'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '21.12.08_M2_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False)
 
 
 # %%% 21.10.25, compressions of 3T3, M1 = M450, M2 = M270

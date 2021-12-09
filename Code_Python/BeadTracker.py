@@ -2121,13 +2121,16 @@ class Trajectory:
 
         fig, ax = plt.subplots(nrows, ncols)
         for i in range(Nimg):
-            pos = np.searchsorted(self.dict['iS'], i*frequency, 'left')
-            iS = self.dict['iS'][pos]
-            iF = self.dict['iF'][pos]
-            pStart, pStop = np.percentile(self.I[iS], (1, 99))
-            ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
-            ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
-            ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+            try:
+                pos = np.searchsorted(self.dict['iS'], i*frequency, 'left')
+                iS = self.dict['iS'][pos]
+                iF = self.dict['iF'][pos]
+                pStart, pStop = np.percentile(self.I[iS], (1, 99))
+                ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
+                ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
+                ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+            except:
+                print(RED  + 'ptit probleme dans le detectNeighbours_ui' + NORMAL)
         
         # Ask the question
         mngr = plt.get_current_fig_manager()
