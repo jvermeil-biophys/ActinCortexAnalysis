@@ -63,6 +63,7 @@ sys.path.append("C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Code_Py
 
 from BeadTracker import *
 
+
 # %% Setting of the directories
 
 mainDataDir = 'D://MagneticPincherData'
