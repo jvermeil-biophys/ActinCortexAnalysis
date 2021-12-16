@@ -52,23 +52,16 @@ dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
 
 # 5. Add the folder to path
 import sys
-sys.path.append("C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Code_Python")
+sys.path.append("C://Users//anumi//Desktop//ActinCortexAnalysis//Code_Python")
 
 # 6. Others
 SCALE_100X = 15.8 # pix/µm
 SCALE_63X = 9.9 # pix/µm
+SCALE_60X = 0.6*SCALE_100X # pix/µm
 
 # %% Import of the BeadTracker functions
 
 from BeadTracker import *
-
-# %% Next deptho
-
-# %% Next deptho
-
-# %% Next deptho
- 
-# %% Next deptho
 
 # %% EXAMPLE -- All depthos from 21.01.18 3T3 experiments
 
@@ -103,7 +96,6 @@ scale = SCALE_100X # pix/µm
 depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
 
 
-
 subdir = 'Deptho_M3'
 depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
 savePath = os.path.join(mainDirPath, 'EtalonnageZ')
@@ -111,6 +103,54 @@ savePath = os.path.join(mainDirPath, 'EtalonnageZ')
 specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
 beadType = 'M450'
 saveLabel = date + '_M3_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+# %% Test deptho 60x Oil Atchoum 21/11/30
+mainDirPath = 'D:/Anumita/Data/Raw/'
+
+date = '21.11.30'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho')
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M450_step50_60X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_60X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 50, d = 'HD', plot = 0)
+
+# %% Test deptho 100x oil Atchoum 21/12/08
+
+mainDirPath = 'D:/Anumita/Data/Raw/'
+
+date = '21.12.08'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho')
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M450_step50_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 50, d = 'HD', plot = 0)
+
+#%% Test 2 deptho 100x oil Atchoum 21/12/13 - After optimizing illumination with Joseph
+
+
+mainDirPath = 'D:/Anumita/Data/Raw/'
+
+date = '21.12.13'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho')
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M450_step20_100X'
 # convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
 scale = SCALE_100X # pix/µm
 
