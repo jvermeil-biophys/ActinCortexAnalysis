@@ -58,6 +58,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 # 4. Other settings
 # These regex are used to correct the stupid date conversions done by Excel
 dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
+dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
 dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
 
 # 5. Global constants
@@ -130,7 +131,10 @@ def getExperimentalConditions(experimentalDataDir, save = False):
     if re.match(dateFormatExcel, dateExemple):
         print('dates corrected')
         expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('/')[0] + '-' + x.split('/')[1] + '-' + x.split('/')[2][2:])        
-        
+    
+    elif re.match(dateFormatExcel2, dateExemple):
+        print('dates corrected')
+        expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])        
 #     except:
 #         print('Unexpected bug with the cleaning step')
 
@@ -2211,6 +2215,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         rawDirList = [os.path.join(rawDataDir, dates)]
     for rd in rawDirList:
         fileList = os.listdir(rd)
+        print(fileList)
         for f in fileList:
             if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
@@ -2219,7 +2224,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                     imagesToAnalyse_Paths.append(os.path.join(rd, f))    
 
         ### 0.2 - Begining of the Main Loop
-    
+    print(imagesToAnalyse)
+    print(rawDirList)
     for i in range(len(imagesToAnalyse)): 
         f, fP = imagesToAnalyse[i], imagesToAnalyse_Paths[i]
         manipID = findInfosInFileName(f, 'manipID') # See Utility Functions > findInfosInFileName
@@ -2232,7 +2238,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         ### 0.3 - Load exp data
         if manipID not in expDf['manipID'].values:
             print(RED + 'Error! No experimental data found for: ' + manipID + NORMAL)
-            bug
         else:
             expDf_line = expDf.loc[expDf['manipID'] == manipID]
             manipDict = {}
@@ -2415,7 +2420,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             for B in traj.dict['Bead']:
                 B.D = D
         
-        ### 3.2 - Detect neighbours
+        # ## 3.2 - Detect neighbours
         
         # Previous way, automatic detection,
         # not robust enough
@@ -2622,11 +2627,13 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     
     # plt.close('all')
     
+    
+    
+        ### 7.2 - Return the last objects, for optional verifications
     listTrajDicts = []
     for iB in range(PTL.NB):
         listTrajDicts.append(PTL.listTrajectories[iB].dict)
-    
-        ### 7.2 - Return the last objects, for optional verifications
+        
     return(PTL, timeSeries_DF, dfLogF)
 
 

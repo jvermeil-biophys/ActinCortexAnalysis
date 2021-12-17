@@ -67,18 +67,10 @@ sys.path.append("C://Users//anumi//Desktop//ActinCortexAnalysis//Code_Python")
 
 from BeadTracker import *
 
-# %% Setting of the directories
-
-mainDataDir = 'D://MagneticPincherData'
-rawDataDir = os.path.join(mainDataDir, 'Raw')
-depthoDir = os.path.join(rawDataDir, 'EtalonnageZ')
-interDataDir = os.path.join(mainDataDir, 'Intermediate')
-figureDir = os.path.join(mainDataDir, 'Figures')
-timeSeriesDataDir = "C://Users//anumi//Desktop//ActinCortexAnalysis//Data_Analysis//TimeSeriesData"
 
 # %% Import of the experimental conditions
 
-experimentalDataDir = "C://Users//anumi//Desktop//ActinCortexAnalysis//Data_Experimental"
+experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental"
 expDf = getExperimentalConditions(experimentalDataDir, save = False)
 
 # %% Next manipe
@@ -94,7 +86,24 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = False)
 # %% Next manipe
-# %%%%
+# %%%% Setting of the directories
+
+mainDataDir = 'D:/Anumita/MagneticPincherData'
+rawDataDir = os.path.join(mainDataDir, 'Raw')
+depthoDir = os.path.join(rawDataDir, 'EtalonnageZ')
+interDataDir = os.path.join(depthoDir, 'Intermediate_Py')
+figureDir = os.path.join(mainDataDir, 'Figures')
+timeSeriesDataDir = "C://Users//anumi//Desktop//ActinCortexAnalysis//Data_Analysis//TimeSeriesData"
+# %%%% M1
+dates = '21.12.10'
+manips, wells, cells = 1, 1, 1
+depthoNames = '21.12.13_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False)
 
 
 
@@ -194,7 +203,7 @@ PTL = XYZtracking(I, cellID, NB, manipDict, depthoDir, depthoNames)
 
 # %%%% Test run 2 for 100X Atchoum 21/12/13 (Planes 500nm apart) - Shitty deptho.
 
-mainDataDir = 'D:/Anumita/Data'
+mainDataDir = 'D://Anumita//Data'
 rawDataDir = os.path.join(mainDataDir, 'Raw')
 depthoDir = os.path.join(rawDataDir, 'EtalonnageZ')
 interDataDir = os.path.join(mainDataDir, 'Intermediate_Py')
@@ -228,13 +237,10 @@ NB =  1
 PTL = XYZtracking(I, cellID, NB, manipDict, depthoDir, depthoNames)
 
 # %% Test experiments from Atchoum
-# %%%% M1
-dates = '21.12.10'
-manips, wells, cells = 1, 1, 'all'
-depthoNames = '21.12.13_M450_100X_step20'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
-                                  figureDir, timeSeriesDataDir,
-                                  dates, manips, wells, cells, depthoNames, 
-                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = False)
+# %%%% Import of the experimental conditions
+
+experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental"
+expDf = getExperimentalConditions(experimentalDataDir, save = False)
+
+
