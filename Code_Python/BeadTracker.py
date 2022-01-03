@@ -63,10 +63,11 @@ dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
 # 5. Global constants
 SCALE_100X = 15.8 # pix/µm 
 NORMAL  = '\033[0m'
-ORANGE  = '\033[33m' # orange
-BLUE  = '\033[36m' # blue
 RED  = '\033[31m' # red
 GREEN = '\033[32m' # green
+ORANGE  = '\033[33m' # orange
+BLUE  = '\033[36m' # blue
+
 
 
 # %% (1) Utility functions
@@ -83,7 +84,7 @@ def getExperimentalConditions(experimentalDataDir, save = False):
     # Getting the table
     experimentalDataFile = 'ExperimentalConditions.csv'
     experimentalDataFilePath = os.path.join(experimentalDataDir, experimentalDataFile)
-    expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=';',header=0)
+    expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=',', header=0)
     print(BLUE + 'Extracted a table with ' + str(expConditionsDF.shape[0]) + ' lines and ' + str(expConditionsDF.shape[1]) + ' columns.' + NORMAL)
     
     # Cleaning the table
@@ -346,7 +347,7 @@ def squareDistance(M, V, normalize = False): # MUCH FASTER ! **Michael Scott Voi
 #     print(time.time()-top)
     return(R)
 
-def matchDists(listD, listStatus, Nup, NVox):
+def matchDists(listD, listStatus, Nup, NVox, direction = 'downward'):
     """
     This function transform the different distances curves computed for 
     a Nuplet of images to match their minima. By definition it is not used for singlets of images.
@@ -359,22 +360,40 @@ def matchDists(listD, listStatus, Nup, NVox):
     offsets = np.array(listStatus) - np.ones(N) * (Nup//2 + 1)
     offsets = offsets.astype(int)
     listD2 = []
-    for i in range(N):
-        if offsets[i] < 0:
-            shift = abs(offsets[i])*NVox
-            D = listD[i]
-            fillVal = D[-1]
-            D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.uint16)
-            listD2.append(D2)
-        if offsets[i] == 0:
-            D = listD[i].astype(np.uint16)
-            listD2.append(D)
-        if offsets[i] > 0:
-            shift = abs(offsets[i])*NVox
-            D = listD[i]
-            fillVal = D[0]
-            D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
-            listD2.append(D2)
+    if direction == 'upward':
+        for i in range(N):
+            if offsets[i] < 0:
+                shift = abs(offsets[i])*NVox
+                D = listD[i]
+                fillVal = D[-1]
+                D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.uint16)
+                listD2.append(D2)
+            if offsets[i] == 0:
+                D = listD[i].astype(np.uint16)
+                listD2.append(D)
+            if offsets[i] > 0:
+                shift = abs(offsets[i])*NVox
+                D = listD[i]
+                fillVal = D[0]
+                D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
+                listD2.append(D2)
+    elif direction == 'downward':
+        for i in range(N):
+            if offsets[i] > 0:
+                shift = abs(offsets[i])*NVox
+                D = listD[i]
+                fillVal = D[-1]
+                D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.uint16)
+                listD2.append(D2)
+            if offsets[i] == 0:
+                D = listD[i].astype(np.uint16)
+                listD2.append(D)
+            if offsets[i] < 0:
+                shift = abs(offsets[i])*NVox
+                D = listD[i]
+                fillVal = D[0]
+                D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
+                listD2.append(D2)
     return(np.array(listD2))
 
 def uiThresholding(I, method = 'otsu', factorT = 0.8):
@@ -506,7 +525,7 @@ def max_entropy_threshold(I):
 
 # %% (2) Tracker classes
     
-# experimentalDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//ExperimentalData"
+# experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental"
 # expDf = getExperimentalConditions()
 
     
@@ -1832,7 +1851,7 @@ class Trajectory:
         df = pd.DataFrame(self.dict)
         df.to_csv(path, sep = '\t', index = False)
     
-    def computeZ(self, plot = 0):
+    def computeZ(self, matchingDirection, plot = 0):
         if len(self.deptho) == 0:
             return('Error, no depthograph associated with this trajectory')
         
@@ -1875,7 +1894,7 @@ class Trajectory:
                         iF += jF
                     
                     maxDz = 40
-                    Z = self.findZ_Nuplet(framesNuplet, iFNuplet, Nup, previousZ, maxDz, plot)
+                    Z = self.findZ_Nuplet(framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz, plot)
                     previousZ = Z
                     # This Z_pix has no meaning in itself, it needs to be compared to the depthograph Z reference point,
                     # which is depthoZFocus. 
@@ -1887,7 +1906,7 @@ class Trajectory:
                     self.dict['Zr'][mask] = Zr
         
                      
-    def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, maxDz = 40, plot = 0):
+    def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz = 40, plot = 0):
         try:
             Nframes = len(framesNuplet)
             listStatus_1 = [F.status for F in framesNuplet]
@@ -1951,7 +1970,7 @@ class Trajectory:
             # Translate the profiles that must be translated (status 1 & 3 if Nup = 3)
             # and don't move the others (status 2 if Nup = 3 or the 1 profile when Nup = 1)
             if Nup > 1:
-                finalDists = matchDists(listDistances, listStatus_1, Nup, nVoxels)
+                finalDists = matchDists(listDistances, listStatus_1, Nup, nVoxels, direction = matchingDirection)
             elif Nup == 1:
                 finalDists = listDistances
                 
@@ -2004,6 +2023,10 @@ class Trajectory:
                     min_i = np.argmin(finalDists[i])
                     axes[4,i].plot([min_i,min_i],limy4,ls = '--', c = col[i])
                     
+                    axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], [listZ[i], listZ[i]], ls = '--', c = col[i])
+                    axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], [Z,Z], ls = '--', c = 'red')
+
+                    
                 axes[0,2].plot(zPos, sumFinalD)
                 limy0 = axes[0,2].get_ylim()
                 axes[0,2].plot([Z,Z],limy0,ls = '-', c = 'red')
@@ -2054,7 +2077,7 @@ class Trajectory:
             iS = self.dict['iS'][i]
             if frequency%iS == 0 or init:
                 iF = self.dict['iF'][i]
-                iB = self.dict['iB'][i]
+                iB = self.dict['iB_inFrame'][i]
                 Frame = self.listFrames[iF]
                 Neighbour_L, Neighbour_R = Frame.detectNeighbours(iB, beadType)
                 listNeighbours.append([Neighbour_L, Neighbour_R])
@@ -2527,6 +2550,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                         traj.depthoZFocus = depthoZFocusHD
         
         ### 4.2 - Compute z for each traj
+        
+        matchingDirection = 'upward' # Change when needed !!
+        
         if redoAllSteps or not trajFilesImported:
             for iB in range(PTL.NB):
                 np.set_printoptions(threshold=np.inf)
@@ -2534,7 +2560,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 print(BLUE + 'Computing Z in traj  {:.0f}...'.format(iB+1) + NORMAL)
                 Tz = time.time()
                 traj = PTL.listTrajectories[iB]
-                traj.computeZ(plot = 0)
+                traj.computeZ(matchingDirection, plot = 0)
                 print(BLUE + 'OK! dT = {:.3f}'.format(time.time()-Tz) + NORMAL)
         
         else:
@@ -2667,7 +2693,7 @@ def XYZtracking(I, cellID, NB, manipDict, depthoDir, depthoNames):
     
     PTL = PincherTimeLapse(I, cellID, manipDict, NB = NB)
     PTL.determineFramesStatus_R40()
-    PTL.uiThresholding(method = 'max_entropy', factorT = 1, increment = 0.05)
+    PTL.uiThresholding(method = 'max_entropy', factorT = 1)#, increment = 0.05)
     PTL.makeFramesList()
     PTL.detectBeads(resFileImported = False, display = 1)
     issue = PTL.buildTrajectories()
@@ -2761,6 +2787,8 @@ def XYZtracking_computeZ(PTL, depthoDir, depthoNames, plot = 0):
                     traj.depthoZFocus = depthoZFocusHD
                     
     # Compute z for each traj
+    matchingDirection = 'downward'
+    
     for iB in range(PTL.NB):
         np.set_printoptions(threshold=np.inf)
         
@@ -2768,7 +2796,7 @@ def XYZtracking_computeZ(PTL, depthoDir, depthoNames, plot = 0):
         
         Tz = time.time()
         traj = PTL.listTrajectories[iB]
-        traj.computeZ(plot)
+        traj.computeZ(matchingDirection, plot)
         print('OK! dT = {:.3f}'.format(time.time()-Tz))
 
     # Keep only the best std data in the trajectories
@@ -3063,7 +3091,7 @@ class BeadDeptho:
             self.plotProfiles()            
             
             
-    def saveBeadDeptho(self, path, manipID, bestDetphoType = 'HD', bestFocusType = 'HD_hd', step = 20):
+    def saveBeadDeptho(self, path, manipID, step, bestDetphoType = 'HD', bestFocusType = 'HD_hd'):
         supDataDir = manipID + '_supData'
         supDataDirPath = os.path.join(path, supDataDir)
         if not os.path.exists(supDataDirPath):
@@ -3276,7 +3304,7 @@ def depthoMaker(dirPath, savePath, specif, saveLabel, scale, beadType = 'M450', 
         for BD in listBD:
 #             BD_manipID = findInfosInFileName(BD.fileName, 'manipID')
             subFileSavePath = os.path.join(savePath, 'Intermediate_Py', saveLabel + '_step' + str(step))
-            BD.saveBeadDeptho(subFileSavePath, specif +  '_' + str(i), bestDetphoType = 'HD', bestFocusType = 'HD_hd', step = 20)
+            BD.saveBeadDeptho(subFileSavePath, specif +  '_' + str(i), step = step, bestDetphoType = 'HD', bestFocusType = 'HD_hd')
             i += 1
 
 #
