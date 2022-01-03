@@ -63,6 +63,7 @@ sys.path.append("C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Code_Py
 
 from BeadTracker import *
 
+
 # %% Setting of the directories
 
 mainDataDir = 'D://MagneticPincherData'
@@ -97,11 +98,46 @@ for iB in range(PTL.NB):
 # %%%%
 plt.close('all')
 
-
-# %% New manipes
+# %%% Next manipe
+# %%%% 
 
 # %%% Next manipe
 # %%%% 
+
+# %%% 21.12.08, compressions of 3T3, M1 = M270, M2 = M450
+# %%%% 21.12.08_M1 C1 Seulement
+dates = '21.12.08'
+manips, wells, cells = 1, 2, 4
+depthoNames = '21.12.08_M1_M270_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False)
+
+
+# %%%% 21.12.08_M1
+dates = '21.12.08'
+manips, wells, cells = 1, 2, 'all'
+depthoNames = '21.12.08_M1_M270_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False)
+
+# %%%% 21.12.08_M2
+dates = '21.12.08'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '21.12.08_M2_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False)
 
 
 # %%% 21.10.25, compressions of 3T3, M1 = M450, M2 = M270
@@ -130,7 +166,7 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
 # %%%% 21.10.25_M2
 dates = '21.10.25'
 manips, wells, cells = 2, 1, 'all'
-depthoNames = '21.10.25_M2_M450_100X_step20'
+depthoNames = '21.10.25_M2_M270_100X_step20'
 
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,

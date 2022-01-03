@@ -674,7 +674,7 @@ class PincherTimeLapse:
                 os.makedirs(fluoDirPath)
                 for i in range(self.nLoop):
                     j = int(((i+1)*self.loop_totalSize) - 1 - self.blackFramesPerLoop[i])
-                    Ifluo = I[j]
+                    Ifluo = self.I[j]
                     path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
                     io.imsave(path, Ifluo)
                 
@@ -1557,7 +1557,7 @@ class Frame:
             Circ = (4 * np.pi * A) / (P * P)
             if A >= 75 and Circ >= 0.7 and A < 1200:
                 pass
-            elif A >= 150 and A < 1200 and Circ < 0.7 and Circ > 0.3:
+            elif A >= 300 and A < 1200 and Circ < 0.7 and Circ > 0.3:
                 F_fh = ndi.binary_fill_holes((F_lab == k).astype(int))
                 tmp_props = measure.regionprops(F_fh.astype(int))
                 A = tmp_props[0].area
@@ -1834,7 +1834,7 @@ class Trajectory:
                      'bestStd' : [], 'Zr' : [], 'Neighbour_L' : [], 'Neighbour_R' : []}
         # iF is the index in the listFrames
         # iS is the index of the slice in the raw image MINUS ONE
-        
+        self.beadInOut = ''
         self.deptho = []
         self.depthoPath = ''
         self.depthoStep = 20
@@ -2144,13 +2144,16 @@ class Trajectory:
 
         fig, ax = plt.subplots(nrows, ncols)
         for i in range(Nimg):
-            pos = np.searchsorted(self.dict['iS'], i*frequency, 'left')
-            iS = self.dict['iS'][pos]
-            iF = self.dict['iF'][pos]
-            pStart, pStop = np.percentile(self.I[iS], (1, 99))
-            ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
-            ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
-            ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+            try:
+                pos = np.searchsorted(self.dict['iS'], i*frequency, 'left')
+                iS = self.dict['iS'][pos]
+                iF = self.dict['iF'][pos]
+                pStart, pStop = np.percentile(self.I[iS], (1, 99))
+                ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
+                ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
+                ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+            except:
+                print(RED  + 'ptit probleme dans le detectNeighbours_ui' + NORMAL)
         
         # Ask the question
         mngr = plt.get_current_fig_manager()
@@ -2182,6 +2185,38 @@ class Trajectory:
         self.dict['Neighbour_L'] = arrayNeighbours[:,0]
         self.dict['Neighbour_R'] = arrayNeighbours[:,1]
 
+
+
+    def detectInOut_ui(self, Nimg, frequency): # NOT VERY WELL MADE FOR NOW
+        # Almost copy paste of detectNeighbours_ui
+        ncols = 4
+        nrows = ((Nimg-1) // ncols) + 1
+
+        fig, ax = plt.subplots(nrows, ncols)
+        for i in range(Nimg):
+            try:
+                pos = np.searchsorted(self.dict['iS'], i*frequency, 'left')
+                iS = self.dict['iS'][pos]
+                iF = self.dict['iF'][pos]
+                pStart, pStop = np.percentile(self.I[iS], (1, 99))
+                ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
+                ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
+                ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+            except:
+                print(RED  + 'ptit probleme dans le detectInOut_ui' + NORMAL)
+        
+        # Ask the question
+        mngr = plt.get_current_fig_manager()
+        mngr.window.setGeometry(720, 50, 1175, 1000)
+        QA = pyautogui.confirm(
+            text='Is it an inside or outside bead?',
+            title='', 
+            buttons=['In', 'Out'])
+        
+        self.beadInOut = QA
+        plt.close(fig)
+        return(QA)
+        
 
             
     def plot(self, ax, i_color):
@@ -2362,15 +2397,19 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         if redoAllSteps:
             pass
         else:
-            allTrajPaths = [os.path.join(trajDirRaw, f[:-4] + '_rawTraj' + str(iB) + '_PY.csv') for iB in range(PTL.NB)]
+            allTrajPaths = [os.path.join(trajDirRaw, f[:-4] + '_rawTraj' + str(iB) + '' + '_PY.csv') for iB in range(PTL.NB)]
+            allTrajPaths += [os.path.join(trajDirRaw, f[:-4] + '_rawTraj' + str(iB) + '_In' + '_PY.csv') for iB in range(PTL.NB)]
+            allTrajPaths += [os.path.join(trajDirRaw, f[:-4] + '_rawTraj' + str(iB) + '_Out' + '_PY.csv') for iB in range(PTL.NB)]
+            allTrajPaths = np.array(allTrajPaths)
             trajFilesExist = np.array([os.path.isfile(trajPath) for trajPath in allTrajPaths])
-            trajFilesExist_global = np.all(trajFilesExist)
+            trajFilesExist_sum = np.sum(trajFilesExist)
         
         ### 2.2 - If yes, load them
-        if trajFilesExist_global:
+        if trajFilesExist_sum == PTL.NB:
             trajFilesImported = True
+            trajPaths = allTrajPaths[trajFilesExist]
             for iB in range(PTL.NB):
-                PTL.importTrajectories(allTrajPaths[iB], iB)
+                PTL.importTrajectories(trajPaths[iB], iB)
                 # print(PTL.listTrajectories[iB].dict['X'][0], PTL.listTrajectories[iB].dict['X'][1])
             print(GREEN + 'Raw traj files found and imported :)' + NORMAL)
         
@@ -2441,6 +2480,15 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 else:
                     beadType = 'detect'
                 traj.detectNeighbours_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize, beadType = beadType)
+        
+        
+        ### 3.3 - Detect in/out bead
+        
+                
+        #if redoAllSteps or not trajFilesImported:
+        for iB in range(PTL.NB):
+            traj = PTL.listTrajectories[iB]
+            InOut = traj.detectInOut_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize)
 
         
     ### 4. Compute dz
@@ -2523,7 +2571,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         for iB in range(PTL.NB):
             traj = PTL.listTrajectories[iB]
             traj_df = pd.DataFrame(traj.dict)
-            trajPathRaw = os.path.join(timeSeriesDataDir, 'Trajectories_raw', f[:-4] + '_rawTraj' + str(iB) + '_PY.csv')
+            trajPathRaw = os.path.join(timeSeriesDataDir, 'Trajectories_raw', f[:-4] + '_rawTraj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
             traj_df.to_csv(trajPathRaw, sep = '\t', index = False)
         
         ### 4.4 - Keep only the best std data in the trajectories
@@ -2535,7 +2583,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         for iB in range(PTL.NB):
             traj = PTL.listTrajectories[iB]
             traj_df = pd.DataFrame(traj.dict)
-            trajPath = os.path.join(timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_PY.csv')
+            trajPath = os.path.join(timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
             traj_df.to_csv(trajPath, sep = '\t', index = False)
     
     
@@ -2821,7 +2869,7 @@ class BeadDeptho:
         if validBead:
             # Detect or infer the size of the beads we are measuring
             if self.beadType == 'detect' or self.D0 == 0:
-                counts, binEdges = np.histogram(self.I[self.z_max,y1:y2,x1:x2].ravel(), bins=256)
+                counts, binEdges = np.histogram(self.I[self.z_max,my:My,mx:Mx].ravel(), bins=256)
                 peaks, peaksProp = find_peaks(counts, height=100, threshold=None, distance=None, prominence=None, \
                                    width=None, wlen=None, rel_height=0.5, plateau_size=None)
                 peakThreshVal = 1000
