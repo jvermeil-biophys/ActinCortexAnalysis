@@ -47,3 +47,21 @@ fig2, ax2 = plt.subplots(1,1)
 # %%
 
 plt.close('all')
+
+# %%
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+plt.close('all')
+
+dirPath = 'E://21.12.08_Patterns3T3_beadSizes//M2_M450_aSFL_R40'
+fileName = 'ResAcquis1 .txt'
+filePath = os.path.join(dirPath, fileName)
+df = pd.read_csv(filePath, sep = '\t', header = None)
+df.columns = ['B', 'Bmeas', 'Zpiezo', 'T']
+T0 = df['T'].values[0]
+df['T'] = df['T'] - T0
+df['B'] = df['B'] * 3/5
+df['Bmeas'] = df['Bmeas'] * 3/5

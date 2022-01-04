@@ -142,7 +142,7 @@ depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType,
 #%% Test 2 deptho 100x oil Atchoum 21/12/13 - After optimizing illumination with Joseph
 
 
-mainDirPath = 'D:/Anumita/MagneticPincherData/Raw/'
+mainDirPath = 'D:/Anumita/Data/Raw/'
 
 date = '21.12.13'
 depthoPath = os.path.join(mainDirPath, date + '_Deptho')
