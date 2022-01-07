@@ -72,7 +72,7 @@ BLUE  = '\033[36m' # blue
 
 # %% (1) Utility functions
 
-def getExperimentalConditions(experimentalDataDir, save = False):
+def getExperimentalConditions(experimentalDataDir, save = False, sep = ','):
     """"
     Import the table with all the conditions in a clean way.
     It is a tedious function to read because it's doing a boring job:
@@ -84,7 +84,7 @@ def getExperimentalConditions(experimentalDataDir, save = False):
     # Getting the table
     experimentalDataFile = 'ExperimentalConditions.csv'
     experimentalDataFilePath = os.path.join(experimentalDataDir, experimentalDataFile)
-    expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=',', header=0)
+    expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=sep, header=0)
     print(BLUE + 'Extracted a table with ' + str(expConditionsDF.shape[0]) + ' lines and ' + str(expConditionsDF.shape[1]) + ' columns.' + NORMAL)
     
     # Cleaning the table
@@ -2367,7 +2367,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             resFileImported = True
         
         if MatlabStyle:
-            resFilePath = fP[:-4] + '_Results.txt'
+            resFilePath = fP[:-4] + '_ResultsPY.txt'
             PTL.importBeadsDetectResult(resFilePath)
             resFileImported = True
         
@@ -2485,10 +2485,10 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         ### 3.3 - Detect in/out bead
         
                 
-        #if redoAllSteps or not trajFilesImported:
-        for iB in range(PTL.NB):
-            traj = PTL.listTrajectories[iB]
-            InOut = traj.detectInOut_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize)
+        if redoAllSteps or not trajFilesImported:
+            for iB in range(PTL.NB):
+                traj = PTL.listTrajectories[iB]
+                InOut = traj.detectInOut_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize)
 
         
     ### 4. Compute dz
@@ -2568,11 +2568,12 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             print(GREEN + 'Z had been already computed :)' + NORMAL)
         
         ### 4.3 - Save the raw traj (before Std selection)
-        for iB in range(PTL.NB):
-            traj = PTL.listTrajectories[iB]
-            traj_df = pd.DataFrame(traj.dict)
-            trajPathRaw = os.path.join(timeSeriesDataDir, 'Trajectories_raw', f[:-4] + '_rawTraj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
-            traj_df.to_csv(trajPathRaw, sep = '\t', index = False)
+        if redoAllSteps or not trajFilesImported:
+            for iB in range(PTL.NB):
+                traj = PTL.listTrajectories[iB]
+                traj_df = pd.DataFrame(traj.dict)
+                trajPathRaw = os.path.join(timeSeriesDataDir, 'Trajectories_raw', f[:-4] + '_rawTraj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
+                traj_df.to_csv(trajPathRaw, sep = '\t', index = False)
         
         ### 4.4 - Keep only the best std data in the trajectories
         for iB in range(PTL.NB):
@@ -2580,11 +2581,12 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             traj.keepBestStdOnly()
         
         ### 4.5 - The trajectories won't change from now on. We can save their '.dict' field.
-        for iB in range(PTL.NB):
-            traj = PTL.listTrajectories[iB]
-            traj_df = pd.DataFrame(traj.dict)
-            trajPath = os.path.join(timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
-            traj_df.to_csv(trajPath, sep = '\t', index = False)
+        if redoAllSteps or not trajFilesImported:
+            for iB in range(PTL.NB):
+                traj = PTL.listTrajectories[iB]
+                traj_df = pd.DataFrame(traj.dict)
+                trajPath = os.path.join(timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
+                traj_df.to_csv(trajPath, sep = '\t', index = False)
     
     
     ### 5. Define pairs and compute distances

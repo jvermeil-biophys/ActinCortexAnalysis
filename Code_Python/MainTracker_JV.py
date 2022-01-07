@@ -76,7 +76,7 @@ timeSeriesDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Dat
 # %% Import of the experimental conditions
 
 experimentalDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Data_Experimental"
-expDf = getExperimentalConditions(experimentalDataDir, save = False)
+expDf = getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
 
 # %%%% Plot last traj
 
@@ -103,6 +103,42 @@ plt.close('all')
 
 # %%% Next manipe
 # %%%% 
+
+# %%% 21.12.16, compressions of 3T3, M1 = M450, M2 = M270
+# %%%% 21.12.16_M1 C1 Seulement
+dates = '21.12.16'
+manips, wells, cells = 1, 1, 9
+depthoNames = '21.12.16_M1_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False)
+
+
+# %%%% 21.12.16_M1
+dates = '21.12.16'
+manips, wells, cells = 1, 1, 'all'
+depthoNames = '21.12.16_M1_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
+# %%%% 21.12.16_M2
+dates = '21.12.16'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '21.12.16_M2_M270_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
 
 # %%% 21.12.08, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% 21.12.08_M1 C1 Seulement
