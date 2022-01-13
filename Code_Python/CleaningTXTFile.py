@@ -10,38 +10,83 @@ import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 
-file = 'D:/Anumita/20211210_100xoil_3t3optorhoa_4.5beads/Chamber1_Cell1_15mT_50msExp_15sActivation_NoScalefactor/test.LOG'
-data = pd.read_csv(file, sep=',', skiprows=[0,3])
+
+expt = '20211220_100xoil_3t3optorhoa_4.5beads_15mT'
+folder = '21-12-20_M3_P1_C3_disc20um'
+
+out_path = 'D:/Anumita/optoPincher Experiments/'+expt+'/'+folder+'/PTLResults.txt'
+
+file = 'D:/Anumita/optoPincher Experiments/'+expt+'/'+folder+'/test.LOG'
+data = pd.read_csv(file, sep=',', skiprows=[0,3,7,8])
 
 col_planeNo =  np.asarray(data[data.columns[0]])
 col_time = np.asarray(data[data.columns[1]])
 col_plane =  np.asarray(data[data.columns[2]])
 
-col_ind = np.where(col_time == col_time[0])
+col_ind = np.where(col_time == col_time[0])[0]
 noOfPlanes = 3
+noOfCh = 2
+totalFrames = 6000
 
 times = []
 planes = []
 planeNos = []
 
+
 # %% Making a text file for the main tracker analysis
 
-for i in col_ind[0]:
+for i in col_ind[0:-1]:
     for j in range(1,noOfPlanes+1):
-        time = col_time[i+j]
-        plane = col_plane[i+j]
-        planeNo =  col_planeNo[i+j]
-        np.asarray(times.append(time[2:-1]))
+        ind = j
+        time = col_time[i+ind]
+        plane = col_plane[i+ind][1:]
+        planeNo =  col_planeNo[i+ind]
+        split_time = time[2:-1].split(':')
+        time_sec = 3600*int(split_time[0]) + 60*int(split_time[1]) + float(split_time[2])
+        np.asarray(times.append(time_sec))
         np.asarray(planes.append(plane))
         np.asarray(planeNos.append(planeNo))
-            
+
+    if (col_planeNo[i+noOfPlanes+1] == '1') == True:
+        for j in range(1,noOfPlanes+1):
+            print('option1')
+            ind = noOfPlanes+j
+            time = col_time[i+ind]
+            plane = col_plane[i+ind][1:]
+            planeNo =  col_planeNo[i+ind]
+            split_time = time[2:-1].split(':')
+            time_sec = 3600*int(split_time[0]) + 60*int(split_time[1]) + float(split_time[2])
+            np.asarray(times.append(time_sec))
+            np.asarray(planes.append(plane))
+            np.asarray(planeNos.append(planeNo))
+        
+    if (col_planeNo[i+noOfCh*noOfPlanes+1] == '1') == True:
+        for j in range(1,noOfPlanes+1):
+            print('option2')
+            ind = noOfCh*noOfPlanes+j
+            time = col_time[i+ind]
+            plane = col_plane[i+ind][1:]
+            planeNo =  col_planeNo[i+ind]
+            split_time = time[2:-1].split(':')
+            time_sec = 3600*int(split_time[0]) + 60*int(split_time[1]) + float(split_time[2])
+            np.asarray(times.append(time_sec))
+            np.asarray(planes.append(plane))
+            np.asarray(planeNos.append(planeNo))
+
+if len(times) < totalFrames:
+    for i in range(totalFrames - len(times)):
+        np.asarray(times.append('nan'))
+        np.asarray(planes.append('nan'))
+        np.asarray(planeNos.append('nan'))
+    
+    
 #Creating a fake magnetic field column
 field = [15.0]*len(times)
 field = np.asarray(field)
 
 #writing the data in a new txt file
 all_data = np.asarray([field, times, field, planes])
-np.savetxt('D:/Anumita/20211210_100xoil_3t3optorhoa_4.5beads/Chamber1_Cell1_15mT_50msExp_15sActivation_NoScalefactor/PTLResults.LOG', all_data.T, fmt='%s, %s, %s, %s', delimiter=' ')
+np.savetxt(out_path, all_data.T, fmt='%s, %s, %s, %s')
 
 # %% Categorising all the 1st planes to get an idea of the time between two aquisitions 
 

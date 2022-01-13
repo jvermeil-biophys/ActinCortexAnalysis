@@ -82,32 +82,6 @@ timeSeriesDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_An
 experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental"
 expDf = getExperimentalConditions(experimentalDataDir, save = False)
 
-# %% Next manipe
-# %%%% 
-
-dates = '21.11.30'
-manips, wells, cells = 1, 1, 'all'
-depthoNames = '21.10.18_M1_M270_100X_step20'
-
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
-                                  figureDir, timeSeriesDataDir,
-                                  dates, manips, wells, cells, depthoNames, 
-                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = False)
-# %% Next manipe
-
-dates = '21.12.10'
-manips, wells, cells = 1, 1, 1
-depthoNames = '21.12.13_M450_step20_100X'
-
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
-                                  figureDir, timeSeriesDataDir,
-                                  dates, manips, wells, cells, depthoNames, 
-                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = False)
-
-
-
 # %% EXAMPLE -- 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% M1
 dates = '21.10.18'
@@ -218,7 +192,7 @@ imagePath = os.path.join(imageDir, imageName)
 depthoNames = '21.12.13_M450_step20_100X'
 
 cellID = 'test'
-I = io.imread(imagePath).T # trqnspose chqnge if not necessqry
+I = io.imread(imagePath).T # transpose change if not necessary
 print(I.shape)
 
 manipDict = {}
@@ -237,15 +211,50 @@ manipDict['with fluo images'] = False
 NB =  1
 PTL = XYZtracking(I, cellID, NB, manipDict, depthoDir, depthoNames)
 
-# %% Test experiments from Atchoum
+# %% OptoPincher test experiments from Atchoum
 
-# %%%% M1
+# %%%% 10/12/2021 : Shitty experiment from 21.12.10
+
 dates = '21.12.10'
-manips, wells, cells = 1, 1, 'all'
-depthoNames = '21.12.13_M450_100X_step20'
+manips, wells, cells = 1, 1, 1
+depthoNames = '21.12.13_M450_step20_100X'
 
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = False)
+                                  redoAllSteps = False, MatlabStyle = True)
+
+# %% 20/12/2021 : First experiment with the  optimised illumtination
+
+# %%%% M1
+dates = '21.12.20'
+manips, wells, cells = 1, 1, 'all'
+depthoNames = '21.12.20_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
+# %%%% M2
+dates = '21.12.20'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '21.12.20_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True)
+# %%%% M3
+dates = '21.12.20'
+manips, wells, cells = 3, 1, 'all'
+depthoNames = '21.12.20_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True)

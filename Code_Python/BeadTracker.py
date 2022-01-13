@@ -789,7 +789,7 @@ class PincherTimeLapse:
         fig.show()
         
         
-    def uiThresholding(self, method, factorT):
+    def uiThresholding(self, method, factorT, loopInterval = 2):
         """
         Interactive thresholding function to replace IJ.
         Compute an auto thresholding on a global 3D image with a method from this list:
@@ -808,8 +808,8 @@ class PincherTimeLapse:
             
         # New version of the plot
         loopSize = self.loop_totalSize
-        N = min(4, self.nS//loopSize)
-        L_I_plot = [self.I[loopSize*2*k + 2] for k in range(N)]
+        N = min(4, ((self.nS//loopSize)//loopInterval)-1)
+        L_I_plot = [self.I[loopSize * loopInterval * k + 2] for k in range(N)]
         L_I_thresh = [I_plot > threshold for I_plot in L_I_plot]
         for i in range(N):
             I_plot = L_I_plot[i]
@@ -831,7 +831,7 @@ class PincherTimeLapse:
         for i in range(N):
             ax.append(fig.add_subplot(gs[i//2, i%2]))
             ax[-1].imshow(L_I_plot[i])
-            ax[-1].set_title('Frame ' + str(loopSize*2*i + 2) + '/' + str(self.nS), fontsize = 8)
+            ax[-1].set_title('Frame ' + str(loopSize*loopInterval*i + 2) + '/' + str(self.nS), fontsize = 8)
             ax[-1].axes.xaxis.set_ticks([])
             ax[-1].axes.yaxis.set_ticks([])
         ax.append(fig.add_subplot(gs[:, 2:]))
@@ -2145,19 +2145,24 @@ class Trajectory:
         # Plots to help the user to see the neighbour of each bead
         ncols = 4
         nrows = ((Nimg-1) // ncols) + 1
-
+        print(Nimg, frequency)
         fig, ax = plt.subplots(nrows, ncols)
         for i in range(Nimg):
-            try:
-                pos = np.searchsorted(self.dict['iS'], i*frequency, 'left')
-                iS = self.dict['iS'][pos]
-                iF = self.dict['iF'][pos]
-                pStart, pStop = np.percentile(self.I[iS], (1, 99))
+            # try:
+            pos = np.searchsorted(self.dict['iS'], i*frequency, 'left')
+            iS = self.dict['iS'][pos]
+            iF = self.dict['iF'][pos]
+            pStart, pStop = np.percentile(self.I[iS], (1, 99))
+            if nrows > 1:
                 ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
                 ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
                 ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
-            except:
-                print(RED  + 'ptit probleme dans le detectNeighbours_ui' + NORMAL)
+            elif nrows == 1:
+                ax[i].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
+                ax[i].set_title('Loop ' + str(i+1))
+                ax[i].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+            # except:
+            #     print(RED  + 'ptit probleme dans le detectNeighbours_ui' + NORMAL)
         
         # Ask the question
         mngr = plt.get_current_fig_manager()
@@ -2203,11 +2208,16 @@ class Trajectory:
                 iS = self.dict['iS'][pos]
                 iF = self.dict['iF'][pos]
                 pStart, pStop = np.percentile(self.I[iS], (1, 99))
-                ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
-                ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
-                ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+                if nrows > 1:
+                    ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
+                    ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
+                    ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+                elif nrows == 1:
+                    ax[i].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
+                    ax[i].set_title('Loop ' + str(i+1))
+                    ax[i].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
             except:
-                print(RED  + 'ptit probleme dans le detectInOut_ui' + NORMAL)
+                print(RED  + 'error in detectInOut_ui' + NORMAL)
         
         # Ask the question
         mngr = plt.get_current_fig_manager()
@@ -2303,7 +2313,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         ### 0.5 - Load field file
         fieldFilePath = fP[:-4] + '_Field.txt'
         fieldCols = ['B_set', 'T_abs', 'B', 'Z']
-        fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols)
+        fieldDf = pd.read_csv(fieldFilePath, sep = ', ', names = fieldCols) # '\t'
         
         ### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
@@ -2340,12 +2350,12 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         if MatlabStyle:
             PTL.computeThreshold(method = methodT, factorT = factorT)
         elif redoAllSteps:
-            PTL.uiThresholding(method = methodT, factorT = factorT)
+            PTL.uiThresholding(method = methodT, factorT = factorT, loopInterval = 1)
         else:
             try:
                 PTL.threshold = PTL.readMetaData(MDpath, 'threshold')
             except:
-                PTL.uiThresholding(method = methodT, factorT = factorT) # Approx 3s per image
+                PTL.uiThresholding(method = methodT, factorT = factorT, loopInterval = 1) # Approx 3s per image
 
 
         ### 0.10 - Save some metadata
@@ -2439,11 +2449,13 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         
         ### 3.1 - Infer or detect Boi sizes in the first image 
         # [Detection doesn't work well !]
+        
         if len(PTL.beadTypes) == 1:
             if 'M450' in PTL.beadTypes[0]:
                 D = 4.5
             elif 'M270' in PTL.beadTypes[0]:
                 D = 2.7
+            
             first_iF = PTL.listTrajectories[0].dict['iF'][0]
             for B in PTL.listFrames[first_iF].listBeads:
                 B.D = D
@@ -2510,13 +2522,18 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             depthoZFocus = depthoMetadata.loc[0,'focus']
             
             # increase the resolution of the deptho with interpolation
+            # print('deptho shape check')
+            # print(deptho.shape)
             nX, nZ = deptho.shape[1], deptho.shape[0]
             XX, ZZ = np.arange(0, nX, 1), np.arange(0, nZ, 1)
+            # print(XX.shape, ZZ.shape)
             fd = interpolate.interp2d(XX, ZZ, deptho, kind='cubic')
             ZZ_HD = np.arange(0, nZ, 1/HDZfactor)
+            # print(ZZ_HD.shape)
             depthoHD = fd(XX, ZZ_HD)
             depthoStepHD = depthoStep/HDZfactor
             depthoZFocus = depthoZFocus*HDZfactor
+            # print(depthoHD.shape)
             #
             for iB in range(PTL.NB):
                 traj = PTL.listTrajectories[iB]
@@ -2556,7 +2573,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         
         ### 4.2 - Compute z for each traj
         
-        matchingDirection = 'upward' # Change when needed !!
+        matchingDirection = 'downward' # Change when needed !!
         
         if redoAllSteps or not trajFilesImported:
             for iB in range(PTL.NB):
@@ -2683,12 +2700,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         listTrajDicts.append(PTL.listTrajectories[iB].dict)
         
     return(PTL, timeSeries_DF, dfLogF)
-
-
-
-
-
-
 
 
 # %%%% Stand-alone functions
