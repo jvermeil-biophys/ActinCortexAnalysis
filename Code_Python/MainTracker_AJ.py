@@ -229,7 +229,7 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
 
 # %%%% M1
 dates = '21.12.20'
-manips, wells, cells = 1, 1, 'all'
+manips, wells, cells = 1, 1, 1
 depthoNames = '21.12.20_M450_step20_100X'
 
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
