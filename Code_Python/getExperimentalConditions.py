@@ -19,6 +19,7 @@ BLUE  = '\033[36m' # blue
 
 
 dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
+dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
 dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
 
 def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
@@ -79,7 +80,10 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     if re.match(dateFormatExcel, dateExemple):
         print('dates corrected')
         expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('/')[0] + '-' + x.split('/')[1] + '-' + x.split('/')[2][2:])        
-        
+    elif re.match(dateFormatExcel2, dateExemple):
+        print('dates corrected')
+        expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])  
+
 #     except:
 #         print('Unexpected bug with the cleaning step')
 
