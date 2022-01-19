@@ -31,6 +31,11 @@ from scipy.signal import find_peaks, savgol_filter
 from scipy.optimize import linear_sum_assignment
 from matplotlib.gridspec import GridSpec
 
+# Add the folder to path
+import sys
+sys.path.append("C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Code_Python")
+from getExperimentalConditions import getExperimentalConditions
+
 # 2. Pandas settings
 pd.set_option('mode.chained_assignment',None)
 
@@ -72,85 +77,6 @@ BLUE  = '\033[36m' # blue
 
 
 # %% (1) Utility functions
-
-def getExperimentalConditions(experimentalDataDir, save = False):
-    """"
-    Import the table with all the conditions in a clean way.
-    It is a tedious function to read because it's doing a boring job:
-    Converting strings into numbers when possible
-    Converting commas into dots to correct for the French decimal notation
-    Converting semicolon separated values into lists when needed
-    Etc
-    """
-    # Getting the table
-    experimentalDataFile = 'ExperimentalConditions.csv'
-    experimentalDataFilePath = os.path.join(experimentalDataDir, experimentalDataFile)
-    expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=',', header=0)
-    print(BLUE + 'Extracted a table with ' + str(expConditionsDF.shape[0]) + ' lines and ' + str(expConditionsDF.shape[1]) + ' columns.' + NORMAL)
-    
-    # Cleaning the table
-#     try:
-    for c in expConditionsDF.columns:
-        if 'Unnamed' in c:
-            expConditionsDF = expConditionsDF.drop([c], axis=1)
-        if '.1' in c:
-            expConditionsDF = expConditionsDF.drop([c], axis=1)
-    expConditionsDF = expConditionsDF.convert_dtypes()
-
-    listTextColumns = []
-    for col in expConditionsDF.columns:
-        try:
-            if expConditionsDF[col].dtype == 'string':
-                listTextColumns.append(col)
-        except:
-            aaaa=0
-            #Ok
-
-    expConditionsDF[listTextColumns] = expConditionsDF[listTextColumns].apply(lambda x: x.str.replace(',','.'))
-
-    expConditionsDF['scale pixel per um'] = expConditionsDF['scale pixel per um'].astype(float)
-    try:
-        expConditionsDF['optical index correction'] = \
-                  expConditionsDF['optical index correction'].apply(lambda x: x.split('/')[0]).astype(float) \
-                / expConditionsDF['optical index correction'].apply(lambda x: x.split('/')[1]).astype(float)
-    except:
-        print('optical index correction already in ' + str(expConditionsDF['optical index correction'].dtype) + ' type.')
-
-    expConditionsDF['magnetic field correction'] = expConditionsDF['magnetic field correction'].astype(float)
-    expConditionsDF['with fluo images'] = expConditionsDF['with fluo images'].astype(bool)
-
-    try:
-        expConditionsDF['ramp field'] = \
-        expConditionsDF['ramp field'].apply(lambda x: [x.split(';')[0], x.split(';')[1]] if not pd.isnull(x) else [])
-    except:
-        aaaa=0
-        #Ok
-
-    dateExemple = expConditionsDF.loc[expConditionsDF.index[1],'date']
-
-    if re.match(dateFormatExcel, dateExemple):
-        print('dates corrected')
-        expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('/')[0] + '-' + x.split('/')[1] + '-' + x.split('/')[2][2:])        
-    
-    elif re.match(dateFormatExcel2, dateExemple):
-        print('dates corrected')
-        expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])        
-#     except:
-#         print('Unexpected bug with the cleaning step')
-
-    if save:
-        saveName = 'ExperimentalConditions.csv'
-        savePath = os.path.join(experimentalDataDir, saveName)
-        expConditionsDF.to_csv(savePath, sep=';')
-
-    expConditionsDF['manipID'] = expConditionsDF['date'] + '_' + expConditionsDF['manip']
-#     reorgaList = np.array([i for i in range(len(expConditionsDF.columns))])
-#     reorgaList[2] = reorgaList[-1]
-#     reorgaList[3:] = reorgaList[3:] - np.ones(len(reorgaList)-3)
-#     expConditionsDF = expConditionsDF[expConditionsDF.columns[reorgaList]]
-    
-    return(expConditionsDF)
-
 
 def findInfosInFileName(f, infoType):
     """
@@ -351,7 +277,7 @@ def squareDistance(M, V, normalize = False): # MUCH FASTER ! **Michael Scott Voi
 #     print(time.time()-top)
     return(R)
 
-def matchDists(listD, listStatus, Nup, NVox, direction = 'downward'):
+def matchDists(listD, listStatus, Nup, NVox, direction):
     """
     This function transform the different distances curves computed for 
     a Nuplet of images to match their minima. By definition it is not used for singlets of images.
@@ -359,6 +285,7 @@ def matchDists(listD, listStatus, Nup, NVox, direction = 'downward'):
     For a triplet of image, it will move the distance curve by NVox voxels to the left 
     for the first curve of a triplet, not move the second one, and move the third by NVox voxels to the right.
     The goal : align the 3 matching minima so that the sum of the three will have a clear global minimum.
+    direction = 'upward'or 'downward'
     """
     N = len(listStatus)
     offsets = np.array(listStatus) - np.ones(N) * (Nup//2 + 1)
@@ -549,7 +476,7 @@ class PincherTimeLapse:
     * data about the 3D image I (dimensions = time, height, width),
     * a list of Frame objects listFrames, 1 per frame in the timelapse,
     * a list of Trajectory objects listTrajectories, 1 per bead of interest (Boi) in the timelapse,
-    * a dictionnary dictLog, saving the status of each frame (see below) 
+    * a dictionnary dictLog, saving the status_frame of each frame (see below) 
                              and all of the user inputs (points and clicks) during the tracking,
     * a pandas DataFrame detectBeadsResult, that contains the raw output of the bead tracking,
     * metadata about the experiment (cellID, expType, loopStruct, loop_totalSize, loop_rampSize, 
@@ -561,9 +488,9 @@ class PincherTimeLapse:
                                  classify them as not relevant by filling the appropriate fields.
     - ptl.saveFluoAside() : save the fluo images in an other folder and classify them as not relevant 
                             for the rest of the image analysis.
-    - ptl.determineFramesStatus_R40() : fill the status and status_2 column of the dictLog.
-                                    in the status field: -1 means excluded ; 0 means ramp ; >0 means *position in* the n-uplet
-                                    in the status_2 field: -1 means excluded ; 0 means ramp ; >0 means *number of* the n-uplet
+    - ptl.determineFramesStatus_R40() : fill the status_frame and status_nUp column of the dictLog.
+                                    in the status_frame field: -1 means excluded ; 0 means ramp ; >0 means *position in* the n-uplet
+                                    in the status_nUp field: -1 means excluded ; 0 means ramp ; >0 means *number of* the n-uplet
     - ptl.uiThresholding() : Compute the threshold that will be used for segmentation in an interractive way.
     - ptl.saveMetaData() : Save the computed threshold along with a few other data.
     - ptl.makeFramesList() : Initialize the frame list.
@@ -600,25 +527,38 @@ class PincherTimeLapse:
         self.dictBeadDiameters = {}
         for k in range(len(self.beadTypes)):
             self.dictBeadDiameters[self.beadTypes[k]] = self.beadDiameters[k]
-            
+         
         loopStruct = manipDict['loop structure'].split('_')
+        #### Exp type dependance here
+        
         # This is an ugly but necessary part of the code
         # This loopStruct field contains from 1 to 3 numbers, separated by a '_'
         # The convention for now is : 'totalLoopSize_rampSize_excludedSize'
         # totalLoopSize > compulsary. The size of an entire loop of images.
         # rampSize > compulsary only for compressions exp. The number of images belonging to the compression per loop.
         # excludedSize > optional. Indicates if some images (eg. fluorescence ones) should be systematically excluded at the end of each loop.
-        self.loop_totalSize = int(loopStruct[0])
-        if self.expType == 'compressions':
-            self.loop_rampSize = int(loopStruct[1])
-        else:
-            self.loop_rampSize = 0
-        if len(loopStruct) == 3: # This 3rd part of the 'loopStruct' field is the nb of frames at the end
-        # of each loop which are not part of the main analysis and should be excluded. Typically fluo images.
-            self.loop_excludedSize = int(loopStruct[2])
-        else:
-            self.loop_excludedSize = 0
-        self.nLoop = int(np.round(nS/self.loop_totalSize))
+        if 'compressions' in self.expType or 'thickness' in self.expType:
+            self.loop_totalSize = int(loopStruct[0])
+            
+            if self.expType == 'compressions':
+                self.loop_rampSize = int(loopStruct[1])
+            elif self.expType == 'compressionsLowStart':
+                self.loop_rampSize = int(loopStruct[1])//2
+            else:
+                self.loop_rampSize = 0
+            
+            
+            if len(loopStruct) == 3: # This 3rd part of the 'loopStruct' field is the nb of frames at the end
+            # of each loop which are not part of the main analysis and should be excluded. Typically fluo images.
+                self.loop_excludedSize = int(loopStruct[2])
+            else:
+                self.loop_excludedSize = 0
+            self.nLoop = int(np.round(nS/self.loop_totalSize))
+        
+        elif 'optoGen' in self.expType:
+            self.optoStep1 = int(loopStruct[0])
+            self.optoStep2 = int(loopStruct[1])
+            self.optoStep3 = int(loopStruct[2])
         
         # 3. Field that are just initialized for now and will be filled by calling different methods.
         self.threshold = 0
@@ -626,8 +566,8 @@ class PincherTimeLapse:
         self.listTrajectories = []
         
         self.dictLog = {'Slice' : np.array([i+1 for i in range(nS)]),
-                        'Status' : np.zeros(nS, dtype = int),  # in the status field: -1 means excluded ; 0 means ramp ; >0 means position in the n-uplet
-                        'Status_2' : np.zeros(nS, dtype = int), # in the status_2 field: -1 means excluded ; 0 means ramp ; >0 means number of the n-uplet
+                        'status_frame' : np.zeros(nS, dtype = float),  # in the status_frame field: -1 means excluded ; 0 means ramp ; >0 means position in the n-uplet
+                        'status_nUp' : np.zeros(nS, dtype = int), # in the status_nUp field: -1 means excluded ; 0 means ramp ; >0 means number of the n-uplet
                         'UI' : np.zeros(nS, dtype = bool),
                         'UILog' : np.array(['' for i in range(nS)], dtype = '<U16'),
                         'UIxy' : np.zeros((nS,NB,2), dtype = int)}
@@ -649,30 +589,30 @@ class PincherTimeLapse:
         This happens typically when the computer is not able to save 
         properly a series of large images with a high frequency.
         To detect them, compute the checkSum = np.sum(self.I[j]).
-        Then modify the 'Status' & 'Status_2' fields to '-1' in the dictLog.
+        Then modify the 'status_frame' & 'status_nUp' fields to '-1' in the dictLog.
         """
         for i in range(self.nLoop):
             j = ((i+1)*self.loop_totalSize) - 1
             checkSum = np.sum(self.I[j])
             while checkSum == 0:
 #                 self.dictLog['Black'][j] = True
-                self.dictLog['Status'][j] = -1
-                self.dictLog['Status_2'][j] = -1
+                self.dictLog['status_frame'][j] = -1
+                self.dictLog['status_nUp'][j] = -1
                 self.blackFramesPerLoop[i] += 1
                 j -= 1
                 checkSum = np.sum(self.I[j])
               
     def saveFluoAside(self, fluoDirPath, f):
         """
-        If wFluo = True in the expDf, modify the 'Status' & 'Status_2' fields to '-1' in the dictLog.
+        If wFluo = True in the expDf, modify the 'status_frame' & 'status_nUp' fields to '-1' in the dictLog.
         And if the directory for the fluo images has not be created yet,
         find and save all of the fluo images there.
         """
         if self.wFluo:
             for i in range(self.nLoop):
                 j = int(((i+1)*self.loop_totalSize) - 1 - self.blackFramesPerLoop[i])
-                self.dictLog['Status'][j] = -1
-                self.dictLog['Status_2'][j] = -1
+                self.dictLog['status_frame'][j] = -1
+                self.dictLog['status_nUp'][j] = -1
                 
             if not os.path.exists(fluoDirPath):
                 os.makedirs(fluoDirPath)
@@ -683,10 +623,11 @@ class PincherTimeLapse:
                     io.imsave(path, Ifluo)
                 
     def determineFramesStatus_R40(self):
+        #### Exp type dependance here
         """
-        Fill the Status and Status_2 column of the dictLog, in the case of a compression (R40) or constant field (thickness) experiment
-        > in the status field: -1 means excluded ; 0 means ramp ; >0 means *position in* the n-uplet.
-        > in the status_2 field: -1 means excluded ; 0 means ramp ; >0 means *number of* the n-uplet.
+        Fill the status_frame and status_nUp column of the dictLog, in the case of a compression (R40) or constant field (thickness) experiment
+        > in the status_frame field: -1 means excluded ; 0 means ramp ; 10 > x > 0 means *position in* the n-uplet.
+        > in the status_nUp field: -1 means excluded ; 0 means ramp ; >0 means *number of* the n-uplet.
         Not very elegant but very confortable to work with.
         """
         N0 = self.loop_totalSize
@@ -703,20 +644,64 @@ class PincherTimeLapse:
             jstart = int(i*N0)
             if Nramp0 == 0:
                 for j in range(N):
-                    self.dictLog['Status'][jstart + j] = 1 + j%self.Nuplet
-                    self.dictLog['Status_2'][jstart + j] = i_nUp + j//self.Nuplet
+                    self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                    self.dictLog['status_nUp'][j] = i_nUp + j//self.Nuplet
             else:
                 Nramp = Nramp0-self.blackFramesPerLoop[i]
-                for j in range(Nct//2):
-                    self.dictLog['Status'][jstart + j] = 1 + j%self.Nuplet
-                    self.dictLog['Status_2'][jstart + j] = i_nUp + j//self.Nuplet
-                i_nUp = max(self.dictLog['Status_2']) + 1
-                jstart += int(Nct//2 + Nramp)
-                for j in range(Nct//2):
-                    self.dictLog['Status'][jstart + j] = 1 + j%self.Nuplet
-                    self.dictLog['Status_2'][jstart + j] = i_nUp + j//self.Nuplet
-                i_nUp = max(self.dictLog['Status_2']) + 1
+                for j in range(Nct//2): # Ct field before ramp
+                    self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
+                i_nUp = max(self.dictLog['status_nUp']) + 1
+                jstart += int(Nct//2 + Nramp) # In the ramp it self, the two status stay equal to 0
+                for j in range(Nct//2): # Ct field after ramp
+                    self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
+                i_nUp = max(self.dictLog['status_nUp']) + 1
                 
+    def determineFramesStatus_L40(self):
+        #### Exp type dependance here
+        """
+        Fill the status_frame and status_nUp column of the dictLog, in the case of a compression with an initial decrease (L40)
+        > in the status_frame field: -1 means excluded ; 0 means ramp ; 0.1 means pre-ramp ; 10 > x > 0 means *position in* the n-uplet.
+        > in the status_nUp field: -1 means excluded ; 0 means not in a n-uplet ; x > 0 means *number of* the n-uplet.
+        Not very elegant but very confortable to work with.
+        """
+        N0 = self.loop_totalSize
+        Nramp0 = self.loop_rampSize
+        Nexclu = self.loop_excludedSize
+        nUp = self.Nuplet
+        N = N0 - Nexclu
+        Nct = N - 2*Nramp0
+        i_nUp = 1
+        for i in range(self.nLoop):
+            jstart = int(i*N0)
+            if Nramp0 == 0:
+                for j in range(N):
+                    self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                    self.dictLog['status_nUp'][j] = i_nUp + j//self.Nuplet
+                    
+            else:
+                Nramp = Nramp0-self.blackFramesPerLoop[i]
+                for j in range(Nct//2): # Ct field before ramp
+                    self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
+                jstart += int(Nct//2)
+                for j in range(Nramp0): # Pre-ramp
+                    self.dictLog['status_frame'][jstart + j] = 0.1
+                    self.dictLog['status_nUp'][jstart + j] = 0
+                i_nUp = max(self.dictLog['status_nUp']) + 1
+                jstart += int(Nramp0 + Nramp) # In the ramp it self, the two status stay equal to 0
+                for j in range(Nct//2): # Ct field after ramp
+                    self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
+                i_nUp = max(self.dictLog['status_nUp']) + 1            
+                
+    def determineFramesStatus_optoGen(self):
+        #### Exp type dependance here
+        """
+        
+        """
+        pass
                 
                 
     def saveLog(self, display = 1, save = False, path = ''):
@@ -724,10 +709,9 @@ class PincherTimeLapse:
         Save the dictLog so that next time it can be directly reloaded to save time.
         """
         dL = {}
-        dL['Slice'], dL['Status'], dL['Status_2'] = \
-            self.dictLog['Slice'], self.dictLog['Status'], self.dictLog['Status_2']
-#         dL['Fluo'], dL['Black'] = \
-#             self.dictLog['Fluo'], self.dictLog['Black']
+        dL['Slice'], dL['status_frame'], dL['status_nUp'] = \
+            self.dictLog['Slice'], self.dictLog['status_frame'], self.dictLog['status_nUp']
+
         dL['UI'], dL['UILog'] = \
             self.dictLog['UI'], self.dictLog['UILog']
         for i in range(self.NB):
@@ -753,8 +737,8 @@ class PincherTimeLapse:
         """
         dfLog = pd.read_csv(path, sep='\t')
         dL = dfLog.to_dict()
-        self.dictLog['Slice'], self.dictLog['Status'], self.dictLog['Status_2'] = \
-            dfLog['Slice'].values, dfLog['Status'].values, dfLog['Status_2'].values
+        self.dictLog['Slice'], self.dictLog['status_frame'], self.dictLog['status_nUp'] = \
+            dfLog['Slice'].values, dfLog['status_frame'].values, dfLog['status_nUp'].values
         self.dictLog['UI'], self.dictLog['UILog'] = \
             dfLog['UI'].values, dfLog['UILog'].values
         for i in range(self.NB):
@@ -901,13 +885,13 @@ class PincherTimeLapse:
         Initialize the Frame objects and add them to the PTL.listFrames list.
         """
         for i in range(self.nS):
-            status = self.dictLog['Status'][i]
-            status_2 = self.dictLog['Status_2'][i]
-            # The Nup field of a slice is = to self.Nuplet if the Status indicates that the frmae is part of a multi image n-uplet
+            status_frame = self.dictLog['status_frame'][i]
+            status_nUp = self.dictLog['status_nUp'][i]
+            # The Nup field of a slice is = to self.Nuplet if the status_frame indicates that the frmae is part of a multi image n-uplet
             # Otherwise the image is "alone", like in a compression, and therefore Nup = 1
-            Nup = self.Nuplet * (self.dictLog['Status'][i] > 0)  +  1 * (self.dictLog['Status'][i] <= 0)
-            if self.dictLog['Status'][i] >= 0:
-                self.listFrames.append(Frame(self.I[i], i, self.NB, self.threshold, Nup, status, status_2, self.scale))
+            Nup = (self.Nuplet * (status_nUp > 0))  +  (1 * (status_nUp <= 0))
+            if self.dictLog['status_frame'][i] >= 0:
+                self.listFrames.append(Frame(self.I[i], i, self.NB, self.threshold, Nup, status_frame, status_nUp, self.scale))
     
     def detectBeads(self, resFileImported, display = False):
         """
@@ -967,18 +951,18 @@ class PincherTimeLapse:
     def findBestStd_V0(self):
         """
         This ugly function is my best attempt to implement sth very simple in a robust way.
-        In the 'status' field, -1 means excluded image, 0 means image that isn't part of a N-uplet of images, and k>0 means position in the N-uplet of images.
+        In the 'status_frame' field, -1 means excluded image, 0 means image that isn't part of a N-uplet of images, and k>0 means position in the N-uplet of images.
         For each image in the N-uplet, I want to reconsititute this N-uplet (meaning the list of Nuplet consecutive images numbered from 1 to Nuplet, minus the images eventually with no beads detected).
         Then for each N-uplet of images, i want to find the max standard deviation and report its position because it's for the max std that the X and Y detection is the most precise.
         An exemple: with these inputs:
         Nuplet = 3
-        status = [1,2,3,0,0,0,1,2, 3, 1, 2, 3, 1, 2]
+        status_frame = [1,2,3,0,0,0,1,2, 3, 1, 2, 3, 1, 2]
             iS = [0,1,2,3,4,5,6,7,11,12,13,14,15,16]
            std = [1,5,9,5,5,5,1,5, 8, 2, 6, 9, 2, 6]
         The function will return bestStd, a list of boolean with the same length.
-        Where status = 0, bestStd = True (the image is not part of a N-uplet, thus it need to be analysed regardless of its std).
+        Where status_frame = 0, bestStd = True (the image is not part of a N-uplet, thus it need to be analysed regardless of its std).
         Where satus > 0, the function will cut the lists in N-uplet of max size 3:
-        status -> [1,2,3] ; [1,2] ; [ 3] ; [ 1, 2, 3] ; [ 1, 2]
+        status_frame -> [1,2,3] ; [1,2] ; [ 3] ; [ 1, 2, 3] ; [ 1, 2]
             iS -> [0,1,2] ; [6,7] ; [11] ; [12,13,14] ; [15,16]
            std -> [1,5,9] ; [1,5] ; [ 8] ; [ 2, 6, 9] ; [ 2, 6]
              i -> [0,1,2] ; [6,7] ; [ 8] ; [ 9,10,11] ; [12,13]
@@ -987,7 +971,7 @@ class PincherTimeLapse:
         """
         
         Nuplet = self.Nuplet
-        status = self.listTrajectories[0].dict['Status']
+        status_frame = self.listTrajectories[0].dict['status_frame']
         iS = self.listTrajectories[0].dict['iS']
         nT = self.listTrajectories[0].nT
         std = np.zeros(nT)
@@ -1001,17 +985,17 @@ class PincherTimeLapse:
         current_Nup_std = []
         current_Nup_i = []
         for i in range(nT):
-            if status[i] == 0:
+            if status_frame[i] == 0:
                 bestStd[i] = True
             else:
                 if len(current_Nup_i) == 0:
-                    current_Nup_status = [status[i]]
+                    current_Nup_status = [status_frame[i]]
                     current_Nup_iS = [iS[i]]
                     current_Nup_std = [std[i]]
                     current_Nup_i = [i]
                 else:
-                    if status[i] > current_Nup_status[-1] and (iS[i]-current_Nup_iS[-1]) < Nuplet:
-                        current_Nup_status.append(status[i])
+                    if status_frame[i] > current_Nup_status[-1] and (iS[i]-current_Nup_iS[-1]) < Nuplet:
+                        current_Nup_status.append(status_frame[i])
                         current_Nup_iS.append(iS[i])
                         current_Nup_std.append(std[i])
                         current_Nup_i.append(i)
@@ -1022,7 +1006,7 @@ class PincherTimeLapse:
                         i_bestStd = int(current_Nup_i[i_bestStdInCurrentNuplet])
                         bestStd[i_bestStd] = True
                         # then:
-                        current_Nup_status = [status[i]]
+                        current_Nup_status = [status_frame[i]]
                         current_Nup_iS = [iS[i]]
                         current_Nup_std = [std[i]]
                         current_Nup_i = [i]
@@ -1036,7 +1020,7 @@ class PincherTimeLapse:
     
     def findBestStd(self):
         """
-        Simpler and better than findBestStd_V0 using the status_2 column of the dictLog.
+        Simpler and better than findBestStd_V0 using the status_nUp column of the dictLog.
         ---
         For each frame of the timelapse that belongs to a N-uplet, I want to reconsititute this N-uplet 
         (meaning the list of 'Nup' consecutive images numbered from 1 to Nup, 
@@ -1044,12 +1028,12 @@ class PincherTimeLapse:
         Then for each N-uplet of images, i want to find the max standard deviation 
         and report its position because it's for the max std that the X and Y detection is the most precise.
         ---
-        This is very easy thanks to the 'status_2', because it contains a different number for each N-Uplet.
+        This is very easy thanks to the 'status_nUp', because it contains a different number for each N-Uplet.
         """
         
         Nup = self.Nuplet
         nT = self.listTrajectories[0].nT
-        status_2 = self.listTrajectories[0].dict['Status_2']
+        status_nUp = self.listTrajectories[0].dict['status_nUp']
         std = np.zeros(nT)
         for i in range(self.NB):
             std += np.array(self.listTrajectories[i].dict['StdDev'])
@@ -1057,14 +1041,14 @@ class PincherTimeLapse:
         bestStd = np.zeros(nT, dtype = bool)
         i = 0
         while i < nT:
-            if status_2[i] == 0:
+            if status_nUp[i] == 0:
                 bestStd[i] = True
                 i += 1
-            elif status_2[i] > 0:
-                s2 = status_2[i]
+            elif status_nUp[i] > 0:
+                s2 = status_nUp[i]
                 L = [i]
                 j = 0
-                while i+j < nT-1 and status_2[i+j+1] == s2: # lazy evaluation of booleans
+                while i+j < nT-1 and status_nUp[i+j+1] == s2: # lazy evaluation of booleans
                     j += 1
                     L.append(i+j)
                 #print(L)    
@@ -1139,6 +1123,7 @@ class PincherTimeLapse:
         # Sort the initial beads to have them ordered by increasing x coord.
         # SOMETHING IS WRONG HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
         sortM = np.array([[init_BXY[col_ind[i],0], col_ind[i]] for i in range(len(col_ind))])
         sortM = sortM[sortM[:, 0].argsort()]
         init_iBoi = sortM[:, 1].astype(int)
@@ -1157,9 +1142,15 @@ class PincherTimeLapse:
             self.listTrajectories[iB].dict['X'].append(init_BoiXY[iB][0])
             self.listTrajectories[iB].dict['Y'].append(init_BoiXY[iB][1])
             self.listTrajectories[iB].dict['StdDev'].append(self.listFrames[init_iF].beadsStdDevarray()[init_iBoi[iB]])
-            self.listTrajectories[iB].dict['Status'].append(self.listFrames[init_iF].status)
-            self.listTrajectories[iB].dict['Status_2'].append(self.listFrames[init_iF].status_2)
-            self.listTrajectories[iB].dict['idxCompression'].append(1 * (self.listFrames[init_iF].status == 0))
+            self.listTrajectories[iB].dict['status_frame'].append(self.listFrames[init_iF].status_frame)
+            self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[init_iF].status_nUp)
+            
+            #### Exp type dependance here (01)
+            if 'compressions' in self.expType or 'thickness' in self.expType:
+                self.listTrajectories[iB].dict['idxAnalysis'].append(1 * (self.listFrames[init_iF].status_frame == 0))
+                
+            elif 'optoGen' in self.expType:
+                self.listTrajectories[iB].dict['idxAnalysis'].append(0)
 
         # Start the tracking
         previous_iF = init_iF
@@ -1290,8 +1281,24 @@ class PincherTimeLapse:
                 sortM = sortM[sortM[:, 0].argsort()]
                 iBoi = sortM[:, 1].astype(int)
                 BoiXY = np.array([BXY[iB] for iB in iBoi])
-                # idxCompression = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
-                idxCompression = (self.listFrames[iF].status == 0) * (max(self.listTrajectories[iB].dict['idxCompression']) + 1 * (self.listTrajectories[iB].dict['idxCompression'][-1] == 0))
+                
+                #### Exp type dependance here (02)
+                if 'compressions' in self.expType or 'thickness' in self.expType:
+                    if self.expType == 'compressions':
+                        idxAnalysis = (self.listFrames[iF].status_frame == 0) \
+                            * (max(self.listTrajectories[iB].dict['idxAnalysis']) \
+                               + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))
+                                
+                    elif self.expType == 'compressionsLowStart': # a pre-ramp has the same idxAnalysis than a ramp but in negative.
+                        idxAnalysis = (self.listFrames[iF].status_frame == 0) \
+                            * (max(self.listTrajectories[iB].dict['idxAnalysis']) + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
+                                - (self.listFrames[iF].status_frame == 0.1) \
+                            * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
+                                
+                elif 'optoGen' in self.expType:
+                    self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                
+                # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
                 for iB in range(self.NB):
                     #
                     self.listTrajectories[iB].dict['Bead'].append(self.listFrames[iF].listBeads[iBoi[iB]])
@@ -1301,9 +1308,9 @@ class PincherTimeLapse:
                     self.listTrajectories[iB].dict['X'].append(BoiXY[iB][0])
                     self.listTrajectories[iB].dict['Y'].append(BoiXY[iB][1])
                     self.listTrajectories[iB].dict['StdDev'].append(self.listFrames[iF].beadsStdDevarray()[iBoi[iB]])
-                    self.listTrajectories[iB].dict['Status'].append(self.listFrames[iF].status)
-                    self.listTrajectories[iB].dict['Status_2'].append(self.listFrames[iF].status_2)
-                    self.listTrajectories[iB].dict['idxCompression'].append(idxCompression)
+                    self.listTrajectories[iB].dict['status_frame'].append(self.listFrames[iF].status_frame)
+                    self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[iF].status_nUp)
+                    self.listTrajectories[iB].dict['idxAnalysis'].append(idxAnalysis)
                     
                 previous_iF = iF
                 previous_iBoi = iBoi
@@ -1321,6 +1328,8 @@ class PincherTimeLapse:
         # it's time to refine it
         
         nT = len(self.listTrajectories[0].dict['Bead'])
+        
+        #### Black Images deletion in the trajectory
         
         # (a) Add the pointer to the correct line of the _Field.txt file.
         # It's just exactly the iS already saved in the dict, except if there are black images at the end of loops.
@@ -1496,7 +1505,7 @@ class PincherTimeLapse:
 # %%%% Frame
         
 class Frame:
-    def __init__(self, F, iS, NB, threshold, Nup, status, status_2, scale):
+    def __init__(self, F, iS, NB, threshold, Nup, status_frame, status_nUp, scale):
         ny, nx = F.shape[0], F.shape[1]
         self.F = F # Note : Frame.F points directly to the i-th frame of the image I ! To have 2 different versions one should use np.copy(F)
         self.threshold = threshold
@@ -1508,8 +1517,8 @@ class Frame:
         self.listBeads = []
         self.trajPoint = []
         self.Nuplet = Nup
-        self.status = status
-        self.status_2 = status_2
+        self.status_frame = status_frame
+        self.status_nUp = status_nUp
         self.scale = scale
         self.resDf = pd.DataFrame({'Area' : [], 'StdDev' : [], 'XM' : [], 'YM' : [], 'Slice' : []})
  
@@ -1773,7 +1782,7 @@ class Bead:
         self.area = d['Area']
         self.std = d['StdDev']
         self.iS = d['Slice']-1
-        self.status = ''
+        self.status_frame = ''
         self.Neighbour_L = ''
         self.Neighbour_R = ''
         self.F = F
@@ -1836,8 +1845,8 @@ class Trajectory:
         self.D = 0
         self.nT = 0
         self.iB = iB
-        self.dict = {'X': [],'Y': [],'idxCompression': [],'StdDev': [], 
-                     'Bead': [],'Status': [],'Status_2': [],'iF': [],'iS': [],'iB_inFrame' : [],
+        self.dict = {'X': [],'Y': [],'idxAnalysis': [],'StdDev': [], 
+                     'Bead': [],'status_frame': [],'status_nUp': [],'iF': [],'iS': [],'iB_inFrame' : [],
                      'bestStd' : [], 'Zr' : [], 'Neighbour_L' : [], 'Neighbour_R' : []}
         # iF is the index in the listFrames
         # iS is the index of the slice in the raw image MINUS ONE
@@ -1868,17 +1877,18 @@ class Trajectory:
             previousZ = -1
             while iF <= max(self.dict['iF']):
 
-# ######################### IMPORTANT ! ###############################
+#### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
                 
                 # plot = 0
-                # if iF >= 840 and iF <= 860:# or (iF < 190 and iF > 150):
+                # if iF >= 0 and iF <= 30:# or (iF < 190 and iF > 150):
                 #     plot = 1
                 
 # ############################ OK?! ###################################
-    
-                if iF not in self.dict['iF']:
-                    iF += 1
+                
+                if iF not in self.dict['iF']: # this index isn't in the trajectory list => the frame was removed for some reason.
+                    iF += 1 # Let's just go to the next index
+                    
                 else:
                     F = self.listFrames[iF]
                     Nup = F.Nuplet
@@ -1890,7 +1900,7 @@ class Trajectory:
                         framesNuplet = [F]
                         iFNuplet = [iF]
                         jF = 1
-                        while iF+jF <= max(self.dict['iF']) and self.listFrames[iF+jF].status_2 == F.status_2:
+                        while iF+jF <= max(self.dict['iF']) and self.listFrames[iF+jF].status_nUp == F.status_nUp:
                             if iF+jF in self.dict['iF']: # One of the images of the triplet may be invalid, 
                                 # and we don't want to take it. With this test we won't
                                 nextF = self.listFrames[iF+jF]
@@ -1916,7 +1926,7 @@ class Trajectory:
     def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz = 40, plot = 0):
         try:
             Nframes = len(framesNuplet)
-            listStatus_1 = [F.status for F in framesNuplet]
+            listStatus_1 = [F.status_frame for F in framesNuplet]
             listXY = [[self.dict['X'][np.where(self.dict['iF']==iF)][0], 
                        self.dict['Y'][np.where(self.dict['iF']==iF)][0]] for iF in iFNuplet]
             listiS = [self.dict['iS'][np.where(self.dict['iF']==iF)][0] for iF in iFNuplet]        
@@ -1974,8 +1984,9 @@ class Trajectory:
             for i in range(Nframes):
                 listDistances[i] = squareDistance(self.deptho, listProfiles[i], normalize = True) # Utility functions
                 listZ[i] = np.argmin(listDistances[i])
-            # Translate the profiles that must be translated (status 1 & 3 if Nup = 3)
-            # and don't move the others (status 2 if Nup = 3 or the 1 profile when Nup = 1)
+                
+            # Translate the profiles that must be translated (status_frame 1 & 3 if Nup = 3)
+            # and don't move the others (status_frame 2 if Nup = 3 or the 1 profile when Nup = 1)
             if Nup > 1:
                 finalDists = matchDists(listDistances, listStatus_1, Nup, nVoxels, direction = matchingDirection)
             elif Nup == 1:
@@ -1989,9 +2000,10 @@ class Trajectory:
                 limSup = min(previousZ+maxDz, depthoDepth)
                 Z = limInf + np.argmin(sumFinalD[limInf:limSup])
     
-            # PLOT
+            #### Important plotting option here
             if plot >= 1:
-                fig, axes = plt.subplots(5, 3)
+                fig, axes = plt.subplots(5, 3, figsize = (20,10))
+                fig.tight_layout()
                 im = framesNuplet[0].F
                 X2, Y2 = listXY[0][0], listXY[0][1]
                 
@@ -2043,7 +2055,8 @@ class Trajectory:
                 
                 iSNuplet = [F.iS+1 for F in framesNuplet]
                 fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
-                fig.show()
+                Nfig = plt.gcf().number
+                fig.savefig('C://Users//JosephVermeil//Desktop//TempPlot//fig'+str(Nfig)+'.png')
     
             return(Z)
         
@@ -2150,21 +2163,21 @@ class Trajectory:
         nrows = ((Nimg-1) // ncols) + 1
         fig, ax = plt.subplots(nrows, ncols)
         for i in range(Nimg):
-            # try:
-            pos = np.searchsorted(self.dict['iS'], i*frequency, 'left')
-            iS = self.dict['iS'][pos]
-            iF = self.dict['iF'][pos]
-            pStart, pStop = np.percentile(self.I[iS], (1, 99))
-            if nrows > 1:
-                ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
-                ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
-                ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
-            elif nrows == 1:
-                ax[i].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
-                ax[i].set_title('Loop ' + str(i+1))
-                ax[i].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
-            # except:
-            #     print(RED  + 'ptit probleme dans le detectNeighbours_ui' + NORMAL)
+            try:
+                pos = np.searchsorted(self.dict['iS'], i*frequency, 'left')
+                iS = self.dict['iS'][pos]
+                iF = self.dict['iF'][pos]
+                pStart, pStop = np.percentile(self.I[iS], (1, 99))
+                if nrows > 1:
+                    ax[i//ncols,i%ncols].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
+                    ax[i//ncols,i%ncols].set_title('Loop ' + str(i+1))
+                    ax[i//ncols,i%ncols].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+                elif nrows == 1:
+                    ax[i].imshow(self.I[iS], cmap = 'gray', vmin = pStart, vmax = pStop)
+                    ax[i].set_title('Loop ' + str(i+1))
+                    ax[i].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
+            except:
+                print(RED  + 'ptit probleme dans le detectNeighbours_ui' + NORMAL)
         
         # Ask the question
         mngr = plt.get_current_fig_manager()
@@ -2337,11 +2350,14 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
 
         
         #### 0.8 - Sort slices
+        #### ! Exp type dependance here !
         if not logFileImported:
-            if 'R40' or 'thickness' in f:
+            if 'R40' in f or 'thickness' in f:
                 PTL.determineFramesStatus_R40()
-            elif 'disc20' in f:
-                PTL.determineFramesStatus_R40()
+            elif 'L40' in f:
+                PTL.determineFramesStatus_L40()
+            elif 'optoGen' in f:
+                pass
                 
         PTL.saveLog(display = False, save = (not logFileImported), path = logFilePath)
         
@@ -2382,9 +2398,14 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             resFileImported = True
         
         if MatlabStyle:
-            resFilePath = fP[:-4] + '_Results.txt'
-            PTL.importBeadsDetectResult(resFilePath)
-            resFileImported = True
+            try:
+                resFilePath = fP[:-4] + '_ResultsPY.txt'
+                PTL.importBeadsDetectResult(resFilePath)
+                resFileImported = True
+            except:
+                resFilePath = fP[:-4] + '_Results.txt'
+                PTL.importBeadsDetectResult(resFilePath)
+                resFileImported = True
         
         #### 1.2 - Detect the beads
         # Detect the beads and create the BeadsDetectResult dataframe [if no file has been loaded before] 
@@ -2502,10 +2523,10 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 3.3 - Detect in/out bead
         
                 
-        #if redoAllSteps or not trajFilesImported:
-        for iB in range(PTL.NB):
-            traj = PTL.listTrajectories[iB]
-            InOut = traj.detectInOut_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize)
+        if redoAllSteps or not trajFilesImported:
+            for iB in range(PTL.NB):
+                traj = PTL.listTrajectories[iB]
+                InOut = traj.detectInOut_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize)
 
         
     #### 4. Compute dz
@@ -2590,11 +2611,12 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             print(GREEN + 'Z had been already computed :)' + NORMAL)
         
         #### 4.3 - Save the raw traj (before Std selection)
-        for iB in range(PTL.NB):
-            traj = PTL.listTrajectories[iB]
-            traj_df = pd.DataFrame(traj.dict)
-            trajPathRaw = os.path.join(timeSeriesDataDir, 'Trajectories_raw', f[:-4] + '_rawTraj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
-            traj_df.to_csv(trajPathRaw, sep = '\t', index = False)
+        if redoAllSteps or not trajFilesImported:
+            for iB in range(PTL.NB):
+                traj = PTL.listTrajectories[iB]
+                traj_df = pd.DataFrame(traj.dict)
+                trajPathRaw = os.path.join(timeSeriesDataDir, 'Trajectories_raw', f[:-4] + '_rawTraj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
+                traj_df.to_csv(trajPathRaw, sep = '\t', index = False)
         
         #### 4.4 - Keep only the best std data in the trajectories
         for iB in range(PTL.NB):
@@ -2602,11 +2624,12 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             traj.keepBestStdOnly()
         
         #### 4.5 - The trajectories won't change from now on. We can save their '.dict' field.
-        for iB in range(PTL.NB):
-            traj = PTL.listTrajectories[iB]
-            traj_df = pd.DataFrame(traj.dict)
-            trajPath = os.path.join(timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
-            traj_df.to_csv(trajPath, sep = '\t', index = False)
+        if redoAllSteps or not trajFilesImported:
+            for iB in range(PTL.NB):
+                traj = PTL.listTrajectories[iB]
+                traj_df = pd.DataFrame(traj.dict)
+                trajPath = os.path.join(timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
+                traj_df.to_csv(trajPath, sep = '\t', index = False)
     
     
     #### 5. Define pairs and compute distances
@@ -2620,7 +2643,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             
             #### 5.1.1 - Create a dict to prepare the export of the results
             timeSeries = {
-                'idxCompression' : np.zeros(nT),
+                'idxAnalysis' : np.zeros(nT),
                 'T' : np.zeros(nT),
                 'Tabs' : np.zeros(nT),
                 'B' : np.zeros(nT),
@@ -2634,7 +2657,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
 
             #### 5.1.2 - Input common values:
             T0 = fieldDf['T_abs'].values[0]/1000
-            timeSeries['idxCompression'] = traj1.dict['idxCompression']
+            timeSeries['idxAnalysis'] = traj1.dict['idxAnalysis']
             timeSeries['Tabs'] = (fieldDf['T_abs'][traj1.dict['iField']])/1000
             timeSeries['T'] = timeSeries['Tabs'].values - T0*np.ones(nT)
             timeSeries['B'] = fieldDf['B_set'][traj1.dict['iField']].values
@@ -2690,7 +2713,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     print(BLUE + str(time.time()-start) + NORMAL)
     print(BLUE + '\n' + NORMAL)
     
-    # plt.close('all')
+    plt.close('all')
     
     
     
