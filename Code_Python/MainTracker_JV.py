@@ -104,6 +104,51 @@ plt.close('all')
 # %%% Next manipe
 # %%%% 
 
+# %%% 22.01.12, compressionsLowStart of 3T3, M1 = M270, M2 = M450, M4 = M450, pas de M3
+# %%%% 22.01.12_M1 C1 Seulement
+dates = '22.01.12'
+manips, wells, cells = 1, 1, 1
+depthoNames = '22.01.12_M1_M270_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True) 
+
+# %%%% 22.01.12_M1
+dates = '22.01.12'
+manips, wells, cells = 1, 1, 'all'
+depthoNames = '22.01.12_M1_M270_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True) 
+
+# %%%% 22.01.12_M2
+dates = '22.01.12'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '22.01.12_M2_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True) 
+
+# %%%% 22.01.12_M4
+dates = '22.01.12'
+manips, wells, cells = 4, 1, 'all'
+depthoNames = '22.01.12_M4_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True) 
+
 # %%% 21.12.16, compressions of 3T3, M1 = M450, M2 = M270
 # %%%% 21.12.16_M1 C1 Seulement
 dates = '21.12.16'

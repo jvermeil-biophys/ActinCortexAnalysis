@@ -60,3 +60,6 @@
 58;21-12-08;M2;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.094;3T3;aSFL;M450;4503;0;5;5_13;1s;False;3;500;169_133;
 59;21-12-16;M1;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.094;3T3;aSFL;M450;4503;0;5;5_13;1s;False;3;500;169_133;
 60;21-12-16;M2;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.094;3T3;aSFL;M270;2691;0;14;14_54;1s;False;3;500;169_133;
+61;22-01-12;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL;M270;2691;0;14;2_54;1s;False;3;500;302_133;
+62;22-01-12;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.11;3T3;aSFL;M450;4503;0;5;1_13;1s;False;3;500;302_133;
+63;22-01-12;M4;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.11;3T3;aSFL;M450;4503;0;5;1_13;1s;False;3;500;302_133;
