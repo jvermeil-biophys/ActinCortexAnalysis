@@ -696,12 +696,15 @@ class PincherTimeLapse:
         N = N0 - Nexclu
         Nct = N - Nramp0
         i_nUp = 1
+        
+        # print(N0,Nramp0,Nexclu,nUp)
+        
         for i in range(self.nLoop):
             jstart = int(i*N0)
             if Nramp0 == 0:
                 for j in range(N):
                     self.dictLog['Status'][jstart + j] = 1 + j%self.Nuplet
-                    self.dictLog['Status_2'][j] = i_nUp + j//self.Nuplet
+                    self.dictLog['Status_2'][jstart + j] = i_nUp + j//self.Nuplet
             else:
                 Nramp = Nramp0-self.blackFramesPerLoop[i]
                 for j in range(Nct//2):
@@ -2145,7 +2148,6 @@ class Trajectory:
         # Plots to help the user to see the neighbour of each bead
         ncols = 4
         nrows = ((Nimg-1) // ncols) + 1
-        print(Nimg, frequency)
         fig, ax = plt.subplots(nrows, ncols)
         for i in range(Nimg):
             # try:
@@ -2246,8 +2248,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     
     start = time.time()
     
-    ### 0. Load different data sources & Preprocess : fluo, black images, sort slices (ct/ramp ; down/middle/up)
-        ### 0.1 - Make list of files to analyse
+    #### 0. Load different data sources & Preprocess : fluo, black images, sort slices (ct/ramp ; down/middle/up)
+        #### 0.1 - Make list of files to analyse
     imagesToAnalyse = []
     imagesToAnalyse_Paths = []
     if not isinstance(dates, str):
@@ -2264,7 +2266,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                     imagesToAnalyse.append(f)
                     imagesToAnalyse_Paths.append(os.path.join(rd, f))    
 
-        ### 0.2 - Begining of the Main Loop
+        #### 0.2 - Begining of the Main Loop
     print(imagesToAnalyse)
     print(rawDirList)
     for i in range(len(imagesToAnalyse)): 
@@ -2276,7 +2278,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         print(BLUE + 'Analysis of file {:.0f}/{:.0f} : {}'.format(i+1, len(imagesToAnalyse), f))
         print('Loading image and experimental data...' + NORMAL)
         
-        ### 0.3 - Load exp data
+        #### 0.3 - Load exp data
         if manipID not in expDf['manipID'].values:
             print(RED + 'Error! No experimental data found for: ' + manipID + NORMAL)
         else:
@@ -2302,16 +2304,16 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
 #         for k in range(len(beadTypes)):
 #             dictBeadDiameters[beadTypes[k]] = beadDiameters[k]
     
-        ### 0.4 - Load image and init PTL
+        #### 0.4 - Load image and init PTL
         I = io.imread(fP) # Approx 0.5s per image
         PTL = PincherTimeLapse(I, cellID, manipDict, NB = 2)
     
-        ### 0.5 - Load field file
+        #### 0.5 - Load field file
         fieldFilePath = fP[:-4] + '_Field.txt'
         fieldCols = ['B_set', 'T_abs', 'B', 'Z']
         fieldDf = pd.read_csv(fieldFilePath, sep = ', ', names = fieldCols) # '\t'
         
-        ### 0.6 - Check if a log file exists and load it if required
+        #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
         logFileImported = False
         if redoAllSteps:
@@ -2325,7 +2327,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         
         print(BLUE + 'Pretreating the image...' + NORMAL)
         
-        ### 0.7 - Detect fluo & black images
+        #### 0.7 - Detect fluo & black images
         current_date = findInfosInFileName(f, 'date')
         current_date = current_date.replace("-", ".")
         fluoDirPath = os.path.join(rawDataDir, current_date + '_Fluo', f[:-4])
@@ -2334,14 +2336,16 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         PTL.saveFluoAside(fluoDirPath, f)
 
         
-        ### 0.8 - Sort slices
+        #### 0.8 - Sort slices
         if not logFileImported:
             if 'R40' or 'thickness' in f:
+                PTL.determineFramesStatus_R40()
+            elif 'disc20' in f:
                 PTL.determineFramesStatus_R40()
                 
         PTL.saveLog(display = False, save = (not logFileImported), path = logFilePath)
         
-        ### 0.9 - Import or determine global threshold
+        #### 0.9 - Import or determine global threshold
         MDpath = fP[:-4] + '_MetaDataPY.txt'
         if MatlabStyle:
             PTL.computeThreshold(method = methodT, factorT = factorT)
@@ -2354,21 +2358,21 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.uiThresholding(method = methodT, factorT = factorT, loopInterval = 1) # Approx 3s per image
 
 
-        ### 0.10 - Save some metadata
+        #### 0.10 - Save some metadata
         PTL.saveMetaData(MDpath)
         
-        ### 0.11 - Create list of Frame objects
+        #### 0.11 - Create list of Frame objects
         PTL.makeFramesList()
         
         print(BLUE + 'OK!')
         
         
-    ### 1. Detect beads
+    #### 1. Detect beads
     
         print(BLUE + 'Detecting all the bead objects...' + NORMAL)
         Td = time.time()
         
-        ### 1.1 - Check if a _Results.txt exists and import it if it's the case
+        #### 1.1 - Check if a _Results.txt exists and import it if it's the case
         resFilePath = fP[:-4] + '_ResultsPY.txt'
         resFileImported = False
         if redoAllSteps:
@@ -2382,25 +2386,25 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             PTL.importBeadsDetectResult(resFilePath)
             resFileImported = True
         
-        ### 1.2 - Detect the beads
+        #### 1.2 - Detect the beads
         # Detect the beads and create the BeadsDetectResult dataframe [if no file has been loaded before] 
         # OR input the results in each Frame objects [if the results have been loaded at the previous step]
         PTL.detectBeads(resFileImported, display = 0)
         
-        ### 1.3 - Save the new results if necessary
+        #### 1.3 - Save the new results if necessary
         if not resFileImported:
             PTL.saveBeadsDetectResult(path=resFilePath)
             
         print(BLUE + 'OK! dT = {:.3f}'.format(time.time()-Td) + NORMAL)
 
 
-    ### 2. Make trajectories for beads of interest
+    #### 2. Make trajectories for beads of interest
         # One of the main steps ! The tracking of the beads happens here !
     
         print(BLUE + 'Tracking the beads of interest...' + NORMAL)
         Tt = time.time()
         
-        ### 2.1 - Check if some trajectories exist already
+        #### 2.1 - Check if some trajectories exist already
         trajDirRaw = os.path.join(timeSeriesDataDir, 'Trajectories_raw')
         trajFilesExist_global = False
         trajFilesImported = False
@@ -2415,7 +2419,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             trajFilesExist = np.array([os.path.isfile(trajPath) for trajPath in allTrajPaths])
             trajFilesExist_sum = np.sum(trajFilesExist)
         
-        ### 2.2 - If yes, load them
+        #### 2.2 - If yes, load them
         if trajFilesExist_sum == PTL.NB:
             trajFilesImported = True
             trajPaths = allTrajPaths[trajFilesExist]
@@ -2424,7 +2428,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 # print(PTL.listTrajectories[iB].dict['X'][0], PTL.listTrajectories[iB].dict['X'][1])
             print(GREEN + 'Raw traj files found and imported :)' + NORMAL)
         
-        ### 2.3 - If no, compute them by tracking the beads
+        #### 2.3 - If no, compute them by tracking the beads
         if not trajFilesImported:
             issue = PTL.buildTrajectories() 
             # Main tracking function !
@@ -2433,17 +2437,17 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             else:
                 pass
         
-        ### 2.4 - Save the user inputs
+        #### 2.4 - Save the user inputs
         PTL.saveLog(display = 0, save = True, path = logFilePath)
         
         print(BLUE + 'OK! dT = {:.3f}'.format(time.time()-Tt) + NORMAL)
         
-        ### 2.5 - Sort the trajectories [Maybe unnecessary]
+        #### 2.5 - Sort the trajectories [Maybe unnecessary]
     
     
-    ### 3. Qualify - Detect boi sizes and neighbours
+    #### 3. Qualify - Detect boi sizes and neighbours
         
-        ### 3.1 - Infer or detect Boi sizes in the first image 
+        #### 3.1 - Infer or detect Boi sizes in the first image 
         # [Detection doesn't work well !]
         
         if len(PTL.beadTypes) == 1:
@@ -2467,7 +2471,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             for B in traj.dict['Bead']:
                 B.D = D
         
-        # ## 3.2 - Detect neighbours
+        #### 3.2 - Detect neighbours
         
         # Previous way, automatic detection,
         # not robust enough
@@ -2495,7 +2499,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 traj.detectNeighbours_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize, beadType = beadType)
         
         
-        ### 3.3 - Detect in/out bead
+        #### 3.3 - Detect in/out bead
         
                 
         #if redoAllSteps or not trajFilesImported:
@@ -2504,9 +2508,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             InOut = traj.detectInOut_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize)
 
         
-    ### 4. Compute dz
+    #### 4. Compute dz
                 
-        ### 4.1 - Import depthographs
+        #### 4.1 - Import depthographs
         HDZfactor = 10
         
         if len(PTL.beadTypes) == 1:
@@ -2567,7 +2571,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                         traj.depthoStep = depthoStepHD
                         traj.depthoZFocus = depthoZFocusHD
         
-        ### 4.2 - Compute z for each traj
+        #### 4.2 - Compute z for each traj
         
         matchingDirection = 'downward' # Change when needed !!
         
@@ -2585,19 +2589,19 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             print(BLUE + 'Computing Z...' + NORMAL)
             print(GREEN + 'Z had been already computed :)' + NORMAL)
         
-        ### 4.3 - Save the raw traj (before Std selection)
+        #### 4.3 - Save the raw traj (before Std selection)
         for iB in range(PTL.NB):
             traj = PTL.listTrajectories[iB]
             traj_df = pd.DataFrame(traj.dict)
             trajPathRaw = os.path.join(timeSeriesDataDir, 'Trajectories_raw', f[:-4] + '_rawTraj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
             traj_df.to_csv(trajPathRaw, sep = '\t', index = False)
         
-        ### 4.4 - Keep only the best std data in the trajectories
+        #### 4.4 - Keep only the best std data in the trajectories
         for iB in range(PTL.NB):
             traj = PTL.listTrajectories[iB]
             traj.keepBestStdOnly()
         
-        ### 4.5 - The trajectories won't change from now on. We can save their '.dict' field.
+        #### 4.5 - The trajectories won't change from now on. We can save their '.dict' field.
         for iB in range(PTL.NB):
             traj = PTL.listTrajectories[iB]
             traj_df = pd.DataFrame(traj.dict)
@@ -2605,16 +2609,16 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             traj_df.to_csv(trajPath, sep = '\t', index = False)
     
     
-    ### 5. Define pairs and compute distances
+    #### 5. Define pairs and compute distances
         print(BLUE + 'Computing distances...' + NORMAL)
         
-        ### 5.1 - In case of 1 pair of beads
+        #### 5.1 - In case of 1 pair of beads
         if PTL.NB == 2:
             traj1 = PTL.listTrajectories[0]
             traj2 = PTL.listTrajectories[1]
             nT = traj1.nT
             
-            ### 5.1.1 - Create a dict to prepare the export of the results
+            #### 5.1.1 - Create a dict to prepare the export of the results
             timeSeries = {
                 'idxCompression' : np.zeros(nT),
                 'T' : np.zeros(nT),
@@ -2628,7 +2632,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 'D3' : np.zeros(nT)
             }
 
-            ### 5.1.2 - Input common values:
+            #### 5.1.2 - Input common values:
             T0 = fieldDf['T_abs'].values[0]/1000
             timeSeries['idxCompression'] = traj1.dict['idxCompression']
             timeSeries['Tabs'] = (fieldDf['T_abs'][traj1.dict['iField']])/1000
@@ -2636,7 +2640,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             timeSeries['B'] = fieldDf['B_set'][traj1.dict['iField']].values
             timeSeries['B'] *= PTL.MagCorrFactor
 
-            ### 5.1.3 - Compute distances
+            #### 5.1.3 - Compute distances
             timeSeries['dx'] = (traj2.dict['X'] - traj1.dict['X'])/PTL.scale
             timeSeries['dy'] = (traj2.dict['Y'] - traj1.dict['Y'])/PTL.scale
             timeSeries['D2'] = (timeSeries['dx']**2 +  timeSeries['dy']**2)**0.5
@@ -2651,7 +2655,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             print(BLUE + 'OK!' + NORMAL)
             
             
-    ### 6. Compute forces
+    #### 6. Compute forces
         print(BLUE + 'Computing forces...' + NORMAL)
         Tf = time.time()
         if PTL.NB == 2:
@@ -2674,9 +2678,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             # M = 1.05*1600*(0.001991*B.^3+17.54*B.^2+153.4*B)./(B.^2+35.53*B+158.1);    
     
           
-    ### 7. Export the results
+    #### 7. Export the results
             
-        ### 7.1 - Save the tables !
+        #### 7.1 - Save the tables !
         if PTL.NB == 2:
             timeSeries_DF = pd.DataFrame(timeSeries)
             timeSeriesFilePath = os.path.join(timeSeriesDataDir, f[:-4] + '_PY.csv')
@@ -2690,7 +2694,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     
     
     
-        ### 7.2 - Return the last objects, for optional verifications
+        #### 7.2 - Return the last objects, for optional verifications
     listTrajDicts = []
     for iB in range(PTL.NB):
         listTrajDicts.append(PTL.listTrajectories[iB].dict)
