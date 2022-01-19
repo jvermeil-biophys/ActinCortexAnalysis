@@ -556,9 +556,23 @@ class PincherTimeLapse:
             self.nLoop = int(np.round(nS/self.loop_totalSize))
         
         elif 'optoGen' in self.expType:
-            self.optoStep1 = int(loopStruct[0])
-            self.optoStep2 = int(loopStruct[1])
-            self.optoStep3 = int(loopStruct[2])
+            #### Will be modified eventually
+            self.loop_totalSize = int(loopStruct[0])
+            
+            if self.expType == 'compressions':
+                self.loop_rampSize = int(loopStruct[1])
+            elif self.expType == 'compressionsLowStart':
+                self.loop_rampSize = int(loopStruct[1])//2
+            else:
+                self.loop_rampSize = 0
+            
+            
+            if len(loopStruct) == 3: # This 3rd part of the 'loopStruct' field is the nb of frames at the end
+            # of each loop which are not part of the main analysis and should be excluded. Typically fluo images.
+                self.loop_excludedSize = int(loopStruct[2])
+            else:
+                self.loop_excludedSize = 0
+            self.nLoop = int(np.round(nS/self.loop_totalSize))
         
         # 3. Field that are just initialized for now and will be filled by calling different methods.
         self.threshold = 0
@@ -1880,9 +1894,9 @@ class Trajectory:
 #### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
                 
-                # plot = 0
-                # if iF >= 0 and iF <= 30:# or (iF < 190 and iF > 150):
-                #     plot = 1
+                plot = 0
+                if iF >= 50 and iF <= 150:# or (iF < 190 and iF > 150):
+                    plot = 1
                 
 # ############################ OK?! ###################################
                 
@@ -2056,8 +2070,8 @@ class Trajectory:
                 iSNuplet = [F.iS+1 for F in framesNuplet]
                 fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
                 Nfig = plt.gcf().number
-                fig.savefig('C://Users//JosephVermeil//Desktop//TempPlot//fig'+str(Nfig)+'.png')
-    
+                fig.savefig('C://Users//anumi//Desktop//TempPlot//fig'+str(Nfig)+'.png')
+
             return(Z)
         
         except Exception:
