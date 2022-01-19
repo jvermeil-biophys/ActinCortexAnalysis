@@ -77,9 +77,6 @@ BLUE  = '\033[36m' # blue
 
 # %% (1) Utility functions
 
-
-
-
 def findInfosInFileName(f, infoType):
     """
     Return a given type of info from a file name.
