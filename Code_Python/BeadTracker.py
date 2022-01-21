@@ -659,7 +659,7 @@ class PincherTimeLapse:
             if Nramp0 == 0:
                 for j in range(N):
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
-                    self.dictLog['status_nUp'][j] = i_nUp + j//self.Nuplet
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
             else:
                 Nramp = Nramp0-self.blackFramesPerLoop[i]
                 for j in range(Nct//2): # Ct field before ramp
@@ -692,8 +692,9 @@ class PincherTimeLapse:
             if Nramp0 == 0:
                 for j in range(N):
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
-                    self.dictLog['status_nUp'][j] = i_nUp + j//self.Nuplet
-                    
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
+                i_nUp = max(self.dictLog['status_nUp']) + 1
+                
             else:
                 Nramp = Nramp0-self.blackFramesPerLoop[i]
                 for j in range(Nct//2): # Ct field before ramp
@@ -712,10 +713,22 @@ class PincherTimeLapse:
                 
     def determineFramesStatus_optoGen(self):
         #### Exp type dependance here
-        """
+        N0 = self.loop_totalSize
+        Nramp0 = self.loop_rampSize
+        Nexclu = self.loop_excludedSize
+        nUp = self.Nuplet
+        N = N0 - Nexclu
+        i_nUp = 1
         
-        """
-        pass
+        print(N0,Nramp0,Nexclu,nUp)
+        
+        for i in range(self.nLoop):
+            jstart = int(i*N0)
+            for j in range(N):
+                self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
+            i_nUp = max(self.dictLog['status_nUp']) + 1
+        
                 
                 
     def saveLog(self, display = 1, save = False, path = ''):
@@ -1164,7 +1177,8 @@ class PincherTimeLapse:
                 self.listTrajectories[iB].dict['idxAnalysis'].append(1 * (self.listFrames[init_iF].status_frame == 0))
                 
             elif 'optoGen' in self.expType:
-                self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                 print('Passed expt type')
+                 self.listTrajectories[iB].dict['idxAnalysis'].append(0)
 
         # Start the tracking
         previous_iF = init_iF
@@ -1310,11 +1324,11 @@ class PincherTimeLapse:
                             * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
                                 
                 elif 'optoGen' in self.expType:
-                    self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                    idxAnalysis = 0
                 
                 # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
                 for iB in range(self.NB):
-                    #
+        
                     self.listTrajectories[iB].dict['Bead'].append(self.listFrames[iF].listBeads[iBoi[iB]])
                     self.listTrajectories[iB].dict['iF'].append(iF)
                     self.listTrajectories[iB].dict['iS'].append(self.listFrames[iF].iS)
@@ -1894,9 +1908,9 @@ class Trajectory:
 #### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
                 
-                plot = 0
-                if iF >= 50 and iF <= 150:# or (iF < 190 and iF > 150):
-                    plot = 1
+                # plot = 0
+                # if iF >= 50 and iF <= 150:# or (iF < 190 and iF > 150):
+                #     plot = 1
                 
 # ############################ OK?! ###################################
                 
@@ -2338,7 +2352,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 0.5 - Load field file
         fieldFilePath = fP[:-4] + '_Field.txt'
         fieldCols = ['B_set', 'T_abs', 'B', 'Z']
-        fieldDf = pd.read_csv(fieldFilePath, sep = ', ', names = fieldCols) # '\t'
+        fieldDf = pd.read_csv(fieldFilePath, sep = ',', names = fieldCols) # '\t'
         
         #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
@@ -2370,7 +2384,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
-            elif 'optoGen' in f:
+            elif 'disc20um' in f:
+                print('Passed determine frames')
+                PTL.determineFramesStatus_optoGen()
                 pass
                 
         PTL.saveLog(display = False, save = (not logFileImported), path = logFilePath)

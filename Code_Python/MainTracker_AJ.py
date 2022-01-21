@@ -225,11 +225,11 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = False, MatlabStyle = True)
 
-# %% 20/12/2021 : First experiment with the  optimised illumtination
+# %% 20/12/2021 : First experiment with the optimised illumtination
 
 # %%%% M1
 dates = '21.12.20'
-manips, wells, cells = 1, 1, 1
+manips, wells, cells = 1, 1, 'all'
 depthoNames = '21.12.20_M450_step20_100X'
 
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 

@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 expt = '20211220_100xoil_3t3optorhoa_4.5beads_15mT'
 folder = '21-12-20_M3_P1_C3_disc20um'
 
-out_path = 'D:/Anumita/optoPincher Experiments/'+expt+'/'+folder+'/PTLResults.txt'
+out_path = 'D:/Anumita/MagneticPincherData/Raw/21.12.20/'+folder+'_Field.txt'
 
 file = 'D:/Anumita/optoPincher Experiments/'+expt+'/'+folder+'/test.LOG'
 data = pd.read_csv(file, sep=',', skiprows=[0,3,7,8])
@@ -78,6 +78,12 @@ if len(times) < totalFrames:
         np.asarray(times.append('nan'))
         np.asarray(planes.append('nan'))
         np.asarray(planeNos.append('nan'))
+        
+# if len(times) < totalFrames:
+#     width = len(times) < totalFrames
+#     np.pad(times, pad_width = int(width), mode='constant', constant_values=(np.nan,))
+#     np.pad(planes, pad_width = int(width), mode='constant', constant_values=(np.nan,))
+#     np.pad(planeNos, pad_width = int(width), mode='constant', constant_values=(np.nan,))
     
     
 #Creating a fake magnetic field column
@@ -86,7 +92,7 @@ field = np.asarray(field)
 
 #writing the data in a new txt file
 all_data = np.asarray([field, times, field, planes])
-np.savetxt(out_path, all_data.T, fmt='%s, %s, %s, %s')
+np.savetxt(out_path, all_data.T, fmt='%s,%s,%s,%s')
 
 # %% Categorising all the 1st planes to get an idea of the time between two aquisitions 
 
