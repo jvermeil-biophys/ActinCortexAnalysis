@@ -192,6 +192,50 @@ def archiveFig(fig, ax, name='auto', figDir = todayFigDir, figSubDir=''):
                     name = 'figure ' + str(figNum) 
                     fig.savefig(os.path.join(saveDir, name + '.png'))
                     
+def findInfosInFileName(f, infoType):
+    """
+    Return a given type of info from a file name.
+    Inputs : f (str), the file name.
+             infoType (str), the type of info wanted.
+             infoType can be equal to : 
+             * 'M', 'P', 'C' -> will return the number of manip (M), well (P), or cell (C) in a cellID.
+             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'C', the function will return 8.
+             * 'manipID'     -> will return the full manip ID.
+             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'manipID', the function will return '21-01-18_M2'.
+             * 'cellID'     -> will return the full cell ID.
+             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'cellID', the function will return '21-01-18_M2_P1_C8'.
+    """
+    if infoType in ['M', 'P', 'C']:
+        acceptedChar = [str(i) for i in range(10)] + ['.', '-']
+        string = '_' + infoType
+        iStart = re.search(string, f).end()
+        i = iStart
+        infoString = '' + f[i]
+        while f[i+1] in acceptedChar and i < len(f)-1:
+            i += 1
+            infoString += f[i]
+            
+    elif infoType == 'date':
+        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
+        date = f[datePos.start():datePos.end()]
+        infoString = date
+    
+    elif infoType == 'manipID':
+        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
+        date = f[datePos.start():datePos.end()]
+        manip = 'M' + findInfosInFileName(f, 'M')
+        infoString = date + '_' + manip
+        
+    elif infoType == 'cellID':
+        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
+        date = f[datePos.start():datePos.end()]
+        infoString = date + '_' + 'M' + findInfosInFileName(f, 'M') + \
+                            '_' + 'P' + findInfosInFileName(f, 'P') + \
+                            '_' + 'C' + findInfosInFileName(f, 'C')
+
+    
+    return(infoString)
+                    
                     
 # %% (3) TimeSeries functions
 
@@ -234,6 +278,42 @@ def plotCellTimeSeriesData(cellID):
         plt.gcf().show()
     else:
         print('cell not found')
+        
+def getCellTrajData(cellID, Ntraj = 2):
+    trajDir = os.path.join(timeSeriesDataDir, 'Trajectories')
+    allTrajFiles = [f for f in os.listdir(trajDir) 
+                    if (os.path.isfile(os.path.join(trajDir, f)) 
+                        and f.endswith(".csv"))]
+    fileFound = 0
+    nFile = len(allTrajFiles)
+    iFile = 0
+    listTraj = []
+    while (fileFound < Ntraj) and (iFile < nFile):
+        f = allTrajFiles[iFile]
+        if f.startswith(cellID):
+            fileFound += 1
+            trajFilePath = os.path.join(trajDir, f)
+            trajDataFrame = pd.read_csv(trajFilePath, sep='\t')
+            for c in trajDataFrame.columns:
+                if 'Unnamed' in c:
+                    trajDataFrame = trajDataFrame.drop([c], axis=1)
+            
+            pos = 'na'
+            if 'In' in f:
+                pos = 'in'
+            elif 'Out' in f:
+                pos = 'out'
+            
+            dictTraj = {}
+            dictTraj['df'] = trajDataFrame
+            dictTraj['pos'] = pos
+            dictTraj['path'] = trajFilePath
+            
+            listTraj.append(dictTraj)
+            
+        iFile += 1
+
+    return(listTraj)
         
 def addExcludedCell(cellID, motive):
     f = open(os.path.join(experimentalDataDir, 'ExcludedCells.txt'), 'r')
