@@ -91,6 +91,14 @@ def get_R2(Y1, Y2):
     R2 = SSE/SST
     return(R2)
 
+def get_Chi2(Ymeas, Ymodel, dof):
+    residuals = Ymeas-Ymodel
+    S = st.tstd(residuals)
+    S = (np.sum(residuals**2)/len(residuals))**0.5
+    Chi2 = np.sum((residuals/S)**2)
+    Chi2_dof = Chi2/dof
+    return(Chi2_dof)
+
 def getDictAggMean(df):
     dictAggMean = {}
     for c in df.columns:
@@ -179,12 +187,84 @@ def archiveFig(fig, ax, name='auto', figDir = todayFigDir, figSubDir=''):
                     fig.savefig(os.path.join(saveDir, name + '.png'))
                 
                 else:
-                    figNum = gcf().number
+                    figNum = plt.gcf().number
                     name = 'figure ' + str(figNum) 
                     fig.savefig(os.path.join(saveDir, name + '.png'))
                     
                     
 # %% (3) TimeSeries functions
+
+def getCellTimeSeriesData(cellID):
+    allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) and f.endswith(".csv"))]
+    fileFound = False
+    nFile = len(allTimeSeriesDataFiles)
+    iFile = 0
+    while (not fileFound) and (iFile < nFile):
+        f = allTimeSeriesDataFiles[iFile]
+        if f.startswith(cellID):
+            timeSeriesDataFilePath = os.path.join(timeSeriesDataDir, f)
+            timeSeriesDataFrame = pd.read_csv(timeSeriesDataFilePath, sep=';')
+            fileFound = True
+        iFile += 1
+    if not fileFound:
+        timeSeriesDataFrame = pd.DataFrame([])
+    else:
+        for c in timeSeriesDataFrame.columns:
+                if 'Unnamed' in c:
+                    timeSeriesDataFrame = timeSeriesDataFrame.drop([c], axis=1)
+    return(timeSeriesDataFrame)
+
+def plotCellTimeSeriesData(cellID):
+    X = 'T'
+    Y = np.array(['B', 'F', 'dx', 'dy', 'dz', 'D2', 'D3'])
+    units = np.array([' (mT)', ' (pN)', ' (µm)', ' (µm)', ' (µm)', ' (µm)', ' (µm)'])
+    timeSeriesDataFrame = getCellTimeSeriesData(cellID)
+    print(timeSeriesDataFrame.shape)
+    if not timeSeriesDataFrame.size == 0:
+#         plt.tight_layout()
+#         fig.show() # figsize=(20,20)
+        axes = timeSeriesDataFrame.plot(x=X, y=Y, kind='line', ax=None, subplots=True, sharex=True, sharey=False, layout=None, \
+                       figsize=(8,10), use_index=True, title = cellID + ' - f(t)', grid=None, legend=False, style=None, logx=False, logy=False, \
+                       loglog=False, xticks=None, yticks=None, xlim=None, ylim=None, rot=None, fontsize=None, colormap=None, \
+                       table=False, yerr=None, xerr=None, secondary_y=False, sort_columns=False)
+        plt.gcf().tight_layout()
+        for i in range(len(Y)):
+            axes[i].set_ylabel(Y[i] + units[i])
+        plt.gcf().show()
+    else:
+        print('cell not found')
+        
+def addExcludedCell(cellID, motive):
+    f = open(os.path.join(experimentalDataDir, 'ExcludedCells.txt'), 'r')
+    lines = f.readlines()
+    nLines = len(lines)
+    excludedCellsList = []
+    for iLine in range(nLines):
+        line = lines[iLine]
+        splitLine = line[:-1].split(',')
+        excludedCellsList.append(splitLine[0])
+    if cellID in excludedCellsList:
+        newlines = copy(lines)
+        iLineOfInterest = excludedCellsList.index(cellID)
+        if motive not in newlines[iLineOfInterest][:-1].split(','):
+            newlines[iLineOfInterest] = newlines[iLineOfInterest][:-1] + ',' + motive + '\n'            
+    else:
+        newlines = copy(lines)
+        newlines.append('' + cellID + ',' + motive + '\n')
+    f.close()
+    f = open(os.path.join(experimentalDataDir, 'ExcludedCells.txt'), 'w')
+    f.writelines(newlines)
+    
+def getExcludedCells():
+    f = open(os.path.join(experimentalDataDir, 'ExcludedCells.txt'), 'r')
+    lines = f.readlines()
+    nLines = len(lines)
+    excludedCellsDict = {}
+    for iLine in range(nLines):
+        line = lines[iLine]
+        splitLine = line[:-1].split(',')
+        excludedCellsDict[splitLine[0]] = splitLine[1:]
+    return(excludedCellsDict)
 
 # %% (4) GlobalTables functions
 
@@ -318,7 +398,7 @@ listColumnsMeca = ['date','cellName','cellID','manipID',
                    'compNum','compDuration','compStartTime','compAbsStartTime','compStartTimeThisDay',
                    'initialThickness','minThickness','maxIndent','previousThickness',
                    'surroundingThickness','surroundingDx','surroundingDz',
-                   'validatedThickness',
+                   'validatedThickness', 'jumpD3',
                    'minF', 'maxF', 'minS', 'maxS',
                    'ctFieldThickness','ctFieldFluctuAmpli','ctFieldDX','ctFieldDZ',
                    'H0Chadwick','EChadwick','R2Chadwick','EChadwick_CIWidth',
@@ -368,9 +448,10 @@ def compressionFitChadwick(hCompr, fCompr, DIAMETER):
 
         SSR = np.sum((hCompr-hPredict)**2)
         alpha = 0.975
-        df = len(fCompr)-len(params)
-        q = st.t.ppf(alpha, df) # Student coefficient
+        dof = len(fCompr)-len(params)
+        q = st.t.ppf(alpha, dof) # Student coefficient
         R2 = get_R2(hCompr,hPredict)
+        Chi2 = get_Chi2(hCompr,hPredict,dof)
 
         varE = covM[0,0]
         seE = (varE)**0.5
@@ -414,32 +495,36 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     for c in listColumnsMeca:
         results[c] = []
 
-    Ncomp = max(tsDF['idxCompression'])
+    Ncomp = max(tsDF['idxAnalysis'])
     loopStruct = thisExpDf.at[thisExpDf.index.values[0], 'loop structure'].split('_')
     nUplet = thisExpDf.at[thisExpDf.index.values[0], 'normal field multi images']
-
-    loop_totalSize = int(loopStruct[0])
-    if len(loopStruct) >= 2:
-        loop_rampSize = int(loopStruct[1])
-    else:
-        loop_rampSize = 0
-    if len(loopStruct) >= 3:
-        loop_excludedSize = int(loopStruct[2])
-    else:
-        loop_excludedSize = 0
-    loop_ctSize = int((loop_totalSize - (loop_rampSize+loop_excludedSize))/nUplet)
+    
+    if 'compression' in EXPTYPE:
+    
+        loop_totalSize = int(loopStruct[0])
+        if len(loopStruct) >= 2:
+            loop_rampSize = int(loopStruct[1])
+        else:
+            loop_rampSize = 0
+        if len(loopStruct) >= 3:
+            loop_excludedSize = int(loopStruct[2])
+        else:
+            loop_excludedSize = 0
+        loop_ctSize = int((loop_totalSize - (loop_rampSize+loop_excludedSize))/nUplet)
 
 # Less proper way to do exactly like above
 
-#     NimgComp = np.sum((tsDF['idxCompression'] != 0))/Ncomp
-#     NimgCompTh = round(0.49999999999 + np.sum((tsDF['idxCompression'] != 0))/Ncomp)
-#     NimgBtwComp = np.sum((tsDF['idxCompression'] == 0))/Ncomp
-#     NimgBtwCompTh = round(0.4999999999 + np.sum((tsDF['idxCompression'] == 0))/Ncomp)
+#     NimgComp = np.sum((tsDF['idxAnalysis'] != 0))/Ncomp
+#     NimgCompTh = round(0.49999999999 + np.sum((tsDF['idxAnalysis'] != 0))/Ncomp)
+#     NimgBtwComp = np.sum((tsDF['idxAnalysis'] == 0))/Ncomp
+#     NimgBtwCompTh = round(0.4999999999 + np.sum((tsDF['idxAnalysis'] == 0))/Ncomp)
 #     print('Ncomp : ' + str(Ncomp) + ' ; ' + 'NimgComp : ' + str(NimgComp) + '/' + str(NimgCompTh) + ' ; ' + 'NimgBtwComp : ' + str(NimgBtwComp) + '/' + str(NimgBtwCompTh))
 #     if not NimgBtwComp%2 == 0:
 #         print('Bug with the compressions sequence delimitation')
 
-    Ncomp = max(tsDF['idxCompression'])
+    Ncomp = max(tsDF['idxAnalysis'])
+    normalField = thisExpDf.at[thisExpDf.index.values[0], 'normal field']
+    normalField = int(normalField)
     compField = thisExpDf.at[thisExpDf.index.values[0], 'ramp field'].split('_')
     minCompField = int(compField[0])
     maxCompField = int(compField[1])
@@ -447,9 +532,9 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     #### (1) Get global values
     # These values are computed once for the whole cell D3 time series, but since the table has 1 line per compression, 
     # that same value will be put in the table for each line corresponding to that cell
-    ctFieldH = (tsDF.loc[tsDF['idxCompression'] == 0, 'D3'].values - DIAMETER)
-    ctFieldDX = np.median(tsDF.loc[tsDF['idxCompression'] == 0, 'dx'].values - DIAMETER)
-    ctFieldDZ = np.median(tsDF.loc[tsDF['idxCompression'] == 0, 'dz'].values)
+    ctFieldH = (tsDF.loc[tsDF['idxAnalysis'] == 0, 'D3'].values - DIAMETER)
+    ctFieldDX = np.median(tsDF.loc[tsDF['idxAnalysis'] == 0, 'dx'].values - DIAMETER)
+    ctFieldDZ = np.median(tsDF.loc[tsDF['idxAnalysis'] == 0, 'dz'].values)
     ctFieldThickness   = np.median(ctFieldH)
     ctFieldFluctuAmpli = np.percentile(ctFieldH,90) - np.percentile(ctFieldH,10)
     
@@ -458,31 +543,18 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     if PLOT:
         # First plot - fig1 & ax1, is the F(t) curves with the different compressions colored depending of the analysis success
         fig1, ax1 = plt.subplots(1,1,figsize=(tsDF.shape[0]*(1/100),5))
+        
+        
+        
+        #### *** before the jump correction, the plot of the main curve of fig 1 was here
         color = 'blue'
-        ax1.plot(tsDF['T'].values, tsDF['D3'].values-DIAMETER, color = color, ls = '-', linewidth = 1)
+        # ax1.plot(tsDF['T'].values, tsDF['D3'].values-DIAMETER, color = color, ls = '-', linewidth = 1)
         ax1.set_xlabel('t (s)')
         ax1.set_ylabel('h (nm)', color=color)
         ax1.tick_params(axis='y', labelcolor=color)
-        (axm, axM) = ax1.get_ylim()
-        ax1.set_ylim([min(0,axm), axM])
-        if (max(tsDF['D3'].values-DIAMETER) > 200):
-            ax1.set_yticks(np.arange(0, max(tsDF['D3'].values-DIAMETER), 100))
+        
 
-        twinAxis = True
-        if twinAxis:
-            ax1.tick_params(axis='y', labelcolor='b')
-            ax1bis = ax1.twinx()
-            color = 'firebrick'
-            ax1bis.set_ylabel('F (pN)', color=color)
-            ax1bis.plot(tsDF['T'].values, tsDF['F'].values, color=color)
-            ax1bis.tick_params(axis='y', labelcolor=color)
-            ax1bis.set_yticks([0,500,1000,1500])
-            minh = np.min(tsDF['D3'].values-DIAMETER)
-            ratio = min(1/abs(minh/axM), 5)
-#             print(ratio)
-            (axmbis, axMbis) = ax1bis.get_ylim()
-            ax1bis.set_ylim([0, max(axMbis*ratio, 3*max(tsDF['F'].values))])
-
+        
         nColsSubplot = 5
         nRowsSubplot = ((Ncomp-1) // nColsSubplot) + 1
         # Second plot - fig2 & ax2, gather all the F(h) curves, and will be completed later in the code
@@ -498,10 +570,27 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         results['cellName'].append(split_f[1] + '_' + split_f[2] + '_' + split_f[3])
         results['cellID'].append(split_f[0] + '_' + split_f[1] + '_' + split_f[2] + '_' + split_f[3])
         results['manipID'].append(split_f[0] + '_' + split_f[1])
-
+        
+        #### Jump correction
+        if EXPTYPE == 'compressionsLowStart' or normalField == minCompField:
+            colToCorrect = ['dx', 'dy', 'dz', 'D2', 'D3']
+            maskCompAndPrecomp = np.abs(tsDF['idxAnalysis']) == i
+            iStart = findFirst(np.abs(tsDF['idxAnalysis']), i)
+            for c in colToCorrect:
+                jump = tsDF[c].values[iStart+2] - tsDF[c].values[iStart-1]
+                tsDF.loc[maskCompAndPrecomp, c] -= jump
+                if c == 'D3':
+                    D3corrected = True
+                    jumpD3 = jump
+        else:
+            D3corrected = False
+            jumpD3 = 0
+            
+            
+        
         #### (2) Segment the compression n°i
-        thisCompDf = tsDF.loc[tsDF['idxCompression'] == i,:]
-        iStart = (findFirst(tsDF['idxCompression'], i))
+        thisCompDf = tsDF.loc[tsDF['idxAnalysis'] == i,:]
+        iStart = (findFirst(tsDF['idxAnalysis'], i))
         iStop = iStart+thisCompDf.shape[0]
 
         # Easy-to-get parameters
@@ -604,6 +693,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             results['ctFieldDZ'].append(ctFieldDZ)
             results['ctFieldThickness'].append(ctFieldThickness)
             results['ctFieldFluctuAmpli'].append(ctFieldFluctuAmpli)
+            #### jumpD3
+            results['jumpD3'].append(jumpD3)
 
             validatedThickness = np.min([results['initialThickness'],results['minThickness'],results['previousThickness'],\
                                         results['surroundingThickness'],results['ctFieldThickness']]) > 0
@@ -772,7 +863,11 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'gold', linestyle = '-', linewidth = 1.25)
                 else:
                     ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'crimson', linestyle = '-', linewidth = 1.25)
-
+                #### jumpD3
+                if jumpD3 != 0:
+                    x = np.mean(thisCompDf['T'].values)
+                    y = np.mean(thisCompDf['D3'].values-DIAMETER) * 1.3
+                    ax1.text(x, y, '{:.2f}'.format(jumpD3), ha = 'center')
 
                 fig1.suptitle(results['cellID'][-1])
 
@@ -853,6 +948,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             results['ctFieldDZ'].append(np.nan)
             results['ctFieldThickness'].append(np.nan)
             results['ctFieldFluctuAmpli'].append(np.nan)
+            #### jumpD3
+            results['jumpD3'].append(np.nan) 
             results['validatedThickness'].append(validatedThickness)
             validatedFit = False
             results['critFit'].append('Not relevant')
@@ -884,8 +981,34 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
 
     
     #### PLOT [3/4]
-    # Rescale fig3 axes
+    
     if PLOT:
+        #### *** after the jump correction fix, the plot of the main curve on fig1 came here
+        color = 'blue'
+        ax1.plot(tsDF['T'].values, tsDF['D3'].values-DIAMETER, color = color, ls = '-', linewidth = 1, zorder = 1)
+        (axm, axM) = ax1.get_ylim()
+        ax1.set_ylim([min(0,axm), axM])
+        if (max(tsDF['D3'].values-DIAMETER) > 200):
+            ax1.set_yticks(np.arange(0, max(tsDF['D3'].values-DIAMETER), 100))
+        
+        twinAxis = True
+        if twinAxis:
+            ax1.tick_params(axis='y', labelcolor='b')
+            ax1bis = ax1.twinx()
+            color = 'firebrick'
+            ax1bis.set_ylabel('F (pN)', color=color)
+            ax1bis.plot(tsDF['T'].values, tsDF['F'].values, color=color)
+            ax1bis.tick_params(axis='y', labelcolor=color)
+            ax1bis.set_yticks([0,500,1000,1500])
+            minh = np.min(tsDF['D3'].values-DIAMETER)
+            ratio = min(1/abs(minh/axM), 5)
+#             print(ratio)
+            (axmbis, axMbis) = ax1bis.get_ylim()
+            ax1bis.set_ylim([0, max(axMbis*ratio, 3*max(tsDF['F'].values))])
+        
+        
+        
+        # Rescale fig3 axes
         eMin, eMax = 1, 0
         sMin, sMax = 1000, 0
         for i in range(1, Ncomp+1):
@@ -986,7 +1109,8 @@ def computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData', 
     elif source == 'Python':
         list_mecaFiles = [f for f in os.listdir(timeSeriesDataDir) \
                       if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) and f.endswith(".csv") \
-                      and ('R40' in f) and (suffixPython in f))]
+                      and (('R40' in f) or ('L40' in f)) and (suffixPython in f))]
+        # print(list_mecaFiles)
     
 #     print(list_mecaFiles)
     
@@ -1112,6 +1236,16 @@ def getFluoData(save = False):
 
 # %%%
 
+def removeColumnsDuplicate(df):
+    cols = df.columns.values
+    for c in cols:
+        if c.endswith('_x'):
+            df = df.rename(columns={c: c[:-2]})
+        elif c.endswith('_y'):
+            df = df.drop(columns=[c])
+    return(df)
+    
+
 def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
     if kind == 'ctField':
         GlobalTable_ctField = getGlobalTable_ctField()
@@ -1126,6 +1260,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
         #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
         )
+        GlobalTable_ctField = removeColumnsDuplicate(GlobalTable_ctField)
         print('Merged table has ' + str(GlobalTable_ctField.shape[0]) + ' lines and ' + str(GlobalTable_ctField.shape[1]) + ' columns.')
         
         # print(GlobalTable_ctField.head())
@@ -1147,7 +1282,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
         print('Merged table has ' + str(GlobalTable_meca_Matlab.shape[0]) + ' lines and ' + str(GlobalTable_meca_Matlab.shape[1]) + ' columns.')
         
         # print(GlobalTable_meca_Matlab.tail())
-        
+        GlobalTable_meca_Matlab = removeColumnsDuplicate(GlobalTable_meca_Matlab)
         return(GlobalTable_meca_Matlab)
 
 
@@ -1166,7 +1301,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
         print('Merged table has ' + str(GlobalTable_meca_Py.shape[0]) + ' lines and ' + str(GlobalTable_meca_Py.shape[1]) + ' columns.')
         
         # print(GlobalTable_meca_Py.tail())
-        
+        GlobalTable_meca_Py = removeColumnsDuplicate(GlobalTable_meca_Py)
         return(GlobalTable_meca_Py)
 
 
@@ -1178,12 +1313,12 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
         #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
         )
-        GlobalTable_meca_Py2 = pd.merge(GlobalTable_meca_Py2, fluoDf, how="left", left_on='cellID', right_on='cellID'
+        GlobalTable_meca_Py2 = pd.merge(GlobalTable_meca_Py2, fluoDf, how="left", left_on='cellID', right_on='cellID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
         #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
         )
         print('Merged table has ' + str(GlobalTable_meca_Py2.shape[0]) + ' lines and ' + str(GlobalTable_meca_Py2.shape[1]) + ' columns.')
 
         # print(GlobalTable_meca_Py2.tail())
-        
+        GlobalTable_meca_Py2 = removeColumnsDuplicate(GlobalTable_meca_Py2)
         return(GlobalTable_meca_Py2)

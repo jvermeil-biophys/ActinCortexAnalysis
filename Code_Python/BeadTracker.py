@@ -542,7 +542,7 @@ class PincherTimeLapse:
             if self.expType == 'compressions':
                 self.loop_rampSize = int(loopStruct[1])
             elif self.expType == 'compressionsLowStart':
-                self.loop_rampSize = int(loopStruct[1])//2
+                self.loop_rampSize = int(loopStruct[1])
             else:
                 self.loop_rampSize = 0
             
@@ -641,7 +641,7 @@ class PincherTimeLapse:
             if Nramp0 == 0:
                 for j in range(N):
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
-                    self.dictLog['status_nUp'][j] = i_nUp + j//self.Nuplet
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
             else:
                 Nramp = Nramp0-self.blackFramesPerLoop[i]
                 for j in range(Nct//2): # Ct field before ramp
@@ -674,7 +674,7 @@ class PincherTimeLapse:
             if Nramp0 == 0:
                 for j in range(N):
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
-                    self.dictLog['status_nUp'][j] = i_nUp + j//self.Nuplet
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
                     
             else:
                 Nramp = Nramp0-self.blackFramesPerLoop[i]
