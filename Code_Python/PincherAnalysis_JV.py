@@ -92,6 +92,7 @@ def get_R2(Y1, Y2):
     return(R2)
 
 def get_Chi2(Ymeas, Ymodel, dof):
+    #### To be validated soon !
     residuals = Ymeas-Ymodel
     S = st.tstd(residuals)
     S = (np.sum(residuals**2)/len(residuals))**0.5
