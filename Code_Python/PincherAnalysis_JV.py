@@ -480,12 +480,17 @@ listColumnsMeca = ['date','cellName','cellID','manipID',
                    'initialThickness','minThickness','maxIndent','previousThickness',
                    'surroundingThickness','surroundingDx','surroundingDz',
                    'validatedThickness', 'jumpD3',
-                   'minF', 'maxF', 'minS', 'maxS',
+                   'minForce', 'maxForce', 'minStress', 'maxStress', 'minStrain', 'maxStrain',
                    'ctFieldThickness','ctFieldFluctuAmpli','ctFieldDX','ctFieldDZ',
                    'H0Chadwick','EChadwick','R2Chadwick','EChadwick_CIWidth',
                    'hysteresis',
                    'critFit', 'validatedFit','comments'] # 'fitParams',
-regionFitsNames = ['f<150pN', 'f<100pN', 's<150Pa']
+
+#### OPTION ! Change the region fits names here also 
+regionFitsNames = ['f<150pN',      'f<100pN',      's<100Pa',
+                           '100<s<200Pa',
+                           '200<s<300Pa']
+
 for rFN in regionFitsNames:
     listColumnsMeca += ['H0Chadwick_'+rFN, 'EChadwick_'+rFN, 'R2Chadwick_'+rFN, 'Npts_'+rFN, 'validatedFit_'+rFN]
 
@@ -801,10 +806,12 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 results['validatedFit'].append(validatedFit)
                 results['comments'].append('fitFailure')
 
-                results['minF'].append(np.nan)
-                results['maxF'].append(np.nan)
-                results['minS'].append(np.nan)
-                results['maxS'].append(np.nan)
+                results['minForce'].append(np.nan)
+                results['maxForce'].append(np.nan)
+                results['minStress'].append(np.nan)
+                results['maxStress'].append(np.nan)
+                results['minStrain'].append(np.nan)
+                results['maxStrain'].append(np.nan)
 
             if not fitError:
                 results['validatedFit'].append(validatedFit)
@@ -819,14 +826,28 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 results['R2Chadwick'].append(R2)
                 results['EChadwick_CIWidth'].append(confIntEWidth)
 
-                results['minF'].append(np.min(fCompr))
-                results['maxF'].append(np.max(fCompr))
-                results['minS'].append(np.min(fCompr)/(np.pi * (DIAMETER/2e6) *(H0-np.max(hCompr))))
-                results['maxS'].append(np.max(fCompr)/(np.pi * (DIAMETER/2e6) *(H0-np.min(hCompr))))
+                results['minForce'].append(np.min(fCompr))
+                results['maxForce'].append(np.max(fCompr))
+                
+                deltaCompr = (H0 - hCompr)/1000
+                stressCompr = fCompr / (np.pi * (DIAMETER/2000) * deltaCompr)
+                strainCompr = deltaCompr / (3*(H0/1000))
+                validDelta = (deltaCompr > 0)
+                
+                results['minStress'].append(np.min(stressCompr))
+                results['maxStress'].append(np.max(stressCompr))
+                results['minStrain'].append(np.min(strainCompr))
+                results['maxStrain'].append(np.max(strainCompr))
 
 
             #### (4.1) Fits on specific regions of the curve
-            regionFitsNames = ['f<150pN', 'f<100pN', 's<150Pa']
+            #### OPTION ! Setting of the region fits
+            if not fitError:
+                fitConditions = [(fCompr < 150), (fCompr < 100), (stressCompr < 100), 
+                                 ((stressCompr > 100) & (stressCompr < 200)), 
+                                 ((stressCompr > 200) & (stressCompr < 300))]
+            
+            
             if fitError:
                 for rFN in regionFitsNames:
                     results['H0Chadwick_'+rFN].append(np.nan)
@@ -836,102 +857,45 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                     results['validatedFit_'+rFN].append(False)
 
             if not fitError:
-                deltaCompr = (H0 - hCompr)/1000
-                stressCompr = fCompr / (np.pi * (DIAMETER/2000) * deltaCompr)
-                strainCompr = deltaCompr / (3*(H0/1000))
-                validDelta = (deltaCompr > 0)
                 dictRegionFit = {'regionFitNames' : [], 'E' : [], 'H0' : [], 'R2' : [], 
                                  'fitError' : [], 'validatedFit' : [], 'Npts' : []}
+                
+                
+                
+                for ii in range(len(regionFitsNames)):
+                    regionFitName = regionFitsNames[ii]
+                    mask_region = fitConditions[ii]
+                    Npts_region = np.sum(mask_region)
+                    if Npts_region > 10:
+                        fCompr_region = fCompr[mask_region]
+                        hCompr_region = hCompr[mask_region]
+                        E_region, H0_region, hPredict_region, R2_region, confIntE_region, confIntH0_region, fitError_region = \
+                                      compressionFitChadwick(hCompr_region, fCompr_region, DIAMETER)
+                        if not fitError_region:
+                            R2CRITERION = 0.9
+                            validatedFit_region = (R2_region > R2CRITERION)
+                    else:
+                        validatedFit_region, fitError_region = False, True
+    
+                    if fitError_region:
+                        validatedFit_region = False
+                        E_region, H0_region, R2_region  = np.nan, np.nan, np.nan
+    
+                    dictRegionFit['regionFitNames'].append(regionFitName)
+                    dictRegionFit['Npts'].append(Npts_region)
+                    dictRegionFit['E'].append(E_region)
+                    dictRegionFit['H0'].append(H0_region)
+                    dictRegionFit['R2'].append(R2_region)
+                    dictRegionFit['fitError'].append(fitError_region)
+                    dictRegionFit['validatedFit'].append(validatedFit_region)
 
-                # Fit f < 150pN
-                regionFitNames = 'f<150pN'
-                mask_region = (fCompr < 150)
-                Npts_region = np.sum(mask_region)
-                if Npts_region > 10:
-                    fCompr_region = fCompr[mask_region]
-                    hCompr_region = hCompr[mask_region]
-                    E_region, H0_region, hPredict_region, R2_region, confIntE_region, confIntH0_region, fitError_region = \
-                                  compressionFitChadwick(hCompr_region, fCompr_region, DIAMETER)
-                    if not fitError_region:
-                        R2CRITERION = 0.9
-                        validatedFit_region = (R2_region > R2CRITERION)
-                else:
-                    validatedFit_region, fitError_region = False, True
-
-                if fitError_region:
-                    validatedFit_region = False
-                    E_region, H0_region, R2_region  = np.nan, np.nan, np.nan
-
-                dictRegionFit['regionFitNames'].append(regionFitNames)
-                dictRegionFit['Npts'].append(Npts_region)
-                dictRegionFit['E'].append(E_region)
-                dictRegionFit['H0'].append(H0_region)
-                dictRegionFit['R2'].append(R2_region)
-                dictRegionFit['fitError'].append(fitError_region)
-                dictRegionFit['validatedFit'].append(validatedFit_region)
-
-                # Fit f < 100pN
-                regionFitNames = 'f<100pN'
-                mask_region = (fCompr < 100)
-                Npts_region = np.sum(mask_region)
-                if Npts_region > 10:
-                    fCompr_region = fCompr[mask_region]
-                    hCompr_region = hCompr[mask_region]
-                    E_region, H0_region, hPredict_region, R2_region, confIntE_region, confIntH0_region, fitError_region = \
-                                  compressionFitChadwick(hCompr_region, fCompr_region, DIAMETER)
-                    if not fitError_region:
-                        R2CRITERION = 0.9
-                        validatedFit_region = (R2_region > R2CRITERION)
-                else:
-                    validatedFit_region, fitError_region = False, True
-
-                if fitError_region:
-                    validatedFit_region = False
-                    E_region, H0_region, R2_region  = np.nan, np.nan, np.nan
-
-                dictRegionFit['regionFitNames'].append(regionFitNames)
-                dictRegionFit['Npts'].append(Npts_region)
-                dictRegionFit['E'].append(E_region)
-                dictRegionFit['H0'].append(H0_region)
-                dictRegionFit['R2'].append(R2_region)
-                dictRegionFit['fitError'].append(fitError_region)
-                dictRegionFit['validatedFit'].append(validatedFit_region)
-
-                # Fit s < 150Pa
-                regionFitNames = 's<150Pa'
-                mask_region = (stressCompr < 150)
-                Npts_region = np.sum(mask_region)
-                if Npts_region > 10:
-                    fCompr_region = fCompr[mask_region]
-                    hCompr_region = hCompr[mask_region]
-                    E_region, H0_region, hPredict_region, R2_region, confIntE_region, confIntH0_region, fitError_region = \
-                                  compressionFitChadwick(hCompr_region, fCompr_region, DIAMETER)
-                    if not fitError_region:
-                        R2CRITERION = 0.9
-                        validatedFit_region = (R2_region > R2CRITERION)
-                else:
-                    validatedFit_region, fitError_region = False, True
-
-                if fitError_region:
-                    validatedFit_region = False
-                    E_region, H0_region, R2_region  = np.nan, np.nan, np.nan
-
-                dictRegionFit['regionFitNames'].append(regionFitNames)
-                dictRegionFit['Npts'].append(Npts_region)
-                dictRegionFit['E'].append(E_region)
-                dictRegionFit['H0'].append(H0_region)
-                dictRegionFit['R2'].append(R2_region)
-                dictRegionFit['fitError'].append(fitError_region)
-                dictRegionFit['validatedFit'].append(validatedFit_region)
-#                 dictRegionFit['hPredict_region'].append(hPredict_region)
-
-                for k in range(len(dictRegionFit['regionFitNames'])):
-                    rFN = dictRegionFit['regionFitNames'][k]
-                    results['H0Chadwick_'+rFN].append(dictRegionFit['H0'][k])
-                    results['EChadwick_'+rFN].append(dictRegionFit['E'][k])
-                    results['R2Chadwick_'+rFN].append(dictRegionFit['R2'][k])
-                    results['Npts_'+rFN].append(dictRegionFit['Npts'][k])
-                    results['validatedFit_'+rFN].append(dictRegionFit['validatedFit'][k])
+                for ii in range(len(regionFitsNames)):
+                    rFN = dictRegionFit['regionFitNames'][ii]
+                    results['H0Chadwick_'+rFN].append(dictRegionFit['H0'][ii])
+                    results['EChadwick_'+rFN].append(dictRegionFit['E'][ii])
+                    results['R2Chadwick_'+rFN].append(dictRegionFit['R2'][ii])
+                    results['Npts_'+rFN].append(dictRegionFit['Npts'][ii])
+                    results['validatedFit_'+rFN].append(dictRegionFit['validatedFit'][ii])
             
             #### PLOT [2/4]
             # Complete fig 1, 2, 3 with the results of the fit
@@ -1040,14 +1004,17 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             results['EChadwick_CIWidth'].append(np.nan)
             results['validatedFit'].append(validatedFit)
 
-            results['minF'].append(np.nan)
-            results['maxF'].append(np.nan)
-            results['minS'].append(np.nan)
-            results['maxS'].append(np.nan)
+            results['minForce'].append(np.nan)
+            results['maxForce'].append(np.nan)
+            results['minStress'].append(np.nan)
+            results['maxStress'].append(np.nan)
+            results['minStrain'].append(np.nan)
+            results['maxStrain'].append(np.nan)
 
             results['comments'].append('Unspecified bug in the code')
             results['hysteresis'].append(np.nan)
-            regionFitsNames = ['f<150pN', 'f<100pN', 's<150Pa']
+
+            
             for rFN in regionFitsNames:
                 results['H0Chadwick_'+rFN].append(np.nan)
                 results['EChadwick_'+rFN].append(np.nan)
