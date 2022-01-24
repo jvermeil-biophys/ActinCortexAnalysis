@@ -91,11 +91,9 @@ def get_R2(Y1, Y2):
     R2 = SSE/SST
     return(R2)
 
-def get_Chi2(Ymeas, Ymodel, dof):
+def get_Chi2(Ymeas, Ymodel, dof, S):
     #### To be validated soon !
     residuals = Ymeas-Ymodel
-    S = st.tstd(residuals)
-    S = (np.sum(residuals**2)/len(residuals))**0.5
     Chi2 = np.sum((residuals/S)**2)
     Chi2_dof = Chi2/dof
     return(Chi2_dof)
@@ -475,6 +473,7 @@ def getGlobalTable_ctField(fileName = 'Global_CtFieldData'):
 # * computeGlobalTable_meca() call the previous function and convert the dict to a DataFrame
 
 
+#### SETTING ! Change the region fits names here also 
 listColumnsMeca = ['date','cellName','cellID','manipID',
                    'compNum','compDuration','compStartTime','compAbsStartTime','compStartTimeThisDay',
                    'initialThickness','minThickness','maxIndent','previousThickness',
@@ -486,7 +485,10 @@ listColumnsMeca = ['date','cellName','cellID','manipID',
                    'hysteresis',
                    'critFit', 'validatedFit','comments'] # 'fitParams',
 
-#### OPTION ! Change the region fits names here also 
+#### SETTING ! Fit Selection
+dictSelectionCurve = {'R2' : 0.75, 'Chi2' : 15, 'Error' : 10}
+
+#### SETTING ! Change the region fits names here also 
 regionFitsNames = ['f<150pN',      'f<100pN',      's<100Pa',
                            '100<s<200Pa',
                            '200<s<300Pa']
@@ -531,13 +533,21 @@ def compressionFitChadwick(hCompr, fCompr, DIAMETER):
 
         E, H0 = params
         hPredict = inversedChadwickModel(fCompr, E, H0)
+        S = dictSelectionCurve['Error']
+        
+        comprMat = np.array([hCompr, fCompr]).T
+        comprMatSorted = comprMat[comprMat[:, 0].argsort()]
+        hComprSorted, fComprSorted = comprMatSorted[:, 0], comprMatSorted[:, 1]
+        fPredict = chadwickModel(hComprSorted, E, H0)
+        
+        # residuals_h = hCompr-hPredict
+        # residuals_f = fComprSorted-fPredict
 
-        SSR = np.sum((hCompr-hPredict)**2)
         alpha = 0.975
         dof = len(fCompr)-len(params)
         q = st.t.ppf(alpha, dof) # Student coefficient
-        R2 = get_R2(hCompr,hPredict)
-        Chi2 = get_Chi2(hCompr,hPredict,dof)
+        R2 = get_R2(hCompr, hPredict)
+        Chi2 = get_Chi2(fComprSorted, fPredict, dof, S)
 
         varE = covM[0,0]
         seE = (varE)**0.5
@@ -553,9 +563,9 @@ def compressionFitChadwick(hCompr, fCompr, DIAMETER):
         
     except:
         error = True
-        E, H0, hPredict, R2, confIntE, confIntH0 = -1, -1, np.ones(len(hCompr))*(-1), -1, [-1,-1], [-1,-1]
+        E, H0, hPredict, R2, Chi2, confIntE, confIntH0 = -1, -1, np.ones(len(hCompr))*(-1), -1, -1, [-1,-1], [-1,-1]
     
-    return(E, H0, hPredict, R2, confIntE, confIntH0, error)
+    return(E, H0, hPredict, R2, Chi2, confIntE, confIntH0, error)
 
 
 
@@ -790,12 +800,13 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
 
 
             #### (4) Fit with Chadwick model of the force-thickness curve
-            E, H0, hPredict, R2, confIntE, confIntH0, fitError = compressionFitChadwick(hCompr, fCompr, DIAMETER) # IMPORTANT SUBFUNCTION
+            E, H0, hPredict, R2, Chi2, confIntE, confIntH0, fitError = compressionFitChadwick(hCompr, fCompr, DIAMETER) # IMPORTANT SUBFUNCTION
 
-            R2CRITERION = 0.9
+            R2CRITERION = dictSelectionCurve['R2']
+            CHI2CRITERION = dictSelectionCurve['Chi2']
             critFit = 'R2 > ' + str(R2CRITERION)
             results['critFit'].append(critFit)
-            validatedFit = (R2 > R2CRITERION)
+            validatedFit = ((R2 > R2CRITERION) and (Chi2 < CHI2CRITERION))
 
             if fitError:
                 validatedFit = False
@@ -841,7 +852,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
 
 
             #### (4.1) Fits on specific regions of the curve
-            #### OPTION ! Setting of the region fits
+            #### SETTING ! Setting of the region fits
             if not fitError:
                 fitConditions = [(fCompr < 150), (fCompr < 100), (stressCompr < 100), 
                                  ((stressCompr > 100) & (stressCompr < 200)), 
@@ -869,11 +880,14 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                     if Npts_region > 10:
                         fCompr_region = fCompr[mask_region]
                         hCompr_region = hCompr[mask_region]
-                        E_region, H0_region, hPredict_region, R2_region, confIntE_region, confIntH0_region, fitError_region = \
+                        E_region, H0_region, hPredict_region, R2_region, Chi2_region, confIntE_region, confIntH0_region, fitError_region = \
                                       compressionFitChadwick(hCompr_region, fCompr_region, DIAMETER)
                         if not fitError_region:
-                            R2CRITERION = 0.9
-                            validatedFit_region = (R2_region > R2CRITERION)
+                            #### R2
+                            R2CRITERION = dictSelectionCurve['R2']
+                            CHI2CRITERION = dictSelectionCurve['Chi2']
+                            validatedFit_region = ((R2_region > R2CRITERION) and 
+                                                    (Chi2_region < CHI2CRITERION))
                     else:
                         validatedFit_region, fitError_region = False, True
     
@@ -908,11 +922,11 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'gold', linestyle = '-', linewidth = 1.25)
                 else:
                     ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'crimson', linestyle = '-', linewidth = 1.25)
-                #### jumpD3
-                if jumpD3 != 0:
-                    x = np.mean(thisCompDf['T'].values)
-                    y = np.mean(thisCompDf['D3'].values-DIAMETER) * 1.3
-                    ax1.text(x, y, '{:.2f}'.format(jumpD3), ha = 'center')
+                #### Display jumpD3
+                # if jumpD3 != 0:
+                #     x = np.mean(thisCompDf['T'].values)
+                #     y = np.mean(thisCompDf['D3'].values-DIAMETER) * 1.3
+                #     ax1.text(x, y, '{:.2f}'.format(jumpD3), ha = 'center')
 
                 fig1.suptitle(results['cellID'][-1])
 
@@ -936,7 +950,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
 
 
                 if not fitError:
-                    legendText += 'H0 = {:.1f}nm\nE = {:.2e}Pa\nR2 = {:.3f}'.format(H0, E, R2)
+                    legendText += 'H0 = {:.1f}nm\nE = {:.2e}Pa\nR2 = {:.3f}\nChi2 = {:.1f}'.format(H0, E, R2, Chi2)
                     thisAx2.plot(hPredict,fCompr,'k--', linewidth = 0.8, label = legendText)
                     thisAx2.legend(loc = 'upper right', prop={'size': 6})
                     if not validatedFit:
