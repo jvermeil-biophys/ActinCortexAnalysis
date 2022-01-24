@@ -3103,7 +3103,7 @@ class BeadDeptho:
 #                     figInterp.show()
             deptho_HD = deptho_HD.astype(np.uint16)    
             self.depthosDict['deptho_HD'] = deptho_HD
-        
+       
         # 3D caracterisation
 #         I_binary = np.zeros([self.I_cleanROI.shape[0], self.I_cleanROI.shape[1], self.I_cleanROI.shape[2]])
 #         I_binary[self.zFirst:self.zLast] = (self.I_cleanROI[self.zFirst:self.zLast] > self.threshold)
