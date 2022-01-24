@@ -1,7 +1,0 @@
-21-01-18_M1_P1_C4,passive
-21-01-18_M1_P1_C2,passive
-21-01-18_M1_P1_C3,passive
-20-08-07_M1_P1_C6,too thick
-20-08-07_M1_P1_C62,too thick
-21-01-21_M3_P1_C4,passive
-21-01-21_M3_P1_C5,passive
