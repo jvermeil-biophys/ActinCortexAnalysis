@@ -69,7 +69,7 @@ experimentalDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//D
 
 expDf = getExperimentalConditions(experimentalDataDir)
 
-cellId = '21-12-16_M1_P1_C10'
+cellId = '21-12-08_M1_P2_C1'
 df = getCellTimeSeriesData(cellId)
 
 
@@ -235,15 +235,20 @@ def compressionFitChadwick_V2(hCompr, fCompr, DIAMETER):
         E, H0 = params
         
         hPredict = inversedChadwickModel(fCompr, E, H0)
+        residuals_h = hCompr-hPredict
         
-        residuals = hCompr-hPredict
+        comprMat = np.array([hCompr, fCompr]).T
+        comprMatSorted = comprMat[comprMat[:, 0].argsort()]
+        hComprSorted, fComprSorted = comprMatSorted[:, 0], comprMatSorted[:, 1]
+        fPredict = chadwickModel(hComprSorted, E, H0)
+        residuals_f = fComprSorted-fPredict
 
-        SSR = np.sum((residuals)**2)
+        # SSR = np.sum((residuals)**2)
         alpha = 0.975
         dof = len(fCompr)-len(params)
         q = st.t.ppf(alpha, dof) # Student coefficient
         R2 = get_R2(hCompr, hPredict)
-        Chi2 = get_Chi2(hCompr, hPredict, dof)
+        Chi2 = get_Chi2(fComprSorted, fPredict, dof)
 
         varE = covM[0,0]
         seE = (varE)**0.5
@@ -266,15 +271,16 @@ def compressionFitChadwick_V2(hCompr, fCompr, DIAMETER):
         print(NORMAL + '')
         
     # return(E, H0, hPredict, R2, X2, confIntE, confIntH0, error)
-    return(E, H0, hPredict, R2, Chi2, residuals, error)
+    return(E, H0, hPredict, fPredict, comprMatSorted, R2, Chi2, residuals_h, residuals_f, error)
 
 
 
 
 def get_Chi2(Ymeas, Ymodel, dof):
     residuals = Ymeas-Ymodel
-    S = st.tstd(residuals)
-    S = (np.sum(residuals**2)/len(residuals))**0.5
+    S = 10
+    # S = st.tstd(residuals)
+    # S = (np.sum(residuals**2)/len(residuals))**0.5
     Chi2 = np.sum((residuals/S)**2)
     Chi2_dof = Chi2/dof
     return(Chi2_dof)
@@ -302,12 +308,13 @@ def testFun(cellId):
     #### MAIN PART [2/2]
     for i in range(1,Nc+1): 
         hCompr, fCompr = hComprList[i-1], fComprList[i-1]
-        E, H0, hPredict, R2, Chi2, residuals, fitError = compressionFitChadwick_V2(hCompr, fCompr, DIAMETER)
+        E, H0, hPredict, fPredict, comprMatSorted, R2, Chi2, residuals_h, residuals_f, fitError = compressionFitChadwick_V2(hCompr, fCompr, DIAMETER)
+        hComprSorted, fComprSorted = comprMatSorted[:, 0], comprMatSorted[:, 1]
         
-        NT = st.mstats.normaltest(residuals)
+        NT = st.mstats.normaltest(residuals_f)
         # # print(NT)
         # S = st.tstd(residuals)
-        print(R2, Chi2)
+        print(i, R2, Chi2)
     
         #### PLOT [2/2]
         colSp = (i-1) % nColsSubplot
@@ -324,22 +331,25 @@ def testFun(cellId):
         elif nRowsSubplot >= 1:
             thisAx2 = ax2[rowSp,colSp]
         
-        thisAx.plot(hCompr,fCompr,'b-', linewidth = 0.8)
+        thisAx.plot(hCompr,fCompr,'bo', ls='', markersize = 2)
+        # thisAx.plot(hCompr,fCompr,'b-', linewidth = 0.8)
+        # thisAx.plot(hComprSorted,fComprSorted,'r-', linewidth = 0.8)
         titleText = cellId + '__c' + str(i)
         legendText = ''
         thisAx.set_xlabel('h (nm)')
         thisAx.set_ylabel('f (pN)')
         
         legendText2 = '' + 'Normality test\nStat = {:.3f}\np-val = {:.3f}'.format(NT.statistic, NT.pvalue)
-        thisAx2.plot(fCompr,residuals, 'b+', label = legendText2)
+        thisAx2.plot(fCompr,residuals_f, 'b+', label = legendText2)
         thisAx2.legend(loc = 'upper right', prop={'size': 6})
         titleText = cellId + '__c' + str(i)
         thisAx2.set_xlabel('f (pN)')
-        thisAx2.set_ylim([-15,+15])
+        thisAx2.set_ylim([-50,+50])
         thisAx2.set_ylabel('residuals')
     
         if not fitError:
             legendText += 'H0 = {:.1f}nm\nE = {:.2e}Pa'.format(H0, E)
+            thisAx.plot(hComprSorted,fPredict,'y--', linewidth = 0.8, label = legendText)
             thisAx.plot(hPredict,fCompr,'k--', linewidth = 0.8, label = legendText)
             thisAx.legend(loc = 'upper right', prop={'size': 6})
 
@@ -360,8 +370,14 @@ def testFun(cellId):
 
 # %%% Main script
 
-cellId = '21-12-16_M1_P1_C10' # Good fits
-cellId = '21-12-16_M2_P1_C6' # Bad fits
+
+# cellId = '21-12-08_M2_P1_C1' # Best fits
+# cellId = '21-12-08_M1_P2_C1' # Excellent fits
+# cellId = '21-12-16_M1_P1_C10' # Good fits
+# cellId = '21-12-16_M2_P1_C6' # Bad fits
+cellId = '21-12-16_M1_P1_C3' # Bad fits
+# cellId = '21-12-16_M1_P1_C2' # Bad fits
+# cellId = '22-01-12_M1_P1_C2' # Recent fits
 testFun(cellId)
 
 
