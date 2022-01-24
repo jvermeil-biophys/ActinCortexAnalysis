@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
-from PIL import Image, ImageSequence
+import tifffile as tf
 
 st.title('OptoPincher Plotter')
 
@@ -24,30 +24,26 @@ def load_data(path, folder, bead_dia = 4.503):
     t = (data['T']*1000)/60
     return xyz_dist, xy_dist, dz, t
 
-def find_stack(stack, index):
-    path = 'D:/Anumita/MagneticPincherData/Raw/21.12.20/'
-    folder = '21-12-20_M1_P1_C1_disc20um'
-    stack = Image.open(path+folder+'.tif')
     
-    return img
-
-def load_img(path, expt, folder, sliderNo):
-    img = Image.open(path+'/'+expt+'/'+folder+'.tif')
+def plot(path, folder, Nan_thresh = 'nan'):
+    xyz_dist, xy_dist, dz, t = load_data(path, folder)
+    outliers = np.where(xyz_dist > Nan_thresh)[0]
+    xyz_dist[outliers] = 'nan'
+    xyz_dist[outliers] = 'nan' 
+    dz[outliers] = 'nan'
+    df1 = pd.DataFrame({'Time': t, 'Thickness (3D)': xyz_dist})
+    df1 = df1.set_index('Time')
+    st.line_chart(df1)
     
+    df2 = pd.DataFrame({'Time': t, 'XY Distance': xy_dist})
+    df2 = df2.set_index('Time')
+    st.line_chart(df2)
     
+    df3 = pd.DataFrame({'Time': t, 'Dz':dz})
+    df3 = df3.set_index('Time')
+    st.line_chart(df3)
 
-xyz, xy, dz, t = load_data(path, folder)
-df1 = pd.DataFrame({'Time': t, 'Thickness (3D)': xyz})
-df1 = df1.set_index('Time')
-st.line_chart(df1)
 
-df2 = pd.DataFrame({'Time': t, 'XY Distance': xy})
-df2 = df2.set_index('Time')
-st.line_chart(df2)
-
-df3 = pd.DataFrame({'Time': t, 'Dz':dz})
-df3 = df3.set_index('Time')
-st.line_chart(df3)
 
 # %% Tests
 

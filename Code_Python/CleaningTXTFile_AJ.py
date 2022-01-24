@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 
 expt = '20211220_100xoil_3t3optorhoa_4.5beads_15mT'
-folder = '21-12-20_M3_P1_C3_disc20um'
+folder = '21-12-20_M1_P1_C2_disc20um'
 
 out_path = 'D:/Anumita/MagneticPincherData/Raw/21.12.20/'+folder+'_Field.txt'
 
