@@ -1282,7 +1282,7 @@ def getFluoData(save = False):
 
 # %% (5) General import functions
 
-# %%%
+# %%% Utility functions
 
 def removeColumnsDuplicate(df):
     cols = df.columns.values
@@ -1293,6 +1293,7 @@ def removeColumnsDuplicate(df):
             df = df.drop(columns=[c])
     return(df)
     
+# %%% Main function
 
 def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
     if kind == 'ctField':
