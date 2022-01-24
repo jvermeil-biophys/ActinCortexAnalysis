@@ -1,0 +1,211 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+```{r}
+# install.packages("car", dependencies = TRUE)
+# install.packages("qqplotr", dependencies = TRUE)
+```
+
+
+```{r}
+# update.packages(checkBuilt = TRUE)
+# install.packages("robustbase")
+# library("devtools")
+# install_version("foreign", version = "0.8-2", repos = "http://cran.us.r-project.org")
+```
+
+
+```{r}
+library("devtools")
+library("gmodels")
+library("DescTools")
+library("ggplot2")
+library("dplyr")
+# library("car")
+# library("qqplotr")
+```
+
+
+```{r}
+df <- read.delim("C:/Users/JosephVermeil/Desktop/ActinCortexAnalysis/DataAnalysis/TestDataSet/testStats01_avgPerCell.csv", header = TRUE, sep = ",")
+
+names <- names(df)
+names[4] <- "SubstrateAndDrug"
+names(df) <- names
+
+
+categoriesDf <- unique(df[c("SubstrateAndDrug")])
+categories <- categoriesDf$SubstrateAndDrug
+# print(categories)
+# lst = list()
+# for (i in 1:length(categories)){
+#   cat <- categories[i]
+#   df_thisCat = df[df$SubstrateAndDrug == cat,]
+#   # df_thisCat <- filter(df, SubstrateAndDrug == cat)
+#   # print(df_thisCat$EChadwick)
+#   lst[[length(lst)+1]] <- df_thisCat$EChadwick
+# }
+
+# print(as.vector(lst[1]))
+k = 0
+
+for (i in 1:length(categories)){
+  for (j in i:length(categories)){
+    if(i!=j){
+      k = k+1
+      print(k)
+      m = paste0(categories[i], ' vs ', categories[j])
+      print(m)
+      df_thisComparison = df[df$SubstrateAndDrug == categories[i] | df$SubstrateAndDrug == categories[j],]
+      # print(df_thisComparison)
+      print(t.test(EChadwick~ SubstrateAndDrug, data=df_thisComparison))
+      print(wilcox.test(EChadwick~ SubstrateAndDrug, data=df_thisComparison))
+    }
+  }
+}
+
+# res<-t.test(EChadwick~ SubstrateAndDrug, data=df)
+
+# df_thisCat <- filter(df_allComp, SubstrateAndDrug == "20um fibronectin discs & doxycyclin")
+
+
+boxplot(EChadwick~SubstrateAndDrug,
+data=df,
+main="Echad vs Substrate&Drug",
+xlab="Substrate",
+ylab="Echad",
+col="tomato",
+border="black",
+horizontal = FALSE,
+cex.axis=0.5
+)
+
+# df
+
+```
+
+```{r}
+df <- read.delim("C:/Users/JosephVermeil/Desktop/ActinCortexAnalysis/DataAnalysis/TestDataSet/testStats03_FakeData.csv", header = TRUE, sep = ",")
+boxplot(df[ , 2:ncol(df)])
+names <- names(df)
+print(names)
+for(i in 3:ncol(df)) { 
+  print(i-1)
+  print(t.test(df[ , 2], df[ , i]))
+  print(wilcox.test(df[ , 2], df[ , i]))
+}
+
+```
+
+```{r}
+df <- read.delim("C:/Users/JosephVermeil/Desktop/ActinCortexAnalysis/DataAnalysis/TestDataSet/testStats03_FakeData.csv", header = TRUE, sep = ",")
+boxplot(df[ , 2:ncol(df)])
+names <- names(df)
+print(names)
+for(i in 3:ncol(df)) { 
+  print(i-1)
+  print(t.test(df[ , 2], df[ , i]))
+  print(wilcox.test(df[ , 2], df[ , i]))
+}
+
+```
+
+```{r}
+df <- read.delim("C:/Users/JosephVermeil/Desktop/ActinCortexAnalysis/DataAnalysis/TestDataSet/testStats04_FakeDataLarge.csv", header = TRUE, sep = ",")
+boxplot(df[ , 2:ncol(df)])
+names <- names(df)
+print(names)
+for(i in 3:ncol(df)) { 
+  print(i-1)
+  print(t.test(df[ , 2], df[ , i]))
+  print(wilcox.test(df[ , 2], df[ , i]))
+}
+
+```
+
+
+```{r}
+df_allComp <- read.delim("C:/Users/josep/Desktop/ActinCortexAnalysis/DataAnalysis/TestDataSet/testStats01_allComp.csv", header = TRUE, sep = ",")
+
+names <- names(df_allComp)
+names[4] <- "SubstrateAndDrug"
+names(df_allComp) <- names
+
+df_allComp
+```
+
+
+```{r}
+
+categoriesDf <- unique(df_allComp[c("SubstrateAndDrug")])
+categories <- categoriesDf$SubstrateAndDrug
+print(categories)
+for (i in 1:4){ # length(categories)) {
+  cat <- categories[i]
+  df_thisCat <- filter(df_allComp, SubstrateAndDrug == cat)
+}
+
+# df_thisCat <- filter(df_allComp, SubstrateAndDrug == "20um fibronectin discs & doxycyclin")
+df_thisCat
+
+```
+
+
+
+
+```{r}
+linesCompression <- readLines ("C:/Users/josep/Desktop/ActinCortexAnalysis/DataAnalysis/TestDataSet/21-06-06_testFitCompression.txt")
+NCompression <- length(dfCompression)
+cellID <- c()
+compNum <- c()
+E <- c()
+H0 <- c()
+R2 <- c()
+EcI_width <- c()
+for (i in 1:10) {
+  line <- linesCompression[2*i-1]
+  splitLine <- unlist(strsplit(as.character(line), ";"))
+  splitName <- unlist(strsplit(as.character(splitLine[1]), "__"))
+  cellID <- append(cellID,splitName[1])
+  compNum <- append(compNum,splitName[2])
+
+  if(splitName[3] == "h"){hvect = splitLine[2:length(splitLine)]}
+  else if(splitName[3] == "f"){fvect = splitLine[2:length(splitLine)]}
+  
+  line <- linesCompression[2*i]
+  splitLine <- unlist(strsplit(as.character(line), ";"))
+  splitName <- unlist(strsplit(as.character(splitLine[1]), "__"))
+  cellID <- append(cellID,splitName[1])
+  compNum <- append(cellID,splitName[2])
+  
+  if(splitName[3] == "h"){hvect = splitLine[2:length(splitLine)]}
+  else if(splitName[3] == "f"){fvect = splitLine[2:length(splitLine)]}
+  
+  plot(hvect, fvect, type = "p", main = "h - f")
+  
+}
+cellID
+```
+
+
+
+```{r}
+cellID
+
+if(splitName[2] == "h"){hvect = splitLine[2:length(splitLine)]}
+  #else if(splitName[2] == "f"){fvect = splitLine[2:]}
+```
+
