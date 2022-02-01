@@ -473,7 +473,6 @@ def getGlobalTable_ctField(fileName = 'Global_CtFieldData'):
 # * computeGlobalTable_meca() call the previous function and convert the dict to a DataFrame
 
 
-#### SETTING ! Change the region fits names here also 
 listColumnsMeca = ['date','cellName','cellID','manipID',
                    'compNum','compDuration','compStartTime','compAbsStartTime','compStartTimeThisDay',
                    'initialThickness','minThickness','maxIndent','previousThickness',
@@ -489,9 +488,15 @@ listColumnsMeca = ['date','cellName','cellID','manipID',
 dictSelectionCurve = {'R2' : 0.75, 'Chi2' : 15, 'Error' : 10}
 
 #### SETTING ! Change the region fits names here also 
-regionFitsNames = ['f<150pN',      'f<100pN',      's<100Pa',
-                           '100<s<200Pa',
-                           '200<s<300Pa']
+regionFitsNames = ['s<100Pa',
+                   '100<s<200Pa',
+                   '200<s<300Pa',
+                   's<500Pa',
+                   '250<s<750Pa',
+                   '500<s<1000Pa',
+                   's<400Pa',
+                   '300<s<700Pa',
+                   '600<s<1000Pa',]
 
 for rFN in regionFitsNames:
     listColumnsMeca += ['H0Chadwick_'+rFN, 'EChadwick_'+rFN, 'R2Chadwick_'+rFN, 'Npts_'+rFN, 'validatedFit_'+rFN]
@@ -577,7 +582,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     expDf['manipID'] = expDf['date'] + '_' + expDf['manip']
     thisExpDf = expDf.loc[expDf['manipID'] == thisManipID]
 
-    #### Deal with the asymmetric pair case : the diameter can be for instance 4503 (float) or '4503_2691' (string)
+    # Deal with the asymmetric pair case : the diameter can be for instance 4503 (float) or '4503_2691' (string)
     diameters = str(thisExpDf.at[thisExpDf.index.values[0], 'bead diameter'])
     diameters = diameters.split('_')
     if len(diameters) == 2:
@@ -642,7 +647,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         
         
         
-        #### *** before the jump correction, the plot of the main curve of fig 1 was here
+        #### (before the jump correction, the plot of the main curve of fig 1 was here)
         color = 'blue'
         # ax1.plot(tsDF['T'].values, tsDF['D3'].values-DIAMETER, color = color, ls = '-', linewidth = 1)
         ax1.set_xlabel('t (s)')
@@ -854,9 +859,15 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             #### (4.1) Fits on specific regions of the curve
             #### SETTING ! Setting of the region fits
             if not fitError:
-                fitConditions = [(fCompr < 150), (fCompr < 100), (stressCompr < 100), 
+                fitConditions = [(stressCompr < 100), 
                                  ((stressCompr > 100) & (stressCompr < 200)), 
-                                 ((stressCompr > 200) & (stressCompr < 300))]
+                                 ((stressCompr > 200) & (stressCompr < 300)),
+                                 (stressCompr < 500),
+                                 ((stressCompr > 250) & (stressCompr < 750)),
+                                 ((stressCompr > 500) & (stressCompr < 1000)),
+                                 (stressCompr < 400),
+                                 ((stressCompr > 300) & (stressCompr < 700)),
+                                 ((stressCompr > 600) & (stressCompr < 1000))]
             
             
             if fitError:
@@ -883,7 +894,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         E_region, H0_region, hPredict_region, R2_region, Chi2_region, confIntE_region, confIntH0_region, fitError_region = \
                                       compressionFitChadwick(hCompr_region, fCompr_region, DIAMETER)
                         if not fitError_region:
-                            #### R2
+                            #### R2 / CHI2 selection
                             R2CRITERION = dictSelectionCurve['R2']
                             CHI2CRITERION = dictSelectionCurve['Chi2']
                             validatedFit_region = ((R2_region > R2CRITERION) and 
@@ -922,7 +933,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'gold', linestyle = '-', linewidth = 1.25)
                 else:
                     ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'crimson', linestyle = '-', linewidth = 1.25)
-                #### Display jumpD3
+                
+                #### Display jumpD3 >>> DISABLED
                 # if jumpD3 != 0:
                 #     x = np.mean(thisCompDf['T'].values)
                 #     y = np.mean(thisCompDf['D3'].values-DIAMETER) * 1.3
@@ -1045,7 +1057,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     #### PLOT [3/4]
     
     if PLOT:
-        #### *** after the jump correction fix, the plot of the main curve on fig1 came here
+        #### (after the jump correction fix, the plot of the main curve on fig1 came here)
         color = 'blue'
         ax1.plot(tsDF['T'].values, tsDF['D3'].values-DIAMETER, color = color, ls = '-', linewidth = 1, zorder = 1)
         (axm, axM) = ax1.get_ylim()
