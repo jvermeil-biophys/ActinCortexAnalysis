@@ -285,7 +285,8 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
     For a triplet of image, it will move the distance curve by NVox voxels to the left 
     for the first curve of a triplet, not move the second one, and move the third by NVox voxels to the right.
     The goal : align the 3 matching minima so that the sum of the three will have a clear global minimum.
-    direction = 'upward'or 'downward'
+    direction = 'upward' or 'downward' depending on how your triplet images are taken 
+    (i.e. upward = consecutively towards the bright spot and downwards otherwise)
     """
     N = len(listStatus)
     offsets = np.array(listStatus) - np.ones(N) * (Nup//2 + 1)
@@ -1896,6 +1897,10 @@ class Trajectory:
         df.to_csv(path, sep = '\t', index = False)
     
     def computeZ(self, matchingDirection, plot = 0):
+        #### SETTING ! Tweek the maxDz here
+        maxDz = 60
+        
+        
         if len(self.deptho) == 0:
             return('Error, no depthograph associated with this trajectory')
         
@@ -1908,9 +1913,9 @@ class Trajectory:
 #### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
                 
-                plot = 0
-                if iF >= 185 and iF <= 205:# or (iF < 190 and iF > 150):
-                    plot = 1
+                # plot = 0
+                # if iF >= 185 and iF <= 205:# or (iF < 190 and iF > 150):
+                #     plot = 1
                 
 # ############################ OK?! ###################################
                 
@@ -1938,8 +1943,7 @@ class Trajectory:
                             
                         iF += jF
                     
-                    #### SETTING ! Tweek the maxDz here
-                    maxDz = 40
+                    
                   
                     Z = self.findZ_Nuplet(framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz, plot)
                     previousZ = Z
@@ -2025,8 +2029,14 @@ class Trajectory:
                 finalDists = listDistances
                 
             sumFinalD = np.sum(finalDists, axis = 0)
-            if previousZ == -1 or Nup > 1: # First image OR triplets => No restriction
+            #### Tweak this part to force the Z-detection to a specific range to prevent abnormal jumps
+            if previousZ == -1: # First image => No restriction
                 Z = np.argmin(sumFinalD)
+            elif Nup > 1 and previousZ != -1: # Not first image AND Triplets => Restriction
+                # Z = np.argmin(sumFinalD)
+                limInf = max(previousZ-maxDz, 0)
+                limSup = min(previousZ+maxDz, depthoDepth)
+                Z = limInf + np.argmin(sumFinalD[limInf:limSup])
             elif Nup == 1 and previousZ != -1: # Not first image AND singlet => Restriction
                 limInf = max(previousZ-maxDz, 0)
                 limSup = min(previousZ+maxDz, depthoDepth)
@@ -2034,7 +2044,6 @@ class Trajectory:
 
             #### Important plotting option here
             if plot >= 1:
-                
                 fig, axes = plt.subplots(5, 3, figsize = (20,10))
                 fig.tight_layout()
                 im = framesNuplet[0].F
