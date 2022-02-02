@@ -32,18 +32,26 @@ from scipy.optimize import linear_sum_assignment
 from matplotlib.gridspec import GridSpec
 
 # Add the folder to path
+COMPUTERNAME = os.environ['COMPUTERNAME']
+if COMPUTERNAME == 'ORDI-JOSEPH':
+    mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME == 'LARISA':
+    mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME == '':
+    mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
+
 import sys
-sys.path.append("C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Code_Python")
+sys.path.append(mainDir + "//Code_Python")
 from getExperimentalConditions import getExperimentalConditions
 
 # 2. Pandas settings
-pd.set_option('mode.chained_assignment',None)
+pd.set_option('mode.chained_assignment', None)
 
 # 3. Plot settings
 # Here we use this mode because displaying images 
 # in new windows is more convenient for this code.
 # %matplotlib qt 
-matplotlib.use('Qt5Agg')
+# matplotlib.use('Qt5Agg')
 # To switch back to inline display, use : 
 # %matplotlib widget or %matplotlib inline
 # matplotlib.rcParams.update({'figure.autolayout': True})

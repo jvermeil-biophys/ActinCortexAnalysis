@@ -50,11 +50,21 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
 dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
 
-# 5. Add the folder to path
-import sys
-sys.path.append("C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Code_Python")
+# 5. Directories adress
 
-# 6. Others
+COMPUTERNAME = os.environ['COMPUTERNAME']
+if COMPUTERNAME == 'ORDI-JOSEPH':
+    mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME == 'LARISA':
+    mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME == '':
+    mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
+
+# 6. Add the folder to path
+import sys
+sys.path.append(mainDir + "//Code_Python")
+
+# 7. Others
 SCALE_100X = 15.8 # pix/µm
 SCALE_63X = 9.9 # pix/µm
 
