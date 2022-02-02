@@ -13,6 +13,10 @@ import seaborn as sns
 import scipy.stats as st
 import statsmodels.api as sm
 
+import matplotlib
+import matplotlib.pyplot as plt
+
+import re
 import os
 import time
 import random
@@ -22,24 +26,14 @@ from copy import copy
 from cycler import cycler
 from datetime import date
 from scipy.optimize import curve_fit
-# from statannot import add_stat_annotation
+
+# %%% Smaller settings
 
 pd.set_option('mode.chained_assignment',None)
 pd.set_option('display.max_columns', None)
 
-import re
 dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
 dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
-
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rcParams.update({'figure.autolayout': True})
-
-# Add the folder to path
-import sys
-sys.path.append("C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Code_Python")
-from getExperimentalConditions import getExperimentalConditions
 
 SMALLER_SIZE = 10
 SMALL_SIZE = 14
@@ -53,27 +47,25 @@ plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=SMALLER_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
-
-# prop_cycle = plt.rcParams['axes.prop_cycle']
-# colors = prop_cycle.by_key()['color']
-my_default_color_list = ['#ff7f0e', '#1f77b4', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
-my_default_color_cycle = cycler(color=my_default_color_list)
-plt.rcParams['axes.prop_cycle'] = my_default_color_cycle
-
-pairedPalette = sns.color_palette("tab20")
-pairedPalette = pairedPalette.as_hex()
-# print(pairedPalette)
-
-
-clist = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a']
-sns.color_palette(clist)
+# matplotlib.rcParams.update({'figure.autolayout': True})
 
 
 # %% (1) Directories adress
 
-mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
-# mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
-# mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+COMPUTERNAME = os.environ['COMPUTERNAME']
+if COMPUTERNAME == '':
+    mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME == 'LARISA':
+    mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME == '':
+    mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
+
+# Add the folder to path
+import sys
+sys.path.append(mainDir + "//Code_Python")
+from getExperimentalConditions import getExperimentalConditions
+
+
 experimentalDataDir = os.path.join(mainDir, "Data_Experimental")
 dataDir = os.path.join(mainDir, "Data_Analysis")
 figDir = os.path.join(dataDir, "Figures")
