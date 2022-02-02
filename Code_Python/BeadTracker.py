@@ -1908,9 +1908,9 @@ class Trajectory:
 #### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
                 
-                # plot = 0
-                # if iF >= 50 and iF <= 150:# or (iF < 190 and iF > 150):
-                #     plot = 1
+                plot = 0
+                if iF >= 185 and iF <= 205:# or (iF < 190 and iF > 150):
+                    plot = 1
                 
 # ############################ OK?! ###################################
                 
@@ -1938,11 +1938,14 @@ class Trajectory:
                             
                         iF += jF
                     
+                    #### SETTING ! Tweek the maxDz here
                     maxDz = 40
+                  
                     Z = self.findZ_Nuplet(framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz, plot)
                     previousZ = Z
                     # This Z_pix has no meaning in itself, it needs to be compared to the depthograph Z reference point,
-                    # which is depthoZFocus. 
+                    # which is depthoZFocus.
+                    
                     Zr = self.depthoZFocus - Z # If you want to find it back, Z = depthoZFocus - Zr
                     # This definition was chosen so that when Zr > 0, the plane of observation of the bead is HIGHER than the focus
                     # and accordingly when Zr < 0, the plane of observation of the bead is LOWER than the focus
@@ -1950,8 +1953,9 @@ class Trajectory:
                     mask = np.array([(iF in iFNuplet) for iF in self.dict['iF']])
                     self.dict['Zr'][mask] = Zr
         
-                     
-    def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz = 40, plot = 0):
+    
+                
+    def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz, plot = 0):
         try:
             Nframes = len(framesNuplet)
             listStatus_1 = [F.status_frame for F in framesNuplet]
@@ -2006,11 +2010,11 @@ class Trajectory:
             # now use listStatus_1, listProfiles, self.deptho + data about the jump between Nuplets ! (TBA) 
             # to compute the correlation function
             nVoxels = int(np.round(self.Zstep/self.depthoStep))
-    
+            
             listDistances = np.zeros((Nframes, depthoDepth))
             listZ = np.zeros(Nframes, dtype = int)
             for i in range(Nframes):
-                listDistances[i] = squareDistance(self.deptho, listProfiles[i], normalize = True) # Utility functions
+                listDistances[i] = squareDistance(self.deptho, listProfiles[i], normalize = True) # Utility functions       
                 listZ[i] = np.argmin(listDistances[i])
                 
             # Translate the profiles that must be translated (status_frame 1 & 3 if Nup = 3)
@@ -2027,9 +2031,10 @@ class Trajectory:
                 limInf = max(previousZ-maxDz, 0)
                 limSup = min(previousZ+maxDz, depthoDepth)
                 Z = limInf + np.argmin(sumFinalD[limInf:limSup])
-    
+
             #### Important plotting option here
             if plot >= 1:
+                
                 fig, axes = plt.subplots(5, 3, figsize = (20,10))
                 fig.tight_layout()
                 im = framesNuplet[0].F
@@ -2083,9 +2088,9 @@ class Trajectory:
                 
                 iSNuplet = [F.iS+1 for F in framesNuplet]
                 fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
-                Nfig = plt.gcf().number
-                fig.savefig('C://Users//anumi//Desktop//TempPlot//fig'+str(Nfig)+'.png')
-
+                Nfig = plt.gcf().number   
+                fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig'+str(Nfig)+'.png')  
+                
             return(Z)
         
         except Exception:
