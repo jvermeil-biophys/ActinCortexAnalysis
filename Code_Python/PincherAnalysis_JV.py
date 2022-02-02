@@ -53,7 +53,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 # %% (1) Directories adress
 
 COMPUTERNAME = os.environ['COMPUTERNAME']
-if COMPUTERNAME == '':
+if COMPUTERNAME == 'ORDI-JOSEPH':
     mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
 elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"

@@ -55,9 +55,19 @@ dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
 dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
 
 
-# 5. Add the folder to path
+# 5. Directories adress
+
+COMPUTERNAME = os.environ['COMPUTERNAME']
+if COMPUTERNAME == 'ORDI-JOSEPH':
+    mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME == 'LARISA':
+    mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME == '':
+    mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
+
+# 6. Add the folder to path
 import sys
-sys.path.append("C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Code_Python")
+sys.path.append(mainDir + "//Code_Python")
 
 # %% Import of the BeadTracker functions
 
