@@ -479,14 +479,21 @@ listColumnsMeca = ['date','cellName','cellID','manipID',
 #### SETTING ! Fit Selection
 dictSelectionCurve = {'R2' : 0.75, 'Chi2' : 15, 'Error' : 10}
 
-#### SETTING ! Change the region fits names here also 
+#### SETTING ! Change the region fits NAMES here 
 regionFitsNames = ['s<100Pa',
+                   's<100Pa_included',
+                   's<200Pa',
+                   's<200Pa_included',
+                   's<300Pa',
+                   's<300Pa_included',
                    '100<s<200Pa',
                    '200<s<300Pa',
                    's<500Pa',
+                   's<500Pa_included',
                    '250<s<750Pa',
                    '500<s<1000Pa',
                    's<400Pa',
+                   's<400Pa_included',
                    '300<s<700Pa',
                    '600<s<1000Pa',]
 
@@ -851,13 +858,20 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             #### (4.1) Fits on specific regions of the curve
             #### SETTING ! Setting of the region fits
             if not fitError:
-                fitConditions = [(stressCompr < 100), 
+                fitConditions = [(stressCompr < 100),
+                                 ((stressCompr < 100) & (max(stressCompr) > 100)),
+                                 (stressCompr < 200),
+                                 ((stressCompr < 200) & (max(stressCompr) > 200)),
+                                 (stressCompr < 300),
+                                 ((stressCompr < 300) & (max(stressCompr) > 300)),
                                  ((stressCompr > 100) & (stressCompr < 200)), 
                                  ((stressCompr > 200) & (stressCompr < 300)),
                                  (stressCompr < 500),
+                                 ((stressCompr < 500) & (max(stressCompr) > 500)),
                                  ((stressCompr > 250) & (stressCompr < 750)),
                                  ((stressCompr > 500) & (stressCompr < 1000)),
                                  (stressCompr < 400),
+                                 ((stressCompr < 400) & (max(stressCompr) > 400)),
                                  ((stressCompr > 300) & (stressCompr < 700)),
                                  ((stressCompr > 600) & (stressCompr < 1000))]
             

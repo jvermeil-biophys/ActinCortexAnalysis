@@ -248,7 +248,7 @@ def compressionFitChadwick_V2(hCompr, fCompr, DIAMETER):
         dof = len(fCompr)-len(params)
         q = st.t.ppf(alpha, dof) # Student coefficient
         R2 = get_R2(hCompr, hPredict)
-        Chi2 = get_Chi2(fComprSorted, fPredict, dof)
+        Chi2 = get_Chi2(hCompr, hPredict, dof)
 
         varE = covM[0,0]
         seE = (varE)**0.5
@@ -371,11 +371,12 @@ def testFun(cellId):
 # %%% Main script
 
 
-# cellId = '21-12-08_M2_P1_C1' # Best fits
-# cellId = '21-12-08_M1_P2_C1' # Excellent fits
-# cellId = '21-12-16_M1_P1_C10' # Good fits
-# cellId = '21-12-16_M2_P1_C6' # Bad fits
-cellId = '21-12-16_M1_P1_C3' # Bad fits
+cellId = '21-12-08_M2_P1_C1' # Best fits
+cellId = '21-12-08_M1_P2_C1' # Excellent fits
+cellId = '21-12-16_M1_P1_C10' # Good fits
+cellId = '21-12-16_M2_P1_C6' # Bad fits
+cellId = '21-01-21_M1_P1_C7' # Old fits with large h
+# cellId = '21-12-16_M1_P1_C3' # Bad fits
 # cellId = '21-12-16_M1_P1_C2' # Bad fits
 # cellId = '22-01-12_M1_P1_C2' # Recent fits
 testFun(cellId)

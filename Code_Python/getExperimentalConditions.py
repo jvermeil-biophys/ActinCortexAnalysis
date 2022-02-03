@@ -35,7 +35,8 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     experimentalDataFile = 'ExperimentalConditions.csv'
     experimentalDataFilePath = os.path.join(experimentalDataDir, experimentalDataFile)
     expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=sep, header=0)
-    print(BLUE + 'Extracted a table with ' + str(expConditionsDF.shape[0]) + ' lines and ' + str(expConditionsDF.shape[1]) + ' columns.' + NORMAL)
+    print(BLUE + 'Importing Experimental Conditions' + NORMAL)
+    print(BLUE + 'Extracted a table with ' + str(expConditionsDF.shape[0]) + ' lines and ' + str(expConditionsDF.shape[1]) + ' columns' + NORMAL)
     
     # Cleaning the table
 #     try:
@@ -52,36 +53,39 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
             if expConditionsDF[col].dtype == 'string':
                 listTextColumns.append(col)
         except:
-            aaaa=0
+            pass
             #Ok
 
     expConditionsDF[listTextColumns] = expConditionsDF[listTextColumns].apply(lambda x: x.str.replace(',','.'))
 
     expConditionsDF['scale pixel per um'] = expConditionsDF['scale pixel per um'].astype(float)
     try:
+        print(ORANGE + 'optical index correction : format changed' + NORMAL)
         expConditionsDF['optical index correction'] = \
                   expConditionsDF['optical index correction'].apply(lambda x: x.split('/')[0]).astype(float) \
                 / expConditionsDF['optical index correction'].apply(lambda x: x.split('/')[1]).astype(float)
     except:
-        print('optical index correction already in ' + str(expConditionsDF['optical index correction'].dtype) + ' type.')
+        pass
+        # print('optical index correction already in ' + str(expConditionsDF['optical index correction'].dtype) + ' type.')
 
     expConditionsDF['magnetic field correction'] = expConditionsDF['magnetic field correction'].astype(float)
     expConditionsDF['with fluo images'] = expConditionsDF['with fluo images'].astype(bool)
 
     try:
+        print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
         expConditionsDF['ramp field'] = \
         expConditionsDF['ramp field'].apply(lambda x: [x.split(';')[0], x.split(';')[1]] if not pd.isnull(x) else [])
     except:
-        aaaa=0
+        pass
         #Ok
 
     dateExemple = expConditionsDF.loc[expConditionsDF.index[1],'date']
 
     if re.match(dateFormatExcel, dateExemple):
-        print('dates corrected')
+        print(ORANGE + 'dates : format corrected' + NORMAL)
         expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('/')[0] + '-' + x.split('/')[1] + '-' + x.split('/')[2][2:])        
     elif re.match(dateFormatExcel2, dateExemple):
-        print('dates corrected')
+        print(ORANGE + 'dates : format corrected' + NORMAL)
         expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])  
 
 #     except:
