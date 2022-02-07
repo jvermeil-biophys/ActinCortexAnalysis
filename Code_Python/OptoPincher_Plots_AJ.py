@@ -9,8 +9,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-expt = '20211220_100xoil_3t3optorhoa_4.5beads_15mT'
-folder = '21-12-20_M3_P1_C3_disc20um'
+
+#%% Plotting alll three graphs (3D, 2D and Dz)
+
+expt = '20220203_100xoil_3t3optorhoa_4.5beads_15mT'
+folder = '22-02-03_M5_P1_C3_disc20um'
+date = '22.02.03'
 
 file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+folder+'_PY.csv'
 data = pd.read_csv(file, sep=';')
@@ -19,8 +23,8 @@ bead_dia = 4.503 #in um
 xyz_dist = data['D3'] - bead_dia
 xy_dist = data['D2'] - bead_dia
 dz = data['dz']
-#t = (data['T']*1000)/60
-t = np.linspace(0,len(data['T']),len(data['T']))
+t = (data['T']*1000)/60
+#t = np.linspace(0,len(data['T']),len(data['T']))
 Nan_thresh = 3
 
 outlier = np.where(xyz_dist > Nan_thresh)[0]
@@ -28,7 +32,8 @@ xyz_dist[outlier] = np.nan
 xy_dist[outlier] = np.nan
 dz[outlier] = np.nan
 
-plt.figure(figsize=(20,20))
+fig = plt.figure(figsize=(20,20))
+fig.suptitle(folder, fontsize=16)
 plt.rcParams.update({'font.size': 22})
 
 ax1 = plt.subplot(311)
@@ -48,9 +53,44 @@ plt.title('2D Distance (XY) vs. Time (mins)')
 ax3 = plt.subplot(313)
 plt.title('Dz vs. Time (mins)')
 plt.plot(t, dz)
+
 plt.show()
 
 plt.savefig('D:/Anumita/PincherPlots/'+folder+'_DistancevTime.jpg')
+
+
+#%% Plotting just 3D graphs
+
+expt = '20220203_100xoil_3t3optorhoa_4.5beads_15mT'
+folder = '22-02-03_M5_P1_C3_disc20um'
+date = '22.02.03'
+
+file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+folder+'_PY.csv'
+data = pd.read_csv(file, sep=';')
+bead_dia = 4.503 #in um
+
+xyz_dist = data['D3'] - bead_dia
+xy_dist = data['D2'] - bead_dia
+dz = data['dz']
+t = (data['T']*1000)/60
+#t = np.linspace(0,len(data['T']),len(data['T']))
+Nan_thresh = 3
+
+outlier = np.where(xyz_dist > Nan_thresh)[0]
+xyz_dist[outlier] = np.nan
+xy_dist[outlier] = np.nan
+dz[outlier] = np.nan
+
+fig = plt.figure(figsize=(20,20))
+fig.suptitle(folder, fontsize=16)
+plt.rcParams.update({'font.size': 22})
+plt.ylabel('Thickness (nm)')
+plt.xlabel('Time (mins)')
+
+plt.plot(t, xyz_dist)
+plt.title('3D Distance vs. Time')
+
+plt.savefig('D:/Anumita/PincherPlots/'+folder+'_3DistancevTime.jpg')
 
 
 # %%
