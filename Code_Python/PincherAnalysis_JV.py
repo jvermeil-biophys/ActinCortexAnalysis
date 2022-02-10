@@ -229,8 +229,15 @@ def findInfosInFileName(f, infoType):
                     
 # %% (3) TimeSeries functions
 
-def getCellTimeSeriesData(cellID):
-    allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) and f.endswith(".csv"))]
+def getCellTimeSeriesData(cellID, fromPython = True):
+    if fromPython:
+        allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) 
+                              if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) 
+                                  and f.endswith("PY.csv"))]
+    else:
+        allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) 
+                              if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) 
+                                  and f.endswith("PY.csv") and not f.endswith("PY.csv"))]
     fileFound = False
     nFile = len(allTimeSeriesDataFiles)
     iFile = 0
@@ -476,8 +483,8 @@ listColumnsMeca = ['date','cellName','cellID','manipID',
                    'hysteresis',
                    'critFit', 'validatedFit','comments'] # 'fitParams',
 
-#### SETTING ! Fit Selection
-dictSelectionCurve = {'R2' : 0.75, 'Chi2' : 15, 'Error' : 10}
+#### SETTING ! Fit Selection R2 & Chi2
+dictSelectionCurve = {'R2' : 0.6, 'Chi2' : 10, 'Error' : 0.02}
 
 #### SETTING ! Change the region fits NAMES here 
 regionFitsNames = ['s<100Pa',
@@ -488,6 +495,8 @@ regionFitsNames = ['s<100Pa',
                    's<300Pa_included',
                    '100<s<200Pa',
                    '200<s<300Pa',
+                   '50<s<250Pa_150included',
+                   '100<s<300Pa_200included',
                    's<500Pa',
                    's<500Pa_included',
                    '250<s<750Pa',
@@ -537,12 +546,19 @@ def compressionFitChadwick(hCompr, fCompr, DIAMETER):
 
         E, H0 = params
         hPredict = inversedChadwickModel(fCompr, E, H0)
-        S = dictSelectionCurve['Error']
+        err = dictSelectionCurve['Error']
+        err = 0.01
         
         comprMat = np.array([hCompr, fCompr]).T
         comprMatSorted = comprMat[comprMat[:, 0].argsort()]
         hComprSorted, fComprSorted = comprMatSorted[:, 0], comprMatSorted[:, 1]
         fPredict = chadwickModel(hComprSorted, E, H0)
+        
+        # Stress and strain
+        deltaCompr = (H0 - hCompr)/1000 # µm
+        stressCompr = fCompr / (np.pi * (DIAMETER/2000) * deltaCompr)
+        strainCompr = deltaCompr / (3*(H0/1000)) 
+        strainPredict = stressCompr / (E*1e6) #((H0 - hPredict)/1000) / (3*(H0/1000))
         
         # residuals_h = hCompr-hPredict
         # residuals_f = fComprSorted-fPredict
@@ -551,7 +567,8 @@ def compressionFitChadwick(hCompr, fCompr, DIAMETER):
         dof = len(fCompr)-len(params)
         q = st.t.ppf(alpha, dof) # Student coefficient
         R2 = get_R2(hCompr, hPredict)
-        Chi2 = get_Chi2(fComprSorted, fPredict, dof, S)
+        
+        Chi2 = get_Chi2(strainCompr, strainPredict, dof, err)
 
         varE = covM[0,0]
         seE = (varE)**0.5
@@ -866,6 +883,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                                  ((stressCompr < 300) & (max(stressCompr) > 300)),
                                  ((stressCompr > 100) & (stressCompr < 200)), 
                                  ((stressCompr > 200) & (stressCompr < 300)),
+                                 ((stressCompr > 100) & (stressCompr < 300) & (200 < max(stressCompr)) & (200 > min(stressCompr))),
+                                 ((stressCompr > 50)  & (stressCompr < 250) & (150 < max(stressCompr)) & (150 > min(stressCompr))),
                                  (stressCompr < 500),
                                  ((stressCompr < 500) & (max(stressCompr) > 500)),
                                  ((stressCompr > 250) & (stressCompr < 750)),
@@ -900,7 +919,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         E_region, H0_region, hPredict_region, R2_region, Chi2_region, confIntE_region, confIntH0_region, fitError_region = \
                                       compressionFitChadwick(hCompr_region, fCompr_region, DIAMETER)
                         if not fitError_region:
-                            #### R2 / CHI2 selection
+                            
                             R2CRITERION = dictSelectionCurve['R2']
                             CHI2CRITERION = dictSelectionCurve['Chi2']
                             validatedFit_region = ((R2_region > R2CRITERION) and 

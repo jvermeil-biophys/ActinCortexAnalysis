@@ -242,13 +242,30 @@ def compressionFitChadwick_V2(hCompr, fCompr, DIAMETER):
         hComprSorted, fComprSorted = comprMatSorted[:, 0], comprMatSorted[:, 1]
         fPredict = chadwickModel(hComprSorted, E, H0)
         residuals_f = fComprSorted-fPredict
-
-        # SSR = np.sum((residuals)**2)
+        
+        deltaCompr = (H0 - hCompr)/1000
+        stressCompr = fCompr / (np.pi * (DIAMETER/2000) * deltaCompr)
+        strainCompr = deltaCompr / (3*(H0/1000))
+        strainPredict = stressCompr / (E*1e6)
+        
+        # Stats
         alpha = 0.975
         dof = len(fCompr)-len(params)
         q = st.t.ppf(alpha, dof) # Student coefficient
         R2 = get_R2(hCompr, hPredict)
-        Chi2 = get_Chi2(hCompr, hPredict, dof)
+        #### err
+        err = 0.02
+        
+        # print('fCompr')
+        # print(fCompr)
+        # print('stressCompr')
+        # print(stressCompr)
+        # print('strainCompr')
+        # print(strainCompr)
+        # print('strainPredict')
+        # print(strainPredict)
+
+        Chi2 = get_Chi2(strainCompr, strainPredict, dof, err)
 
         varE = covM[0,0]
         seE = (varE)**0.5
@@ -276,14 +293,14 @@ def compressionFitChadwick_V2(hCompr, fCompr, DIAMETER):
 
 
 
-def get_Chi2(Ymeas, Ymodel, dof):
+def get_Chi2(Ymeas, Ymodel, dof, err = 10):
     residuals = Ymeas-Ymodel
-    S = 10
     # S = st.tstd(residuals)
     # S = (np.sum(residuals**2)/len(residuals))**0.5
-    Chi2 = np.sum((residuals/S)**2)
+    Chi2 = np.sum((residuals/err)**2)
     Chi2_dof = Chi2/dof
     return(Chi2_dof)
+
 
 def testFun(cellId):
     
@@ -302,6 +319,8 @@ def testFun(cellId):
     fig, ax = plt.subplots(nRowsSubplot,nColsSubplot,figsize=(3*nColsSubplot,3*nRowsSubplot))
     # Second plot - fig2 & ax2, 
     fig2, ax2 = plt.subplots(nRowsSubplot,nColsSubplot,figsize=(3*nColsSubplot,3*nRowsSubplot))
+    # Third plot - fig3 & ax3, 
+    fig3, ax3 = plt.subplots(nRowsSubplot,nColsSubplot,figsize=(3*nColsSubplot,3*nRowsSubplot))
     
     
     
@@ -311,9 +330,12 @@ def testFun(cellId):
         E, H0, hPredict, fPredict, comprMatSorted, R2, Chi2, residuals_h, residuals_f, fitError = compressionFitChadwick_V2(hCompr, fCompr, DIAMETER)
         hComprSorted, fComprSorted = comprMatSorted[:, 0], comprMatSorted[:, 1]
         
-        NT = st.mstats.normaltest(residuals_f)
-        # # print(NT)
-        # S = st.tstd(residuals)
+        deltaCompr = (H0 - hCompr)/1000 # µm
+        stressCompr = fCompr / (np.pi * (DIAMETER/2000) * deltaCompr)
+        strainCompr = deltaCompr / (3*(H0/1000)) 
+        strainPredict = stressCompr / E #((H0 - hPredict)/1000) / (3*(H0/1000))
+        
+        # Stats
         print(i, R2, Chi2)
     
         #### PLOT [2/2]
@@ -330,55 +352,69 @@ def testFun(cellId):
             thisAx2 = ax2[colSp]
         elif nRowsSubplot >= 1:
             thisAx2 = ax2[rowSp,colSp]
+            
+        if nRowsSubplot == 1:
+            thisAx3 = ax3[colSp]
+        elif nRowsSubplot >= 1:
+            thisAx3 = ax3[rowSp,colSp]
+            
+        titleText = cellId + '__c' + str(i)
         
         thisAx.plot(hCompr,fCompr,'bo', ls='', markersize = 2)
         # thisAx.plot(hCompr,fCompr,'b-', linewidth = 0.8)
         # thisAx.plot(hComprSorted,fComprSorted,'r-', linewidth = 0.8)
-        titleText = cellId + '__c' + str(i)
         legendText = ''
         thisAx.set_xlabel('h (nm)')
         thisAx.set_ylabel('f (pN)')
         
-        legendText2 = '' + 'Normality test\nStat = {:.3f}\np-val = {:.3f}'.format(NT.statistic, NT.pvalue)
-        thisAx2.plot(fCompr,residuals_f, 'b+', label = legendText2)
-        thisAx2.legend(loc = 'upper right', prop={'size': 6})
-        titleText = cellId + '__c' + str(i)
-        thisAx2.set_xlabel('f (pN)')
-        thisAx2.set_ylim([-50,+50])
+        thisAx2.plot(stressCompr, strainPredict - strainCompr, 'b+')
+        # thisAx2.legend(loc = 'upper right', prop={'size': 6})
+        thisAx2.set_xlabel('h (pN)')
+        # thisAx2.set_ylim([-50,+50])
         thisAx2.set_ylabel('residuals')
+        
+        thisAx3.plot(stressCompr,strainCompr,'kP', ls='', markersize = 4)
+        legendText3 = ''
+        thisAx3.set_xlabel('sigma (Pa)')
+        thisAx3.set_ylabel('epsilon')
     
         if not fitError:
             legendText += 'H0 = {:.1f}nm\nE = {:.2e}Pa'.format(H0, E)
-            thisAx.plot(hComprSorted,fPredict,'y--', linewidth = 0.8, label = legendText)
+            # thisAx.plot(hComprSorted,fPredict,'y--', linewidth = 0.8, label = legendText)
             thisAx.plot(hPredict,fCompr,'k--', linewidth = 0.8, label = legendText)
             thisAx.legend(loc = 'upper right', prop={'size': 6})
+            
+            legendText3 += 'H0 = {:.1f}nm\nE = {:.2e}Pa'.format(H0, E)
+            thisAx3.plot(stressCompr,strainPredict,'r+', linewidth = 0.8, label = legendText3)
+            thisAx3.legend(loc = 'upper right', prop={'size': 6})
 
             
         else:
             titleText += '\nFIT ERROR'
     
         thisAx.title.set_text(titleText)
-    
-        for item in ([thisAx.title, thisAx.xaxis.label, \
-                      thisAx.yaxis.label] + thisAx.get_xticklabels() + thisAx.get_yticklabels()):
-            item.set_fontsize(9)
-        for item in ([thisAx2.title, thisAx2.xaxis.label, \
-                      thisAx2.yaxis.label] + thisAx2.get_xticklabels() + thisAx2.get_yticklabels()):
-            item.set_fontsize(9)
+        
+        axes = [thisAx, thisAx2, thisAx3]
+        for axe in axes:
+            axe.title.set_text(titleText)
+            for item in ([axe.title, axe.xaxis.label, axe.yaxis.label] \
+                         + axe.get_xticklabels() + axe.get_yticklabels()):
+                item.set_fontsize(9)
 
     plt.show()
 
 # %%% Main script
 
 
-cellId = '21-12-08_M2_P1_C1' # Best fits
-cellId = '21-12-08_M1_P2_C1' # Excellent fits
-cellId = '21-12-16_M1_P1_C10' # Good fits
-cellId = '21-12-16_M2_P1_C6' # Bad fits
-cellId = '21-01-21_M1_P1_C7' # Old fits with large h
-# cellId = '21-12-16_M1_P1_C3' # Bad fits
+# cellId = '21-12-08_M2_P1_C1' # Best fits
+# cellId = '21-12-08_M1_P2_C1' # Excellent fits
+# cellId = '21-12-16_M1_P1_C10' # Good fits
+# cellId = '21-12-16_M2_P1_C6' # Bad fits
+# cellId = '21-01-21_M1_P1_C2' # Old fits with large h
+cellId = '21-12-16_M1_P1_C3' # Bad fits
 # cellId = '21-12-16_M1_P1_C2' # Bad fits
 # cellId = '22-01-12_M1_P1_C2' # Recent fits
+cellId = '21-01-18_M1-1_P1_C1'
 testFun(cellId)
 
 
@@ -392,13 +428,15 @@ plt.close('all')
 
 
 # %% Next test !
-
-
-# %% Next test !
-
+tsDF = getCellTimeSeriesData(cellId)
+tsDF['h'] = tsDF['D3'] - 4.503
 
 # %% Next test !
 
+
+# %% Next test !
+if False:
+    print(0)
 
 
 
