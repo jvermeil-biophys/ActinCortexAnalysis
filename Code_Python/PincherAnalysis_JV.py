@@ -498,6 +498,7 @@ regionFitsNames = ['s<100Pa',
                    '50<s<250Pa_150included',
                    '100<s<300Pa_200included',
                    's<500Pa',
+                   '200<s<500Pa_350included',
                    's<500Pa_included',
                    '250<s<750Pa',
                    '500<s<1000Pa',
@@ -643,8 +644,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     normalField = thisExpDf.at[thisExpDf.index.values[0], 'normal field']
     normalField = int(normalField)
     compField = thisExpDf.at[thisExpDf.index.values[0], 'ramp field'].split('_')
-    minCompField = int(compField[0])
-    maxCompField = int(compField[1])
+    minCompField = float(compField[0])
+    maxCompField = float(compField[1])
 
     #### (1) Get global values
     # These values are computed once for the whole cell D3 time series, but since the table has 1 line per compression, 
@@ -886,6 +887,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                                  ((stressCompr > 100) & (stressCompr < 300) & (200 < max(stressCompr)) & (200 > min(stressCompr))),
                                  ((stressCompr > 50)  & (stressCompr < 250) & (150 < max(stressCompr)) & (150 > min(stressCompr))),
                                  (stressCompr < 500),
+                                 ((stressCompr > 200) & (stressCompr < 500) & (350 < max(stressCompr)) & (350 > min(stressCompr))),
                                  ((stressCompr < 500) & (max(stressCompr) > 500)),
                                  ((stressCompr > 250) & (stressCompr < 750)),
                                  ((stressCompr > 500) & (stressCompr < 1000)),

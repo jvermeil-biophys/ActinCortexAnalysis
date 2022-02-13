@@ -677,6 +677,8 @@ class PincherTimeLapse:
         N = N0 - Nexclu
         Nct = N - 2*Nramp0
         i_nUp = 1
+        print('N0, Nramp0, Nexclu, N, Nct')
+        print(N0, Nramp0, Nexclu, N, Nct)
         for i in range(self.nLoop):
             jstart = int(i*N0)
             if Nramp0 == 0:
@@ -2288,7 +2290,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                     imagesToAnalyse_Paths.append(os.path.join(rd, f))    
 
         #### 0.2 - Begining of the Main Loop
-    
     for i in range(len(imagesToAnalyse)): 
         f, fP = imagesToAnalyse[i], imagesToAnalyse_Paths[i]
         manipID = findInfosInFileName(f, 'manipID') # See Utility Functions > findInfosInFileName
