@@ -1068,7 +1068,7 @@ class PincherTimeLapse:
         
     
     
-    def buildTrajectories(self):
+    def buildTrajectories(self, trackAll = False):
         """
         The main tracking function.
         *
@@ -1171,15 +1171,20 @@ class PincherTimeLapse:
                 validFrame = False
             
             if validFrame:
-                BXY = self.listFrames[iF].beadsXYarray()
-                M = compute_cost_matrix(previous_BoiXY,BXY)
-                row_ind, col_ind = linear_sum_assignment(M)
-                
-                costs = [M[row_ind[iB],col_ind[iB]] for iB in range(len(row_ind))]
+                if not trackAll:
+                    BXY = self.listFrames[iF].beadsXYarray()
+                    M = compute_cost_matrix(previous_BoiXY,BXY)
+                    row_ind, col_ind = linear_sum_assignment(M)
+                    costs = [M[row_ind[iB], col_ind[iB]] for iB in range(len(row_ind))]
+                else:
+                    BXY = self.listFrames[iF].beadsXYarray()
+                    M = compute_cost_matrix(previous_BXY,BXY)
+                    row_ind, col_ind = linear_sum_assignment(M)
+                    costs = np.array([M[row_ind[iB], col_ind[iB]] for iB in range(len(row_ind))])
           
                 # Assess wether the algo should aks for user input
                 askUI = False
-                if (max(costs)**0.5) * (1/self.scale) > 0.5: 
+                if (np.max(costs)**0.5) * (1/self.scale) > 0.5: 
                 # If the distance travelled by one of the BoI is greater than 0.5 um
                     
 #                     print('M')
@@ -1195,11 +1200,14 @@ class PincherTimeLapse:
 
                 if not askUI: # Automatically assign the positions of the next beads
                     try:
-                        iBoi = [col_ind[iB] for iB in row_ind]
-                        BoiXY = np.array([BXY[iB] for iB in iBoi])
+                        if not trackAll:
+                            iBoi = [col_ind[iB] for iB in row_ind]
+                            BoiXY = np.array([BXY[iB] for iB in iBoi])
+                        else:
+                            iBoi = [col_ind[iB] for iB in previous_iBoi]
+                            BoiXY = np.array([BXY[iB] for iB in iBoi])
                     except:
                         print('Error for ' + str(iF))
-                        askUI = True
                         print('M')
                         print(M)
                         print('row_ind, col_ind')
@@ -1279,30 +1287,31 @@ class PincherTimeLapse:
                 
                     
             
-            # If there were more than NB objects, and then the QA wasn't 'No', then the frame is valid.
-            if validFrame:
-                M = compute_cost_matrix(uiXY,BXY)
-                row_ind, col_ind = linear_sum_assignment(M)
-                sortM = np.array([[BXY[col_ind[i],0], col_ind[i]] for i in range(len(col_ind))])
-                sortM = sortM[sortM[:, 0].argsort()]
-                iBoi = sortM[:, 1].astype(int)
-                BoiXY = np.array([BXY[iB] for iB in iBoi])
-                
+                    # If there were more than NB objects, and then the QA wasn't 'No', then the frame is valid.
+                    if validFrame:
+                        M = compute_cost_matrix(uiXY,BXY)
+                        row_ind, col_ind = linear_sum_assignment(M)
+                        sortM = np.array([[BXY[col_ind[i],0], col_ind[i]] for i in range(len(col_ind))])
+                        sortM = sortM[sortM[:, 0].argsort()]
+                        iBoi = sortM[:, 1].astype(int)
+                        BoiXY = np.array([BXY[iB] for iB in iBoi])
+                        
                 #### Exp type dependance here (02)
-                if 'compressions' in self.expType or 'thickness' in self.expType:
-                    if self.expType == 'compressions':
-                        idxAnalysis = (self.listFrames[iF].status_frame == 0) \
-                            * (max(self.listTrajectories[iB].dict['idxAnalysis']) \
-                               + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))
-                                
-                    elif self.expType == 'compressionsLowStart': # a pre-ramp has the same idxAnalysis than a ramp but in negative.
-                        idxAnalysis = (self.listFrames[iF].status_frame == 0) \
-                            * (max(self.listTrajectories[iB].dict['idxAnalysis']) + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
-                                - (self.listFrames[iF].status_frame == 0.1) \
-                            * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
-                                
-                elif 'optoGen' in self.expType:
-                    self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                if validFrame:
+                    if 'compressions' in self.expType or 'thickness' in self.expType:
+                        if self.expType == 'compressions':
+                            idxAnalysis = (self.listFrames[iF].status_frame == 0) \
+                                * (max(self.listTrajectories[iB].dict['idxAnalysis']) \
+                                   + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))
+                                    
+                        elif self.expType == 'compressionsLowStart': # a pre-ramp has the same idxAnalysis than a ramp but in negative.
+                            idxAnalysis = (self.listFrames[iF].status_frame == 0) \
+                                * (max(self.listTrajectories[iB].dict['idxAnalysis']) + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
+                                    - (self.listFrames[iF].status_frame == 0.1) \
+                                * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
+                                    
+                    elif 'optoGen' in self.expType:
+                        self.listTrajectories[iB].dict['idxAnalysis'].append(0)
                 
                 # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
                 for iB in range(self.NB):
@@ -2268,7 +2277,7 @@ class Trajectory:
         
 def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, timeSeriesDataDir,
          dates, manips, wells, cells, depthoNames, expDf, 
-         methodT, factorT, redoAllSteps = False, MatlabStyle = False):
+         methodT, factorT, redoAllSteps = False, MatlabStyle = False, trackAll = False):
     
     start = time.time()
     
@@ -2400,11 +2409,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 1.1 - Check if a _Results.txt exists and import it if it's the case
         resFilePath = fP[:-4] + '_ResultsPY.txt'
         resFileImported = False
-        if redoAllSteps:
-            pass
-        elif os.path.isfile(resFilePath):
-            PTL.importBeadsDetectResult(resFilePath)
-            resFileImported = True
         
         if MatlabStyle:
             try:
@@ -2415,6 +2419,15 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 resFilePath = fP[:-4] + '_Results.txt'
                 PTL.importBeadsDetectResult(resFilePath)
                 resFileImported = True
+        elif redoAllSteps:
+            pass
+        elif os.path.isfile(resFilePath):
+            PTL.importBeadsDetectResult(resFilePath)
+            resFileImported = True
+        else:
+            pass
+        
+        
         
         #### 1.2 - Detect the beads
         # Detect the beads and create the BeadsDetectResult dataframe [if no file has been loaded before] 
@@ -2438,6 +2451,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         trajDirRaw = os.path.join(timeSeriesDataDir, 'Trajectories_raw')
         trajFilesExist_global = False
         trajFilesImported = False
+        trajFilesExist_sum = 0
         
         if redoAllSteps:
             pass
@@ -2460,7 +2474,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         
         #### 2.3 - If no, compute them by tracking the beads
         if not trajFilesImported:
-            issue = PTL.buildTrajectories() 
+            issue = PTL.buildTrajectories(trackAll = trackAll) 
             # Main tracking function !
             if issue == 'Bug':
                 continue

@@ -90,13 +90,6 @@ expDf = getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
 
 # %%%% Plot last traj
 
-PTL.listFrames[-500].show()
-for iB in range(PTL.NB):
-    T = PTL.listTrajectories[iB]
-    ax = plt.gca()
-    T.plot(ax, iB)
-
-
 # fig, ax = plt.subplots(1,1)
 # X1, Y1 = listTrajDicts[0]['X'], listTrajDicts[0]['Y']
 # X2, Y2 = listTrajDicts[1]['X'], listTrajDicts[1]['Y']
@@ -149,7 +142,33 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   redoAllSteps = False, MatlabStyle = True) 
 
 
-# C6 is shit xy analysis due to chainof beads plus X motion
+# C3 and C6 are shit xy analysis due to chainof beads plus X motion
+
+# %%%% 22.01.12_M2 C3 and C6 only
+dates = '22.02.09'
+manips, wells, cells = 2, 1, [6]
+depthoNames = '22.02.09_M2_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True, trackAll = True) 
+
+
+# C3 and C6 are shit xy analysis due to chainof beads plus X motion
+
+# %%%% 22.01.12_M3
+dates = '22.02.09'
+manips, wells, cells = 3, 1, 'all'
+depthoNames = '22.02.09_M3_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True) 
+
 
 # %%% 22.01.12, compressionsLowStart of 3T3, M1 = M270, M2 = M450, M4 = M450, pas de M3
 # %%%% 22.01.12_M1 C1 Seulement
