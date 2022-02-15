@@ -1067,7 +1067,6 @@ class PincherTimeLapse:
     
     
     def buildTrajectories(self, trackAll = False):
-        # Still some bugs to correct here :)
         """
         The main tracking function.
         *
@@ -1125,17 +1124,17 @@ class PincherTimeLapse:
         M = compute_cost_matrix(uiXY,init_BXY)
         row_ind, col_ind = linear_sum_assignment(M) # row_ind -> clicks / col_ind -> listBeads
         
-        # Sort the initial beads to have them ordered by increasing x coord.
-        # SOMETHING IS WRONG HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
+        # Sort the beads by growing X coordinates on the first image,
+        # So that iB = 0 has a X inferior to iB = 1, etc.
         sortM = np.array([[init_BXY[col_ind[i],0], col_ind[i]] for i in range(len(col_ind))])
         sortM = sortM[sortM[:, 0].argsort()]
+        
+        # Initialise position of the beads
         init_iBoi = sortM[:, 1].astype(int)
         init_BoiXY = np.array([init_BXY[col_ind[i]] for i in range(len(col_ind))])
         
+        
         #### 2. Creation of the Trajectory objects
-        
-        
         for iB in range(self.NB):
             self.listTrajectories.append(Trajectory(self.I, self.listFrames, self.scale, self.Zstep, iB))
 
@@ -1156,8 +1155,8 @@ class PincherTimeLapse:
             elif 'optoGen' in self.expType:
                 self.listTrajectories[iB].dict['idxAnalysis'].append(0)
         
-        #### 3. Start the tracking
         
+        #### 3. Start the tracking
         previous_iF = init_iF
         previous_iBoi = init_iBoi
         previous_BXY = init_BXY
@@ -1175,6 +1174,7 @@ class PincherTimeLapse:
             #### 3.2 Try an automatic tracking
             if not trackAll:
                 trackXY = previous_BoiXY
+                previous_iBoi = [i for i in range(self.NB)]
             else:
                 trackXY = previous_BXY
                 
@@ -1187,6 +1187,8 @@ class PincherTimeLapse:
                 searchBoi = np.flatnonzero(row_ind == iBoi)
                 if len(searchBoi) == 1:
                     foundBoi.append(searchBoi[0])
+                
+                    
             if len(foundBoi) == self.NB:
                 pass
             else:
@@ -1289,12 +1291,24 @@ class PincherTimeLapse:
                     continue
             
                 else:
+                    # Double matching here
+                    # First you match the user's click positions with the bead positions detected on frame iF
+                    # You know then that you have identified the NB Beads of interest.
+                    # Then another matching between these two new UIfound_BoiXY and the previous_BoiXY
+                    # to be sure to attribute each position to the good trajectory !
+                    
+                    # First matching
                     M = compute_cost_matrix(uiXY,BXY)
                     row_ind, col_ind = linear_sum_assignment(M)
-                    sortM = np.array([[BXY[col_ind[i],0], col_ind[i]] for i in range(len(col_ind))])
-                    sortM = sortM[sortM[:, 0].argsort()]
-                    iBoi = sortM[:, 1].astype(int)
-                    BoiXY = np.array([BXY[iB] for iB in iBoi])
+                    UIfound_iBoi = [col_ind[i] for i in range(len(col_ind))]
+                    UIfound_BoiXY = np.array([BXY[iB] for iB in UIfound_iBoi])
+                    
+                    # Second matching
+                    M2 = compute_cost_matrix(previous_BoiXY, UIfound_BoiXY)
+                    row_ind2, col_ind2 = linear_sum_assignment(M2)
+                    iBoi = [col_ind2[iB] for iB in range(len(col_ind))]
+                    BoiXY = np.array([UIfound_BoiXY[iB] for iB in iBoi])
+
                     
             #### 3.5 Create the 'idxAnalysis' field
             #### >>> Exp type dependance here (02)
@@ -2281,7 +2295,8 @@ class Trajectory:
         
 def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, timeSeriesDataDir,
          dates, manips, wells, cells, depthoNames, expDf, 
-         methodT, factorT, redoAllSteps = False, MatlabStyle = False, trackAll = False):
+         methodT, factorT, redoAllSteps = False, MatlabStyle = False, trackAll = False,
+         NB = 2):
     
     start = time.time()
     
@@ -2315,7 +2330,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 0.3 - Load exp data
         if manipID not in expDf['manipID'].values:
             print(RED + 'Error! No experimental data found for: ' + manipID + NORMAL)
-            bug
+            break
         else:
             expDf_line = expDf.loc[expDf['manipID'] == manipID]
             manipDict = {}
@@ -2341,7 +2356,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     
         #### 0.4 - Load image and init PTL
         I = io.imread(fP) # Approx 0.5s per image
-        PTL = PincherTimeLapse(I, cellID, manipDict, NB = 2)
+        PTL = PincherTimeLapse(I, cellID, manipDict, NB)
     
         #### 0.5 - Load field file
         fieldFilePath = fP[:-4] + '_Field.txt'
