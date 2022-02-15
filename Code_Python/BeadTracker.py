@@ -677,8 +677,6 @@ class PincherTimeLapse:
         N = N0 - Nexclu
         Nct = N - 2*Nramp0
         i_nUp = 1
-        print('N0, Nramp0, Nexclu, N, Nct')
-        print(N0, Nramp0, Nexclu, N, Nct)
         for i in range(self.nLoop):
             jstart = int(i*N0)
             if Nramp0 == 0:
@@ -1069,6 +1067,7 @@ class PincherTimeLapse:
     
     
     def buildTrajectories(self, trackAll = False):
+        # Still some bugs to correct here :)
         """
         The main tracking function.
         *
@@ -1166,6 +1165,7 @@ class PincherTimeLapse:
         
         for iF in range(init_iF+1, len(self.listFrames)):
             validFrame = True
+            askUI = False
             
             if self.listFrames[iF].NBdetected < self.NB:
                 validFrame = False
@@ -1181,12 +1181,21 @@ class PincherTimeLapse:
                     M = compute_cost_matrix(previous_BXY,BXY)
                     row_ind, col_ind = linear_sum_assignment(M)
                     costs = np.array([M[row_ind[iB], col_ind[iB]] for iB in range(len(row_ind))])
+                    foundBoi = []
+                    for iBoi in previous_iBoi:
+                        searchBoi = np.flatnonzero(row_ind == iBoi)
+                        if len(searchBoi) == 1:
+                            foundBoi.append(searchBoi[0])
+                    if len(foundBoi) == self.NB:
+                        pass
+                    else:
+                        askUI = True
+                        
           
-                # Assess wether the algo should aks for user input
-                askUI = False
+                
                 if (np.max(costs)**0.5) * (1/self.scale) > 0.5: 
                 # If the distance travelled by one of the BoI is greater than 0.5 um
-                    
+                    askUI = True
 #                     print('M')
 #                     print(M)
 #                     print('row_ind, col_ind')
@@ -1195,18 +1204,19 @@ class PincherTimeLapse:
 #                     print(previous_iBoi)
 #                     print('costs')
 #                     print(costs)
-                    askUI = True
+                    
                 
 
                 if not askUI: # Automatically assign the positions of the next beads
                     try:
                         if not trackAll:
-                            iBoi = [col_ind[iB] for iB in row_ind]
-                            BoiXY = np.array([BXY[iB] for iB in iBoi])
-                        else:
                             iBoi = [col_ind[iB] for iB in previous_iBoi]
                             BoiXY = np.array([BXY[iB] for iB in iBoi])
+                        else:
+                            iBoi = [col_ind[iB] for iB in foundBoi]
+                            BoiXY = np.array([BXY[iB] for iB in iBoi])
                     except:
+                        askUI = True
                         print('Error for ' + str(iF))
                         print('M')
                         print(M)
@@ -1216,7 +1226,7 @@ class PincherTimeLapse:
                         print(previous_iBoi)
                         print('costs')
                         print(costs)
-                        askUI = True
+                        
 
                 if askUI: # Ask user input to asign the positions of the next beads
             
@@ -1314,23 +1324,24 @@ class PincherTimeLapse:
                         self.listTrajectories[iB].dict['idxAnalysis'].append(0)
                 
                 # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
-                for iB in range(self.NB):
-                    #
-                    self.listTrajectories[iB].dict['Bead'].append(self.listFrames[iF].listBeads[iBoi[iB]])
-                    self.listTrajectories[iB].dict['iF'].append(iF)
-                    self.listTrajectories[iB].dict['iS'].append(self.listFrames[iF].iS)
-                    self.listTrajectories[iB].dict['iB_inFrame'].append(iBoi[iB])
-                    self.listTrajectories[iB].dict['X'].append(BoiXY[iB][0])
-                    self.listTrajectories[iB].dict['Y'].append(BoiXY[iB][1])
-                    self.listTrajectories[iB].dict['StdDev'].append(self.listFrames[iF].beadsStdDevarray()[iBoi[iB]])
-                    self.listTrajectories[iB].dict['status_frame'].append(self.listFrames[iF].status_frame)
-                    self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[iF].status_nUp)
-                    self.listTrajectories[iB].dict['idxAnalysis'].append(idxAnalysis)
+                if validFrame:
+                    for iB in range(self.NB):
+                        #
+                        self.listTrajectories[iB].dict['Bead'].append(self.listFrames[iF].listBeads[iBoi[iB]])
+                        self.listTrajectories[iB].dict['iF'].append(iF)
+                        self.listTrajectories[iB].dict['iS'].append(self.listFrames[iF].iS)
+                        self.listTrajectories[iB].dict['iB_inFrame'].append(iBoi[iB])
+                        self.listTrajectories[iB].dict['X'].append(BoiXY[iB][0])
+                        self.listTrajectories[iB].dict['Y'].append(BoiXY[iB][1])
+                        self.listTrajectories[iB].dict['StdDev'].append(self.listFrames[iF].beadsStdDevarray()[iBoi[iB]])
+                        self.listTrajectories[iB].dict['status_frame'].append(self.listFrames[iF].status_frame)
+                        self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[iF].status_nUp)
+                        self.listTrajectories[iB].dict['idxAnalysis'].append(idxAnalysis)
                     
-                previous_iF = iF
-                previous_iBoi = iBoi
-                previous_BXY = BXY
-                previous_BoiXY = BoiXY
+                    previous_iF = iF
+                    previous_iBoi = iBoi
+                    previous_BXY = BXY
+                    previous_BoiXY = BoiXY
             
             else: # else, go to the next frame 
                 continue
