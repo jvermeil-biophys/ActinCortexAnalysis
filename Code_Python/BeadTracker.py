@@ -1078,7 +1078,7 @@ class PincherTimeLapse:
         - 'Boi' refers to the 'Beads of interest', ie the beads that are being tracked.
         """
         
-        # 1. Initialize the BoI position in the first image where they can be detect, thanks to user input.
+        #### 1. Initialize the BoI position in the first image where they can be detect, thanks to user input.
         init_iF = 0
         init_ok = False
         while not init_ok:
@@ -1127,16 +1127,15 @@ class PincherTimeLapse:
         
         # Sort the initial beads to have them ordered by increasing x coord.
         # SOMETHING IS WRONG HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
         sortM = np.array([[init_BXY[col_ind[i],0], col_ind[i]] for i in range(len(col_ind))])
         sortM = sortM[sortM[:, 0].argsort()]
         init_iBoi = sortM[:, 1].astype(int)
         init_BoiXY = np.array([init_BXY[col_ind[i]] for i in range(len(col_ind))])
         
-        # 2. Initialize the BoI position in the first image where they can be detect, thanks to user input.
+        #### 2. Creation of the Trajectory objects
         
-        # Creation of the Trajectory objects
+        
         for iB in range(self.NB):
             self.listTrajectories.append(Trajectory(self.I, self.listFrames, self.scale, self.Zstep, iB))
 
@@ -1150,14 +1149,15 @@ class PincherTimeLapse:
             self.listTrajectories[iB].dict['status_frame'].append(self.listFrames[init_iF].status_frame)
             self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[init_iF].status_nUp)
             
-            #### Exp type dependance here (01)
+            #### >>> Exp type dependance here (01)
             if 'compressions' in self.expType or 'thickness' in self.expType:
                 self.listTrajectories[iB].dict['idxAnalysis'].append(1 * (self.listFrames[init_iF].status_frame == 0))
                 
             elif 'optoGen' in self.expType:
                 self.listTrajectories[iB].dict['idxAnalysis'].append(0)
-
-        # Start the tracking
+        
+        #### 3. Start the tracking
+        
         previous_iF = init_iF
         previous_iBoi = init_iBoi
         previous_BXY = init_BXY
@@ -1167,197 +1167,190 @@ class PincherTimeLapse:
             validFrame = True
             askUI = False
             
-            if self.listFrames[iF].NBdetected < self.NB:
+            #### 3.1 Check the number of detected objects
+            if self.listFrames[iF].NBdetected < self.NB: # -> Next frame
                 validFrame = False
+                continue
             
-            if validFrame:
-                if not trackAll:
-                    BXY = self.listFrames[iF].beadsXYarray()
-                    M = compute_cost_matrix(previous_BoiXY,BXY)
-                    row_ind, col_ind = linear_sum_assignment(M)
-                    costs = [M[row_ind[iB], col_ind[iB]] for iB in range(len(row_ind))]
-                else:
-                    BXY = self.listFrames[iF].beadsXYarray()
-                    M = compute_cost_matrix(previous_BXY,BXY)
-                    row_ind, col_ind = linear_sum_assignment(M)
-                    costs = np.array([M[row_ind[iB], col_ind[iB]] for iB in range(len(row_ind))])
-                    foundBoi = []
-                    for iBoi in previous_iBoi:
-                        searchBoi = np.flatnonzero(row_ind == iBoi)
-                        if len(searchBoi) == 1:
-                            foundBoi.append(searchBoi[0])
-                    if len(foundBoi) == self.NB:
-                        pass
-                    else:
-                        askUI = True
-                        
-          
+            #### 3.2 Try an automatic tracking
+            if not trackAll:
+                trackXY = previous_BoiXY
+            else:
+                trackXY = previous_BXY
                 
-                if (np.max(costs)**0.5) * (1/self.scale) > 0.5: 
-                # If the distance travelled by one of the BoI is greater than 0.5 um
+            BXY = self.listFrames[iF].beadsXYarray()
+            M = compute_cost_matrix(trackXY,BXY)
+            row_ind, col_ind = linear_sum_assignment(M)
+            costs = np.array([M[row_ind[iB], col_ind[iB]] for iB in range(len(row_ind))])
+            foundBoi = []
+            for iBoi in previous_iBoi:
+                searchBoi = np.flatnonzero(row_ind == iBoi)
+                if len(searchBoi) == 1:
+                    foundBoi.append(searchBoi[0])
+            if len(foundBoi) == self.NB:
+                pass
+            else:
+                askUI = True
+                    
+      
+            #### 3.3 Check if the cost of matching the positions is not too high
+            if (np.max(costs)**0.5) * (1/self.scale) > 0.5: 
+            # Meaning : if the distance travelled by one of the BoI is greater than 0.5 um
+                askUI = True             
+            
+
+            if not askUI: # Automatically assign the positions of the next beads
+                try:
+                    iBoi = [col_ind[iB] for iB in foundBoi]
+                    BoiXY = np.array([BXY[iB] for iB in iBoi])
+                    
+                except:
                     askUI = True
-#                     print('M')
-#                     print(M)
-#                     print('row_ind, col_ind')
-#                     print(row_ind, col_ind)
-#                     print('previous_iBoi')
-#                     print(previous_iBoi)
-#                     print('costs')
-#                     print(costs)
+                    print('Error for ' + str(iF))
+                    print('M')
+                    print(M)
+                    print('row_ind, col_ind')
+                    print(row_ind, col_ind)
+                    print('previous_iBoi')
+                    print(previous_iBoi)
+                    print('costs')
+                    print(costs)
                     
+
+            #### 3.4 If one of the previous steps failed, ask for user input
+            if askUI:        
+                iS = self.listFrames[iF].iS
                 
-
-                if not askUI: # Automatically assign the positions of the next beads
-                    try:
-                        if not trackAll:
-                            iBoi = [col_ind[iB] for iB in previous_iBoi]
-                            BoiXY = np.array([BXY[iB] for iB in iBoi])
-                        else:
-                            iBoi = [col_ind[iB] for iB in foundBoi]
-                            BoiXY = np.array([BXY[iB] for iB in iBoi])
-                    except:
-                        askUI = True
-                        print('Error for ' + str(iF))
-                        print('M')
-                        print(M)
-                        print('row_ind, col_ind')
-                        print(row_ind, col_ind)
-                        print('previous_iBoi')
-                        print(previous_iBoi)
-                        print('costs')
-                        print(costs)
+                #### 3.4.1: Case when the UI has been previously saved in the dictLog.
+                # Then just import the previous answer from the dictLog
+                if self.dictLog['UI'][iS]:
+                    QA = self.dictLog['UILog'][iS]
+                    if QA == 'Yes':
+                        uiXY = self.dictLog['UIxy'][iS]
+                    elif QA == 'No' or QA == 'No to all':
+                        validFrame = False
+                        #fig = plt.gcf()
+                        #plt.close(fig)
+                
+                
+                #### 3.4.2: Case when the UI has NOT been previously saved in the dictLog
+                # Then ask for UI ; and save it in the dictLog
+                elif not self.dictLog['UI'][iS]:
+                    if self.modeNoUIactivated == False:
+                        # Display the image, plot beads positions and current trajectories & ask the question
+                        self.listFrames[iF].show()
+                        for iB in range(self.NB):
+                            T = self.listTrajectories[iB]
+                            ax = plt.gca()
+                            T.plot(ax, iB)
                         
-
-                if askUI: # Ask user input to asign the positions of the next beads
-            
-                    iS = self.listFrames[iF].iS
-                    
-                    # Case 1: the UI has been previously saved in the dictLog.
-                    # Then just import the previous answer from the dictLog
-                    if self.dictLog['UI'][iS]:
-                        QA = self.dictLog['UILog'][iS]
+                        mngr = plt.get_current_fig_manager()
+                        mngr.window.setGeometry(720, 50, 1175, 1000)
+                        QA = pyautogui.confirm(
+                            text='Can you point the beads of interest\nin the image ' + str(iS + 1) + '?',
+                            title='', 
+                            buttons=['No', 'Yes', 'Abort!', 'No to all'])
+                        
+                        # According to the question's answer:
                         if QA == 'Yes':
-                            uiXY = self.dictLog['UIxy'][iS]
-                        elif QA == 'No' or QA == 'No to all':
-                            validFrame = False
-                            #fig = plt.gcf()
-                            #plt.close(fig)
-                    
-                    
-                    # Case 2: the UI has not been previously saved in the dictLog
-                    # Then ask for UI ; and save it in the dictLog
-                    elif not self.dictLog['UI'][iS]:
-                        if self.modeNoUIactivated == False:
-                            # Display the image, plot beads positions and current trajectories & ask the question
-                            self.listFrames[iF].show()
-                            for iB in range(self.NB):
-                                T = self.listTrajectories[iB]
-                                ax = plt.gca()
-                                T.plot(ax, iB)
-                            
-                            mngr = plt.get_current_fig_manager()
-                            mngr.window.setGeometry(720, 50, 1175, 1000)
-                            QA = pyautogui.confirm(
-                                text='Can you point the beads of interest\nin the image ' + str(iS + 1) + '?',
-                                title='', 
-                                buttons=['No', 'Yes', 'Abort!', 'No to all'])
-                            
-                            # According to the question's answer:
-                            if QA == 'Yes':
-                                ui = plt.ginput(self.NB, timeout=0)
-                                uiXY = ui2array(ui)
-                                self.dictLog['UI'][iS] = True
-                                self.dictLog['UILog'][iS] = QA
-                                self.dictLog['UIxy'][iS] = uiXY
-                            elif QA == 'No':
-                                validFrame = False
-                                self.dictLog['UI'][iS] = True
-                                self.dictLog['UILog'][iS] = QA
-                            elif QA == 'Abort!':
-                                validFrame = False
-                                fig = plt.gcf()
-                                plt.close(fig)
-                                return('Bug')
-                            elif QA == 'No to all':
-                                validFrame = False
-                                self.modeNoUIactivated = True
-                                self.dictLog['UI'][iS] = True
-                                self.dictLog['UILog'][iS] = QA
-                            fig = plt.gcf()
-                            plt.close(fig)
-                            
-                        elif self.modeNoUIactivated == True:
-                        # This mode is in case you don't want to keep clicking 'No' for hours when
-                        # you know for a fact that there is nothing else you can do with this TimeLapse.
-                            iS = self.listFrames[iF].iS
-                            QA = 'No'
+                            ui = plt.ginput(self.NB, timeout=0)
+                            uiXY = ui2array(ui)
+                            self.dictLog['UI'][iS] = True
+                            self.dictLog['UILog'][iS] = QA
+                            self.dictLog['UIxy'][iS] = uiXY
+                        elif QA == 'No':
                             validFrame = False
                             self.dictLog['UI'][iS] = True
                             self.dictLog['UILog'][iS] = QA
-                
-                    
-            
-                    # If there were more than NB objects, and then the QA wasn't 'No', then the frame is valid.
-                    if validFrame:
-                        M = compute_cost_matrix(uiXY,BXY)
-                        row_ind, col_ind = linear_sum_assignment(M)
-                        sortM = np.array([[BXY[col_ind[i],0], col_ind[i]] for i in range(len(col_ind))])
-                        sortM = sortM[sortM[:, 0].argsort()]
-                        iBoi = sortM[:, 1].astype(int)
-                        BoiXY = np.array([BXY[iB] for iB in iBoi])
+                        elif QA == 'Abort!':
+                            validFrame = False
+                            fig = plt.gcf()
+                            plt.close(fig)
+                            return('Bug')
+                        elif QA == 'No to all':
+                            validFrame = False
+                            self.modeNoUIactivated = True
+                            self.dictLog['UI'][iS] = True
+                            self.dictLog['UILog'][iS] = QA
+                        fig = plt.gcf()
+                        plt.close(fig)
                         
-                #### Exp type dependance here (02)
-                if validFrame:
-                    if 'compressions' in self.expType or 'thickness' in self.expType:
-                        if self.expType == 'compressions':
-                            idxAnalysis = (self.listFrames[iF].status_frame == 0) \
-                                * (max(self.listTrajectories[iB].dict['idxAnalysis']) \
-                                   + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))
-                                    
-                        elif self.expType == 'compressionsLowStart': # a pre-ramp has the same idxAnalysis than a ramp but in negative.
-                            idxAnalysis = (self.listFrames[iF].status_frame == 0) \
-                                * (max(self.listTrajectories[iB].dict['idxAnalysis']) + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
-                                    - (self.listFrames[iF].status_frame == 0.1) \
-                                * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
-                                    
-                    elif 'optoGen' in self.expType:
-                        self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                    elif self.modeNoUIactivated == True:
+                    # This mode is in case you don't want to keep clicking 'No' for hours when
+                    # you know for a fact that there is nothing else you can do with this TimeLapse.
+                        iS = self.listFrames[iF].iS
+                        QA = 'No'
+                        validFrame = False
+                        self.dictLog['UI'][iS] = True
+                        self.dictLog['UILog'][iS] = QA
                 
-                # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
-                if validFrame:
-                    for iB in range(self.NB):
-                        #
-                        self.listTrajectories[iB].dict['Bead'].append(self.listFrames[iF].listBeads[iBoi[iB]])
-                        self.listTrajectories[iB].dict['iF'].append(iF)
-                        self.listTrajectories[iB].dict['iS'].append(self.listFrames[iF].iS)
-                        self.listTrajectories[iB].dict['iB_inFrame'].append(iBoi[iB])
-                        self.listTrajectories[iB].dict['X'].append(BoiXY[iB][0])
-                        self.listTrajectories[iB].dict['Y'].append(BoiXY[iB][1])
-                        self.listTrajectories[iB].dict['StdDev'].append(self.listFrames[iF].beadsStdDevarray()[iBoi[iB]])
-                        self.listTrajectories[iB].dict['status_frame'].append(self.listFrames[iF].status_frame)
-                        self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[iF].status_nUp)
-                        self.listTrajectories[iB].dict['idxAnalysis'].append(idxAnalysis)
-                    
-                    previous_iF = iF
-                    previous_iBoi = iBoi
-                    previous_BXY = BXY
-                    previous_BoiXY = BoiXY
+                #### 3.4.3: Outcome of the user input case
+                if not validFrame: # -> Next Frame
+                    continue
             
-            else: # else, go to the next frame 
-                continue
+                else:
+                    M = compute_cost_matrix(uiXY,BXY)
+                    row_ind, col_ind = linear_sum_assignment(M)
+                    sortM = np.array([[BXY[col_ind[i],0], col_ind[i]] for i in range(len(col_ind))])
+                    sortM = sortM[sortM[:, 0].argsort()]
+                    iBoi = sortM[:, 1].astype(int)
+                    BoiXY = np.array([BXY[iB] for iB in iBoi])
+                    
+            #### 3.5 Create the 'idxAnalysis' field
+            #### >>> Exp type dependance here (02)
+            if 'compressions' in self.expType or 'thickness' in self.expType:
+                # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
+                if self.expType == 'compressions':
+                    idxAnalysis = (self.listFrames[iF].status_frame == 0) \
+                        * (max(self.listTrajectories[iB].dict['idxAnalysis']) \
+                           + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))
+                            
+                elif self.expType == 'compressionsLowStart': 
+                # a pre-ramp has the same idxAnalysis than a ramp but in negative.
+                    idxAnalysis = (self.listFrames[iF].status_frame == 0) \
+                        * (max(self.listTrajectories[iB].dict['idxAnalysis']) + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
+                            - (self.listFrames[iF].status_frame == 0.1) \
+                        * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
+                            
+            elif 'optoGen' in self.expType:
+                self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+            
+            
+            
+            #### 3.6 Append the different lists of listTrajectories[iB].dict
+            for iB in range(self.NB):
+                self.listTrajectories[iB].dict['Bead'].append(self.listFrames[iF].listBeads[iBoi[iB]])
+                self.listTrajectories[iB].dict['iF'].append(iF)
+                self.listTrajectories[iB].dict['iS'].append(self.listFrames[iF].iS)
+                self.listTrajectories[iB].dict['iB_inFrame'].append(iBoi[iB])
+                self.listTrajectories[iB].dict['X'].append(BoiXY[iB][0])
+                self.listTrajectories[iB].dict['Y'].append(BoiXY[iB][1])
+                self.listTrajectories[iB].dict['StdDev'].append(self.listFrames[iF].beadsStdDevarray()[iBoi[iB]])
+                self.listTrajectories[iB].dict['status_frame'].append(self.listFrames[iF].status_frame)
+                self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[iF].status_nUp)
+                self.listTrajectories[iB].dict['idxAnalysis'].append(idxAnalysis)
+            
+            #### 3.7 Initialize the next passage in the loop
+            previous_iF = iF
+            previous_iBoi = iBoi
+            previous_BXY = BXY
+            previous_BoiXY = BoiXY
+            
+            #### 3.8 End of the loop
+            
                 
         for iB in range(self.NB):
             for k in self.listTrajectories[iB].dict.keys():
                 self.listTrajectories[iB].dict[k] = np.array(self.listTrajectories[iB].dict[k])
                 
-        # Now we have a functional Trajectory object
-        # it's time to refine it
+        
+        #### 4. Refine the trajectories
         
         nT = len(self.listTrajectories[0].dict['Bead'])
         
-        #### Black Images deletion in the trajectory
+        #### 4.1 Black Images deletion in the trajectory
         
-        # (a) Add the pointer to the correct line of the _Field.txt file.
+        # Add the pointer to the correct line of the _Field.txt file.
         # It's just exactly the iS already saved in the dict, except if there are black images at the end of loops.
         # In that case you have to skip the X lines corresponding to the end of the ramp part, X being the nb of black images at the end of the current loop
         # This is because when black images occurs, they do because of the high frame rate during ramp parts and thus replace these last ramp images.
@@ -1377,7 +1370,7 @@ class PincherTimeLapse:
                 iField.append(SField)
             self.listTrajectories[iB].dict['iField'] = iField
             
-        # (b) Find the image with the best std within each n-uplet
+        #### 4.2 Find the image with the best std within each n-uplet
             
         bestStd = self.findBestStd()
         for i in range(self.NB):
