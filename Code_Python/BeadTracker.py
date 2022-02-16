@@ -71,6 +71,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 # 4. Other settings
 # These regex are used to correct the stupid date conversions done by Excel
 dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
+dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
 dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
 
 # 5. Global constants
@@ -292,7 +293,8 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
     For a triplet of image, it will move the distance curve by NVox voxels to the left 
     for the first curve of a triplet, not move the second one, and move the third by NVox voxels to the right.
     The goal : align the 3 matching minima so that the sum of the three will have a clear global minimum.
-    direction = 'upward'or 'downward'
+    direction = 'upward' or 'downward' depending on how your triplet images are taken 
+    (i.e. upward = consecutively towards the bright spot and downwards otherwise)
     """
     N = len(listStatus)
     offsets = np.array(listStatus) - np.ones(N) * (Nup//2 + 1)
@@ -563,9 +565,23 @@ class PincherTimeLapse:
             self.nLoop = int(np.round(nS/self.loop_totalSize))
         
         elif 'optoGen' in self.expType:
-            self.optoStep1 = int(loopStruct[0])
-            self.optoStep2 = int(loopStruct[1])
-            self.optoStep3 = int(loopStruct[2])
+            #### Will be modified eventually
+            self.loop_totalSize = int(loopStruct[0])
+            
+            if self.expType == 'compressions':
+                self.loop_rampSize = int(loopStruct[1])
+            elif self.expType == 'compressionsLowStart':
+                self.loop_rampSize = int(loopStruct[1])//2
+            else:
+                self.loop_rampSize = 0
+            
+            
+            if len(loopStruct) == 3: # This 3rd part of the 'loopStruct' field is the nb of frames at the end
+            # of each loop which are not part of the main analysis and should be excluded. Typically fluo images.
+                self.loop_excludedSize = int(loopStruct[2])
+            else:
+                self.loop_excludedSize = 0
+            self.nLoop = int(np.round(nS/self.loop_totalSize))
         
         # 3. Field that are just initialized for now and will be filled by calling different methods.
         self.threshold = 0
@@ -644,6 +660,9 @@ class PincherTimeLapse:
         N = N0 - Nexclu
         Nct = N - Nramp0
         i_nUp = 1
+        
+        # print(N0,Nramp0,Nexclu,nUp)
+        
         for i in range(self.nLoop):
             jstart = int(i*N0)
             if Nramp0 == 0:
@@ -702,10 +721,22 @@ class PincherTimeLapse:
                 
     def determineFramesStatus_optoGen(self):
         #### Exp type dependance here
-        """
+        N0 = self.loop_totalSize
+        Nramp0 = self.loop_rampSize
+        Nexclu = self.loop_excludedSize
+        nUp = self.Nuplet
+        N = N0 - Nexclu
+        i_nUp = 1
         
-        """
-        pass
+        print(N0,Nramp0,Nexclu,nUp)
+        
+        for i in range(self.nLoop):
+            jstart = int(i*N0)
+            for j in range(N):
+                self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
+            i_nUp = max(self.dictLog['status_nUp']) + 1
+        
                 
                 
     def saveLog(self, display = 1, save = False, path = ''):
@@ -780,7 +811,7 @@ class PincherTimeLapse:
         fig.show()
         
         
-    def uiThresholding(self, method, factorT):
+    def uiThresholding(self, method, factorT, loopInterval = 2):
         """
         Interactive thresholding function to replace IJ.
         Compute an auto thresholding on a global 3D image with a method from this list:
@@ -799,8 +830,8 @@ class PincherTimeLapse:
             
         # New version of the plot
         loopSize = self.loop_totalSize
-        N = min(4, self.nS//loopSize)
-        L_I_plot = [self.I[loopSize*2*k + 2] for k in range(N)]
+        N = min(4, ((self.nS//loopSize)//loopInterval)-1)
+        L_I_plot = [self.I[loopSize * loopInterval * k + 2] for k in range(N)]
         L_I_thresh = [I_plot > threshold for I_plot in L_I_plot]
         for i in range(N):
             I_plot = L_I_plot[i]
@@ -822,7 +853,7 @@ class PincherTimeLapse:
         for i in range(N):
             ax.append(fig.add_subplot(gs[i//2, i%2]))
             ax[-1].imshow(L_I_plot[i])
-            ax[-1].set_title('Frame ' + str(loopSize*2*i + 2) + '/' + str(self.nS), fontsize = 8)
+            ax[-1].set_title('Frame ' + str(loopSize*loopInterval*i + 2) + '/' + str(self.nS), fontsize = 8)
             ax[-1].axes.xaxis.set_ticks([])
             ax[-1].axes.yaxis.set_ticks([])
         ax.append(fig.add_subplot(gs[:, 2:]))
@@ -1154,9 +1185,9 @@ class PincherTimeLapse:
                 self.listTrajectories[iB].dict['idxAnalysis'].append(1 * (self.listFrames[init_iF].status_frame == 0))
                 
             elif 'optoGen' in self.expType:
-                self.listTrajectories[iB].dict['idxAnalysis'].append(0)
-        
-        
+                 print('Passed expt type')
+                 self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+
         #### 3. Start the tracking
         previous_iF = init_iF
         previous_iBoi = init_iBoi
@@ -1317,6 +1348,8 @@ class PincherTimeLapse:
             #### 3.6 Create the 'idxAnalysis' field
             #### >>> Exp type dependance here (02)
             if 'compressions' in self.expType or 'thickness' in self.expType:
+                elif 'optoGen' in self.expType:
+                    idxAnalysis = 0
                 # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
                 if self.expType == 'compressions':
                     idxAnalysis = (self.listFrames[iF].status_frame == 0) \
@@ -1908,6 +1941,10 @@ class Trajectory:
         df.to_csv(path, sep = '\t', index = False)
     
     def computeZ(self, matchingDirection, plot = 0):
+        #### SETTING ! Tweek the maxDz here
+        maxDz = 60
+        
+        
         if len(self.deptho) == 0:
             return('Error, no depthograph associated with this trajectory')
         
@@ -1921,7 +1958,7 @@ class Trajectory:
 # ####### Decomment these lines to enable some plots ##################
                 
                 # plot = 0
-                # if iF >= 0 and iF <= 30:# or (iF < 190 and iF > 150):
+                # if iF >= 185 and iF <= 205:# or (iF < 190 and iF > 150):
                 #     plot = 1
                 
 # ############################ OK?! ###################################
@@ -1950,11 +1987,13 @@ class Trajectory:
                             
                         iF += jF
                     
-                    maxDz = 40
+                    
+                  
                     Z = self.findZ_Nuplet(framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz, plot)
                     previousZ = Z
                     # This Z_pix has no meaning in itself, it needs to be compared to the depthograph Z reference point,
-                    # which is depthoZFocus. 
+                    # which is depthoZFocus.
+                    
                     Zr = self.depthoZFocus - Z # If you want to find it back, Z = depthoZFocus - Zr
                     # This definition was chosen so that when Zr > 0, the plane of observation of the bead is HIGHER than the focus
                     # and accordingly when Zr < 0, the plane of observation of the bead is LOWER than the focus
@@ -1962,8 +2001,9 @@ class Trajectory:
                     mask = np.array([(iF in iFNuplet) for iF in self.dict['iF']])
                     self.dict['Zr'][mask] = Zr
         
-                     
-    def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz = 40, plot = 0):
+    
+                
+    def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz, plot = 0):
         try:
             Nframes = len(framesNuplet)
             listStatus_1 = [F.status_frame for F in framesNuplet]
@@ -2018,11 +2058,11 @@ class Trajectory:
             # now use listStatus_1, listProfiles, self.deptho + data about the jump between Nuplets ! (TBA) 
             # to compute the correlation function
             nVoxels = int(np.round(self.Zstep/self.depthoStep))
-    
+            
             listDistances = np.zeros((Nframes, depthoDepth))
             listZ = np.zeros(Nframes, dtype = int)
             for i in range(Nframes):
-                listDistances[i] = squareDistance(self.deptho, listProfiles[i], normalize = True) # Utility functions
+                listDistances[i] = squareDistance(self.deptho, listProfiles[i], normalize = True) # Utility functions       
                 listZ[i] = np.argmin(listDistances[i])
                 
             # Translate the profiles that must be translated (status_frame 1 & 3 if Nup = 3)
@@ -2033,13 +2073,19 @@ class Trajectory:
                 finalDists = listDistances
                 
             sumFinalD = np.sum(finalDists, axis = 0)
-            if previousZ == -1 or Nup > 1: # First image OR triplets => No restriction
+            #### Tweak this part to force the Z-detection to a specific range to prevent abnormal jumps
+            if previousZ == -1: # First image => No restriction
                 Z = np.argmin(sumFinalD)
+            elif Nup > 1 and previousZ != -1: # Not first image AND Triplets => Restriction
+                # Z = np.argmin(sumFinalD)
+                limInf = max(previousZ-maxDz, 0)
+                limSup = min(previousZ+maxDz, depthoDepth)
+                Z = limInf + np.argmin(sumFinalD[limInf:limSup])
             elif Nup == 1 and previousZ != -1: # Not first image AND singlet => Restriction
                 limInf = max(previousZ-maxDz, 0)
                 limSup = min(previousZ+maxDz, depthoDepth)
                 Z = limInf + np.argmin(sumFinalD[limInf:limSup])
-    
+
             #### Important plotting option here
             if plot >= 1:
                 fig, axes = plt.subplots(5, 3, figsize = (20,10))
@@ -2095,9 +2141,9 @@ class Trajectory:
                 
                 iSNuplet = [F.iS+1 for F in framesNuplet]
                 fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
-                Nfig = plt.gcf().number
-                fig.savefig('C://Users//JosephVermeil//Desktop//TempPlot//fig'+str(Nfig)+'.png')
-    
+                Nfig = plt.gcf().number   
+                fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig'+str(Nfig)+'.png')  
+                
             return(Z)
         
         except Exception:
@@ -2201,7 +2247,6 @@ class Trajectory:
         # Plots to help the user to see the neighbour of each bead
         ncols = 4
         nrows = ((Nimg-1) // ncols) + 1
-
         fig, ax = plt.subplots(nrows, ncols)
         for i in range(Nimg):
             try:
@@ -2273,7 +2318,7 @@ class Trajectory:
                     ax[i].set_title('Loop ' + str(i+1))
                     ax[i].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
             except:
-                print(RED  + 'ptit probleme dans le detectInOut_ui' + NORMAL)
+                print(RED  + 'error in detectInOut_ui' + NORMAL)
         
         # Ask the question
         mngr = plt.get_current_fig_manager()
@@ -2294,10 +2339,6 @@ class Trajectory:
         c = colors[i_color]
         ax.plot(self.dict['X'], self.dict['Y'], color=c, lw=0.5)
 
-
-
-
-
 # %%%% Main
         
 def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, timeSeriesDataDir,
@@ -2317,6 +2358,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         rawDirList = [os.path.join(rawDataDir, dates)]
     for rd in rawDirList:
         fileList = os.listdir(rd)
+        print(fileList)
         for f in fileList:
             if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
@@ -2368,7 +2410,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 0.5 - Load field file
         fieldFilePath = fP[:-4] + '_Field.txt'
         fieldCols = ['B_set', 'T_abs', 'B', 'Z']
-        fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols)
+        fieldDf = pd.read_csv(fieldFilePath, sep = ',', names = fieldCols) # '\t'
         
         #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
@@ -2400,7 +2442,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
-            elif 'optoGen' in f:
+            elif 'disc20um' in f:
+                print('Passed determine frames')
+                PTL.determineFramesStatus_optoGen()
                 pass
                 
         PTL.saveLog(display = False, save = (not logFileImported), path = logFilePath)
@@ -2410,12 +2454,12 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         if MatlabStyle:
             PTL.computeThreshold(method = methodT, factorT = factorT)
         elif redoAllSteps:
-            PTL.uiThresholding(method = methodT, factorT = factorT)
+            PTL.uiThresholding(method = methodT, factorT = factorT, loopInterval = 1)
         else:
             try:
                 PTL.threshold = PTL.readMetaData(MDpath, 'threshold')
             except:
-                PTL.uiThresholding(method = methodT, factorT = factorT) # Approx 3s per image
+                PTL.uiThresholding(method = methodT, factorT = factorT, loopInterval = 1) # Approx 3s per image
 
 
         #### 0.10 - Save some metadata
@@ -2519,11 +2563,13 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         
         #### 3.1 - Infer or detect Boi sizes in the first image 
         # [Detection doesn't work well !]
+        
         if len(PTL.beadTypes) == 1:
             if 'M450' in PTL.beadTypes[0]:
                 D = 4.5
             elif 'M270' in PTL.beadTypes[0]:
                 D = 2.7
+            
             first_iF = PTL.listTrajectories[0].dict['iF'][0]
             for B in PTL.listFrames[first_iF].listBeads:
                 B.D = D
@@ -2539,7 +2585,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             for B in traj.dict['Bead']:
                 B.D = D
         
-        ### 3.2 - Detect neighbours
+        #### 3.2 - Detect neighbours
         
         # Previous way, automatic detection,
         # not robust enough
@@ -2567,7 +2613,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 traj.detectNeighbours_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize, beadType = beadType)
         
         
-        ### 3.3 - Detect in/out bead
+        #### 3.3 - Detect in/out bead
         
                 
         if redoAllSteps or not trajFilesImported:
@@ -2590,13 +2636,18 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             depthoZFocus = depthoMetadata.loc[0,'focus']
             
             # increase the resolution of the deptho with interpolation
+            # print('deptho shape check')
+            # print(deptho.shape)
             nX, nZ = deptho.shape[1], deptho.shape[0]
             XX, ZZ = np.arange(0, nX, 1), np.arange(0, nZ, 1)
+            # print(XX.shape, ZZ.shape)
             fd = interpolate.interp2d(XX, ZZ, deptho, kind='cubic')
             ZZ_HD = np.arange(0, nZ, 1/HDZfactor)
+            # print(ZZ_HD.shape)
             depthoHD = fd(XX, ZZ_HD)
             depthoStepHD = depthoStep/HDZfactor
             depthoZFocus = depthoZFocus*HDZfactor
+            # print(depthoHD.shape)
             #
             for iB in range(PTL.NB):
                 traj = PTL.listTrajectories[iB]
@@ -2636,7 +2687,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         
         #### 4.2 - Compute z for each traj
         
-        matchingDirection = 'upward' # Change when needed !!
+        matchingDirection = 'downward' # Change when needed !!
         
         if redoAllSteps or not trajFilesImported:
             for iB in range(PTL.NB):
@@ -2757,18 +2808,14 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     
     plt.close('all')
     
+    
+    
+        #### 7.2 - Return the last objects, for optional verifications
     listTrajDicts = []
     for iB in range(PTL.NB):
         listTrajDicts.append(PTL.listTrajectories[iB].dict)
-    
-        #### 7.2 - Return the last objects, for optional verifications
+        
     return(PTL, timeSeries_DF, dfLogF)
-
-
-
-
-
-
 
 
 # %%%% Stand-alone functions
@@ -3119,7 +3166,7 @@ class BeadDeptho:
 #                     figInterp.show()
             deptho_HD = deptho_HD.astype(np.uint16)    
             self.depthosDict['deptho_HD'] = deptho_HD
-        
+       
         # 3D caracterisation
 #         I_binary = np.zeros([self.I_cleanROI.shape[0], self.I_cleanROI.shape[1], self.I_cleanROI.shape[2]])
 #         I_binary[self.zFirst:self.zLast] = (self.I_cleanROI[self.zFirst:self.zLast] > self.threshold)
@@ -3283,34 +3330,34 @@ class BeadDeptho:
         Zm_HD_hd = self.ZfocusDict['Zm_HD_hd']
         Zm_tot_hd = self.ZfocusDict['Zm_tot_hd']
         
-#             fig, ax = plt.subplots(1,3, figsize = (12, 4))
-#             ax[0].plot(Z, intensity_v)
-#             ax[1].plot(Z, intensity_h)
-#             ax[2].plot(Z, (intensity_tot))
-#             ax[0].plot([Zm_v, Zm_v], [0, ax[0].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_v = {:.2f}'.format(Zm_v))
-#             ax[1].plot([Zm_h, Zm_h], [0, ax[1].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_h = {:.2f}'.format(Zm_h))
-#             ax[2].plot([Zm_tot, Zm_tot], [0, ax[2].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_tot = {:.2f}'.format(Zm_tot))
-#             ax[0].legend(loc = 'lower right')
-#             ax[1].legend(loc = 'lower right')
-#             ax[2].legend(loc = 'lower right')
-        
-        fig, ax = plt.subplots(1,4, figsize = (16, 4))
-        ax[0].plot(Z, intensity_v, 'b-')
-        ax[1].plot(Z, intensity_h, 'b-')
-        ax[2].plot(Z, intensity_HD, 'b-')
-        ax[3].plot(Z, (intensity_tot), 'b-')
-        ax[0].plot(Z_hd, intensity_v_smooth, 'k--')
-        ax[1].plot(Z_hd, intensity_h_smooth, 'k--')
-        ax[2].plot(Z_hd, intensity_HD_smooth, 'k--')
-        ax[3].plot(Z_hd, intensity_tot_smooth, 'k--')
-        ax[0].plot([Zm_v_hd, Zm_v_hd], [0, ax[0].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_v_hd = {:.2f}'.format(Zm_v_hd))
-        ax[1].plot([Zm_h_hd, Zm_h_hd], [0, ax[1].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_h_hd = {:.2f}'.format(Zm_h_hd))
-        ax[2].plot([Zm_HD_hd, Zm_HD_hd], [0, ax[2].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_HD_hd = {:.2f}'.format(Zm_HD_hd))
-        ax[3].plot([Zm_tot_hd, Zm_tot_hd], [0, ax[3].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_tot_hd = {:.2f}'.format(Zm_tot_hd))
+        fig, ax = plt.subplots(1,3, figsize = (12, 4))
+        ax[0].plot(Z, intensity_v)
+        ax[1].plot(Z, intensity_h)
+        ax[2].plot(Z, (intensity_tot))
+        ax[0].plot([Zm_v, Zm_v], [0, ax[0].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_v = {:.2f}'.format(Zm_v))
+        ax[1].plot([Zm_h, Zm_h], [0, ax[1].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_h = {:.2f}'.format(Zm_h))
+        ax[2].plot([Zm_tot, Zm_tot], [0, ax[2].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_tot = {:.2f}'.format(Zm_tot))
         ax[0].legend(loc = 'lower right')
         ax[1].legend(loc = 'lower right')
         ax[2].legend(loc = 'lower right')
-        ax[3].legend(loc = 'lower right')
+        
+        # fig, ax = plt.subplots(1,4, figsize = (16, 4))
+        # ax[0].plot(Z, intensity_v, 'b-')
+        # ax[1].plot(Z, intensity_h, 'b-')
+        # ax[2].plot(Z, intensity_HD, 'b-')
+        # ax[3].plot(Z, (intensity_tot), 'b-')
+        # ax[0].plot(Z_hd, intensity_v_smooth, 'k--')
+        # ax[1].plot(Z_hd, intensity_h_smooth, 'k--')
+        # ax[2].plot(Z_hd, intensity_HD_smooth, 'k--')
+        # ax[3].plot(Z_hd, intensity_tot_smooth, 'k--')
+        # ax[0].plot([Zm_v_hd, Zm_v_hd], [0, ax[0].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_v_hd = {:.2f}'.format(Zm_v_hd))
+        # ax[1].plot([Zm_h_hd, Zm_h_hd], [0, ax[1].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_h_hd = {:.2f}'.format(Zm_h_hd))
+        # ax[2].plot([Zm_HD_hd, Zm_HD_hd], [0, ax[2].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_HD_hd = {:.2f}'.format(Zm_HD_hd))
+        # ax[3].plot([Zm_tot_hd, Zm_tot_hd], [0, ax[3].get_ylim()[1]], 'r--', lw = 0.8, label = 'Zm_tot_hd = {:.2f}'.format(Zm_tot_hd))
+        # ax[0].legend(loc = 'lower right')
+        # ax[1].legend(loc = 'lower right')
+        # ax[2].legend(loc = 'lower right')
+        # ax[3].legend(loc = 'lower right')
 
         #         print('Zm_v = {:.2f}, Zm_h = {:.2f}, Zm_tot = {:.2f}'\
         #               .format(Zm_v, Zm_h, Zm_tot))

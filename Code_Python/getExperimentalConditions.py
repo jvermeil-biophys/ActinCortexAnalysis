@@ -21,6 +21,7 @@ BLUE  = '\033[36m' # blue
 dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
 dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
 dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
+dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
 
 def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     """"
