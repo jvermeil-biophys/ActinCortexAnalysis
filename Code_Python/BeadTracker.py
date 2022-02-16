@@ -1348,8 +1348,6 @@ class PincherTimeLapse:
             #### 3.6 Create the 'idxAnalysis' field
             #### >>> Exp type dependance here (02)
             if 'compressions' in self.expType or 'thickness' in self.expType:
-                elif 'optoGen' in self.expType:
-                    idxAnalysis = 0
                 # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
                 if self.expType == 'compressions':
                     idxAnalysis = (self.listFrames[iF].status_frame == 0) \
@@ -1364,7 +1362,7 @@ class PincherTimeLapse:
                         * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
                             
             elif 'optoGen' in self.expType:
-                self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                idxAnalysis = 0
             
             
             
