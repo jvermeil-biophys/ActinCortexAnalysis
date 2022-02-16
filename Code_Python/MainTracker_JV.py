@@ -146,15 +146,15 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
 
 # %%%% 22.01.12_M2 C3 and C6 only
 dates = '22.02.09'
-manips, wells, cells = 2, 1, [3, 6]
+manips, wells, cells = 2, 1, [3]
 depthoNames = '22.02.09_M2_M450_step20_100X'
 
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = True, MatlabStyle = True, trackAll = False,
-                                  NB = 2) 
+                                  redoAllSteps = True, MatlabStyle = True, trackAll = True,
+                                  NB = 4) 
 
 # trackAll = False works even for NB = 4
 # trackAll = True seems to work for NB = 2 but do not when NB = 4

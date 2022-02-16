@@ -1131,7 +1131,8 @@ class PincherTimeLapse:
         
         # Initialise position of the beads
         init_iBoi = sortM[:, 1].astype(int)
-        init_BoiXY = np.array([init_BXY[col_ind[i]] for i in range(len(col_ind))])
+        # init_BoiXY = sortM[:, 0]
+        init_BoiXY = np.array([init_BXY[init_iBoi[i]] for i in range(len(init_iBoi))])
         
         
         #### 2. Creation of the Trajectory objects
@@ -1175,7 +1176,7 @@ class PincherTimeLapse:
             if not trackAll:
                 trackXY = previous_BoiXY
                 previous_iBoi = [i for i in range(self.NB)]
-            else:
+            elif trackAll:
                 trackXY = previous_BXY
                 
             BXY = self.listFrames[iF].beadsXYarray()
@@ -1187,21 +1188,22 @@ class PincherTimeLapse:
                 searchBoi = np.flatnonzero(row_ind == iBoi)
                 if len(searchBoi) == 1:
                     foundBoi.append(searchBoi[0])
-                
-                    
-            if len(foundBoi) == self.NB:
-                pass
-            else:
-                askUI = True
-                    
-      
-            #### 3.3 Check if the cost of matching the positions is not too high
-            if (np.max(costs)**0.5) * (1/self.scale) > 0.5: 
-            # Meaning : if the distance travelled by one of the BoI is greater than 0.5 um
-                askUI = True             
+                                   
             
+            #### 3.3 Assess if asking user input is necessary
+            
+            highCost = ((np.max(costs)**0.5) * (1/self.scale) > 0.5)
+            # True if the distance travelled by one of the BoI is greater than 0.5 um
+            
+            allBoiFound = (len(foundBoi) == self.NB)
+            # False if one of the beads of interest have not been detected
+            
+            if highCost or not allBoiFound:
+                askUI = True
+                
+            #### 3.4 If not, automatically assign the positions of the next beads
 
-            if not askUI: # Automatically assign the positions of the next beads
+            if not askUI:
                 try:
                     iBoi = [col_ind[iB] for iB in foundBoi]
                     BoiXY = np.array([BXY[iB] for iB in iBoi])
@@ -1219,11 +1221,11 @@ class PincherTimeLapse:
                     print(costs)
                     
 
-            #### 3.4 If one of the previous steps failed, ask for user input
+            #### 3.5 If one of the previous steps failed, ask for user input
             if askUI:        
                 iS = self.listFrames[iF].iS
                 
-                #### 3.4.1: Case when the UI has been previously saved in the dictLog.
+                #### 3.5.1: Case when the UI has been previously saved in the dictLog.
                 # Then just import the previous answer from the dictLog
                 if self.dictLog['UI'][iS]:
                     QA = self.dictLog['UILog'][iS]
@@ -1235,7 +1237,7 @@ class PincherTimeLapse:
                         #plt.close(fig)
                 
                 
-                #### 3.4.2: Case when the UI has NOT been previously saved in the dictLog
+                #### 3.5.2: Case when the UI has NOT been previously saved in the dictLog
                 # Then ask for UI ; and save it in the dictLog
                 elif not self.dictLog['UI'][iS]:
                     if self.modeNoUIactivated == False:
@@ -1286,11 +1288,12 @@ class PincherTimeLapse:
                         self.dictLog['UI'][iS] = True
                         self.dictLog['UILog'][iS] = QA
                 
-                #### 3.4.3: Outcome of the user input case
+                #### 3.5.3: Outcome of the user input case
                 if not validFrame: # -> Next Frame
                     continue
             
                 else:
+                    print('\n############# ACTION ON {:.0f} \n'.format(iF))
                     # Double matching here
                     # First you match the user's click positions with the bead positions detected on frame iF
                     # You know then that you have identified the NB Beads of interest.
@@ -1300,17 +1303,18 @@ class PincherTimeLapse:
                     # First matching
                     M = compute_cost_matrix(uiXY,BXY)
                     row_ind, col_ind = linear_sum_assignment(M)
-                    UIfound_iBoi = [col_ind[i] for i in range(len(col_ind))]
-                    UIfound_BoiXY = np.array([BXY[iB] for iB in UIfound_iBoi])
+                    UIfound_BoiXY = np.array([BXY[iB] for iB in col_ind])
                     
                     # Second matching
                     M2 = compute_cost_matrix(previous_BoiXY, UIfound_BoiXY)
                     row_ind2, col_ind2 = linear_sum_assignment(M2)
-                    iBoi = [col_ind2[iB] for iB in range(len(col_ind))]
-                    BoiXY = np.array([UIfound_BoiXY[iB] for iB in iBoi])
 
                     
-            #### 3.5 Create the 'idxAnalysis' field
+                    iBoi = [col_ind[i] for i in col_ind2]
+                    BoiXY = np.array([BXY[iB] for iB in iBoi])
+
+                    
+            #### 3.6 Create the 'idxAnalysis' field
             #### >>> Exp type dependance here (02)
             if 'compressions' in self.expType or 'thickness' in self.expType:
                 # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
@@ -1331,7 +1335,7 @@ class PincherTimeLapse:
             
             
             
-            #### 3.6 Append the different lists of listTrajectories[iB].dict
+            #### 3.7 Append the different lists of listTrajectories[iB].dict
             for iB in range(self.NB):
                 self.listTrajectories[iB].dict['Bead'].append(self.listFrames[iF].listBeads[iBoi[iB]])
                 self.listTrajectories[iB].dict['iF'].append(iF)
@@ -1344,13 +1348,16 @@ class PincherTimeLapse:
                 self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[iF].status_nUp)
                 self.listTrajectories[iB].dict['idxAnalysis'].append(idxAnalysis)
             
-            #### 3.7 Initialize the next passage in the loop
+
+            #### 3.8 Initialize the next passage in the loop
             previous_iF = iF
             previous_iBoi = iBoi
             previous_BXY = BXY
             previous_BoiXY = BoiXY
             
-            #### 3.8 End of the loop
+            
+            
+            #### 3.9 End of the loop
             
                 
         for iB in range(self.NB):
