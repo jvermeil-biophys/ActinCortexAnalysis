@@ -530,14 +530,18 @@ class PincherTimeLapse:
         self.Zstep = manipDict['multi image Z step']
         
         self.BeadsZDelta = manipDict['beads bright spot delta']
-        self.BeadTypeStr = manipDict['bead type']
-        self.beadTypes = [bT for bT in str(manipDict['bead type']).split('_')]
-        self.beadDiameters = [int(bD) for bD in str(manipDict['bead diameter']).split('_')]
+        # self.BeadTypeStr = manipDict['bead type']
+        # self.beadTypes = [bT for bT in str(manipDict['bead type']).split('_')]
+        self.beadTypes = manipDict['bead type']
+        # self.beadDiameters = [int(bD) for bD in str(manipDict['bead diameter']).split('_')]
+        self.beadDiameters = manipDict['bead diameter']
         self.dictBeadDiameters = {}
         for k in range(len(self.beadTypes)):
             self.dictBeadDiameters[self.beadTypes[k]] = self.beadDiameters[k]
          
-        loopStruct = manipDict['loop structure'].split('_')
+        # loopStruct = manipDict['loop structure'].split('_')
+        loopStruct = manipDict['loop structure']
+        
         #### Exp type dependance here
         
         # This is an ugly but necessary part of the code
@@ -2356,7 +2360,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         rawDirList = [os.path.join(rawDataDir, dates)]
     for rd in rawDirList:
         fileList = os.listdir(rd)
-        print(fileList)
         for f in fileList:
             if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
@@ -2408,7 +2411,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 0.5 - Load field file
         fieldFilePath = fP[:-4] + '_Field.txt'
         fieldCols = ['B_set', 'T_abs', 'B', 'Z']
-        fieldDf = pd.read_csv(fieldFilePath, sep = ',', names = fieldCols) # '\t'
+        fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
         
         #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'

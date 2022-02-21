@@ -144,19 +144,19 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
 
 # C3 and C6 are shit xy analysis due to chainof beads plus X motion -> corrected, allowed me to do a LOT of debugging :)
 
-# %%%% 22.01.12_M2 C3 and C6 only
+# %%%% 22.01.12 _ Only a few cells
 dates = '22.02.09'
-manips, wells, cells = 2, 1, [3]
-depthoNames = '22.02.09_M2_M450_step20_100X'
+manips, wells, cells = 1, 1, [7]
+depthoNames = '22.02.09_M1_M450_step20_100X'
 
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = True, MatlabStyle = True, trackAll = True,
-                                  NB = 4) 
+                                  redoAllSteps = True, MatlabStyle = True, trackAll = False,
+                                  NB = 2) 
 
-# trackAll = False works even for NB = 4
+# trackAll = False works even for NB = 4 -> Corrected, I think !
 # trackAll = True seems to work for NB = 2 but do not when NB = 4
 
 
@@ -415,6 +415,17 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.8, 
                                   redoAllSteps = False, MatlabStyle = True)
+
+# %%%% 21.01.18_M1
+dates = '21.01.18'
+manips, wells, cells = ['1-2'], 1, 5
+depthoNames = '21.01.18_M1_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = True, MatlabStyle = True)
 
 # %%%% 21.01.18_M2
 dates = '21.01.18'

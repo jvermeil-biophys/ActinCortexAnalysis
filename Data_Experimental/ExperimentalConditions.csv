@@ -1,5 +1,5 @@
 ;date;manip;experimentType;drug;substrate;objective magnification;scale pixel per um;objective immersion;optical index correction;magnetic field correction;cell type;cell subtype;bead type;bead diameter;beads bright spot delta;normal field;ramp field;compression duration;with fluo images;normal field multi images;multi image Z step;loop structure;comments
-0;DEFAULT;DEFAULT;DEFAULT;DEFAULT;DEFAULT;100X;15.8;oil;0.875;1.15;DEFAULT;DEFAULT;M450;DEFAULT;0;5;3_40;1s;False;3;500;143_95;
+0;01-01-01;DEFAULT;DEFAULT;DEFAULT;DEFAULT;100X;15.8;oil;0.875;1.15;DEFAULT;DEFAULT;M450;4500;0;5;3_40;1s;False;3;500;143_95;
 1;20-08-04;M1;compressions and constant field;none;BSA coated glass;100X;15.8;oil;0.875;1.15;3T3;aSFL;M450;4503;0;10;3_40;1s;False;3;500;143_95;
 2;20-08-04;M2;compressions and constant field;doxycyclin;BSA coated glass;100X;15.8;oil;0.875;1.15;3T3;aSFL;M450;4503;0;10;3_40;1s;False;3;500;143_95;
 3;20-08-05;M1;compressions and constant field;doxycyclin;BSA coated glass;100X;15.8;oil;0.875;1.15;3T3;aSFL;M450;4503;0;10;3_40;1s;False;3;500;143_95;

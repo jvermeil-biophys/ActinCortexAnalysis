@@ -32,15 +32,15 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     Converting semicolon separated values into lists when needed
     Etc
     """
-    # Getting the table
+    #### 0. Import the table
     experimentalDataFile = 'ExperimentalConditions.csv'
     experimentalDataFilePath = os.path.join(experimentalDataDir, experimentalDataFile)
     expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=sep, header=0)
     print(BLUE + 'Importing Experimental Conditions' + NORMAL)
     print(BLUE + 'Extracted a table with ' + str(expConditionsDF.shape[0]) + ' lines and ' + str(expConditionsDF.shape[1]) + ' columns' + NORMAL)
+    #### 1. Clean the table
     
-    # Cleaning the table
-#     try:
+    #### 1.1 Remove useless columns
     for c in expConditionsDF.columns:
         if 'Unnamed' in c:
             expConditionsDF = expConditionsDF.drop([c], axis=1)
@@ -48,6 +48,7 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
             expConditionsDF = expConditionsDF.drop([c], axis=1)
     expConditionsDF = expConditionsDF.convert_dtypes()
 
+    #### 1.2 Convert commas into dots
     listTextColumns = []
     for col in expConditionsDF.columns:
         try:
@@ -55,52 +56,89 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
                 listTextColumns.append(col)
         except:
             pass
-            #Ok
-
     expConditionsDF[listTextColumns] = expConditionsDF[listTextColumns].apply(lambda x: x.str.replace(',','.'))
 
+    #### 1.3 Format 'scale'
     expConditionsDF['scale pixel per um'] = expConditionsDF['scale pixel per um'].astype(float)
-    try:
-        print(ORANGE + 'optical index correction : format changed' + NORMAL)
+    
+    #### 1.4 Format 'optical index correction'
+    try: # In case the format is 'n1/n2'
         expConditionsDF['optical index correction'] = \
                   expConditionsDF['optical index correction'].apply(lambda x: x.split('/')[0]).astype(float) \
                 / expConditionsDF['optical index correction'].apply(lambda x: x.split('/')[1]).astype(float)
+        print(ORANGE + 'optical index correction : format changed' + NORMAL)
     except:
         pass
-        # print('optical index correction already in ' + str(expConditionsDF['optical index correction'].dtype) + ' type.')
-
+    
+    #### 1.5 Format 'magnetic field correction'
     expConditionsDF['magnetic field correction'] = expConditionsDF['magnetic field correction'].astype(float)
+    
+    #### 1.6 Format 'with fluo images'
     expConditionsDF['with fluo images'] = expConditionsDF['with fluo images'].astype(bool)
 
+    #### 1.7 Format 'ramp field'
     try:
         print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
         expConditionsDF['ramp field'] = \
         expConditionsDF['ramp field'].apply(lambda x: [x.split(';')[0], x.split(';')[1]] if not pd.isnull(x) else [])
     except:
         pass
-        #Ok
 
+    #### 1.8 Format 'date'
     dateExemple = expConditionsDF.loc[expConditionsDF.index[1],'date']
-
     if re.match(dateFormatExcel, dateExemple):
         print(ORANGE + 'dates : format corrected' + NORMAL)
-        expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('/')[0] + '-' + x.split('/')[1] + '-' + x.split('/')[2][2:])        
+        expConditionsDF.loc[:,'date'] = expConditionsDF.loc[:,'date'].apply(lambda x: x.split('/')[0] + '-' + x.split('/')[1] + '-' + x.split('/')[2][2:])        
     elif re.match(dateFormatExcel2, dateExemple):
         print(ORANGE + 'dates : format corrected' + NORMAL)
-        expConditionsDF.loc[1:,'date'] = expConditionsDF.loc[1:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])  
+        expConditionsDF.loc[:,'date'] = expConditionsDF.loc[:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])  
 
-#     except:
-#         print('Unexpected bug with the cleaning step')
 
+    #### 2. Save the table, if required
     if save:
         saveName = 'ExperimentalConditions.csv'
         savePath = os.path.join(experimentalDataDir, saveName)
         expConditionsDF.to_csv(savePath, sep=';')
 
-    expConditionsDF['manipID'] = expConditionsDF['date'] + '_' + expConditionsDF['manip']
-#     reorgaList = np.array([i for i in range(len(expConditionsDF.columns))])
-#     reorgaList[2] = reorgaList[-1]
-#     reorgaList[3:] = reorgaList[3:] - np.ones(len(reorgaList)-3)
-#     expConditionsDF = expConditionsDF[expConditionsDF.columns[reorgaList]]
+    #### 3. Generate additionnal field that won't be saved
     
+    def str2int(s):
+        try:
+            x = int(s)
+        except:
+            x = np.nan
+        return(x)
+    
+    def str2float(s):
+        try:
+            x = float(s)
+        except:
+            x = np.nan
+        return(x)
+    
+    #### 3.1 Make 'manipID'
+    expConditionsDF['manipID'] = expConditionsDF['date'] + '_' + expConditionsDF['manip']
+    
+    #### 3.2 Format 'bead diameter'
+    diameters = expConditionsDF.loc[:,'bead diameter'].apply(lambda x: str(x).split('_'))
+    diameters = diameters.apply(lambda x: [int(xx) for xx in x])
+    expConditionsDF.loc[:,'bead diameter'] = diameters
+    # print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
+    
+    #### 3.3 Format 'bead type'
+    bt = expConditionsDF.loc[:,'bead type'].apply(lambda x: str(x).split('_'))
+    bt = bt.apply(lambda x: [str(xx) for xx in x])
+    expConditionsDF.loc[:,'bead type'] = bt
+    
+    #### 3.4 Format 'ramp field'
+    rf = expConditionsDF.loc[:,'ramp field'].apply(lambda x: str(x).split('_'))
+    rf = rf.apply(lambda x: [str2float(xx) for xx in x])
+    expConditionsDF.loc[:,'ramp field'] = rf
+    
+    #### 3.5 Format 'loop structure'
+    ls = expConditionsDF.loc[:,'loop structure'].apply(lambda x: str(x).split('_'))
+    ls = ls.apply(lambda x: [str2int(xx) for xx in x])
+    expConditionsDF.loc[:,'loop structure'] = ls
+
+    #### 4. END
     return(expConditionsDF)
