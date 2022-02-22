@@ -56,10 +56,13 @@ my_default_marker_list = ['o', 's', 'D', '>', '^', 'P', 'X', '<', 'v', 'p']
 COMPUTERNAME = os.environ['COMPUTERNAME']
 if COMPUTERNAME == 'ORDI-JOSEPH':
     mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//JosephVermeil//ownCloud//ActinCortexAnalysis"
 elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
 elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//josep//ownCloud//ActinCortexAnalysis"
 
 # Add the folder to path
 import sys
@@ -69,10 +72,13 @@ from getExperimentalConditions import getExperimentalConditions
 
 experimentalDataDir = os.path.join(mainDir, "Data_Experimental")
 dataDir = os.path.join(mainDir, "Data_Analysis")
-figDir = os.path.join(dataDir, "Figures")
-todayFigDir = os.path.join(figDir, "Historique//" + str(date.today()))
 timeSeriesDataDir = os.path.join(dataDir, "TimeSeriesData")
 
+figDir = os.path.join(dataDir, "Figures")
+todayFigDir = os.path.join(figDir, "Historique//" + str(date.today()))
+
+ownCloudFigDir = os.path.join(ownCloudDir, "Figures")
+ownCloudTodayFigDir = os.path.join(ownCloudFigDir, "Historique//" + str(date.today()))
 
 # %% (2) Utility functions
 
@@ -138,8 +144,8 @@ def fitLine(X, Y):
     
     return(results.params, results)
 
-def archiveFig(fig, ax, name='auto', figDir = todayFigDir, figSubDir=''):
-    dpi = 300
+def archiveFig(fig, ax, name='auto', figDir = todayFigDir, figSubDir='', dpi = 100):
+    
     if not os.path.exists(figDir):
         os.makedirs(figDir)
     
@@ -1403,7 +1409,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     #### PLOT [3/4]
     
     if PLOT:
-        #### (after the jump correction fix, the plot of the main curve on fig1 came here)
+        #### fig1
         color = 'blue'
         ax1.plot(tsDF['T'].values, tsDF['D3'].values-DIAMETER, color = color, ls = '-', linewidth = 1, zorder = 1)
         (axm, axM) = ax1.get_ylim()
@@ -1427,7 +1433,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             ax1bis.set_ylim([0, max(axMbis*ratio, 3*max(tsDF['F'].values))])
         
         
-        
+        #### fig3
         # Rescale fig3 axes
         eMin, eMax = 1, 0
         sMin, sMax = 1000, 0
@@ -1462,21 +1468,35 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 thisAx3.set_xlim([sMin, sMax])
                 thisAx3.set_ylim([eMin, eMax])
     
+    
+    
     #### PLOT [4/4]
     # Save the figures
     if PLOT:
-        archiveFig(fig1, ax1, name=results['cellID'][-1] + '_h(t)', figSubDir = 'MecaAnalysis_allCells')
-        archiveFig(fig2, ax2, name=results['cellID'][-1] + '_F(h)', figSubDir = 'MecaAnalysis_allCells')
-        archiveFig(fig3, ax3, name=results['cellID'][-1] + '_sig(eps)', figSubDir = 'MecaAnalysis_allCells')
-        archiveFig(fig4, ax4, name=results['cellID'][-1] + '_F(h)_regionFits', figSubDir = 'MecaAnalysis_allCells')
-        archiveFig(fig5, ax5, name=results['cellID'][-1] + '_sig(eps)_regionFits', figSubDir = 'MecaAnalysis_allCells')
-        archiveFig(fig6, ax6, name=results['cellID'][-1] + '_smallElements', figSubDir = 'MecaAnalysis_allCells')
+        # figDir = todayFigDir # Already by default
+        figSubDir = 'MecaAnalysis_allCells'
+        archiveFig(fig1, ax1, name=results['cellID'][-1] + '_h(t)', figSubDir = figSubDir, dpi = 90)
+        archiveFig(fig2, ax2, name=results['cellID'][-1] + '_F(h)', figSubDir = figSubDir, dpi = 90)
+        archiveFig(fig3, ax3, name=results['cellID'][-1] + '_sig(eps)', figSubDir = figSubDir, dpi = 90)
+        archiveFig(fig4, ax4, name=results['cellID'][-1] + '_F(h)_regionFits', figSubDir = figSubDir, dpi = 90)
+        archiveFig(fig5, ax5, name=results['cellID'][-1] + '_sig(eps)_regionFits', figSubDir = figSubDir, dpi = 90)
+        archiveFig(fig6, ax6, name=results['cellID'][-1] + '_smallElements', figSubDir = figSubDir, dpi = 90)
+        
+        figDir = ownCloudTodayFigDir
+        figSubDir = 'MecaAnalysis_allCells'
+        archiveFig(fig1, ax1, name=results['cellID'][-1] + '_h(t)', figDir = figDir, figSubDir = figSubDir, dpi = 300)
+        archiveFig(fig2, ax2, name=results['cellID'][-1] + '_F(h)', figDir = figDir, figSubDir = figSubDir, dpi = 300)
+        archiveFig(fig3, ax3, name=results['cellID'][-1] + '_sig(eps)', figDir = figDir, figSubDir = figSubDir, dpi = 300)
+        archiveFig(fig4, ax4, name=results['cellID'][-1] + '_F(h)_regionFits', figDir = figDir, figSubDir = figSubDir, dpi = 300)
+        archiveFig(fig5, ax5, name=results['cellID'][-1] + '_sig(eps)_regionFits', figDir = figDir, figSubDir = figSubDir, dpi = 300)
+        archiveFig(fig6, ax6, name=results['cellID'][-1] + '_smallElements', figDir = figDir, figSubDir = figSubDir, dpi = 300)
         
         
         if PLOT_SHOW:
-            fig1.show()
-            fig2.tight_layout()
-            fig2.show()
+            Allfigs = [fig1,fig2,fig3,fig4,fig5,fig6]
+            for fig in Allfigs:
+                fig.tight_layout()
+                fig.show()
         else:
             plt.close('all')
 

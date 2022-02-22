@@ -30,15 +30,22 @@ from skimage import io, filters, exposure, measure, transform, util, color
 from scipy.signal import find_peaks, savgol_filter
 from scipy.optimize import linear_sum_assignment
 from matplotlib.gridspec import GridSpec
+from datetime import date
 
 # Add the folder to path
 COMPUTERNAME = os.environ['COMPUTERNAME']
 if COMPUTERNAME == 'ORDI-JOSEPH':
     mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//JosephVermeil//ownCloud//ActinCortexAnalysis"
+    tempPlot = 'C://Users//JosephVermeil//Desktop//TempPlots'
 elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
+    tempPlot = 'C://Users//Joseph//Desktop//TempPlots'
 elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//josep//ownCloud//ActinCortexAnalysis"
+    tempPlot = 'C://Users//josep//Desktop//TempPlots'
 
 import sys
 sys.path.append(mainDir + "//Code_Python")
@@ -81,7 +88,6 @@ RED  = '\033[31m' # red
 GREEN = '\033[32m' # green
 ORANGE  = '\033[33m' # orange
 BLUE  = '\033[36m' # blue
-
 
 
 # %% (1) Utility functions
@@ -461,6 +467,54 @@ def max_entropy_threshold(I):
     H, bins = exposure.histogram(I, nbins=256, source_range='image', normalize=False)
     T = max_entropy(H)
     return(T)
+
+
+
+def archiveFig(fig, ax, figDir, name='auto', dpi = 100):
+    
+    if not os.path.exists(figDir):
+        os.makedirs(figDir)
+    
+    saveDir = os.path.join(figDir, str(date.today()))
+    if not os.path.exists(saveDir):
+        os.makedirs(saveDir)
+    
+    if name != 'auto':
+        fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+    
+    else:
+        suptitle = fig._suptitle.get_text()
+        if len(suptitle) > 0:
+            name = suptitle
+            fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+        
+        else:
+            try:
+                N = len(ax)
+                ax = ax[0]
+            except:
+                N = 1
+                ax = ax
+                
+            xlabel = ax.get_xlabel()
+            ylabel = ax.get_ylabel()
+            if len(xlabel) > 0 and len(ylabel) > 0:
+                name = ylabel + ' Vs ' + xlabel
+                if N > 1:
+                    name = name + '___etc'
+                fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+            
+            else:
+                title = ax.get_title()
+                if len(title) > 0:
+                    if N > 1:
+                        name = name + '___etc'
+                    fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+                
+                else:
+                    figNum = plt.gcf().number
+                    name = 'figure ' + str(figNum) 
+                    fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
 
 
 # %% (2) Tracker classes
@@ -1944,7 +1998,7 @@ class Trajectory:
     
     def computeZ(self, matchingDirection, plot = 0):
         #### SETTING ! Tweek the maxDz here
-        maxDz = 60
+        maxDz = 40
         
         
         if len(self.deptho) == 0:
@@ -2143,8 +2197,9 @@ class Trajectory:
                 
                 iSNuplet = [F.iS+1 for F in framesNuplet]
                 fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
-                Nfig = plt.gcf().number   
-                fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig'+str(Nfig)+'.png')  
+                # Nfig = plt.gcf().number   
+                # fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig'+str(Nfig)+'.png')
+                archiveFig(fig, axes, tempPlot, name='Z detection - Frames ' + str(iFNuplet), dpi = 300)
                 
             return(Z)
         
@@ -2344,9 +2399,10 @@ class Trajectory:
 # %%%% Main
         
 def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, timeSeriesDataDir,
-         dates, manips, wells, cells, depthoNames, expDf, 
-         methodT, factorT, redoAllSteps = False, MatlabStyle = False, trackAll = False,
-         NB = 2):
+                dates, manips, wells, cells, depthoNames, expDf, 
+                methodT, factorT, redoAllSteps = False, MatlabStyle = False, trackAll = False,
+                ownCloudDir = '', ownCloud_figureDir = '', ownCloud_timeSeriesDataDir = '',
+                NB = 2):
     
     start = time.time()
     
@@ -2724,6 +2780,11 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 traj_df = pd.DataFrame(traj.dict)
                 trajPath = os.path.join(timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
                 traj_df.to_csv(trajPath, sep = '\t', index = False)
+                
+                # save in ownCloud
+                if ownCloud_timeSeriesDataDir != '':
+                    OC_trajPath = os.path.join(ownCloud_timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
+                    traj_df.to_csv(OC_trajPath, sep = '\t', index = False)
     
     
     #### 5. Define pairs and compute distances
@@ -2802,6 +2863,10 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             timeSeries_DF = pd.DataFrame(timeSeries)
             timeSeriesFilePath = os.path.join(timeSeriesDataDir, f[:-4] + '_PY.csv')
             timeSeries_DF.to_csv(timeSeriesFilePath, sep = ';', index=False)
+            
+            if ownCloud_timeSeriesDataDir != '':
+                OC_timeSeriesFilePath = os.path.join(ownCloud_timeSeriesDataDir, f[:-4] + '_PY.csv')
+                timeSeries_DF.to_csv(OC_timeSeriesFilePath, sep = ';', index=False)
     
     print(BLUE + '\nTotal time:' + NORMAL)
     print(BLUE + str(time.time()-start) + NORMAL)
@@ -2816,7 +2881,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     for iB in range(PTL.NB):
         listTrajDicts.append(PTL.listTrajectories[iB].dict)
         
-    return(PTL, timeSeries_DF, dfLogF)
+    return(timeSeries_DF, dfLogF)
 
 
 # %%%% Stand-alone functions
