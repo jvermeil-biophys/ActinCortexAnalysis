@@ -604,7 +604,7 @@ class PincherTimeLapse:
         # totalLoopSize > compulsary. The size of an entire loop of images.
         # rampSize > compulsary only for compressions exp. The number of images belonging to the compression per loop.
         # excludedSize > optional. Indicates if some images (eg. fluorescence ones) should be systematically excluded at the end of each loop.
-        if 'compressions' in self.expType or 'thickness' in self.expType:
+        if 'compressions' in self.expType or 'constant field' in self.expType:
             self.loop_totalSize = int(loopStruct[0])
             
             if self.expType == 'compressions':
@@ -1239,7 +1239,7 @@ class PincherTimeLapse:
             self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[init_iF].status_nUp)
             
             #### >>> Exp type dependance here (01)
-            if 'compressions' in self.expType or 'thickness' in self.expType:
+            if 'compressions' in self.expType or 'constant field' in self.expType:
                 self.listTrajectories[iB].dict['idxAnalysis'].append(1 * (self.listFrames[init_iF].status_frame == 0))
                 
             elif 'optoGen' in self.expType:
@@ -1382,7 +1382,6 @@ class PincherTimeLapse:
                     continue
             
                 else:
-                    print('\n############# ACTION ON {:.0f} \n'.format(iF))
                     # Double matching here
                     # First you match the user's click positions with the bead positions detected on frame iF
                     # You know then that you have identified the NB Beads of interest.
@@ -1405,7 +1404,7 @@ class PincherTimeLapse:
                     
             #### 3.6 Create the 'idxAnalysis' field
             #### >>> Exp type dependance here (02)
-            if 'compressions' in self.expType or 'thickness' in self.expType:
+            if 'compressions' in self.expType or 'constant field' in self.expType:
                 # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
                 if self.expType == 'compressions':
                     idxAnalysis = (self.listFrames[iF].status_frame == 0) \
@@ -1418,7 +1417,10 @@ class PincherTimeLapse:
                         * (max(self.listTrajectories[iB].dict['idxAnalysis']) + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
                             - (self.listFrames[iF].status_frame == 0.1) \
                         * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
-                            
+                        
+                elif self.expType == 'constant field':
+                    idxAnalysis = 0
+                        
             elif 'optoGen' in self.expType:
                 idxAnalysis = 0
             
@@ -2494,8 +2496,10 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         
         #### 0.8 - Sort slices
         #### ! Exp type dependance here !
+        print(f)
         if not logFileImported:
             if 'R40' in f or 'thickness' in f:
+                print('okokok')
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
@@ -2760,6 +2764,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             print(BLUE + 'Computing Z...' + NORMAL)
             print(GREEN + 'Z had been already computed :)' + NORMAL)
         
+
         #### 4.3 - Save the raw traj (before Std selection)
         if redoAllSteps or not trajFilesImported:
             for iB in range(PTL.NB):

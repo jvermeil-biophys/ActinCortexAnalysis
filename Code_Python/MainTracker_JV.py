@@ -84,15 +84,15 @@ rawDataDir = os.path.join(mainDataDir, 'Raw')
 depthoDir = os.path.join(rawDataDir, 'EtalonnageZ')
 interDataDir = os.path.join(mainDataDir, 'Intermediate')
 
-figureDir = os.path.join(mainDataDir, 'Figures')
+figureDir = os.path.join(mainDir, 'Figures')
 ownCloud_figureDir = os.path.join(ownCloudDir, 'Figures')
 
-timeSeriesDataDir = os.path.join(mainDataDir, 'Data_Analysis', 'TimeSeriesData')
+timeSeriesDataDir = os.path.join(mainDir, 'Data_Analysis', 'TimeSeriesData')
 ownCloud_timeSeriesDataDir = os.path.join(ownCloudDir, 'Data_Analysis', 'TimeSeriesData')
 
 # %% Import of the experimental conditions
 
-experimentalDataDir = os.path.join(mainDataDir, 'Data_Experimental')
+experimentalDataDir = os.path.join(mainDir, 'Data_Experimental')
 expDf = getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
 
 # %%%% Plot last traj
@@ -363,6 +363,106 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 
 # %%% Next manipe
 # %%%% 
+
+# %%% 21.04.23, constant field of 3T3, M450, M1 = doxy, M2 = control
+# %%%% 21.04.23_M1
+
+dates = '21.04.23'
+manips, wells, cells = 1, 1, [1, 2, 6]
+depthoNames = '21.04.23_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False,
+                                  ownCloudDir = ownCloudDir, ownCloud_figureDir = ownCloud_figureDir, ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
+
+# %%%% 21.04.23_M2
+
+dates = '21.04.23'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '21.04.23_M2_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False,
+                                  ownCloudDir = ownCloudDir, ownCloud_figureDir = ownCloud_figureDir, ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
+
+# %%% 21.04.21, constant field of 3T3, M450, M1 = control, M2 = doxy
+# %%%% 21.04.21_M1
+
+dates = '21.04.21'
+manips, wells, cells = 1, 1, [1, 2, 3, 4, 5]
+depthoNames = '21.04.21_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False,
+                                  ownCloudDir = ownCloudDir, ownCloud_figureDir = ownCloud_figureDir, ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
+
+# %%%% 21.04.21_M2
+
+dates = '21.04.21'
+manips, wells, cells = 2, 1, [1, 3, 6, 8]
+depthoNames = '21.04.21_M2_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False,
+                                  ownCloudDir = ownCloudDir, ownCloud_figureDir = ownCloud_figureDir, ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
+
+# %%% 21.02.10, constant field of 3T3, M450, M1 = control, M2 = doxy
+
+# %%%% 21.02.10_M1_C1
+
+dates = '21.02.10'
+manips, wells, cells = 1, 1, 1
+depthoNames = '21.02.10_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False,
+                                  ownCloudDir = ownCloudDir, ownCloud_figureDir = ownCloud_figureDir, ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
+
+
+# %%%% 21.02.10_M1
+
+dates = '21.02.10'
+manips, wells, cells = 1, 1, 'all'
+depthoNames = '21.02.10_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False,
+                                  ownCloudDir = ownCloudDir, ownCloud_figureDir = ownCloud_figureDir, ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
+
+# %%%% 21.02.10_M2
+
+dates = '21.02.10'
+manips, wells, cells = 2, 1, [4, 3]
+depthoNames = '21.02.10_M2_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.8, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False,
+                                  ownCloudDir = ownCloudDir, ownCloud_figureDir = ownCloud_figureDir, ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
+
+
+
+
 
 # %%% 21.01.21, compressions of 3T3, M450, M1 = doxy, M2 = control, M3 = doxy
 
