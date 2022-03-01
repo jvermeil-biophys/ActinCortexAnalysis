@@ -29,7 +29,6 @@ for x1=0:2
         O2x = O1 + x1*s1_3;
         O2y = O1 + y1*s1_3;
         
-        
         O3x_5 = O2x + margin_2;
         O3y_5 = O2y + margin_2 + s2_3*2 + margin_3;
         rectangle(O3x_5, O3y_5, O3x_5 + S3, O3y_5 + S3);

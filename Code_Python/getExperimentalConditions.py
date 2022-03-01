@@ -76,13 +76,13 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     #### 1.6 Format 'with fluo images'
     expConditionsDF['with fluo images'] = expConditionsDF['with fluo images'].astype(bool)
 
-    #### 1.7 Format 'ramp field'
-    try:
-        print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
-        expConditionsDF['ramp field'] = \
-        expConditionsDF['ramp field'].apply(lambda x: [x.split(';')[0], x.split(';')[1]] if not pd.isnull(x) else [])
-    except:
-        pass
+    # #### 1.7 Format 'ramp field'
+    # try:
+    #     print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
+    #     expConditionsDF['ramp field'] = \
+    #     expConditionsDF['ramp field'].apply(lambda x: [x.split(';')[0], x.split(';')[1]] if not pd.isnull(x) else [])
+    # except:
+    #     pass
 
     #### 1.8 Format 'date'
     dateExemple = expConditionsDF.loc[expConditionsDF.index[1],'date']

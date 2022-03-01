@@ -924,8 +924,77 @@ D, H, F = segmentTimeSeries_meca(f, tsDF, expDf)
 plt.close('all')    
 
 
-# %% Next test !
+# %% Test plots
 
+# %%% Imports
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import scipy.stats as st
+import statsmodels.api as sm
+
+import os
+import time
+import random
+import traceback
+
+
+from copy import copy
+from cycler import cycler
+from datetime import date
+from scipy.optimize import curve_fit
+# from statannot import add_stat_annotation
+
+pd.set_option('mode.chained_assignment',None)
+pd.set_option('display.max_columns', None)
+
+import re
+dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
+dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
+
+import matplotlib
+import matplotlib.pyplot as plt
+
+# %%% Color and marker lists
+
+colorList10 = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+markerList10 = ['o', 's', 'D', '>', '^', 'P', 'X', '<', 'v', 'p']
+
+bigPalette1 = sns.color_palette("tab20b")
+bigPalette1_hex = bigPalette1.as_hex()
+
+bigPalette2 = sns.color_palette("tab20c")
+bigPalette2_hex = bigPalette2.as_hex()
+
+colorList30 = []
+for ii in range(2, -1, -1):
+    colorList30.append(bigPalette2_hex[4*0 + ii]) # blue
+    colorList30.append(bigPalette2_hex[4*1 + ii]) # orange
+    colorList30.append(bigPalette2_hex[4*2 + ii]) # green
+    colorList30.append(bigPalette1_hex[4*3 + ii]) # red
+    colorList30.append(bigPalette2_hex[4*3 + ii]) # purple
+    colorList30.append(bigPalette1_hex[4*2 + ii]) # yellow-brown
+    colorList30.append(bigPalette1_hex[4*4 + ii]) # pink
+    colorList30.append(bigPalette1_hex[4*0 + ii]) # navy    
+    colorList30.append(bigPalette1_hex[4*1 + ii]) # yellow-green
+    colorList30.append(bigPalette2_hex[4*4 + ii]) # gray
+
+# %%% Imports
+
+N = 3
+fig, ax = plt.subplots(N, N, figsize = (3*N, 3*N))
+for ii in range(N):
+    for jj in range(N):
+        color = colorList30[3*ii + jj]
+        marker = markerList10[3*ii + jj]
+        ax[ii,jj].plot([1,2,3,4], [1,2,3,4], color = color, marker = marker, mec = 'k', ms = 8, ls = '', label = str(3*ii + jj))
+        ax[ii,jj].set_xlim([0,5])
+        ax[ii,jj].set_ylim([0,5])
+fig.legend(loc='upper center', bbox_to_anchor=(0.5,0.95), ncol = N*N)
+fig.suptitle('test')
+# fig.tight_layout()
+fig.show()
 
 # %% Next test !
 if False:
