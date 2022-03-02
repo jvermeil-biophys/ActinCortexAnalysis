@@ -119,26 +119,26 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     #### 3.1 Make 'manipID'
     expConditionsDF['manipID'] = expConditionsDF['date'] + '_' + expConditionsDF['manip']
     
-    #### 3.2 Format 'bead diameter'
-    diameters = expConditionsDF.loc[:,'bead diameter'].apply(lambda x: str(x).split('_'))
-    diameters = diameters.apply(lambda x: [int(xx) for xx in x])
-    expConditionsDF.loc[:,'bead diameter'] = diameters
-    # print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
+    # #### 3.2 Format 'bead diameter'
+    # diameters = expConditionsDF.loc[:,'bead diameter'].apply(lambda x: str(x).split('_'))
+    # diameters = diameters.apply(lambda x: [int(xx) for xx in x])
+    # expConditionsDF.loc[:,'bead diameter'] = diameters
+    # # print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
     
-    #### 3.3 Format 'bead type'
-    bt = expConditionsDF.loc[:,'bead type'].apply(lambda x: str(x).split('_'))
-    bt = bt.apply(lambda x: [str(xx) for xx in x])
-    expConditionsDF.loc[:,'bead type'] = bt
+    # #### 3.3 Format 'bead type'
+    # bt = expConditionsDF.loc[:,'bead type'].apply(lambda x: str(x).split('_'))
+    # bt = bt.apply(lambda x: [str(xx) for xx in x])
+    # expConditionsDF.loc[:,'bead type'] = bt
     
-    #### 3.4 Format 'ramp field'
-    rf = expConditionsDF.loc[:,'ramp field'].apply(lambda x: str(x).split('_'))
-    rf = rf.apply(lambda x: [str2float(xx) for xx in x])
-    expConditionsDF.loc[:,'ramp field'] = rf
+    # #### 3.4 Format 'ramp field'
+    # rf = expConditionsDF.loc[:,'ramp field'].apply(lambda x: str(x).split('_'))
+    # rf = rf.apply(lambda x: [str2float(xx) for xx in x])
+    # expConditionsDF.loc[:,'ramp field'] = rf
     
-    #### 3.5 Format 'loop structure'
-    ls = expConditionsDF.loc[:,'loop structure'].apply(lambda x: str(x).split('_'))
-    ls = ls.apply(lambda x: [str2int(xx) for xx in x])
-    expConditionsDF.loc[:,'loop structure'] = ls
+    # #### 3.5 Format 'loop structure'
+    # ls = expConditionsDF.loc[:,'loop structure'].apply(lambda x: str(x).split('_'))
+    # ls = ls.apply(lambda x: [str2int(xx) for xx in x])
+    # expConditionsDF.loc[:,'loop structure'] = ls
 
     #### 4. END
     return(expConditionsDF)

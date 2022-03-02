@@ -287,11 +287,11 @@ def getCellTimeSeriesData(cellID, fromPython = True):
                     timeSeriesDataFrame = timeSeriesDataFrame.drop([c], axis=1)
     return(timeSeriesDataFrame)
 
-def plotCellTimeSeriesData(cellID):
+def plotCellTimeSeriesData(cellID, fromPython = True):
     X = 'T'
     Y = np.array(['B', 'F', 'dx', 'dy', 'dz', 'D2', 'D3'])
     units = np.array([' (mT)', ' (pN)', ' (µm)', ' (µm)', ' (µm)', ' (µm)', ' (µm)'])
-    timeSeriesDataFrame = getCellTimeSeriesData(cellID)
+    timeSeriesDataFrame = getCellTimeSeriesData(cellID, fromPython)
     print(timeSeriesDataFrame.shape)
     if not timeSeriesDataFrame.size == 0:
 #         plt.tight_layout()
@@ -386,15 +386,28 @@ listColumnsCtField = ['date','cellName','cellID','manipID',\
                       '1stDThickness','9thDThickness','fluctuAmpli',\
                       'R2_polyFit','validated']
 
-def analyseTimeSeries_ctField(tsDf):
+def analyseTimeSeries_ctField(f, tsDf, expDf):
     results = {}
+    
+    thisManipID = findInfosInFileName(f, 'manipID')
+    thisExpDf = expDf.loc[expDf['manipID'] == thisManipID]
+    # Deal with the asymmetric pair case : the diameter can be for instance 4503 (float) or '4503_2691' (string)
+    diameters = thisExpDf.at[thisExpDf.index.values[0], 'bead diameter'].split('_')
+    if len(diameters) == 2:
+        DIAMETER = (int(diameters[0]) + int(diameters[1]))/2.
+    else:
+        DIAMETER = int(diameters[0])
+    
     results['duration'] = np.max(tsDf['T'])
     results['medianRawB'] = np.median(tsDf.B)
-    results['medianThickness'] = np.median(tsDf.D3)
-    results['1stDThickness'] = np.percentile(tsDf.D3, 10)
-    results['9thDThickness'] = np.percentile(tsDf.D3, 90)
-    results['fluctuAmpli'] = results['9thDThickness'] - results['1stDThickness']
+    results['medianThickness'] = (1000*np.median(tsDf.D3))-DIAMETER
+    results['1stDThickness'] = (1000*np.percentile(tsDf.D3, 10))-DIAMETER
+    results['9thDThickness'] = (1000*np.percentile(tsDf.D3, 90))-DIAMETER
+    results['fluctuAmpli'] = (results['9thDThickness'] - results['1stDThickness'])
     results['validated'] = (results['1stDThickness'] > 0)
+    
+    
+    # R2 polyfit to see the regularity. Order = 5 !
     X, Y = tsDf['T'], tsDf['D3']
     p, residuals, rank, singular_values, rcond = np.polyfit(X, Y, deg=5, full=True)
     Y2 = np.zeros(len(X))
@@ -413,6 +426,7 @@ def createDataDict_ctField(list_ctFieldFiles):
     tableDict['duration'], tableDict['medianRawB'], tableDict['medianThickness'] = [], [], []
     tableDict['1stDThickness'], tableDict['9thDThickness'], tableDict['fluctuAmpli'] = [], [], []
     tableDict['R2_polyFit'], tableDict['validated'] = [], []
+    expDf = getExperimentalConditions(experimentalDataDir)
     for f in list_ctFieldFiles:
         split_f = f.split('_')
         tableDict['date'].append(split_f[0])
@@ -421,7 +435,7 @@ def createDataDict_ctField(list_ctFieldFiles):
         tableDict['manipID'].append(split_f[0] + '_' + split_f[1])
         tS_DataFilePath = os.path.join(timeSeriesDataDir, f)
         current_tsDf = pd.read_csv(tS_DataFilePath, ';')
-        current_resultDict = analyseTimeSeries_ctField(current_tsDf)
+        current_resultDict = analyseTimeSeries_ctField(f, current_tsDf, expDf)
         for k in current_resultDict.keys():
             tableDict[k].append(current_resultDict[k])
     return(tableDict)
@@ -609,7 +623,7 @@ fitMin = [S for S in range(25,1225,50)]
 fitMax = [S+150 for S in fitMin]
 fitCenters = np.array([S+75 for S in fitMin])
 regionFitsNames = [str(fitMin[ii]) + '<s<' + str(fitMax[ii]) for ii in range(len(fitMin))]
-fit_toPlot = regionFitsNames
+fit_toPlot = [regionFitsNames[ii] for ii in range(0, len(regionFitsNames), 2)]
 
 mask_fitToPlot = np.array(list(map(lambda x : x in fit_toPlot, regionFitsNames)))
 
@@ -797,7 +811,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     thisExpDf = expDf.loc[expDf['manipID'] == thisManipID]
 
     # Deal with the asymmetric pair case : the diameter can be for instance 4503 (float) or '4503_2691' (string)
-    diameters = thisExpDf.at[thisExpDf.index.values[0], 'bead diameter']
+    diameters = thisExpDf.at[thisExpDf.index.values[0], 'bead diameter'].split('_')
     if len(diameters) == 2:
         DIAMETER = (int(diameters[0]) + int(diameters[1]))/2.
     else:
@@ -810,7 +824,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         results[c] = []
 
     Ncomp = max(tsDF['idxAnalysis'])
-    loopStruct = thisExpDf.at[thisExpDf.index.values[0], 'loop structure']
+    loopStruct = thisExpDf.at[thisExpDf.index.values[0], 'loop structure'].split('_')
     nUplet = thisExpDf.at[thisExpDf.index.values[0], 'normal field multi images']
     
     if 'compression' in EXPTYPE:
@@ -831,7 +845,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     normalField = int(normalField)
     
     if 'compression' in EXPTYPE:
-        compField = thisExpDf.at[thisExpDf.index.values[0], 'ramp field']
+        compField = thisExpDf.at[thisExpDf.index.values[0], 'ramp field'].split('_')
         minCompField = float(compField[0])
         maxCompField = float(compField[1])
 
@@ -1099,24 +1113,22 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             # 'E' : [], 'H0' : []
             
             #### SETTING ! Setting of the region fits
-            
-            
+
             if not findH0_fitError:
-                fitConditions = []
-                for ii in range(len(fit_intervals)-1):
-                    for jj in range(ii+1, len(fit_intervals)):
-                        fitConditions.append((stressCompr > fit_intervals[ii]) & (stressCompr < fit_intervals[jj]))
+                
+                # fitConditions = []
+                # for ii in range(len(fit_intervals)-1):
+                #     for jj in range(ii+1, len(fit_intervals)):
+                #         fitConditions.append((stressCompr > fit_intervals[ii]) & (stressCompr < fit_intervals[jj]))
                 
                 #### >>> OPTION TO LIGHTEN THE COMPUTATION
                 fitConditions = []
-                for kk in range(len(fit_toPlot)):
-                    ftP = fit_toPlot[kk]
+                for kk in range(len(regionFitsNames)):
+                    ftP = regionFitsNames[kk]
                     lowS, highS = int(ftP.split('<s<')[0]), int(ftP.split('<s<')[1])
                     fitConditions.append((stressCompr > lowS) & (stressCompr < highS))
                 
                 N_Fits = len(fitConditions)
-                # print(N_Fits)
-                # print(regionFitsNames)
                 
                 for ii in range(N_Fits):
                     regionFitName = regionFitsNames[ii]
@@ -1200,7 +1212,10 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                     results['K2Chadwick_'+rFN].append(np.nan)
                     results['H0Chadwick_'+rFN].append(np.nan)
                     # results['EChadwick_'+rFN].append(np.nan)
-                    results['validatedFit_'+rFN].append(False)
+                    results['validatedFit_'+rFN].append(False)    
+            
+            for k in dictRegionFit.keys():
+                dictRegionFit[k] = np.array(dictRegionFit[k])
             
             
             #### PLOT [2/4]
@@ -1296,15 +1311,18 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         
                         
                 #### fig4 & fig5
-
-                Npts_fitToPlot = np.array(dictRegionFit['Npts'])[mask_fitToPlot]
-                K_fitToPlot = np.array(dictRegionFit['K'])[mask_fitToPlot]
-                K_CIW_fitToPlot = np.array(dictRegionFit['K_CIW'])[mask_fitToPlot]
-                K2_fitToPlot = np.array(dictRegionFit['K2'])[mask_fitToPlot]
-                H0_fitToPlot = np.array(dictRegionFit['H0'])[mask_fitToPlot]
-                R2_fitToPlot = np.array(dictRegionFit['R2'])[mask_fitToPlot]
-                fitError_fitToPlot = np.array(dictRegionFit['fitError'])[mask_fitToPlot]
-                validatedFit_fitToPlot = np.array(dictRegionFit['validatedFit'])[mask_fitToPlot]
+                
+                print(dictRegionFit['Npts'])
+                print(mask_fitToPlot)
+                
+                Npts_fitToPlot = dictRegionFit['Npts'][mask_fitToPlot]
+                K_fitToPlot = dictRegionFit['K'][mask_fitToPlot]
+                K_CIW_fitToPlot =dictRegionFit['K_CIW'][mask_fitToPlot]
+                K2_fitToPlot = dictRegionFit['K2'][mask_fitToPlot]
+                H0_fitToPlot = dictRegionFit['H0'][mask_fitToPlot]
+                R2_fitToPlot = dictRegionFit['R2'][mask_fitToPlot]
+                fitError_fitToPlot = dictRegionFit['fitError'][mask_fitToPlot]
+                validatedFit_fitToPlot = dictRegionFit['validatedFit'][mask_fitToPlot]
                 
                 if not findH0_fitError:
                     fitConditions_fitToPlot = np.array(fitConditions)[mask_fitToPlot]
@@ -1417,6 +1435,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         
                 #### fig6
                 
+                fitCentersPlot = fitCenters[mask_fitToPlot]
+                
                 if nRowsSubplot == 1:
                     thisAx6 = ax6[colSp]
                 elif nRowsSubplot >= 1:
@@ -1458,12 +1478,12 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                             mec = None
                             if (E/K_fit) > relErrFilter:
                                 mec = 'orangered'
-                            thisAx6.errorbar([fitCenters[k]], [K_fit], yerr = [E/2],
+                            thisAx6.errorbar([fitCentersPlot[k]], [K_fit], yerr = [E/2],
                                          color = color, marker = 'o', ms = 5, mec = mec)                           
                             
                         
                     relativeError_subset = relativeError[relativeError != 0]
-                    fitCenters_subset = fitCenters[relativeError != 0]
+                    fitCenters_subset = fitCentersPlot[relativeError != 0]
                     thisAx6bis.plot([0,1000], [relErrFilter, relErrFilter], ls = '--', color = 'red', lw = 0.5)
                     thisAx6bis.plot(fitCenters_subset, relativeError_subset, marker = 'd', ms = 3, color = 'red', ls = '')
                     
@@ -2004,6 +2024,26 @@ def removeColumnsDuplicate(df):
 def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
     if kind == 'ctField':
         GlobalTable_ctField = getGlobalTable_ctField()
+        experimentalDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Data_Experimental"
+        expDf = getExperimentalConditions(experimentalDataDir)
+        fluoDf = getFluoData()
+        GlobalTable_ctField = pd.merge(expDf, GlobalTable_ctField, how="inner", on='manipID',
+        #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
+        #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
+        )
+        GlobalTable_ctField = pd.merge(GlobalTable_ctField, fluoDf, how="left", on='cellID',
+        #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
+        #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
+        )
+        GlobalTable_ctField = removeColumnsDuplicate(GlobalTable_ctField)
+        print('Merged table has ' + str(GlobalTable_ctField.shape[0]) + ' lines and ' + str(GlobalTable_ctField.shape[1]) + ' columns.')
+        
+        # print(GlobalTable_ctField.head())
+        
+        return(GlobalTable_ctField)
+    
+    elif kind == 'ctField_py':
+        GlobalTable_ctField = getGlobalTable_ctField('Global_CtFieldData_Py')
         experimentalDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Data_Experimental"
         expDf = getExperimentalConditions(experimentalDataDir)
         fluoDf = getFluoData()

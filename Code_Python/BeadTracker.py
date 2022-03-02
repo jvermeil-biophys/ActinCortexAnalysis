@@ -585,16 +585,13 @@ class PincherTimeLapse:
         
         self.BeadsZDelta = manipDict['beads bright spot delta']
         # self.BeadTypeStr = manipDict['bead type']
-        # self.beadTypes = [bT for bT in str(manipDict['bead type']).split('_')]
-        self.beadTypes = manipDict['bead type']
-        # self.beadDiameters = [int(bD) for bD in str(manipDict['bead diameter']).split('_')]
-        self.beadDiameters = manipDict['bead diameter']
+        self.beadTypes = [bT for bT in str(manipDict['bead type']).split('_')]
+        self.beadDiameters = [int(bD) for bD in str(manipDict['bead diameter']).split('_')]
         self.dictBeadDiameters = {}
         for k in range(len(self.beadTypes)):
             self.dictBeadDiameters[self.beadTypes[k]] = self.beadDiameters[k]
          
-        # loopStruct = manipDict['loop structure'].split('_')
-        loopStruct = manipDict['loop structure']
+        loopStruct = manipDict['loop structure'].split('_')
         
         #### Exp type dependance here
         
