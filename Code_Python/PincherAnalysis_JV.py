@@ -1312,9 +1312,6 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         
                 #### fig4 & fig5
                 
-                print(dictRegionFit['Npts'])
-                print(mask_fitToPlot)
-                
                 Npts_fitToPlot = dictRegionFit['Npts'][mask_fitToPlot]
                 K_fitToPlot = dictRegionFit['K'][mask_fitToPlot]
                 K_CIW_fitToPlot =dictRegionFit['K_CIW'][mask_fitToPlot]
