@@ -39,6 +39,9 @@ elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
 elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
+    mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
+
 
 import sys
 sys.path.append(mainDir + "//Code_Python")
