@@ -11,9 +11,9 @@ import datetime
 import matplotlib.pyplot as plt
 
 
-expt = '20220203_100xoil_3t3optorhoa_4.5beads_15mT'
-folder = '22-02-03_M5_P1_C3_disc20um'
-date = '22.02.03'
+expt = '20220301_100xoil_3t3optorhoa_4.5beads_15mT'
+folder = '22-03-01_M1_P1_C3_disc20um'
+date = '22.03.01'
 
 out_path = 'D:/Anumita/MagneticPincherData/Raw/'+date+'/'+folder+'_Field.txt'
 
@@ -49,60 +49,6 @@ for i in range(len(col_planeNo)):
             np.asarray(planeNos.append(planeNo))
     else:
         continue
-
-if len(times) < totalFrames:
-    for i in range(totalFrames - len(times)):
-        np.asarray(times.append('nan'))
-        np.asarray(planes.append('nan'))
-        np.asarray(planeNos.append('nan'))
-     
-#Creating a fake magnetic field column
-field = [15.0]*len(times)
-field = np.asarray(field)
-
-#writing the data in a new txt file
-all_data = np.asarray([field, times, field, planes])
-np.savetxt(out_path, all_data.T, fmt='%s,%s,%s,%s')
-
-# %% Making a text file for the main tracker analysis
-
-for i in col_ind[0:-1]:
-    for j in range(1,noOfPlanes+1):
-        ind = j
-        time = col_time[i+ind]
-        plane = col_plane[i+ind][1:]
-        planeNo =  col_planeNo[i+ind]
-        split_time = time[2:-1].split(':')
-        time_sec = 3600*int(split_time[0]) + 60*int(split_time[1]) + float(split_time[2])
-        np.asarray(times.append(time_sec))
-        np.asarray(planes.append(plane))
-        np.asarray(planeNos.append(planeNo))
-
-    if (col_planeNo[i+noOfPlanes+1] == '1') == True:
-        for j in range(1,noOfPlanes+1):
-            print('option1')
-            ind = noOfPlanes+j
-            time = col_time[i+ind]
-            plane = col_plane[i+ind][1:]
-            planeNo =  col_planeNo[i+ind]
-            split_time = time[2:-1].split(':')
-            time_sec = 3600*int(split_time[0]) + 60*int(split_time[1]) + float(split_time[2])
-            np.asarray(times.append(time_sec))
-            np.asarray(planes.append(plane))
-            np.asarray(planeNos.append(planeNo))
-        
-    if (col_planeNo[i+noOfCh*noOfPlanes+1] == '1') == True:
-        for j in range(1,noOfPlanes+1):
-            print('option2')
-            ind = noOfCh*noOfPlanes+j
-            time = col_time[i+ind]
-            plane = col_plane[i+ind][1:]
-            planeNo =  col_planeNo[i+ind]
-            split_time = time[2:-1].split(':')
-            time_sec = 3600*int(split_time[0]) + 60*int(split_time[1]) + float(split_time[2])
-            np.asarray(times.append(time_sec))
-            np.asarray(planes.append(plane))
-            np.asarray(planeNos.append(planeNo))
 
 if len(times) < totalFrames:
     for i in range(totalFrames - len(times)):

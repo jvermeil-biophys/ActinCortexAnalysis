@@ -315,3 +315,17 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = False, MatlabStyle = True)
+
+# %% 01/03/2022 :Experiment with the optimised activation parameters (1.2microWatts) and 1mg/ml PLL-PEG coated beads to prevent engulfent
+
+# %%%% M1
+dates = '22.03.01'
+manips, wells, cells = 1, 1, 1
+depthoNames = '22.03.01_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True)
+
