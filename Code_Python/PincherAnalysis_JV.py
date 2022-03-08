@@ -79,9 +79,11 @@ for ii in range(2, -1, -1):
 COMPUTERNAME = os.environ['COMPUTERNAME']
 if COMPUTERNAME == 'ORDI-JOSEPH':
     mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+    rawDir = "D://MagneticPincherData"
     ownCloudDir = "C://Users//JosephVermeil//ownCloud//ActinCortexAnalysis"
 elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+    rawDir = "F:\JosephVermeil\MagneticPincherData"    
     ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
 elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
@@ -99,6 +101,9 @@ timeSeriesDataDir = os.path.join(dataDir, "TimeSeriesData")
 
 figDir = os.path.join(dataDir, "Figures")
 todayFigDir = os.path.join(figDir, "Historique//" + str(date.today()))
+
+figDirLocal = os.path.join(rawDir, "Figures")
+todayFigDirLocal = os.path.join(rawDir, "Historique//" + str(date.today()))
 
 ownCloudFigDir = os.path.join(ownCloudDir, "Data_Analysis", "Figures")
 ownCloudTodayFigDir = os.path.join(ownCloudFigDir, "Historique//" + str(date.today()))
@@ -1812,6 +1817,16 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         dpi1 = 150
         dpi2 = 150
         # figDir = todayFigDir # Already by default
+        # figSubDir = 'MecaAnalysis_allCells'
+        # archiveFig(fig1, ax1, name=results['cellID'][-1] + '_01_h(t)', figSubDir = figSubDir, dpi = dpi1)
+        # archiveFig(fig2, ax2, name=results['cellID'][-1] + '_02_F(h)', figSubDir = figSubDir, dpi = dpi1)
+        # archiveFig(fig3, ax3, name=results['cellID'][-1] + '_03_sig(eps)', figSubDir = figSubDir, dpi = dpi1)
+        # archiveFig(fig4, ax4, name=results['cellID'][-1] + '_04_F(h)_regionFits', figSubDir = figSubDir, dpi = dpi1)
+        # archiveFig(fig5, ax5, name=results['cellID'][-1] + '_05_sig(eps)_regionFits', figSubDir = figSubDir, dpi = dpi1)
+        # archiveFig(fig6, ax6, name=results['cellID'][-1] + '_06_K(s)', figSubDir = figSubDir, dpi = dpi1)
+        # archiveFig(fig7, ax7, name=results['cellID'][-1] + '_07_smallElements', figSubDir = figSubDir, dpi = dpi1)
+        
+        figDir = todayFigDirLocal # Already by default
         figSubDir = 'MecaAnalysis_allCells'
         archiveFig(fig1, ax1, name=results['cellID'][-1] + '_01_h(t)', figSubDir = figSubDir, dpi = dpi1)
         archiveFig(fig2, ax2, name=results['cellID'][-1] + '_02_F(h)', figSubDir = figSubDir, dpi = dpi1)
