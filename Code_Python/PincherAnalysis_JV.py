@@ -605,17 +605,17 @@ dictSelectionCurve = {'R2' : 0.6, 'Chi2' : 10, 'Error' : 0.02}
 
 #### >>> OPTION 1 - MANY FITS, FEW PLOTS
 
-fit_intervals = [S for S in range(0,450,50)] + [S for S in range(500,1100,100)] + [S for S in range(1500,2500,500)]
-regionFitsNames = []
-for ii in range(len(fit_intervals)-1):
-    for jj in range(ii+1, len(fit_intervals)):
-        regionFitsNames.append(str(fit_intervals[ii]) + '<s<' + str(fit_intervals[jj]))
+# fit_intervals = [S for S in range(0,450,50)] + [S for S in range(500,1100,100)] + [S for S in range(1500,2500,500)]
+# regionFitsNames = []
+# for ii in range(len(fit_intervals)-1):
+#     for jj in range(ii+1, len(fit_intervals)):
+#         regionFitsNames.append(str(fit_intervals[ii]) + '<s<' + str(fit_intervals[jj]))
         
-fit_toPlot = ['50<s<200', '200<s<350', '350<s<500', '500<s<700', '700<s<1000', '1000<s<1500', '1500<s<2000']
+# fit_toPlot = ['50<s<200', '200<s<350', '350<s<500', '500<s<700', '700<s<1000', '1000<s<1500', '1500<s<2000']
 
 
 #### >>> OPTION 2 - TO LIGHTEN THE COMPUTATION
-regionFitsNames = fit_toPlot
+# regionFitsNames = fit_toPlot
 
 
 #### >>> OPTION 3 - OLIVIA'S IDEA
@@ -632,6 +632,20 @@ for rFN in regionFitsNames:
                         'H0Chadwick_'+rFN, 'Npts_'+rFN, 'validatedFit_'+rFN] 
     # 'H0Chadwick_'+rFN, 'EChadwick_'+rFN
 
+#### >>> OPTION 4 - Longe ranges
+# intervalSize = 250
+# fitMin = [S for S in range(25,975,50)] + [S for S in range(975,2125,100)]
+# fitMax = [S+intervalSize for S in fitMin]
+# fitCenters = np.array([S+0.5*intervalSize for S in fitMin])
+# regionFitsNames = [str(fitMin[ii]) + '<s<' + str(fitMax[ii]) for ii in range(len(fitMin))]
+# fit_toPlot = [regionFitsNames[ii] for ii in range(0, len(regionFitsNames), 4)]
+
+# mask_fitToPlot = np.array(list(map(lambda x : x in fit_toPlot, regionFitsNames)))
+
+# for rFN in regionFitsNames:
+#     listColumnsMeca += ['KChadwick_'+rFN, 'K_CIW_'+rFN, 'R2Chadwick_'+rFN, 'K2Chadwick_'+rFN, 
+#                         'H0Chadwick_'+rFN, 'Npts_'+rFN, 'validatedFit_'+rFN] 
+    # 'H0Chadwick_'+rFN, 'EChadwick_'+rFN
 
 
 
@@ -1507,7 +1521,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         thisAx7 = ax7[rowSp,colSp]
                         
                     thisAx7.set_xlabel('epsilon')
-                    thisAx7.set_ylabel('a/h0')
+                    thisAx7.set_ylabel('ratios')
                     legendText7 = ''
                     
                     # def def2delta(e):
@@ -1523,38 +1537,42 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                     
                     if not fitError and not findH0_fitError:
                         
-                        A = (deltaCompr*(DIAMETER/2000))**0.5
-                        Xi = A/(maxH0/1000) 
+                        A = 2* ((deltaCompr*(DIAMETER/2000))**0.5)
+                        largeX = A/(maxH0/1000)
+                        smallX = deltaCompr/(DIAMETER/1000)
                         # legendText7 = 'bestH0 = {:.2f}nm'.format(bestH0)
                         
-                        thisAx7.plot(strainCompr, Xi*(2**0.5), color = 'k', ls = '', marker = 'o', label = 'a/h0_dim', markersize = 2)
-                        thisAx7.plot(strainCompr, Xi*2, color = 'k', ls = '', marker = 'd', label = 'a/h0_chad', markersize = 2)
+                        thisAx7.plot(strainCompr, largeX, color = 'red',     ls = '', marker = '+', label = 'a/H0',     markersize = 3)#, mec = 'k', mew = 0.5)
+                        thisAx7.plot(strainCompr, smallX, color = 'skyblue', ls = '', marker = '+', label = 'delta/2R', markersize = 3)#, mec = 'k', mew = 0.5)
                         thisAx7.legend(loc = 'upper left', prop={'size': 5})
-                        thisAx7.set_ylim([0,5])
+                        thisAx7.set_yscale('log')
+                        thisAx7.set_ylim([5e-3,10])
                         minPlot, maxPlot = thisAx7.get_xlim()
                         thisAx7.set_xlim([0,maxPlot])
+                        thisAx7.plot([0,maxPlot], [1, 1], color = 'k', ls = '--', lw = 0.5)
                         
-                        # thisAx7bis.tick_params(axis='y', labelcolor='b')
-                        thisAx7bis = thisAx7.twinx()
-                        color = 'firebrick'
-                        thisAx7bis.set_ylabel('F (pN)', color=color)
-                        thisAx7bis.plot(strainCompr, fCompr, color=color)
-                        thisAx7bis.set_ylim([0,1400])
-                        # thisAx7bis.tick_params(axis='y', labelcolor=color)
-                        # thisAx7bis.set_yticks([0,500,1000,1500])
-                        # minh = np.min(tsDF['D3'].values-DIAMETER)
+                        # # thisAx7bis.tick_params(axis='y', labelcolor='b')
+                        # thisAx7bis = thisAx7.twinx()
+                        # color = 'firebrick'
+                        # thisAx7bis.set_ylabel('F (pN)', color=color)
+                        # thisAx7bis.plot(strainCompr, fCompr, color=color, lw = 0.5)
+                        # thisAx7bis.set_ylim([0,1400])
+                        # thisAx7bis.tick_params(axis='y', labelrotation = 50, labelsize = 10)
+                        # # thisAx7bis.tick_params(axis='y', labelcolor=color)
+                        # # thisAx7bis.set_yticks([0,500,1000,1500])
+                        # # minh = np.min(tsDF['D3'].values-DIAMETER)
                         
                         
-                        lowXi = (2*Xi < 1.1)
-                        if len(strainCompr[lowXi]) > 0:
-                            strainLimit = np.max(strainCompr[lowXi])
+                        epsLim = (largeX < 1.0)
+                        if len(strainCompr[epsLim]) > 0:
+                            strainLimit = np.max(strainCompr[epsLim])
                             minPlot, maxPlot = thisAx5.get_ylim()
                             thisAx5.plot([strainLimit, strainLimit], [minPlot, maxPlot], color = 'gold', ls = '--')
                             minPlot, maxPlot = thisAx7.get_ylim()
                             thisAx7.plot([strainLimit, strainLimit], [minPlot, maxPlot], color = 'gold', ls = '--')
                         
                                 
-                        multiAxes = [thisAx7, thisAx7bis]
+                        multiAxes = [thisAx7] #, thisAx7bis]
                         
                         for ax in multiAxes:
                             ax.title.set_text(titleText + '\nbestH0 = {:.2f}nm'.format(maxH0))
@@ -1791,25 +1809,27 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     #### PLOT [4/4]
     # Save the figures
     if PLOT:
+        dpi1 = 150
+        dpi2 = 150
         # figDir = todayFigDir # Already by default
         figSubDir = 'MecaAnalysis_allCells'
-        archiveFig(fig1, ax1, name=results['cellID'][-1] + '_01_h(t)', figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig2, ax2, name=results['cellID'][-1] + '_02_F(h)', figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig3, ax3, name=results['cellID'][-1] + '_03_sig(eps)', figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig4, ax4, name=results['cellID'][-1] + '_04_F(h)_regionFits', figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig5, ax5, name=results['cellID'][-1] + '_05_sig(eps)_regionFits', figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig6, ax6, name=results['cellID'][-1] + '_06_K(s)', figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig7, ax7, name=results['cellID'][-1] + '_07_smallElements', figSubDir = figSubDir, dpi = 90)
+        archiveFig(fig1, ax1, name=results['cellID'][-1] + '_01_h(t)', figSubDir = figSubDir, dpi = dpi1)
+        archiveFig(fig2, ax2, name=results['cellID'][-1] + '_02_F(h)', figSubDir = figSubDir, dpi = dpi1)
+        archiveFig(fig3, ax3, name=results['cellID'][-1] + '_03_sig(eps)', figSubDir = figSubDir, dpi = dpi1)
+        archiveFig(fig4, ax4, name=results['cellID'][-1] + '_04_F(h)_regionFits', figSubDir = figSubDir, dpi = dpi1)
+        archiveFig(fig5, ax5, name=results['cellID'][-1] + '_05_sig(eps)_regionFits', figSubDir = figSubDir, dpi = dpi1)
+        archiveFig(fig6, ax6, name=results['cellID'][-1] + '_06_K(s)', figSubDir = figSubDir, dpi = dpi1)
+        archiveFig(fig7, ax7, name=results['cellID'][-1] + '_07_smallElements', figSubDir = figSubDir, dpi = dpi1)
         
         figDir = ownCloudTodayFigDir
         figSubDir = 'MecaAnalysis_allCells'
-        archiveFig(fig1, ax1, name=results['cellID'][-1] + '_01_h(t)', figDir = figDir, figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig2, ax2, name=results['cellID'][-1] + '_02_F(h)', figDir = figDir, figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig3, ax3, name=results['cellID'][-1] + '_03_sig(eps)', figDir = figDir, figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig4, ax4, name=results['cellID'][-1] + '_04_F(h)_regionFits', figDir = figDir, figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig5, ax5, name=results['cellID'][-1] + '_05_sig(eps)_regionFits', figDir = figDir, figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig6, ax6, name=results['cellID'][-1] + '_06_K(s)', figDir = figDir, figSubDir = figSubDir, dpi = 90)
-        archiveFig(fig7, ax7, name=results['cellID'][-1] + '_07_smallElements', figDir = figDir, figSubDir = figSubDir, dpi = 90)
+        archiveFig(fig1, ax1, name=results['cellID'][-1] + '_01_h(t)', figDir = figDir, figSubDir = figSubDir, dpi = dpi2)
+        archiveFig(fig2, ax2, name=results['cellID'][-1] + '_02_F(h)', figDir = figDir, figSubDir = figSubDir, dpi = dpi2)
+        archiveFig(fig3, ax3, name=results['cellID'][-1] + '_03_sig(eps)', figDir = figDir, figSubDir = figSubDir, dpi = dpi2)
+        archiveFig(fig4, ax4, name=results['cellID'][-1] + '_04_F(h)_regionFits', figDir = figDir, figSubDir = figSubDir, dpi = dpi2)
+        archiveFig(fig5, ax5, name=results['cellID'][-1] + '_05_sig(eps)_regionFits', figDir = figDir, figSubDir = figSubDir, dpi = dpi2)
+        archiveFig(fig6, ax6, name=results['cellID'][-1] + '_06_K(s)', figDir = figDir, figSubDir = figSubDir, dpi = dpi2)
+        archiveFig(fig7, ax7, name=results['cellID'][-1] + '_07_smallElements', figDir = figDir, figSubDir = figSubDir, dpi = dpi2)
         
         
         if PLOT_SHOW:
@@ -1921,12 +1941,15 @@ def computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData', 
     # It will create a table with only these files, WITHOUT SAVING IT !
     # But it can plot figs from it.
         # save = False
+        task_list = task.split(' & ')
         new_list_mecaFiles = []
         for f in list_mecaFiles:
             split_f = f.split('_')
             currentCellID = split_f[0] + '_' + split_f[1] + '_' + split_f[2] + '_' + split_f[3]
-            if task in currentCellID:
-                new_list_mecaFiles.append(f)
+            for t in task_list:
+                if t in currentCellID:
+                    new_list_mecaFiles.append(f)
+                    break
         # create the dict with new data
         new_tableDict = createDataDict_meca(new_list_mecaFiles, listColumnsMeca, PLOT) # MAIN SUBFUNCTION
         # create the dataframe from it
@@ -2132,3 +2155,21 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
         # print(GlobalTable_meca_nonLin.tail())
         GlobalTable_meca_nonLin = removeColumnsDuplicate(GlobalTable_meca_nonLin)
         return(GlobalTable_meca_nonLin)
+    
+    elif kind == 'meca_MCA':
+        GlobalTable_meca_MCA = getGlobalTable_meca('Global_MecaData_MCA')
+        expDf = getExperimentalConditions(experimentalDataDir)
+        fluoDf = getFluoData()
+        GlobalTable_meca_MCA = pd.merge(GlobalTable_meca_MCA, expDf, how="inner", on='manipID',
+        #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
+        #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
+        )
+        GlobalTable_meca_MCA = pd.merge(GlobalTable_meca_MCA, fluoDf, how="left", left_on='cellID', right_on='cellID',
+        #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
+        #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
+        )
+        print('Merged table has ' + str(GlobalTable_meca_MCA.shape[0]) + ' lines and ' + str(GlobalTable_meca_MCA.shape[1]) + ' columns.')
+
+        # print(GlobalTable_meca_nonLin.tail())
+        GlobalTable_meca_MCA = removeColumnsDuplicate(GlobalTable_meca_MCA)
+        return(GlobalTable_meca_MCA)
