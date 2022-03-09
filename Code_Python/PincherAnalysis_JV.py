@@ -308,7 +308,8 @@ def plotCellTimeSeriesData(cellID, fromPython = True):
         plt.gcf().tight_layout()
         for i in range(len(Y)):
             axes[i].set_ylabel(Y[i] + units[i])
-        plt.gcf().show()
+        # plt.gcf().show()
+        plt.show()
     else:
         print('cell not found')
         
@@ -1849,9 +1850,10 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         
         if PLOT_SHOW:
             Allfigs = [fig1,fig2,fig3,fig4,fig5,fig6,fig7]
-            for fig in Allfigs:
+            # for fig in Allfigs:
                 # fig.tight_layout()
-                fig.show()
+                # fig.show()
+            plt.show()
         else:
             plt.close('all')
 

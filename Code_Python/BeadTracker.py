@@ -2496,7 +2496,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         print(f)
         if not logFileImported:
             if 'R40' in f or 'thickness' in f:
-                print('okokok')
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()

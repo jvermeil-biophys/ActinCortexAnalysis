@@ -368,7 +368,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # %%%% 21.04.23_M1
 
 dates = '21.04.23'
-manips, wells, cells = 1, 1, [1, 2, 6]
+manips, wells, cells = 1, 1, 'all'
 depthoNames = '21.04.23_M1_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -450,7 +450,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # %%%% 21.02.10_M2
 
 dates = '21.02.10'
-manips, wells, cells = 2, 1, [4, 3]
+manips, wells, cells = 2, 1, 'all'
 depthoNames = '21.02.10_M2_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
