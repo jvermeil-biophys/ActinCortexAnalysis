@@ -66,3 +66,14 @@
 64;22-02-09;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.08;3T3;aSFL;M450;4503;0;5;0.5_50;1.5s;False;3;500;436_200;
 65;22-02-09;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.062;3T3;aSFL;M450;4503;0;5;0.5_50;1.5s;False;3;500;436_200;
 66;22-02-09;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.04;3T3;aSFL;M450;4503;0;5;0.5_50;1.5s;False;3;500;436_200;
+67;22-03-21;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;5;0.5_54;1.5s;False;3;500;436_200;
+68;22-03-21;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;5;0.5_54;1.5s;False;3;500;436_200;
+69;22-03-21;M3;sinus;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;;;;False;1;0;;test
+70;22-03-21;M4;brokenRamp;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;1;1_50;;False;1;0;;test
+71;22-03-28;M1;compressionsLowStart;dmso;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;
+72;22-03-28;M2;compressionsLowStart;blebbistatine;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;old blebbistatin
+73;22-03-28;M3;compressionsLowStart;latrunculinA;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;latA may not have worked
+74;22-03-30;M1;compressionsLowStart;blebbistatine;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;newer blebbistatin
+75;22-03-30;M2;compressionsLowStart;latrunculinA;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;latA may not have worked
+76;22-03-30;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;
+77;22-03-30;M4;compressionsLowStart;dmso;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;

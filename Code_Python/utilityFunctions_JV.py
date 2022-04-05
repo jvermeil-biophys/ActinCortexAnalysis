@@ -184,26 +184,26 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     #### 3.1 Make 'manipID'
     expConditionsDF['manipID'] = expConditionsDF['date'] + '_' + expConditionsDF['manip']
     
-    #### 3.2 Format 'bead diameter'
-    diameters = expConditionsDF.loc[:,'bead diameter'].apply(lambda x: str(x).split('_'))
-    diameters = diameters.apply(lambda x: [int(xx) for xx in x])
-    expConditionsDF.loc[:,'bead diameter'] = diameters
-    # print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
+    # #### 3.2 Format 'bead diameter'
+    # diameters = expConditionsDF.loc[:,'bead diameter'].apply(lambda x: str(x).split('_'))
+    # diameters = diameters.apply(lambda x: [int(xx) for xx in x])
+    # expConditionsDF.loc[:,'bead diameter'] = diameters
+    # # print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
     
-    #### 3.3 Format 'bead type'
-    bt = expConditionsDF.loc[:,'bead type'].apply(lambda x: str(x).split('_'))
-    bt = bt.apply(lambda x: [str(xx) for xx in x])
-    expConditionsDF.loc[:,'bead type'] = bt
+    # #### 3.3 Format 'bead type'
+    # bt = expConditionsDF.loc[:,'bead type'].apply(lambda x: str(x).split('_'))
+    # bt = bt.apply(lambda x: [str(xx) for xx in x])
+    # expConditionsDF.loc[:,'bead type'] = bt
     
-    #### 3.4 Format 'ramp field'
-    rf = expConditionsDF.loc[:,'ramp field'].apply(lambda x: str(x).split('_'))
-    rf = rf.apply(lambda x: [str2float(xx) for xx in x])
-    expConditionsDF.loc[:,'ramp field'] = rf
+    # #### 3.4 Format 'ramp field'
+    # rf = expConditionsDF.loc[:,'ramp field'].apply(lambda x: str(x).split('_'))
+    # rf = rf.apply(lambda x: [str2float(xx) for xx in x])
+    # expConditionsDF.loc[:,'ramp field'] = rf
     
-    #### 3.5 Format 'loop structure'
-    ls = expConditionsDF.loc[:,'loop structure'].apply(lambda x: str(x).split('_'))
-    ls = ls.apply(lambda x: [str2int(xx) for xx in x])
-    expConditionsDF.loc[:,'loop structure'] = ls
+    # #### 3.5 Format 'loop structure'
+    # ls = expConditionsDF.loc[:,'loop structure'].apply(lambda x: str(x).split('_'))
+    # ls = ls.apply(lambda x: [str2int(xx) for xx in x])
+    # expConditionsDF.loc[:,'loop structure'] = ls
 
     #### 4. END
     return(expConditionsDF)
@@ -428,16 +428,16 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
                 shift = abs(offsets[i])*NVox
                 D = listD[i]
                 fillVal = D[-1]
-                D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.uint16)
+                D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.float64)
                 listD2.append(D2)
             if offsets[i] == 0:
-                D = listD[i].astype(np.uint16)
+                D = listD[i].astype(np.float64)
                 listD2.append(D)
             if offsets[i] > 0:
                 shift = abs(offsets[i])*NVox
                 D = listD[i]
                 fillVal = D[0]
-                D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
+                D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.float64)
                 listD2.append(D2)
     elif direction == 'downward':
         for i in range(N):
@@ -445,16 +445,16 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
                 shift = abs(offsets[i])*NVox
                 D = listD[i]
                 fillVal = D[-1]
-                D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.uint16)
+                D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.float64)
                 listD2.append(D2)
             if offsets[i] == 0:
-                D = listD[i].astype(np.uint16)
+                D = listD[i].astype(np.float64)
                 listD2.append(D)
             if offsets[i] < 0:
                 shift = abs(offsets[i])*NVox
                 D = listD[i]
                 fillVal = D[0]
-                D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
+                D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.float64)
                 listD2.append(D2)
     return(np.array(listD2))
 
@@ -672,75 +672,7 @@ def findFirst(x, A):
     idx = (A==x).view(bool).argmax()
     return(idx)
 
-def fitLine(X, Y):
-    X = sm.add_constant(X)
-    model = sm.OLS(Y, X)
-    results = model.fit()
-    params = results.params # Y=a*X+b ; params[0] = b,  params[1] = a
-#     print(dir(results))
-#     R2 = results.rsquared
-#     ci = results.conf_int(alpha=0.05)
-#     CovM = results.cov_params()
-#     p = results.pvalues
 
-# This is how are computed conf_int:
-#
-#     bse = results.bse
-#     dist = stats.t
-#     alpha = 0.05
-#     q = dist.ppf(1 - alpha / 2, results.df_resid)
-#     params = results.params
-#     lower = params - q * bse
-#     upper = params + q * bse
-#     print(lower, upper)
-    
-    return(results.params, results)
-
-def archiveFig(fig, ax, name='auto', figDir = todayFigDir, figSubDir='', dpi = 100):
-    
-    if not os.path.exists(figDir):
-        os.makedirs(figDir)
-    
-    saveDir = os.path.join(figDir, figSubDir)
-    if not os.path.exists(saveDir):
-        os.makedirs(saveDir)
-    
-    if name != 'auto':
-        fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
-    
-    else:
-        suptitle = fig._suptitle.get_text()
-        if len(suptitle) > 0:
-            name = suptitle
-            fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
-        
-        else:
-            try:
-                N = len(ax)
-                ax = ax[0]
-            except:
-                N = 1
-                ax = ax
-                
-            xlabel = ax.get_xlabel()
-            ylabel = ax.get_ylabel()
-            if len(xlabel) > 0 and len(ylabel) > 0:
-                name = ylabel + ' Vs ' + xlabel
-                if N > 1:
-                    name = name + '___etc'
-                fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
-            
-            else:
-                title = ax.get_title()
-                if len(title) > 0:
-                    if N > 1:
-                        name = name + '___etc'
-                    fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
-                
-                else:
-                    figNum = plt.gcf().number
-                    name = 'figure ' + str(figNum) 
-                    fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
                     
 def findInfosInFileName(f, infoType):
     """

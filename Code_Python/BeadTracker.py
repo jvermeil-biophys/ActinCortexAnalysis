@@ -3562,6 +3562,7 @@ def depthoMaker(dirPath, savePath, specif, saveLabel, scale, beadType = 'M450', 
             if Zm+z >= 0 and Zm+z < currentDeptho.shape[0] and np.sum(currentDeptho[Zm+z,:] != 0):
                 finalDeptho[Zfocus+z,:] += currentDeptho[Zm+z,:]/count
 
+    # print(Zm, maxAboveZm, maxBelowZm)
     finalDeptho = finalDeptho.astype(np.uint16)
 
     fig, ax = plt.subplots(1,1)
