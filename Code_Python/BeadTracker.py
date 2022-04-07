@@ -89,6 +89,66 @@ BLUE  = '\033[36m' # blue
 
 # %% (1) Utility functions
 
+# def createFieldFile(f, extDataDir, expDf, out_path):
+#     """
+#     Creates a nice _Field.txt file in the right formation from the weird LOG file from MetaMorph 
+#     to obtain the accurate times of acquisition of the three planes for the timelapse.
+    
+#     f: The file of interest
+#     extDataDir: Path of external data direction to obtain th Metamorph .LOG file
+
+#     """
+    
+#     manipID = findInfosInFileName(f, 'manipID')
+    
+#     if manipID not in expDf['manipID'].values:
+#         print('Error! No experimental data found for: ' + manipID)
+#     else:
+#         expDf_line = expDf.loc[expDf['manipID'] == manipID]
+#         Nuplet = int(expDf_line['normal field multi images'])
+#         magField = int(expDf_line['normal field'])
+        
+#     out_path = out_path + '_Field.txt'
+#     file = extDataDir+'/test.LOG'
+    
+#     #Reads .LOG file, skips the first couple of rows which are not useful
+#     data = pd.read_csv(file, sep=',', skiprows=[0,3,7,8])
+    
+#     col_planeNo =  np.asarray(data[data.columns[0]])
+#     col_time = np.asarray(data[data.columns[1]])
+#     col_plane =  np.asarray(data[data.columns[2]])
+#     #totalFrames = len(out_path+'/SplitTriplets')/noOfPlanes
+#     times = []
+#     planes = []
+#     planeNos = []
+    
+#     for i in range(len(col_planeNo)):
+#         #Finds the row for the first plane of each acquisition and appends
+#         #the next couple of rows to an empty array which are all written to a .txt file 
+#         #at the end in the right format
+#         if (col_planeNo[i] == '1') == True: 
+#             for j in range(0,Nuplet):
+#                 ind = i+j
+#                 time = col_time[ind]
+#                 plane = col_plane[ind][1:]
+#                 planeNo =  col_planeNo[ind]
+#                 split_time = time[2:-1].split(':')
+#                 time_sec = 3600*int(split_time[0]) + 60*int(split_time[1]) + float(split_time[2])
+#                 np.asarray(times.append(time_sec))
+#                 np.asarray(planes.append(plane))
+#                 np.asarray(planeNos.append(planeNo))
+#         else:
+#             continue
+      
+#     #Creating a fake magnetic field column
+#     field = [magField]*len(times)
+#     field = np.asarray(field)
+    
+#     #writing the data in a new txt file
+#     all_data = np.asarray([field, times, field, planes])
+#     np.savetxt(out_path, all_data.T, fmt='%s,%s,%s,%s')
+            
+            
 def findInfosInFileName(f, infoType):
     """
     Return a given type of info from a file name.
@@ -531,6 +591,7 @@ class PincherTimeLapse:
         self.MagCorrFactor = manipDict['magnetic field correction']
         self.Nuplet = manipDict['normal field multi images']
         self.Zstep = manipDict['multi image Z step']
+        self.MagField = manipDict['normal field']
 
         self.BeadsZDelta = manipDict['beads bright spot delta']
         self.BeadTypeStr = manipDict['bead type']
@@ -608,7 +669,8 @@ class PincherTimeLapse:
         self.modeNoUIactivated = False
 
         # End of the initialization !
-
+        
+    
     def checkIfBlackFrames(self):
         """
         Check if some images in the time lapse are completely black.
@@ -1327,7 +1389,6 @@ class PincherTimeLapse:
                     continue
 
                 else:
-                    print('\n############# ACTION ON {:.0f} \n'.format(iF))
                     # Double matching here
                     # First you match the user's click positions with the bead positions detected on frame iF
                     # You know then that you have identified the NB Beads of interest.
@@ -1955,12 +2016,12 @@ class Trajectory:
             previousZ = -1
             while iF <= max(self.dict['iF']):
 
-#### Important plotting option here
+# #### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
 
-                # plot = 0
-                # if iF >= 185 and iF <= 205:# or (iF < 190 and iF > 150):
-                #     plot = 1
+                plot = 0
+                if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
+                    plot = 1
 
 # ############################ OK?! ###################################
 
@@ -2344,13 +2405,14 @@ class Trajectory:
 
 def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, timeSeriesDataDir,
          dates, manips, wells, cells, depthoNames, expDf,
-         methodT, factorT, redoAllSteps = False, MatlabStyle = False, trackAll = False,
+         methodT, factorT,  metaMorph = False, redoAllSteps = False, MatlabStyle = False, trackAll = False,
          NB = 2):
 
     start = time.time()
 
     #### 0. Load different data sources & Preprocess : fluo, black images, sort slices (ct/ramp ; down/middle/up)
         #### 0.1 - Make list of files to analyse
+
     imagesToAnalyse = []
     imagesToAnalyse_Paths = []
     if not isinstance(dates, str):
@@ -2363,6 +2425,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         for f in fileList:
             if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
+                # if metaMorph == True: 
+                #     createFieldFile(f, extDataDir, expDf, fPath)
                 if os.path.isfile(fPath[:-4] + '_Field.txt'):
                     imagesToAnalyse.append(f)
                     imagesToAnalyse_Paths.append(os.path.join(rd, f))
@@ -2386,6 +2450,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             manipDict = {}
             for c in expDf_line.columns.values:
                 manipDict[c] = expDf_line[c].values[0]
+        
 
 #         # Extract some data from exp data
 #         StrBeadTypes = str(manipDict['bead type'])
@@ -2444,7 +2509,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
             elif 'disc20um' in f:
-                print('Passed determine frames')
                 PTL.determineFramesStatus_optoGen()
                 pass
 
@@ -2497,8 +2561,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             resFileImported = True
         else:
             pass
-
-
 
         #### 1.2 - Detect the beads
         # Detect the beads and create the BeadsDetectResult dataframe [if no file has been loaded before]
@@ -3317,11 +3379,11 @@ class BeadDeptho:
         intensity_v = self.profileDict['intensity_v']
         intensity_h = self.profileDict['intensity_h']
         intensity_HD = self.profileDict['intensity_HD']
-        intensity_tot = self.profileDict['intensity_tot']
+        # intensity_tot = self.profileDict['intensity_tot']
         Zm_v = self.ZfocusDict['Zm_v']
         Zm_h = self.ZfocusDict['Zm_h']
         Zm_HD = self.ZfocusDict['Zm_HD']
-        Zm_tot = self.ZfocusDict['Zm_tot']
+        # Zm_tot = self.ZfocusDict['Zm_tot']
         intensity_v_smooth = self.profileDict['intensity_v_smooth']
         intensity_h_smooth = self.profileDict['intensity_h_smooth']
         intensity_HD_smooth = self.profileDict['intensity_HD_smooth']
@@ -3329,7 +3391,7 @@ class BeadDeptho:
         Zm_v_hd = self.ZfocusDict['Zm_v_hd']
         Zm_h_hd = self.ZfocusDict['Zm_h_hd']
         Zm_HD_hd = self.ZfocusDict['Zm_HD_hd']
-        Zm_tot_hd = self.ZfocusDict['Zm_tot_hd']
+        # Zm_tot_hd = self.ZfocusDict['Zm_tot_hd']
 
         fig, ax = plt.subplots(1,3, figsize = (12, 4))
         ax[0].plot(Z, intensity_v)
