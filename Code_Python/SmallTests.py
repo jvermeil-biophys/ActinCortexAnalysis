@@ -5,7 +5,112 @@ Created on Thu Nov 25 13:37:51 2021
 @author: JosephVermeil
 """
 
+# %%
+import  pandas as pd
+import numpy as np
 
+dicta={'aaa' : [1,2,3,4], 'bbb' : ['p','o','p','p'], 'ccc' : ['q','q','w','w']}
+df = pd.DataFrame(dicta)
+N = df.loc[df['bbb'] == 'p'].shape[0]
+# A = np.array(['youpi' for kk in range(N)])
+df.loc[df['bbb'] == 'p', 'ccc'] = 'youpo'
+
+# %%
+import numpy as np
+
+
+def myfun(a):
+    a = a + [2]
+
+a = [1]
+
+print(a)
+
+myfun(a)
+
+print(a)
+
+
+# %% Fastness test
+import numpy as np
+import time
+
+N = int(1e4)
+a = np.zeros((N,N))
+b = np.ones((N,N))
+
+T0 = time.time()
+# c = (b-a)**2
+c =  a.T
+T1 = time.time()
+# np.square(np.subtract(b,a))
+T2 = time.time()
+
+print(T1-T0)
+print(T2-T1)
+
+# %% Fastness test
+import numpy as np
+import time
+
+N = int(2e4)
+a = np.zeros((N,N))
+b = np.ones((N,N))
+A = np.repeat(np.arange(1,N+1), N, axis = 0).reshape(N,N)
+
+T0 = time.time()
+m = A / np.mean(A,axis=1)[:,None]
+T1 = time.time()
+m2 = (A.T / np.mean(A,axis=1)).T
+T2 = time.time()
+m3 = np.divide(A.T,np.mean(A,axis=1)).T
+T3 = time.time()
+
+print(T1-T0)
+print(T2-T1)
+print(T3-T2)
+
+# %% Fastness test
+import numpy as np
+import time
+
+def squareDistance(M, V, normalize = False): # MUCH FASTER ! **Michael Scott Voice** VERRRRY GOODE
+    """
+    Compute a distance between two arrays of the same size, defined as such:
+    D = integral of the squared difference between the two arrays.
+    It is used to compute the best fit of a slice of a bead profile on the depthograph.
+    This function speed is critical for the Z computation process because it is called so many times !
+    What made that function faster is the absence of 'for' loops and the use of np.repeat().
+    """
+    # squareDistance(self.deptho, listProfiles[i], normalize = True)
+    # top = time.time()
+    # n, m = M.shape[0], M.shape[1]
+    # len(V) should be m
+    if normalize:
+        V = V/np.mean(V)
+    MV = np.repeat(np.array([V]), M.shape[0], axis = 0) # Key trick for speed !
+    if normalize:
+        M = M / np.mean(M,axis=1)[:,None]
+    R = np.sum(np.square(np.subtract(M,MV)), axis = 1)
+    # print('DistanceCompTime')
+    # print(time.time()-top)
+    return(R)
+
+N = int(1e4)
+a = np.ones((N,N))
+b = np.ones(N)*5
+
+T0 = time.time()
+R1 = squareDistance(a,b)
+T1 = time.time()
+R2 = squareDistance(a,b, normalize = True)
+T2 = time.time()
+
+T3 = time.time()
+
+print(T1-T0)
+print(T2-T1)
+print(T3-T2)
 
 # %% Chi2 test
 

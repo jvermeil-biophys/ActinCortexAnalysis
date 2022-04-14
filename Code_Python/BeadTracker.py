@@ -77,9 +77,9 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 # 4. Other settings
 # These regex are used to correct the stupid date conversions done by Excel
-dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
-dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
-dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
+dateFormatExcel = re.compile(r'\d{2}/\d{2}/\d{4}')
+dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
+dateFormatOk = re.compile(r'\d{2}-\d{2}-\d{2}')
 
 # 5. Global constants
 SCALE_100X = 15.8 # pix/µm 
@@ -277,18 +277,19 @@ def squareDistance(M, V, normalize = False): # MUCH FASTER ! **Michael Scott Voi
     This function speed is critical for the Z computation process because it is called so many times !
     What made that function faster is the absence of 'for' loops and the use of np.repeat().
     """
-    #     top = time.time()
-    n, m = M.shape[0], M.shape[1]
+    # squareDistance(self.deptho, listProfiles[i], normalize = True)
+    # top = time.time()
+    # n, m = M.shape[0], M.shape[1]
     # len(V) should be m
     if normalize:
         V = V/np.mean(V)
     V = np.array([V])
-    MV = np.repeat(V, n, axis = 0) # Key trick for speed !
+    MV = np.repeat(V, M.shape[0], axis = 0) # Key trick for speed !
     if normalize:
-        M = (M.T/np.mean(M, axis = 1).T).T
-    R = np.sum((M-MV)**2, axis = 1)
-#     print('DistanceCompTime')
-#     print(time.time()-top)
+        M = M / np.mean(M,axis=1)[:,None]
+    R = np.sum(np.square(np.subtract(M,MV)), axis = 1)
+    # print('DistanceCompTime')
+    # print(time.time()-top)
     return(R)
 
 def matchDists(listD, listStatus, Nup, NVox, direction):
@@ -323,6 +324,7 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
                 fillVal = D[0]
                 D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
                 listD2.append(D2)
+                
     elif direction == 'downward':
         for i in range(N):
             if offsets[i] > 0:
@@ -432,7 +434,7 @@ def max_entropy(data):
     """
 
     # calculate CDF (cumulative density function)
-    cdf = data.astype(np.float).cumsum()
+    cdf = data.astype(np.float64).cumsum()
 
     # find histogram's nonzero area
     valid_idx = np.nonzero(data)[0]
@@ -617,7 +619,9 @@ class PincherTimeLapse:
                 self.loop_excludedSize = int(loopStruct[2])
             else:
                 self.loop_excludedSize = 0
+            
             self.nLoop = int(np.round(nS/self.loop_totalSize))
+
         
         elif 'optoGen' in self.expType:
             #### Will be modified eventually
@@ -637,6 +641,19 @@ class PincherTimeLapse:
             else:
                 self.loop_excludedSize = 0
             self.nLoop = int(np.round(nS/self.loop_totalSize))
+        
+        elif 'sinus' in self.expType:
+            self.loop_totalSize = nS
+            self.loop_rampSize = 0
+            self.loop_excludedSize = 0
+            self.nLoop = 1
+            
+        #### TBC !!!!
+        elif 'brokenRamp' in self.expType:
+            self.loop_totalSize = nS
+            self.loop_rampSize = 0
+            self.loop_excludedSize = 0
+            self.nLoop = 1
         
         # 3. Field that are just initialized for now and will be filled by calling different methods.
         self.threshold = 0
@@ -793,6 +810,13 @@ class PincherTimeLapse:
             i_nUp = max(self.dictLog['status_nUp']) + 1
         
                 
+    def determineFramesStatus_Sinus(self):
+        #### Exp type dependance here
+        pass
+        
+    def determineFramesStatus_BR(self):
+        #### Exp type dependance here
+        pass
                 
     def saveLog(self, display = 1, save = False, path = ''):
         """
@@ -1238,7 +1262,16 @@ class PincherTimeLapse:
             #### >>> Exp type dependance here (01)
             if 'compressions' in self.expType or 'constant field' in self.expType:
                 self.listTrajectories[iB].dict['idxAnalysis'].append(1 * (self.listFrames[init_iF].status_frame == 0))
-                
+            
+            #### TBC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            elif 'sinus' in self.expType:
+                 print('Passed expt type')
+                 self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                 
+            elif 'brokenRamp' in self.expType:
+                 print('Passed expt type')
+                 self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                 
             elif 'optoGen' in self.expType:
                  print('Passed expt type')
                  self.listTrajectories[iB].dict['idxAnalysis'].append(0)
@@ -1418,6 +1451,13 @@ class PincherTimeLapse:
                 elif self.expType == 'constant field':
                     idxAnalysis = 0
                         
+            #### TBC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            elif 'sinus' in self.expType:
+                 idxAnalysis = 0
+                 
+            elif 'brokenRamp' in self.expType:
+                 idxAnalysis = 0
+            
             elif 'optoGen' in self.expType:
                 idxAnalysis = 0
             
@@ -2320,7 +2360,8 @@ class Trajectory:
                     ax[i].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
             except:
                 print(RED  + 'ptit probleme dans le detectNeighbours_ui' + NORMAL)
-        
+                
+        plt.show()
         # Ask the question
         mngr = plt.get_current_fig_manager()
         mngr.window.setGeometry(720, 50, 1175, 1000)
@@ -2376,6 +2417,7 @@ class Trajectory:
             except:
                 print(RED  + 'error in detectInOut_ui' + NORMAL)
         
+        plt.show()
         # Ask the question
         mngr = plt.get_current_fig_manager()
         mngr.window.setGeometry(720, 50, 1175, 1000)
@@ -2398,8 +2440,8 @@ class Trajectory:
 # %%%% Main
         
 def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, timeSeriesDataDir,
-                dates, manips, wells, cells, depthoNames, expDf, 
-                methodT, factorT, redoAllSteps = False, MatlabStyle = False, trackAll = False,
+                dates, manips, wells, cells, depthoNames, expDf, methodT, factorT, 
+                redoAllSteps = False, MatlabStyle = False, trackAll = False, sourceField = 'default',
                 ownCloudDir = '', ownCloud_figureDir = '', ownCloud_timeSeriesDataDir = '',
                 NB = 2):
     
@@ -2421,7 +2463,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 if os.path.isfile(fPath[:-4] + '_Field.txt'):
                     imagesToAnalyse.append(f)
                     imagesToAnalyse_Paths.append(os.path.join(rd, f))    
-
+    
+    
         #### 0.2 - Begining of the Main Loop
     for i in range(len(imagesToAnalyse)): 
         f, fP = imagesToAnalyse[i], imagesToAnalyse_Paths[i]
@@ -2465,9 +2508,15 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     
         #### 0.5 - Load field file
         fieldFilePath = fP[:-4] + '_Field.txt'
-        fieldCols = ['B_set', 'T_abs', 'B', 'Z']
-        fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
         
+        if sourceField == 'default':
+            fieldCols = ['B_set', 'T_abs', 'B', 'Z']
+            fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
+        elif sourceField == 'fastImagingVI':
+            fieldCols = ['B_set', 'B', 'T_abs']
+            fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
+        
+            
         #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
         logFileImported = False
@@ -2499,6 +2548,10 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
+            elif 'sin' in f:
+                PTL.determineFramesStatus_Sinus()
+            elif 'brokenRamp' in f:
+                PTL.determineFramesStatus_BR()
             elif 'disc20um' in f:
                 print('Passed determine frames')
                 PTL.determineFramesStatus_optoGen()
@@ -2682,7 +2735,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     #### 4. Compute dz
                 
         #### 4.1 - Import depthographs
-        HDZfactor = 10
+        HDZfactor = 5
         
         if len(PTL.beadTypes) == 1:
             depthoPath = os.path.join(depthoDir, depthoNames)

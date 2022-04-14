@@ -15,9 +15,9 @@
 13;21-01-21;M3;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.23;3T3;aSFL;M450;4503;0;5;3_40;1s;True;3;500;170_133_1;
 14;21-02-10;M1;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.2;3T3;aSFL;M450;4503;0;5;;;True;3;500;298_0_1;
 15;21-02-10;M2;constant field;doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.2;3T3;aSFL;M450;4503;0;5;;;True;3;500;298_0_1;
-16;21-02-15;M1;constant field;none;diverse fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL;M450;4503;0;5;;;False;3;500;;Anumita data
-17;21-02-15;M2;constant field;none;diverse fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL;M450;4503;0;5;;;False;3;500;;Anumita data
-18;21-02-15;M3;constant field;none;diverse fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL;M450;4503;0;5;;;False;3;500;;Anumita data
+16;21-02-15;M1;constant field;none;diverse fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL;M450;4503;0;5;;;False;3;500;352_0;Anumita data
+17;21-02-15;M2;constant field;none;diverse fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL;M450;4503;0;5;;;False;3;500;90_0;Anumita data
+18;21-02-15;M3;constant field;none;diverse fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL;M450;4503;0;5;;;False;3;500;90_0;Anumita data
 19;20-12-16;M1;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.26;3T3;aSFL;M450;4503;0;5;;;False;3;500;36;
 20;20-12-16;M2;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.26;3T3;aSFL;M450;4503;0;5;;;False;3;500;36;
 21;21-03-25;M1;constant field;doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.12;3T3;aSFL;M450;4503;0;5;;;True;3;500;298_0_1;
@@ -28,8 +28,8 @@
 26;21-04-23;M2;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.15;3T3;aSFL;M450;4503;0;5;;;True;3;500;298_0_1;
 27;21-04-27;M1;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.15;3T3;aSFL-6FP;M450;4503;0;5;3_40;1s;True;3;500;170_133_1;
 28;21-04-27;M2;compressions;doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.15;3T3;aSFL-6FP;M450;4503;0;5;3_40;1s;True;3;500;170_133_1;
-29;21-04-28;M1;compressions;doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.15;3T3;aSFL-6FP;M450;4503;0;5;3_40;1s;True;3;500;169_133;
-30;21-04-28;M2;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.15;3T3;aSFL-6FP;M450;4503;0;5;3_40;1s;False;3;500;169_133;
+29;21-04-28;M1;compressions;doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.15;3T3;aSFL-6FP;M450;4503;0;5;3_40;1s;True;3;500;169_133;fluo images taken separetely
+30;21-04-28;M2;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.15;3T3;aSFL-6FP;M450;4503;0;5;3_40;1s;False;3;500;169_133;no fluo images taken
 31;21-06-16;M1;compressions;none;20um fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL-A8;M450;4503;0;5;3_40;1s;True;3;500;169_133;
 32;21-06-16;M2;compressions;doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL-A8;M450;4503;0;5;3_40;1s;True;3;500;169_133;
 33;21-06-17;M1;compressions;doxycyclin;20um fibronectin discs;100X;15.8;oil;0.875;1.1;3T3;aSFL-A8;M450;4503;0;5;3_40;1s;True;3;500;169_133;
@@ -68,12 +68,12 @@
 66;22-02-09;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.04;3T3;aSFL;M450;4503;0;5;0.5_50;1.5s;False;3;500;436_200;
 67;22-03-21;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;5;0.5_54;1.5s;False;3;500;436_200;
 68;22-03-21;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;5;0.5_54;1.5s;False;3;500;436_200;
-69;22-03-21;M3;sinus;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;;;;False;1;0;;test
-70;22-03-21;M4;brokenRamp;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;1;1_50;;False;1;0;;test
-71;22-03-28;M1;compressionsLowStart;dmso;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;
-72;22-03-28;M2;compressionsLowStart;blebbistatine;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;old blebbistatin
-73;22-03-28;M3;compressionsLowStart;latrunculinA;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;latA may not have worked
-74;22-03-30;M1;compressionsLowStart;blebbistatine;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;newer blebbistatin
-75;22-03-30;M2;compressionsLowStart;latrunculinA;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;latA may not have worked
-76;22-03-30;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;
-77;22-03-30;M4;compressionsLowStart;dmso;20um fibronectin discs;100X;15.8;oil;0.875;;3T3;aSFL-LG+++;M450;;0;5;0.5_50;1.5s;False;3;500;436_200;
+69;22-03-21;M3;sinus;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;;;;False;1;0;0_;test
+70;22-03-21;M4;brokenRamp;none;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4503;0;1;1_50;;False;1;0;0_;test
+71;22-03-28;M1;compressionsLowStart;dmso;20um fibronectin discs;100X;15.8;oil;0.875;1.074;3T3;aSFL-LG+++;M450;4470;0;5;0.5_50;1.5s;False;3;500;436_200;
+72;22-03-28;M2;compressionsLowStart;blebbistatin;20um fibronectin discs;100X;15.8;oil;0.875;1.074;3T3;aSFL-LG+++;M450;4470;0;5;0.5_50;1.5s;False;3;500;436_200;old blebbistatin
+73;22-03-28;M3;compressionsLowStart;latrunculinA;20um fibronectin discs;100X;15.8;oil;0.875;1.074;3T3;aSFL-LG+++;M450;4470;0;5;0.5_50;1.5s;False;3;500;436_200;latA may not have worked
+74;22-03-30;M1;compressionsLowStart;blebbistatin;20um fibronectin discs;100X;15.8;oil;0.875;1.04;3T3;aSFL-LG+++;M450;4470;0;5;0.5_50;1.5s;False;3;500;436_200;newer blebbistatin
+75;22-03-30;M2;compressionsLowStart;latrunculinA;20um fibronectin discs;100X;15.8;oil;0.875;1.04;3T3;aSFL-LG+++;M450;4470;0;5;0.5_50;1.5s;False;3;500;436_200;latA may not have worked
+76;22-03-30;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.048;3T3;aSFL-LG+++;M450;4470;0;5;0.5_50;1.5s;False;3;500;436_200;
+77;22-03-30;M4;compressionsLowStart;dmso;20um fibronectin discs;100X;15.8;oil;0.875;1.034;3T3;aSFL-LG+++;M450;4470;0;5;0.5_50;1.5s;False;3;500;436_200;

@@ -233,6 +233,8 @@ def oneChainXYZ(I, resDf, deptho, Zfocus, depthoStep, D):
     X, Y = resDf['XM'].values, resDf['YM'].values
     nB = len(X)
     Z, Z_quality = [], []
+    
+    ImgZStep = 0
 
     for i in range(nB):
         x, y = X[i], Y[i]
@@ -306,7 +308,7 @@ def mainChainNupAnalysis(mainPath, depthoPath, approxDiameter):
         
         # Get the nUplets
         nz, ny, nx = I.shape[0], I.shape[1], I.shape[2]
-        dZ_nUplets = 0.1 # µm
+        dZ_nUplets = 0.5 # µm
         dZ_stack = 0.02 # µm
         dN_nUplets = int(dZ_nUplets/dZ_stack)
         
@@ -317,15 +319,15 @@ def mainChainNupAnalysis(mainPath, depthoPath, approxDiameter):
                 max_I = np.max(I[z])
                 z_max = z
         
-        # center_Zoffset = [ii for ii in range (-50, 55, 25)]
-        center_Zoffset = [0]
+        center_Zoffset = [ii for ii in range (-50, 55, 25)]
+        # center_Zoffset = [0]
         # nUpletsIndices = [[z_max + center_Zoffset[ii] - dN_nUplets,
         #                     z_max + center_Zoffset[ii],
         #                     z_max + center_Zoffset[ii] + dN_nUplets] \
         #                    for ii in range(len(center_Zoffset))]
             
         nUpletsIndices = [[z_max + center_Zoffset[ii] + kk*dN_nUplets \
-                            for kk in range(-14,15)] \
+                            for kk in range(-1,2)] \
                             for ii in range(len(center_Zoffset))]
         nUpletsIndices = np.array(nUpletsIndices)
     
@@ -418,7 +420,7 @@ def oneChainNupXYZ(I, resDf, slices, deptho, Zfocus, depthoStep, D, ImgZStep = 5
         Xb, Yb = X[:,i], Y[:,i]
         
         #### PLOT
-        plot = 1
+        plot = 0
         z, z_quality = computeZ_V2(I_Nup, Xb, Yb, deptho, Zfocus, 
                                    depthoStep, ImgZStep, D, plot = plot)
         Z.append(z)
@@ -628,7 +630,7 @@ def computeZ_V2(I, X, Y, deptho, Zfocus, depthoStep, ImgZStep, D, plot = 0):
     # X_fitSpline = np.arange(z-dz_spline,z+dz_spline)
 
     #### PLOT
-    if plot >= 0:
+    if plot > 0:
         fig, axes = plt.subplots(5, max(Nframes, 3), figsize = (max(Nframes, 3)*4,7.5))
         fig.tight_layout()
         im = I[0]
@@ -799,7 +801,7 @@ mainPath = 'D://MagneticPincherData//Raw//22.03.21_CalibrationNewM450//Chains'
 depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.03.21_M1_M450_step20_100X'
 
 
-xyzDf, distanceDf, statsDf = mainChainAnalysis(mainPath, depthoPath, 4.5)
+xyzDf_01, distanceDf_01, statsDf_01 = mainChainAnalysis(mainPath, depthoPath, 4.5)
 
 
 # %%% (3.2) SCRIPT for deptho chains
@@ -807,7 +809,7 @@ xyzDf, distanceDf, statsDf = mainChainAnalysis(mainPath, depthoPath, 4.5)
 mainPath = 'D://MagneticPincherData//Raw//22.03.21_CalibrationNewM450//DepthoChains'
 depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.03.21_M1_M450_step20_100X'
 
-xyzDf, distanceDf, statsDf = mainChainNupAnalysis(mainPath, depthoPath, 4.5)
+xyzDf_02, distanceDf_02, statsDf_02 = mainChainNupAnalysis(mainPath, depthoPath, 4.5)
 
 # %%% (3.3) SCRIPT for deptho qlt
 

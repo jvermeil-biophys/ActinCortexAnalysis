@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import scipy.ndimage as ndi
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
 
 import os
 import re
@@ -68,9 +69,9 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 # 4. Other settings
 # These regex are used to correct the stupid date conversions done by Excel
-dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
-dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
-dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
+dateFormatExcel = re.compile(r'\d{2}/\d{2}/\d{4}')
+dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
+dateFormatOk = re.compile(r'\d{2}-\d{2}-\d{2}')
 
 # 5. Global constants
 SCALE_100X = 15.8 # pix/µm 
@@ -83,10 +84,10 @@ BLUE  = '\033[36m' # blue
 
 # %% (1) Utility functions
 
-dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
-dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
-dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
-dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
+dateFormatExcel = re.compile(r'\d{2}/\d{2}/\d{4}')
+dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
+dateFormatOk = re.compile(r'\d{2}-\d{2}-\d{2}')
+dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
 
 def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     """"
@@ -248,8 +249,15 @@ def findInfosInFileName(f, infoType):
         infoString = date + '_' + 'M' + findInfosInFileName(f, 'M') + \
                             '_' + 'P' + findInfosInFileName(f, 'P') + \
                             '_' + 'C' + findInfosInFileName(f, 'C')
-
-    
+                            
+    elif infoType == 'substrate':
+        try:
+            pos = re.search(r"disc[\d]*um", f)
+            infoString = f[pos.start():pos.end()]
+        except:
+            infoString = ''
+                 
+                             
     return(infoString)
 
 def isFileOfInterest(f, manips, wells, cells):
@@ -591,9 +599,10 @@ def archiveFig(fig, ax, figDir, name='auto', dpi = 100):
     if not os.path.exists(figDir):
         os.makedirs(figDir)
     
-    saveDir = os.path.join(figDir, str(date.today()))
-    if not os.path.exists(saveDir):
-        os.makedirs(saveDir)
+    # saveDir = os.path.join(figDir, str(date.today()))
+    # if not os.path.exists(saveDir):
+    #     os.makedirs(saveDir)
+    saveDir = figDir
     
     if name != 'auto':
         fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
@@ -672,48 +681,58 @@ def findFirst(x, A):
     idx = (A==x).view(bool).argmax()
     return(idx)
 
-
-                    
-def findInfosInFileName(f, infoType):
+def fitLine(X, Y):
     """
-    Return a given type of info from a file name.
-    Inputs : f (str), the file name.
-             infoType (str), the type of info wanted.
-             infoType can be equal to : 
-             * 'M', 'P', 'C' -> will return the number of manip (M), well (P), or cell (C) in a cellID.
-             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'C', the function will return 8.
-             * 'manipID'     -> will return the full manip ID.
-             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'manipID', the function will return '21-01-18_M2'.
-             * 'cellID'     -> will return the full cell ID.
-             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'cellID', the function will return '21-01-18_M2_P1_C8'.
+    returns: results.params, results \n
+    Y=a*X+b ; params[0] = b,  params[1] = a
+    
+    NB:
+        R2 = results.rsquared \n
+        ci = results.conf_int(alpha=0.05) \n
+        CovM = results.cov_params() \n
+        p = results.pvalues \n
+    
+    This is how one should compute conf_int:
+        bse = results.bse \n
+        dist = stats.t \n
+        alpha = 0.05 \n
+        q = dist.ppf(1 - alpha / 2, results.df_resid) \n
+        params = results.params \n
+        lower = params - q * bse \n
+        upper = params + q * bse \n
     """
-    if infoType in ['M', 'P', 'C']:
-        acceptedChar = [str(i) for i in range(10)] + ['.', '-']
-        string = '_' + infoType
-        iStart = re.search(string, f).end()
-        i = iStart
-        infoString = '' + f[i]
-        while f[i+1] in acceptedChar and i < len(f)-1:
-            i += 1
-            infoString += f[i]
-            
-    elif infoType == 'date':
-        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
-        date = f[datePos.start():datePos.end()]
-        infoString = date
     
-    elif infoType == 'manipID':
-        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
-        date = f[datePos.start():datePos.end()]
-        manip = 'M' + findInfosInFileName(f, 'M')
-        infoString = date + '_' + manip
-        
-    elif infoType == 'cellID':
-        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
-        date = f[datePos.start():datePos.end()]
-        infoString = date + '_' + 'M' + findInfosInFileName(f, 'M') + \
-                            '_' + 'P' + findInfosInFileName(f, 'P') + \
-                            '_' + 'C' + findInfosInFileName(f, 'C')
+    X = sm.add_constant(X)
+    model = sm.OLS(Y, X)
+    results = model.fit()
+    params = results.params 
+#     print(dir(results))
+    return(results.params, results)
 
-    
-    return(infoString)
+
+def computeMag_M270(B):
+    M = 0.74257*1.05*1600 * (0.001991*B**3 + 17.54*B**2 + 153.4*B) / (B**2 + 35.53*B + 158.1)
+    return(M)
+
+def computeMag_M450(B):
+    M = 1.05*1600 * (0.001991*B**3 + 17.54*B**2 + 153.4*B) / (B**2 + 35.53*B + 158.1)
+    return(M)
+
+def lighten_color(color, amount=0.5):
+    """
+    Lightens the given color by multiplying (1-luminosity) by the given amount.
+    Input can be matplotlib color string, hex string, or RGB tuple.
+
+    Examples:
+    >> lighten_color('g', 0.3)
+    >> lighten_color('#F034A3', 0.6)
+    >> lighten_color((.3,.55,.1), 0.5)
+    """
+    import matplotlib.colors as mc
+    import colorsys
+    try:
+        c = mc.cnames[color]
+    except:
+        c = color
+    c = colorsys.rgb_to_hls(*mc.to_rgb(c))
+    return(colorsys.hls_to_rgb(c[0], 1 - amount * (1 - c[1]), c[2]))
