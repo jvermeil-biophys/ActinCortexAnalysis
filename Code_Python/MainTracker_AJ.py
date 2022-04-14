@@ -82,7 +82,7 @@ timeSeriesDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_An
 # %% Import of the experimental conditions
 
 experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental"
-expDf = getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
+expDf = getExperimentalConditions(experimentalDataDir, save = True, sep = ',')
 
 # %% EXAMPLE -- 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% M1
@@ -419,3 +419,52 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = True, MatlabStyle = True)
 
+# %% 31/03/2022 : Experiment in PMMH Mechanics:
+
+# %%%% M6 : Half activation, At beads, 500ms once
+
+dates = '22.03.31'
+manips, wells, cells = 6, 'all', 'all'
+depthoNames = '22.03.31_P1_M450_step20_100X'
+  
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
+# %%%% M7 : Half activation, Away from beads, 500ms once
+
+dates = '22.03.31'
+manips, wells, cells = 7, 'all', 'all'
+depthoNames = '22.03.31_P1_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
+# %%%% M8 : Global activation, 500ms once
+
+dates = '22.03.31'
+manips, wells, cells = 8, 2, 3
+depthoNames = '22.03.31_P1_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
+# %%%% M9 : Global activation, 800ms once
+
+dates = '22.03.31'
+manips, wells, cells = 9, 2, 2
+depthoNames = '22.03.31_P1_M450_step20_100X'
+
+PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)

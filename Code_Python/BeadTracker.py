@@ -829,8 +829,6 @@ class PincherTimeLapse:
             print(dfLog[dfLog['UI']])
 
 
-
-
     def importLog(self, path):
         """
         Import the dictLog.
@@ -1250,7 +1248,6 @@ class PincherTimeLapse:
                 self.listTrajectories[iB].dict['idxAnalysis'].append(1 * (self.listFrames[init_iF].status_frame == 0))
 
             elif 'optoGen' in self.expType:
-                 print('Passed expt type')
                  self.listTrajectories[iB].dict['idxAnalysis'].append(0)
 
         #### 3. Start the tracking
@@ -1478,6 +1475,7 @@ class PincherTimeLapse:
             for i in range(nT):
                 S = self.listTrajectories[iB].dict['iS'][i]
                 iLoop = (S//self.loop_totalSize)
+                
                 offset = self.blackFramesPerLoop[iLoop]
                 i_lim = iLoop*self.loop_totalSize + (self.loop_totalSize - ((self.loop_totalSize-self.loop_rampSize)//2) - (self.loop_excludedSize + offset))
                 # i_lim is the first index after the end of the ramp
@@ -1491,10 +1489,6 @@ class PincherTimeLapse:
         bestStd = self.findBestStd()
         for i in range(self.NB):
             self.listTrajectories[i].dict['bestStd'] = bestStd
-
-
-
-
 
 
     def importTrajectories(self, path, iB):
@@ -1513,10 +1507,6 @@ class PincherTimeLapse:
             iBoi =  self.listTrajectories[-1].dict['iB_inFrame'][i]
             iF =  self.listTrajectories[-1].dict['iF'][i]
             self.listTrajectories[-1].dict['Bead'][i] = self.listFrames[iF].listBeads[iBoi]
-
-
-
-
 
 
     def computeForces(self, traj1, traj2, B0, D3, dx):
@@ -2019,9 +2009,9 @@ class Trajectory:
 # #### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
 
-                plot = 0
-                if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
-                    plot = 1
+                # plot = 0
+                # if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
+                #     plot = 1
 
 # ############################ OK?! ###################################
 
@@ -2476,7 +2466,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 0.5 - Load field file
         fieldFilePath = fP[:-4] + '_Field.txt'
         fieldCols = ['B_set', 'T_abs', 'B', 'Z']
-        fieldDf = pd.read_csv(fieldFilePath, sep = ',', names = fieldCols) # '\t'
+        fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
 
         #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
@@ -2817,6 +2807,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             timeSeries['Tabs'] = (fieldDf['T_abs'][traj1.dict['iField']])/1000
             timeSeries['T'] = timeSeries['Tabs'].values - T0*np.ones(nT)
             timeSeries['B'] = fieldDf['B_set'][traj1.dict['iField']].values
+            print((timeSeries['B']))
             timeSeries['B'] *= PTL.MagCorrFactor
 
             #### 5.1.3 - Compute distances

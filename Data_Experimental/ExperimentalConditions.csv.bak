@@ -1,6 +1,22 @@
-;date;manip;experimentType;drug;substrate;objective magnification;scale pixel per um;objective immersion;optical index correction;magnetic field correction;cell type;cell subtype;bead type;bead diameter;beads bright spot delta;normal field;ramp field;compression duration;with fluo images;normal field multi images;multi image Z step;loop structure;comments
-0;DEFAULT;DEFAULT;DEFAULT;DEFAULT;DEFAULT;100X;15.8;oil;0.875;1.15;DEFAULT;DEFAULT;M450;DEFAULT;0;5;3_40;1s;False;3;500;143_90;
-1;21-12-10;M1;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;False;3;500;3000;on Atchoum
-2;21-12-20;M1;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;False;3;500;3000;on Atchoum. optimised illumination
-3;21-12-20;M2;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;False;3;500;3000;on Atchoum. optimised illumination
-4;21-12-20;M3;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;False;3;500;3000;on Atchoum. optimised illumination
+,date,manip,experimentType,drug,substrate,objective magnification,scale pixel per um,objective immersion,optical index correction,magnetic field correction,cell type,cell subtype,bead type,bead diameter,beads bright spot delta,normal field,ramp field,compression duration,with fluo images,normal field multi images,multi image Z step,loop structure,comments
+0,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,100X,15.8,oil,0.875,1.15,DEFAULT,DEFAULT,M450,DEFAULT,0,5,3_40,1s,False,3,500,143_90,
+1,21-12-2010,M1,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA,M450,4503,0,15,,,False,3,500,3000,on Atchoum
+2,21-12-2020,M1,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA,M450,4503,0,15,,,False,3,500,3000,on Atchoum. optimised illumination
+3,21-12-2020,M2,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA,M450,4503,0,15,,,False,3,500,3000,on Atchoum. optimised illumination
+4,21-12-2020,M3,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA,M450,4503,0,15,,,False,3,500,3000,on Atchoum. optimised illumination
+5,22-02-2003,M1,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA,M450,4503,0,15,,,False,3,500,1500,on Atchoum. optimised illumination
+6,22-02-2003,M2,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA,M450,4503,0,15,,,False,3,500,1500,on Atchoum. optimised illumination
+7,22-02-2003,M3,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA,M450,4503,0,15,,,False,3,500,1500,on Atchoum. optimised illumination
+8,22-02-2003,M4,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA,M450,4503,0,15,,,False,3,500,1500,on Atchoum. optimised illumination
+9,22-02-2003,M5,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA,M450,4503,0,15,,,False,3,500,1500,on Atchoum. optimised illumination
+10,22-03-2001,M1,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,15,,,False,3,500,1500,on Atchoum
+11,22-03-2001,M3,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,15,,,False,3,500,1500,on Atchoum
+12,22-03-2001,M2,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,15,,,False,3,500,1500,on Atchoum
+13,22-03-2022,M1,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,15,,,False,3,500,1500,on Atchoum
+14,22-03-2022,M2,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,15,,,False,3,500,1500,on Atchoum
+15,22-03-2022,M3,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,15,,,False,3,500,1500,on Atchoum
+16,22-03-2022,M4,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,15,,,False,3,500,1500,on Atchoum
+17,22-03-2022,M5,optoGen,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,15,,,False,3,500,1500,on Atchoum
+18,31-03-2022,M4,compressionsLowStart,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,5,1_50,1s,False,3,500,  285_133,in PMMH
+19,31-03-2022,M6,compressionsLowStart,none,20um fibronectin discs,100X,15.8,oil,0.875,1,3T3,optoRhoA. high expressing,M450,4503,0,5,1_50,1s,False,3,500,  285_133,in PMMH
+,,,  ,,,,,,,,,,,,,,,,,,,,

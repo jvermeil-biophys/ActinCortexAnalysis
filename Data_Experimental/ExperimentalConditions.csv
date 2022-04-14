@@ -17,4 +17,8 @@
 15;22-03-22;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;False;3;500;1500;on Atchoum
 16;22-03-22;M4;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;False;3;500;1500;on Atchoum
 17;22-03-22;M5;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;False;3;500;1500;on Atchoum
-18;31-03-22;M4;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;False;5;;;in PMMH
+18;22-03-31;M4;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;False;3;500;302_133;in PMMH
+19;22-03-31;M6;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;False;3;500;302_133;in PMMH
+20;22-03-31;M8;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;False;3;500;302_133;in PMMH
+21;22-03-31;M9;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;False;3;500;299_133;in PMMH
+22;22-03-31;M7;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;False;3;500;302_133;in PMMH

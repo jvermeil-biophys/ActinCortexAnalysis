@@ -12,9 +12,9 @@ import pandas as pd
 bead_dia = 4.503
 #%% Plotting all three graphs (3D, 2D and Dz)
 
-expt = '20220322_100xoil_3t3optorhoa_4.5beads_15mT'
-folder = '22-03-22_M2_P1_C5_disc20um'
-date = '22.03.22'
+expt = '20220331_100xoil_3t3optorhoa_4.5beads_15mT_Mechanics'
+folder = '22-03-31_M7_P1_C2_disc20um_L40'
+date = '22.03.31'
 
 file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+folder+'_PY.csv'
 data = pd.read_csv(file, sep=';')
@@ -253,74 +253,6 @@ plt.legend()
 plt.show()
 plt.savefig('D:/Anumita/PincherPlots/All_DistancevTime.jpg')
 
-# %% 2nd experiment curves
-
-expt3 = '20220203_100xoil_3t3optorhoa_4.5beads_15mT'
-folder3 = '22-02-03_M4_P1_C1_disc20um'
-file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+folder3+'_PY.csv'
-data3 = pd.read_csv(file, sep=';')
-#t1 = np.linspace(0,len(data1['T']),len(data1['T']))
-t3 = (data3['T']*1000)
-xy_dist3 = data3['D3'] - bead_dia
-
-expt4 = '20220203_100xoil_3t3optorhoa_4.5beads_15mT'
-folder4 = '22-02-03_M3_P1_C1_disc20um'
-file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+folder4+'_PY.csv'
-data4 =  pd.read_csv(file, sep=';')
-# t2 = np.linspace(0,len(data2['T']),len(data2['T']))
-t4 = (data4['T']*1000)
-xy_dist4 = data4['D3'] - bead_dia
-
-expt5 = '20220203_100xoil_3t3optorhoa_4.5beads_15mT'
-folder5 = '22-02-03_M5_P1_C3_disc20um'
-file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+folder5+'_PY.csv'
-data5 =  pd.read_csv(file, sep=';')
-# t2 = np.linspace(0,len(data2['T']),len(data2['T']))
-t5 = (data5['T']*1000)
-xy_dist5 = data5['D3'] - bead_dia
-
-
-Nan_thresh1 = 3
-Nan_thresh2 = 3
-
-outlier = np.where(xy_dist2 > Nan_thresh2)[0]
-xy_dist2[outlier] = np.nan
-
-outlier = np.where(xy_dist1 > Nan_thresh1)[0]
-xy_dist1[outlier] = np.nan
-
-# expt3 = '20211220_100xoil_3t3optorhoa_4.5beads_15mT'
-# folder3 = '21-12-20_M3_P1_C2_disc20um'
-# file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+folder3+'_PY.csv'
-# data3 = pd.read_csv(file, sep=';')
-# t3 = np.linspace(0,len(data3['T']),len(data3['T']))
-# xy_dist3 = data3['D2'] - bead_dia
-
-plt.style.use('dark_background')
-
-
-fig= plt.figure(figsize=(20,20))
-# fig.suptitle(fontsize=16)
-
-# right_side = fig.spines["right"]
-# right_side.set_visible(False)
-# top_side = fig.spines["top"]
-# top_side.set_visible(False)
-
-
-plt.rcParams.update({'font.size':35})
-plt.title('3D Distance vs Time')
-plt.ylabel('Thickness (nm)')
-plt.xlabel('Time (secs)')
-
-
-plt.plot(t3, xy_dist3, color = 'blue', label = '10ms exp /90s freq | Riceball')
-plt.plot(t4, xy_dist4, color = 'red', label = '10ms exp /90s freq')
-plt.plot(t5, xy_dist5, color='yellow', label = '50ms exp /30s freq')
-# plt.plot(t3, xy_dist3, label='90s')
-plt.legend()
-plt.show()
-plt.savefig('D:/Anumita/PincherPlots/All2_DistancevTime.jpg')
 
 # %% Plotting eith fluorescence recruitment values
 
@@ -335,4 +267,47 @@ radius = np.asarray(data['Radius_[pixels]'])
 
 # for i in range(np.shape(data)[1]):
 #     plt
+
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import os
+
+bead_dia = 4.503
+
+# %% Plotting combined graphs
+
+path = 'D:/Anumita/CombinePlotsFolder/'
+actType = 'Global'
+bead_dia = 4.503
+
+if actType == 'Away':
+    path = path+'AwayBeads/'
+    files = os.listdir(path)  
+    for file in files:
+        data =  pd.read_csv(path+file, sep=';')
+        xyz_dist = data['D3'] - bead_dia
+        t = (data['T']*1000)/60
+        plt.plot(t, xyz_dist)
+    plt.show()
+elif actType == 'At':
+    path = path+'AtBeads/'
+    files = os.listdir(path) 
+    for file in files:
+        data =  pd.read_csv(path+file, sep=';')
+        xyz_dist = data['D3'] - bead_dia
+        t = (data['T']*1000)/60
+        plt.plot(t, xyz_dist)
+    plt.show()
+elif actType == 'Global':
+    path = path+'Global/'
+    files = os.listdir(path) 
+    for file in files:
+        data =  pd.read_csv(path+file, sep=';')
+        xyz_dist = data['D3'] - bead_dia
+        t = (data['T']*1000)/60
+        plt.plot(t, xyz_dist, label = file)
+    plt.show()
+    plt.legend()
                
