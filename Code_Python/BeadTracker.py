@@ -30,19 +30,20 @@ from skimage import io, filters, exposure, measure, transform, util, color
 from scipy.signal import find_peaks, savgol_filter
 from scipy.optimize import linear_sum_assignment
 from matplotlib.gridspec import GridSpec
+from datetime import date
 
 # Add the folder to path
 COMPUTERNAME = os.environ['COMPUTERNAME']
 if COMPUTERNAME == 'ORDI-JOSEPH':
     mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//JosephVermeil//ownCloud//ActinCortexAnalysis"
+    tempPlot = 'C://Users//JosephVermeil//Desktop//TempPlots'
 elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
-elif COMPUTERNAME == '':
-    mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
+    tempPlot = 'C://Users//Joseph//Desktop//TempPlots'
 elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
     mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
-
-
 import sys
 sys.path.append(mainDir + "//Code_Python")
 from getExperimentalConditions import getExperimentalConditions
@@ -53,9 +54,9 @@ pd.set_option('mode.chained_assignment', None)
 # 3. Plot settings
 # Here we use this mode because displaying images
 # in new windows is more convenient for this code.
-# %matplotlib qt
+# %matplotlib qt 
 # matplotlib.use('Qt5Agg')
-# To switch back to inline display, use :
+# To switch back to inline display, use : 
 # %matplotlib widget or %matplotlib inline
 # matplotlib.rcParams.update({'figure.autolayout': True})
 
@@ -73,9 +74,9 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 # 4. Other settings
 # These regex are used to correct the stupid date conversions done by Excel
-dateFormatExcel = re.compile('\d{2}/\d{2}/\d{4}')
-dateFormatExcel2 = re.compile('\d{2}-\d{2}-\d{4}')
-dateFormatOk = re.compile('\d{2}-\d{2}-\d{2}')
+dateFormatExcel = re.compile(r'\d{2}/\d{2}/\d{4}')
+dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
+dateFormatOk = re.compile(r'\d{2}-\d{2}-\d{2}')
 
 # 5. Global constants
 SCALE_100X = 15.8 # pix/µm
@@ -84,7 +85,6 @@ RED  = '\033[31m' # red
 GREEN = '\033[32m' # green
 ORANGE  = '\033[33m' # orange
 BLUE  = '\033[36m' # blue
-
 
 
 # %% (1) Utility functions
@@ -334,18 +334,19 @@ def squareDistance(M, V, normalize = False): # MUCH FASTER ! **Michael Scott Voi
     This function speed is critical for the Z computation process because it is called so many times !
     What made that function faster is the absence of 'for' loops and the use of np.repeat().
     """
-    #     top = time.time()
-    n, m = M.shape[0], M.shape[1]
+    # squareDistance(self.deptho, listProfiles[i], normalize = True)
+    # top = time.time()
+    # n, m = M.shape[0], M.shape[1]
     # len(V) should be m
     if normalize:
         V = V/np.mean(V)
     V = np.array([V])
-    MV = np.repeat(V, n, axis = 0) # Key trick for speed !
+    MV = np.repeat(V, M.shape[0], axis = 0) # Key trick for speed !
     if normalize:
-        M = (M.T/np.mean(M, axis = 1).T).T
-    R = np.sum((M-MV)**2, axis = 1)
-#     print('DistanceCompTime')
-#     print(time.time()-top)
+        M = M / np.mean(M,axis=1)[:,None]
+    R = np.sum(np.square(np.subtract(M,MV)), axis = 1)
+    # print('DistanceCompTime')
+    # print(time.time()-top)
     return(R)
 
 def matchDists(listD, listStatus, Nup, NVox, direction):
@@ -380,6 +381,7 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
                 fillVal = D[0]
                 D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
                 listD2.append(D2)
+                
     elif direction == 'downward':
         for i in range(N):
             if offsets[i] > 0:
@@ -489,7 +491,7 @@ def max_entropy(data):
     """
 
     # calculate CDF (cumulative density function)
-    cdf = data.astype(np.float).cumsum()
+    cdf = data.astype(np.float64).cumsum()
 
     # find histogram's nonzero area
     valid_idx = np.nonzero(data)[0]
@@ -524,6 +526,54 @@ def max_entropy_threshold(I):
     H, bins = exposure.histogram(I, nbins=256, source_range='image', normalize=False)
     T = max_entropy(H)
     return(T)
+
+
+
+def archiveFig(fig, ax, figDir, name='auto', dpi = 100):
+    
+    if not os.path.exists(figDir):
+        os.makedirs(figDir)
+    
+    saveDir = os.path.join(figDir, str(date.today()))
+    if not os.path.exists(saveDir):
+        os.makedirs(saveDir)
+    
+    if name != 'auto':
+        fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+    
+    else:
+        suptitle = fig._suptitle.get_text()
+        if len(suptitle) > 0:
+            name = suptitle
+            fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+        
+        else:
+            try:
+                N = len(ax)
+                ax = ax[0]
+            except:
+                N = 1
+                ax = ax
+                
+            xlabel = ax.get_xlabel()
+            ylabel = ax.get_ylabel()
+            if len(xlabel) > 0 and len(ylabel) > 0:
+                name = ylabel + ' Vs ' + xlabel
+                if N > 1:
+                    name = name + '___etc'
+                fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+            
+            else:
+                title = ax.get_title()
+                if len(title) > 0:
+                    if N > 1:
+                        name = name + '___etc'
+                    fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+                
+                else:
+                    figNum = plt.gcf().number
+                    name = 'figure ' + str(figNum) 
+                    fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
 
 
 # %% (2) Tracker classes
@@ -594,7 +644,7 @@ class PincherTimeLapse:
         self.MagField = manipDict['normal field']
 
         self.BeadsZDelta = manipDict['beads bright spot delta']
-        self.BeadTypeStr = manipDict['bead type']
+        # self.BeadTypeStr = manipDict['bead type']
         self.beadTypes = [bT for bT in str(manipDict['bead type']).split('_')]
         self.beadDiameters = [int(bD) for bD in str(manipDict['bead diameter']).split('_')]
         self.dictBeadDiameters = {}
@@ -602,6 +652,7 @@ class PincherTimeLapse:
             self.dictBeadDiameters[self.beadTypes[k]] = self.beadDiameters[k]
 
         loopStruct = manipDict['loop structure'].split('_')
+        
         #### Exp type dependance here
 
         # This is an ugly but necessary part of the code
@@ -610,7 +661,7 @@ class PincherTimeLapse:
         # totalLoopSize > compulsary. The size of an entire loop of images.
         # rampSize > compulsary only for compressions exp. The number of images belonging to the compression per loop.
         # excludedSize > optional. Indicates if some images (eg. fluorescence ones) should be systematically excluded at the end of each loop.
-        if 'compressions' in self.expType or 'thickness' in self.expType:
+        if 'compressions' in self.expType or 'constant field' in self.expType:
             self.loop_totalSize = int(loopStruct[0])
 
             if self.expType == 'compressions':
@@ -626,6 +677,7 @@ class PincherTimeLapse:
                 self.loop_excludedSize = int(loopStruct[2])
             else:
                 self.loop_excludedSize = 0
+            
             self.nLoop = int(np.round(nS/self.loop_totalSize))
 
         elif 'optoGen' in self.expType:
@@ -646,7 +698,20 @@ class PincherTimeLapse:
             else:
                 self.loop_excludedSize = 0
             self.nLoop = int(np.round(nS/self.loop_totalSize))
-
+        
+        elif 'sinus' in self.expType:
+            self.loop_totalSize = nS
+            self.loop_rampSize = 0
+            self.loop_excludedSize = 0
+            self.nLoop = 1
+            
+        #### TBC !!!!
+        elif 'brokenRamp' in self.expType:
+            self.loop_totalSize = nS
+            self.loop_rampSize = 0
+            self.loop_excludedSize = 0
+            self.nLoop = 1
+        
         # 3. Field that are just initialized for now and will be filled by calling different methods.
         self.threshold = 0
         self.listFrames = []
@@ -767,7 +832,7 @@ class PincherTimeLapse:
                 for j in range(N):
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
-
+                    
             else:
                 Nramp = Nramp0-self.blackFramesPerLoop[i]
                 for j in range(Nct//2): # Ct field before ramp
@@ -801,9 +866,16 @@ class PincherTimeLapse:
                 self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                 self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
             i_nUp = max(self.dictLog['status_nUp']) + 1
-
-
-
+        
+                
+    def determineFramesStatus_Sinus(self):
+        #### Exp type dependance here
+        pass
+        
+    def determineFramesStatus_BR(self):
+        #### Exp type dependance here
+        pass
+                
     def saveLog(self, display = 1, save = False, path = ''):
         """
         Save the dictLog so that next time it can be directly reloaded to save time.
@@ -1157,9 +1229,9 @@ class PincherTimeLapse:
                 i = i + j + 1
 
         return(bestStd)
-
-
-
+        
+    
+    
     def buildTrajectories(self, trackAll = False):
         """
         The main tracking function.
@@ -1170,7 +1242,7 @@ class PincherTimeLapse:
         - 'iS': index of the slice in the image I (but here python starts with 0 and IJ starts with 1);
         - 'Boi' refers to the 'Beads of interest', ie the beads that are being tracked.
         """
-
+        
         #### 1. Initialize the BoI position in the first image where they can be detect, thanks to user input.
         init_iF = 0
         init_ok = False
@@ -1217,18 +1289,18 @@ class PincherTimeLapse:
         init_BXY = self.listFrames[init_iF].beadsXYarray()
         M = compute_cost_matrix(uiXY,init_BXY)
         row_ind, col_ind = linear_sum_assignment(M) # row_ind -> clicks / col_ind -> listBeads
-
+        
         # Sort the beads by growing X coordinates on the first image,
         # So that iB = 0 has a X inferior to iB = 1, etc.
         sortM = np.array([[init_BXY[col_ind[i],0], col_ind[i]] for i in range(len(col_ind))])
         sortM = sortM[sortM[:, 0].argsort()]
-
+        
         # Initialise position of the beads
         init_iBoi = sortM[:, 1].astype(int)
         # init_BoiXY = sortM[:, 0]
         init_BoiXY = np.array([init_BXY[init_iBoi[i]] for i in range(len(init_iBoi))])
-
-
+        
+        
         #### 2. Creation of the Trajectory objects
         for iB in range(self.NB):
             self.listTrajectories.append(Trajectory(self.I, self.listFrames, self.scale, self.Zstep, iB))
@@ -1242,11 +1314,20 @@ class PincherTimeLapse:
             self.listTrajectories[iB].dict['StdDev'].append(self.listFrames[init_iF].beadsStdDevarray()[init_iBoi[iB]])
             self.listTrajectories[iB].dict['status_frame'].append(self.listFrames[init_iF].status_frame)
             self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[init_iF].status_nUp)
-
+            
             #### >>> Exp type dependance here (01)
-            if 'compressions' in self.expType or 'thickness' in self.expType:
+            if 'compressions' in self.expType or 'constant field' in self.expType:
                 self.listTrajectories[iB].dict['idxAnalysis'].append(1 * (self.listFrames[init_iF].status_frame == 0))
-
+            
+            #### TBC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            elif 'sinus' in self.expType:
+                 print('Passed expt type')
+                 self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                 
+            elif 'brokenRamp' in self.expType:
+                 print('Passed expt type')
+                 self.listTrajectories[iB].dict['idxAnalysis'].append(0)
+                 
             elif 'optoGen' in self.expType:
                  self.listTrajectories[iB].dict['idxAnalysis'].append(0)
 
@@ -1259,19 +1340,19 @@ class PincherTimeLapse:
         for iF in range(init_iF+1, len(self.listFrames)):
             validFrame = True
             askUI = False
-
+            
             #### 3.1 Check the number of detected objects
             if self.listFrames[iF].NBdetected < self.NB: # -> Next frame
                 validFrame = False
                 continue
-
+            
             #### 3.2 Try an automatic tracking
             if not trackAll:
                 trackXY = previous_BoiXY
                 previous_iBoi = [i for i in range(self.NB)]
             elif trackAll:
                 trackXY = previous_BXY
-
+                
             BXY = self.listFrames[iF].beadsXYarray()
             M = compute_cost_matrix(trackXY,BXY)
             row_ind, col_ind = linear_sum_assignment(M)
@@ -1281,26 +1362,26 @@ class PincherTimeLapse:
                 searchBoi = np.flatnonzero(row_ind == iBoi)
                 if len(searchBoi) == 1:
                     foundBoi.append(searchBoi[0])
-
-
+                                   
+            
             #### 3.3 Assess if asking user input is necessary
-
+            
             highCost = ((np.max(costs)**0.5) * (1/self.scale) > 0.5)
             # True if the distance travelled by one of the BoI is greater than 0.5 um
-
+            
             allBoiFound = (len(foundBoi) == self.NB)
             # False if one of the beads of interest have not been detected
-
+            
             if highCost or not allBoiFound:
                 askUI = True
-
+                
             #### 3.4 If not, automatically assign the positions of the next beads
 
             if not askUI:
                 try:
                     iBoi = [col_ind[iB] for iB in foundBoi]
                     BoiXY = np.array([BXY[iB] for iB in iBoi])
-
+                    
                 except:
                     askUI = True
                     print('Error for ' + str(iF))
@@ -1312,12 +1393,12 @@ class PincherTimeLapse:
                     print(previous_iBoi)
                     print('costs')
                     print(costs)
-
+                    
 
             #### 3.5 If one of the previous steps failed, ask for user input
-            if askUI:
+            if askUI:        
                 iS = self.listFrames[iF].iS
-
+                
                 #### 3.5.1: Case when the UI has been previously saved in the dictLog.
                 # Then just import the previous answer from the dictLog
                 if self.dictLog['UI'][iS]:
@@ -1328,8 +1409,8 @@ class PincherTimeLapse:
                         validFrame = False
                         #fig = plt.gcf()
                         #plt.close(fig)
-
-
+                
+                
                 #### 3.5.2: Case when the UI has NOT been previously saved in the dictLog
                 # Then ask for UI ; and save it in the dictLog
                 elif not self.dictLog['UI'][iS]:
@@ -1340,14 +1421,14 @@ class PincherTimeLapse:
                             T = self.listTrajectories[iB]
                             ax = plt.gca()
                             T.plot(ax, iB)
-
+                        
                         mngr = plt.get_current_fig_manager()
                         mngr.window.setGeometry(720, 50, 1175, 1000)
                         QA = pyautogui.confirm(
                             text='Can you point the beads of interest\nin the image ' + str(iS + 1) + '?',
-                            title='',
+                            title='', 
                             buttons=['No', 'Yes', 'Abort!', 'No to all'])
-
+                        
                         # According to the question's answer:
                         if QA == 'Yes':
                             ui = plt.ginput(self.NB, timeout=0)
@@ -1371,7 +1452,7 @@ class PincherTimeLapse:
                             self.dictLog['UILog'][iS] = QA
                         fig = plt.gcf()
                         plt.close(fig)
-
+                        
                     elif self.modeNoUIactivated == True:
                     # This mode is in case you don't want to keep clicking 'No' for hours when
                     # you know for a fact that there is nothing else you can do with this TimeLapse.
@@ -1380,53 +1461,63 @@ class PincherTimeLapse:
                         validFrame = False
                         self.dictLog['UI'][iS] = True
                         self.dictLog['UILog'][iS] = QA
-
+                
                 #### 3.5.3: Outcome of the user input case
                 if not validFrame: # -> Next Frame
                     continue
-
+            
                 else:
                     # Double matching here
                     # First you match the user's click positions with the bead positions detected on frame iF
                     # You know then that you have identified the NB Beads of interest.
                     # Then another matching between these two new UIfound_BoiXY and the previous_BoiXY
                     # to be sure to attribute each position to the good trajectory !
-
+                    
                     # First matching
                     M = compute_cost_matrix(uiXY,BXY)
                     row_ind, col_ind = linear_sum_assignment(M)
                     UIfound_BoiXY = np.array([BXY[iB] for iB in col_ind])
-
+                    
                     # Second matching
                     M2 = compute_cost_matrix(previous_BoiXY, UIfound_BoiXY)
                     row_ind2, col_ind2 = linear_sum_assignment(M2)
 
-
+                    
                     iBoi = [col_ind[i] for i in col_ind2]
                     BoiXY = np.array([BXY[iB] for iB in iBoi])
 
-
+                    
             #### 3.6 Create the 'idxAnalysis' field
             #### >>> Exp type dependance here (02)
-            if 'compressions' in self.expType or 'thickness' in self.expType:
+            if 'compressions' in self.expType or 'constant field' in self.expType:
                 # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
                 if self.expType == 'compressions':
                     idxAnalysis = (self.listFrames[iF].status_frame == 0) \
                         * (max(self.listTrajectories[iB].dict['idxAnalysis']) \
                            + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))
-
-                elif self.expType == 'compressionsLowStart':
+                            
+                elif self.expType == 'compressionsLowStart': 
                 # a pre-ramp has the same idxAnalysis than a ramp but in negative.
                     idxAnalysis = (self.listFrames[iF].status_frame == 0) \
                         * (max(self.listTrajectories[iB].dict['idxAnalysis']) + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
                             - (self.listFrames[iF].status_frame == 0.1) \
                         * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
-
+                        
+                elif self.expType == 'constant field':
+                    idxAnalysis = 0
+                        
+            #### TBC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            elif 'sinus' in self.expType:
+                 idxAnalysis = 0
+                 
+            elif 'brokenRamp' in self.expType:
+                 idxAnalysis = 0
+            
             elif 'optoGen' in self.expType:
                 idxAnalysis = 0
-
-
-
+            
+            
+            
             #### 3.7 Append the different lists of listTrajectories[iB].dict
             for iB in range(self.NB):
                 self.listTrajectories[iB].dict['Bead'].append(self.listFrames[iF].listBeads[iBoi[iB]])
@@ -1439,30 +1530,30 @@ class PincherTimeLapse:
                 self.listTrajectories[iB].dict['status_frame'].append(self.listFrames[iF].status_frame)
                 self.listTrajectories[iB].dict['status_nUp'].append(self.listFrames[iF].status_nUp)
                 self.listTrajectories[iB].dict['idxAnalysis'].append(idxAnalysis)
-
+            
 
             #### 3.8 Initialize the next passage in the loop
             previous_iF = iF
             previous_iBoi = iBoi
             previous_BXY = BXY
             previous_BoiXY = BoiXY
-
-
-
+            
+            
+            
             #### 3.9 End of the loop
-
-
+            
+                
         for iB in range(self.NB):
             for k in self.listTrajectories[iB].dict.keys():
                 self.listTrajectories[iB].dict[k] = np.array(self.listTrajectories[iB].dict[k])
-
-
+                
+        
         #### 4. Refine the trajectories
-
+        
         nT = len(self.listTrajectories[0].dict['Bead'])
-
+        
         #### 4.1 Black Images deletion in the trajectory
-
+        
         # Add the pointer to the correct line of the _Field.txt file.
         # It's just exactly the iS already saved in the dict, except if there are black images at the end of loops.
         # In that case you have to skip the X lines corresponding to the end of the ramp part, X being the nb of black images at the end of the current loop
@@ -1483,9 +1574,9 @@ class PincherTimeLapse:
                 SField = S + int(addOffset*offset)
                 iField.append(SField)
             self.listTrajectories[iB].dict['iField'] = iField
-
+            
         #### 4.2 Find the image with the best std within each n-uplet
-
+            
         bestStd = self.findBestStd()
         for i in range(self.NB):
             self.listTrajectories[i].dict['bestStd'] = bestStd
@@ -2316,7 +2407,8 @@ class Trajectory:
                     ax[i].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
             except:
                 print(RED  + 'ptit probleme dans le detectNeighbours_ui' + NORMAL)
-
+                
+        plt.show()
         # Ask the question
         mngr = plt.get_current_fig_manager()
         mngr.window.setGeometry(720, 50, 1175, 1000)
@@ -2371,7 +2463,8 @@ class Trajectory:
                     ax[i].plot([self.dict['X'][pos]],[self.dict['Y'][pos]], 'ro')
             except:
                 print(RED  + 'error in detectInOut_ui' + NORMAL)
-
+        
+        plt.show()
         # Ask the question
         mngr = plt.get_current_fig_manager()
         mngr.window.setGeometry(720, 50, 1175, 1000)
@@ -2394,10 +2487,11 @@ class Trajectory:
 # %%%% Main
 
 def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, timeSeriesDataDir,
-         dates, manips, wells, cells, depthoNames, expDf,
-         methodT, factorT,  metaMorph = False, redoAllSteps = False, MatlabStyle = False, trackAll = False,
-         NB = 2):
-
+                dates, manips, wells, cells, depthoNames, expDf, methodT, factorT, 
+                redoAllSteps = False, MatlabStyle = False, trackAll = False, sourceField = 'default',
+                ownCloudDir = '', ownCloud_figureDir = '', ownCloud_timeSeriesDataDir = '',
+                NB = 2):
+    
     start = time.time()
 
     #### 0. Load different data sources & Preprocess : fluo, black images, sort slices (ct/ramp ; down/middle/up)
@@ -2411,7 +2505,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         rawDirList = [os.path.join(rawDataDir, dates)]
     for rd in rawDirList:
         fileList = os.listdir(rd)
-        print(fileList)
         for f in fileList:
             if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
@@ -2419,10 +2512,11 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 #     createFieldFile(f, extDataDir, expDf, fPath)
                 if os.path.isfile(fPath[:-4] + '_Field.txt'):
                     imagesToAnalyse.append(f)
-                    imagesToAnalyse_Paths.append(os.path.join(rd, f))
-
+                    imagesToAnalyse_Paths.append(os.path.join(rd, f))    
+    
+    
         #### 0.2 - Begining of the Main Loop
-    for i in range(len(imagesToAnalyse)):
+    for i in range(len(imagesToAnalyse)): 
         f, fP = imagesToAnalyse[i], imagesToAnalyse_Paths[i]
         manipID = findInfosInFileName(f, 'manipID') # See Utility Functions > findInfosInFileName
         cellID = findInfosInFileName(f, 'cellID') # See Utility Functions > findInfosInFileName
@@ -2462,12 +2556,18 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 0.4 - Load image and init PTL
         I = io.imread(fP) # Approx 0.5s per image
         PTL = PincherTimeLapse(I, cellID, manipDict, NB)
-
+    
         #### 0.5 - Load field file
         fieldFilePath = fP[:-4] + '_Field.txt'
-        fieldCols = ['B_set', 'T_abs', 'B', 'Z']
-        fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
-
+        if sourceField == 'default':
+            fieldCols = ['B_set', 'T_abs', 'B', 'Z']
+            fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
+        elif sourceField == 'fastImagingVI':
+            fieldCols = ['B_set', 'B', 'T_abs']
+            fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
+        
+            
+        
         #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
         logFileImported = False
@@ -2493,11 +2593,16 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
 
         #### 0.8 - Sort slices
         #### ! Exp type dependance here !
+        print(f)
         if not logFileImported:
             if 'R40' in f or 'thickness' in f:
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
+            elif 'sin' in f:
+                PTL.determineFramesStatus_Sinus()
+            elif 'brokenRamp' in f:
+                PTL.determineFramesStatus_BR()
             elif 'disc20um' in f:
                 PTL.determineFramesStatus_optoGen()
                 pass
@@ -2534,7 +2639,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 1.1 - Check if a _Results.txt exists and import it if it's the case
         resFilePath = fP[:-4] + '_ResultsPY.txt'
         resFileImported = False
-
+        
         if MatlabStyle:
             try:
                 resFilePath = fP[:-4] + '_ResultsPY.txt'
@@ -2551,7 +2656,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             resFileImported = True
         else:
             pass
-
+        
+        
+        
         #### 1.2 - Detect the beads
         # Detect the beads and create the BeadsDetectResult dataframe [if no file has been loaded before]
         # OR input the results in each Frame objects [if the results have been loaded at the previous step]
@@ -2575,7 +2682,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         trajFilesExist_global = False
         trajFilesImported = False
         trajFilesExist_sum = 0
-
+        
         if redoAllSteps:
             pass
         else:
@@ -2597,7 +2704,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
 
         #### 2.3 - If no, compute them by tracking the beads
         if not trajFilesImported:
-            issue = PTL.buildTrajectories(trackAll = trackAll)
+            issue = PTL.buildTrajectories(trackAll = trackAll) 
             # Main tracking function !
             if issue == 'Bug':
                 continue
@@ -2678,8 +2785,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     #### 4. Compute dz
 
         #### 4.1 - Import depthographs
-        HDZfactor = 10
-
+        HDZfactor = 5
+        
         if len(PTL.beadTypes) == 1:
             depthoPath = os.path.join(depthoDir, depthoNames)
 #             depthoExist = os.path.exists(depthoPath+'_Deptho.tif')
@@ -2755,6 +2862,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         else:
             print(BLUE + 'Computing Z...' + NORMAL)
             print(GREEN + 'Z had been already computed :)' + NORMAL)
+        
 
         #### 4.3 - Save the raw traj (before Std selection)
         if redoAllSteps or not trajFilesImported:
@@ -2776,8 +2884,13 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 traj_df = pd.DataFrame(traj.dict)
                 trajPath = os.path.join(timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
                 traj_df.to_csv(trajPath, sep = '\t', index = False)
-
-
+                
+                # save in ownCloud
+                if ownCloud_timeSeriesDataDir != '':
+                    OC_trajPath = os.path.join(ownCloud_timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
+                    traj_df.to_csv(OC_trajPath, sep = '\t', index = False)
+    
+    
     #### 5. Define pairs and compute distances
         print(BLUE + 'Computing distances...' + NORMAL)
 
@@ -2855,7 +2968,11 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             timeSeries_DF = pd.DataFrame(timeSeries)
             timeSeriesFilePath = os.path.join(timeSeriesDataDir, f[:-4] + '_PY.csv')
             timeSeries_DF.to_csv(timeSeriesFilePath, sep = ';', index=False)
-
+            
+            if ownCloud_timeSeriesDataDir != '':
+                OC_timeSeriesFilePath = os.path.join(ownCloud_timeSeriesDataDir, f[:-4] + '_PY.csv')
+                timeSeries_DF.to_csv(OC_timeSeriesFilePath, sep = ';', index=False)
+    
     print(BLUE + '\nTotal time:' + NORMAL)
     print(BLUE + str(time.time()-start) + NORMAL)
     print(BLUE + '\n' + NORMAL)
@@ -2868,8 +2985,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     listTrajDicts = []
     for iB in range(PTL.NB):
         listTrajDicts.append(PTL.listTrajectories[iB].dict)
-
-    return(PTL, timeSeries_DF, dfLogF)
+        
+    return(timeSeries_DF, dfLogF)
 
 
 # %%%% Stand-alone functions
@@ -3549,6 +3666,7 @@ def depthoMaker(dirPath, savePath, specif, saveLabel, scale, beadType = 'M450', 
             if Zm+z >= 0 and Zm+z < currentDeptho.shape[0] and np.sum(currentDeptho[Zm+z,:] != 0):
                 finalDeptho[Zfocus+z,:] += currentDeptho[Zm+z,:]/count
 
+    # print(Zm, maxAboveZm, maxBelowZm)
     finalDeptho = finalDeptho.astype(np.uint16)
 
     fig, ax = plt.subplots(1,1)
