@@ -1,4 +1,4 @@
-X	Y	idxCompression	StdDev	Bead	Status	Status_2	iF	iS	iB_inFrame	bestStd	Zr	Neighbour_L	Neighbour_R	iField
+X	Y	idxAnalysis	StdDev	Bead	Status	Status_2	iF	iS	iB_inFrame	bestStd	Zr	Neighbour_L	Neighbour_R	iField
 357.5208947563971	151.0785117063561	0	6759.866044758039	<BeadTracker.Bead object at 0x00000153E7C95E48>	2	1	1	1	1	True	-150.0	M270	M270	1
 357.79779522042764	151.03905874110953	0	6732.425791223112	<BeadTracker.Bead object at 0x00000153E8EE6448>	2	2	4	4	2	True	-150.0	M270	M270	4
 357.57387713462737	151.0892508697157	0	6556.448112175975	<BeadTracker.Bead object at 0x00000153E711B508>	2	3	7	7	1	True	-175.0	M270	M270	7
