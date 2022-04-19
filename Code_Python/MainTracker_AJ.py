@@ -66,6 +66,7 @@ sys.path.append("C://Users//anumi//Desktop//ActinCortexAnalysis//Code_Python")
 # %% Import of the BeadTracker functions
 
 from BeadTracker import *
+import utilityFunctions_JV as jvu
 
 
 # %% Setting of the directories
@@ -82,7 +83,7 @@ timeSeriesDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_An
 # %% Import of the experimental conditions
 
 experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental"
-expDf = getExperimentalConditions(experimentalDataDir, save = True, sep = ',')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ',')
 
 # %% EXAMPLE -- 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% M1
@@ -424,7 +425,7 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
 # %%%% M6 : Half activation, At beads, 500ms once
 
 dates = '22.03.31'
-manips, wells, cells = 6, 'all', 'all'
+manips, wells, cells = 6, 1, 2
 depthoNames = '22.03.31_P1_M450_step20_100X'
   
 PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 

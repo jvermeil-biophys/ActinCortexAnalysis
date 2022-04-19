@@ -46,7 +46,10 @@ elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
     mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
 import sys
 sys.path.append(mainDir + "//Code_Python")
-from getExperimentalConditions import getExperimentalConditions
+
+# from getExperimentalConditions import getExperimentalConditions
+import utilityFunctions_JV as jvu
+
 
 # 2. Pandas settings
 pd.set_option('mode.chained_assignment', None)
@@ -579,7 +582,7 @@ def archiveFig(fig, ax, figDir, name='auto', dpi = 100):
 # %% (2) Tracker classes
 
 # experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental"
-# expDf = getExperimentalConditions()
+# expDf = jvu.getExperimentalConditions()
 
 
 # %%%% PincherTimeLapse
@@ -602,7 +605,7 @@ class PincherTimeLapse:
                              and all of the user inputs (points and clicks) during the tracking,
     * a pandas DataFrame detectBeadsResult, that contains the raw output of the bead tracking,
     * metadata about the experiment (cellID, expType, loopStruct, loop_totalSize, loop_rampSize,
-                                        loop_excludedSize, nLoop, Nuplet, blackFramesPerLoop).
+                                        loop_excludedSize, nLoop, Nuplet, excludedFramesPerLoop).
 
     When a PincherTimeLapse is initialised, most of these variables are initialised to zero values.
     In order to compute the different fields, the following methods should be called in this order:
@@ -651,8 +654,12 @@ class PincherTimeLapse:
         for k in range(len(self.beadTypes)):
             self.dictBeadDiameters[self.beadTypes[k]] = self.beadDiameters[k]
 
+
+         
+
+
         loopStruct = manipDict['loop structure'].split('_')
-        
+
         #### Exp type dependance here
 
         # This is an ugly but necessary part of the code
@@ -711,6 +718,24 @@ class PincherTimeLapse:
             self.loop_rampSize = 0
             self.loop_excludedSize = 0
             self.nLoop = 1
+            
+        
+        #### TBC !!!
+        try:
+            self.activationFirst = int(manipDict['first activation'])
+            self.activationFreq = int(manipDict['activation frequency'])
+            self.activationExp = manipDict['activation exp']
+            self.activationType = manipDict['activation type']
+            
+            if (not pd.isna(self.activationFreq)) and self.activationFreq > 0:
+                LoopActivations = np.array([k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)])
+            else:
+                LoopActivations = np.array([self.activationFirst-1])
+            self.totalActivationOffset = [np.sum(LoopActivations < kk) for kk in range(self.nLoop)]
+            
+        except:
+            self.totalActivationOffset = np.zeros(self.nLoop)
+        
         
         # 3. Field that are just initialized for now and will be filled by calling different methods.
         self.threshold = 0
@@ -730,7 +755,7 @@ class PincherTimeLapse:
                                                'YM' : [],
                                                'Slice' : []})
 
-        self.blackFramesPerLoop = np.zeros(self.nLoop)
+        self.excludedFramesPerLoop = np.zeros(self.nLoop)
         self.modeNoUIactivated = False
 
         # End of the initialization !
@@ -751,7 +776,7 @@ class PincherTimeLapse:
 #                 self.dictLog['Black'][j] = True
                 self.dictLog['status_frame'][j] = -1
                 self.dictLog['status_nUp'][j] = -1
-                self.blackFramesPerLoop[i] += 1
+                self.excludedFramesPerLoop[i] += 1
                 j -= 1
                 checkSum = np.sum(self.I[j])
 
@@ -761,19 +786,58 @@ class PincherTimeLapse:
         And if the directory for the fluo images has not be created yet,
         find and save all of the fluo images there.
         """
-        if self.wFluo:
+        
+        
+        # try: # Optogenetic activations behaviour
+        print('tried optogen fluo detection')
+        if self.activationFirst > 0 and not self.wFluo:
+            print('passed 1st if')
+            print(self.activationFreq)
+            if (not pd.isna(self.activationFreq)) and self.activationFreq > 0: # Meaning there is a repetition of activation
+                LoopActivations = [k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)]
+                for iLoopActivation in LoopActivations:
+                    j = int(((iLoopActivation+1)*self.loop_totalSize) - self.excludedFramesPerLoop[iLoopActivation])
+                    self.dictLog['status_frame'][j] = -1
+                    self.dictLog['status_nUp'][j] = -1
+                    # self.excludedFramesPerLoop[iLoopActivation] += 1
+                    
+            else: # Set self.activationFreq = 0 to only detect one single activation
+                print('passed 2nd if')
+                iLoopActivation = self.activationFirst-1
+                LoopActivations = [iLoopActivation]
+                
+                j = int(((iLoopActivation+1)*self.loop_totalSize) - self.excludedFramesPerLoop[iLoopActivation])
+                self.dictLog['status_frame'][j] = -1
+                self.dictLog['status_nUp'][j] = -1
+                # self.excludedFramesPerLoop[iLoopActivation] += 1
+                print(LoopActivations, j)
+                
+            if not os.path.exists(fluoDirPath):
+                os.makedirs(fluoDirPath)
+                for iLoopActivation in LoopActivations:
+                    j = int(((iLoopActivation+1)*self.loop_totalSize) - self.excludedFramesPerLoop[iLoopActivation])
+                    Ifluo = self.I[j]
+                    path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
+                    io.imsave(path, Ifluo)
+
+        # except: 
+        #     pass
+        
+        
+        if self.wFluo: # Normal behaviour
             for i in range(self.nLoop):
-                j = int(((i+1)*self.loop_totalSize) - 1 - self.blackFramesPerLoop[i])
+                j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFramesPerLoop[i])
                 self.dictLog['status_frame'][j] = -1
                 self.dictLog['status_nUp'][j] = -1
 
             if not os.path.exists(fluoDirPath):
                 os.makedirs(fluoDirPath)
                 for i in range(self.nLoop):
-                    j = int(((i+1)*self.loop_totalSize) - 1 - self.blackFramesPerLoop[i])
+                    j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFramesPerLoop[i])
                     Ifluo = self.I[j]
                     path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
                     io.imsave(path, Ifluo)
+                        
 
     def determineFramesStatus_R40(self):
         #### Exp type dependance here
@@ -794,13 +858,13 @@ class PincherTimeLapse:
         # print(N0,Nramp0,Nexclu,nUp)
 
         for i in range(self.nLoop):
-            jstart = int(i*N0)
+            jstart = int(i*N0 + self.totalActivationOffset[i])
             if Nramp0 == 0:
                 for j in range(N):
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
             else:
-                Nramp = Nramp0-self.blackFramesPerLoop[i]
+                Nramp = Nramp0-self.excludedFramesPerLoop[i]
                 for j in range(Nct//2): # Ct field before ramp
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
@@ -826,15 +890,25 @@ class PincherTimeLapse:
         N = N0 - Nexclu
         Nct = N - 2*Nramp0
         i_nUp = 1
+
+        # if not self.wFluo:
+        #     mask_notAlreadyExcluded = self.dictLog['status_frame'] >= 0
+        #     print(mask_notAlreadyExcluded)
+        # else:
+        #     mask_notAlreadyExcluded = np.ones(len(self.dictLog['status_frame']), dtype = bool)
+        print(self.dictLog['status_frame'][1510])
+            
         for i in range(self.nLoop):
-            jstart = int(i*N0)
+            jstart = int(i*N0 + self.totalActivationOffset[i])
+            print(self.totalActivationOffset[i])
+            print(jstart)
             if Nramp0 == 0:
                 for j in range(N):
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
                     
             else:
-                Nramp = Nramp0-self.blackFramesPerLoop[i]
+                Nramp = Nramp0-self.excludedFramesPerLoop[i]
                 for j in range(Nct//2): # Ct field before ramp
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
@@ -843,7 +917,7 @@ class PincherTimeLapse:
                     self.dictLog['status_frame'][jstart + j] = 0.1
                     self.dictLog['status_nUp'][jstart + j] = 0
                 i_nUp = max(self.dictLog['status_nUp']) + 1
-                jstart += int(Nramp0 + Nramp) # In the ramp it self, the two status stay equal to 0
+                jstart += int(Nramp0 + Nramp) # In the ramp itself, the two status stay equal to 0
                 for j in range(Nct//2): # Ct field after ramp
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
@@ -1567,7 +1641,7 @@ class PincherTimeLapse:
                 S = self.listTrajectories[iB].dict['iS'][i]
                 iLoop = (S//self.loop_totalSize)
                 
-                offset = self.blackFramesPerLoop[iLoop]
+                offset = self.excludedFramesPerLoop[iLoop]
                 i_lim = iLoop*self.loop_totalSize + (self.loop_totalSize - ((self.loop_totalSize-self.loop_rampSize)//2) - (self.loop_excludedSize + offset))
                 # i_lim is the first index after the end of the ramp
                 addOffset = (S >= i_lim)
