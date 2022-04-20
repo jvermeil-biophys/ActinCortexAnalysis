@@ -173,8 +173,8 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
         expConditionsDF.loc[:,'date'] = expConditionsDF.loc[:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])  
         
     #### 1.9 Format activation fields
-    expConditionsDF['first activation'] = expConditionsDF['first activation'].astype(np.float64)
-    expConditionsDF['activation frequency'] = expConditionsDF['activation frequency'].astype(np.float64)
+    expConditionsDF['first activation'] = expConditionsDF['first activation'].astype(np.float)
+    expConditionsDF['activation frequency'] = expConditionsDF['activation frequency'].astype(np.float)
 
 
     #### 2. Save the table, if required

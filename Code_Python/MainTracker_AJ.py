@@ -83,7 +83,7 @@ timeSeriesDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_An
 # %% Import of the experimental conditions
 
 experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental"
-expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ',')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
 
 # %% EXAMPLE -- 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% M1
@@ -91,7 +91,7 @@ dates = '21.10.18'
 manips, wells, cells = 1, 1, 'all'
 depthoNames = '21.10.18_M1_M270_100X_step20'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -101,7 +101,7 @@ dates = '21.10.18'
 manips, wells, cells = 2, 1, 'all'
 depthoNames = '21.10.18_M2_M450_100X_step20'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -222,7 +222,7 @@ dates = '21.12.10'
 manips, wells, cells = 1, 1, 1
 depthoNames = '21.12.13_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -235,7 +235,7 @@ dates = '21.12.20'
 manips, wells, cells = 1, 1, 1
 depthoNames = '21.12.20_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -246,7 +246,7 @@ dates = '21.12.20'
 manips, wells, cells = 2, 1, 'all'
 depthoNames = '21.12.20_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -256,7 +256,7 @@ dates = '21.12.20'
 manips, wells, cells = 3, 1, 'all'
 depthoNames = '21.12.20_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -270,7 +270,7 @@ dates = '22.02.03'
 manips, wells, cells = 1, 1, 1
 depthoNames = '22.02.03_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -281,7 +281,7 @@ dates = '22.02.03'
 manips, wells, cells = 2, 1, 2
 depthoNames = '22.02.03_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -291,7 +291,7 @@ dates = '22.02.03'
 manips, wells, cells = 3, 1, 'all'
 depthoNames = '22.02.03_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -302,7 +302,7 @@ dates = '22.02.03'
 manips, wells, cells = 4, 1, 'all'
 depthoNames = '22.02.03_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -313,7 +313,7 @@ dates = '22.02.03'
 manips, wells, cells = 5, 1, 'all'
 depthoNames = '22.02.03_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -327,7 +327,7 @@ dates = '22.03.01'
 manips, wells, cells = 1, 1, 5
 depthoNames = '22.03.01_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -339,7 +339,7 @@ dates = '22.03.01'
 manips, wells, cells = 2, 1, 7
 depthoNames = '22.03.01_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -351,7 +351,7 @@ dates = '22.03.01'
 manips, wells, cells = 3, 1, 6
 depthoNames = '22.03.01_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -366,7 +366,7 @@ dates = '22.03.22'
 manips, wells, cells = 1, 1, 1
 depthoNames = '22.03.22_P1_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -378,7 +378,7 @@ dates = '22.03.22'
 manips, wells, cells = 2, 1, 5
 depthoNames = '22.03.22_P1_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -390,7 +390,7 @@ dates = '22.03.22'
 manips, wells, cells = 3, 1, 5
 depthoNames = '22.03.22_P1_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -402,7 +402,7 @@ dates = '22.03.22'
 manips, wells, cells = 4, 1, 5
 depthoNames = '22.03.22_P1_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -414,7 +414,7 @@ dates = '22.03.22'
 manips, wells, cells = 5, 2, 4
 depthoNames = '22.03.22_P1_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -425,10 +425,10 @@ PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, int
 # %%%% M6 : Half activation, At beads, 500ms once
 
 dates = '22.03.31'
-manips, wells, cells = 6, 1, 2
+manips, wells, cells = 6, 2, 2
 depthoNames = '22.03.31_P1_M450_step20_100X'
   
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -440,7 +440,7 @@ dates = '22.03.31'
 manips, wells, cells = 7, 'all', 'all'
 depthoNames = '22.03.31_P1_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -452,7 +452,7 @@ dates = '22.03.31'
 manips, wells, cells = 8, 2, 3
 depthoNames = '22.03.31_P1_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
@@ -464,7 +464,7 @@ dates = '22.03.31'
 manips, wells, cells = 9, 2, 2
 depthoNames = '22.03.31_P1_M450_step20_100X'
 
-PTL, timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
