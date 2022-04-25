@@ -859,12 +859,8 @@ def compressionFitChadwick_StressStrain(hCompr, fCompr, H0, DIAMETER):
 
 
 def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
-    
     plotSmallElements = True
-    print(f)
-    
-    
-    
+
     #### (0) Import experimental infos
     split_f = f.split('_')
     tsDF.dx, tsDF.dy, tsDF.dz, tsDF.D2, tsDF.D3 = tsDF.dx*1000, tsDF.dy*1000, tsDF.dz*1000, tsDF.D2*1000, tsDF.D3*1000
@@ -873,10 +869,13 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     # thisExpDf = expDf.loc[expDf['manipID'] == thisManipID]
     thisManipID = jvu.findInfosInFileName(f, 'manipID')
     thisExpDf = expDf.loc[expDf['manipID'] == thisManipID]
-    init_activation = expDf['first activation']
 
     # Deal with the asymmetric pair case : the diameter can be for instance 4503 (float) or '4503_2691' (string)
     diameters = thisExpDf.at[thisExpDf.index.values[0], 'bead diameter'].split('_')
+    
+    
+    firstActivation = thisExpDf.at[thisExpDf.index.values[0], 'first activation']
+    
     if len(diameters) == 2:
         DIAMETER = (int(diameters[0]) + int(diameters[1]))/2.
     else:
@@ -931,7 +930,12 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         # 1st plot - fig1 & ax1, is the F(t) curves with the different compressions colored depending of the analysis success
         fig1, ax1 = plt.subplots(1,1,figsize=(tsDF.shape[0]*(1/100),5))
         color = 'blue'
-        plt.axvline(x = 5, color = 'r', label = 'Activation begins')
+        loop_effectiveSize = int(tsDF.shape[0] / Ncomp)
+        print(loop_effectiveSize)
+        idxFirstActivation = int(loop_effectiveSize*firstActivation - 1)
+        print(idxFirstActivation)
+        T_firstActivation = tsDF['T'][idxFirstActivation] + 0.05 # 0.05 is the delay between last image of a loop and the fluorescence image being taken, if required.
+        ax1.axvline(x = T_firstActivation, color = 'r', label = 'Activation begins')
         ax1.set_xlabel('t (s)')
         ax1.set_ylabel('h (nm)', color=color)
         ax1.tick_params(axis='y', labelcolor=color)
@@ -1855,8 +1859,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 
         Allfigs = [fig1,fig2,fig3,fig4,fig5,fig6,fig7]
         for fig in Allfigs:
-            # fig.tight_layout()
-            pass
+            fig.tight_layout()
+            # pass
 
     
     

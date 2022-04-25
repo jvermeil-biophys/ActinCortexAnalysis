@@ -96,11 +96,11 @@ pd.reset_option('display.max_rows')
 
 ####  Matplotlib
 matplotlib.rcParams.update({'figure.autolayout': True})
-plt.style.use('dark_background') #Dark layout
+plt.style.use('default') #Dark layout
 
 #### Fontsizes
 SMALLER_SIZE = 10
-SMALL_SIZE = 14
+SMALL_SIZE = 25
 MEDIUM_SIZE = 16
 BIGGER_SIZE = 20
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
@@ -247,7 +247,7 @@ print(allTimeSeriesDataFiles)
 
 # %%% Get a time series
 
-df = aja.getCellTimeSeriesData('22-02-09_M1_P1_C7')
+df = aja.getCellTimeSeriesData('22-03-31_M6_P1_C2')
 
 
 # %%% Plot a time series
@@ -276,10 +276,6 @@ plt.close('all')
 # %%% Experimental conditions
 
 expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ',')
-
-
-
-
 
 # =============================================================================
 # %%% Constant Field
@@ -311,28 +307,26 @@ expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ','
 
 # %%%% Refresh the whole table
 
-aja.computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData_AJ', 
-                            save = False, PLOT = False, source = 'Python')
+# aja.computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData_AJ', 
+#                             save = False, PLOT = True, source = 'Python')
 
 # %%%% Specific experiments
 
-# Task = '' # For instance '22-03-30 & '22-03-31'
-# aja.computeGlobalTable_meca(task = Task, fileName = '', 
-#                             save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
+Task = '22-03-31_M8_P2_C2' # For instance '22-03-30 & '22-03-31'
+aja.computeGlobalTable_meca(task = Task, fileName = 'Global_MecaData_AJ', 
+                            save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
 
 
 # %%%% Precise dates (to plot)
 
-# date = '' # For instance '22-03-30 & '22-03-31'
-# aja.computeGlobalTable_meca(task = date, fileName = '', 
-#                             save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
+# date = '22-03-31' # For instance '22-03-30 & '22-03-31'
+# aja.computeGlobalTable_meca(task = date, fileName = 'Global_MecaData_AJ', 
+#                             save = True, PLOT = False, source = 'Python') # task = 'updateExisting'
 
 
 # %%%% Display
 
 # df = aja.getGlobalTable_meca('Global_MecaData_Py2').tail()
-
-
 
 
 # =============================================================================
@@ -378,8 +372,8 @@ GlobalTable_meca.tail()
 
 #### GlobalTable_meca_Py
 
-GlobalTable_meca_Py = aja.getGlobalTable(kind = 'meca_py')
-GlobalTable_meca_Py.tail()
+GlobalTable_meca = aja.getGlobalTable(kind = 'Global_MecaData_AJ')
+GlobalTable_meca.head()
 
 
 #### GlobalTable_meca_Py2
@@ -393,13 +387,6 @@ GlobalTable_meca_Py2.head()
 # GlobalTable_meca_nonLin = aja.getGlobalTable(kind = 'meca_nonLin')
 GlobalTable_meca_nonLin = aja.getGlobalTable(kind = 'Global_MecaData_NonLin2_Py')
 GlobalTable_meca_nonLin.head()
-
-
-#### Global_MecaData_MCA
-
-# GlobalTable_meca_MCA = aja.getGlobalTable(kind = 'meca_MCA')
-GlobalTable_meca_MCA = aja.getGlobalTable(kind = 'Global_MecaData_MCA2')
-GlobalTable_meca_MCA.head()
 
 
 # %%% Custom data export
@@ -416,6 +403,34 @@ GlobalTable_meca_MCA.head()
 
 
 # %% > Plotting Functions
+
+
+# H0 vs Compression Number
+expt = '20220331_100xoil_3t3optorhoa_4.5beads_15mT_Mechanics'
+f = '22-03-31_M8_P2_C2_disc20um_L40'
+date = '22.03.31'
+
+file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+f+'_PY.csv'
+tsDF = pd.read_csv(file, sep=';')
+
+
+indices = GlobalTable_meca[GlobalTable_meca['cellID'] == jvu.findInfosInFileName(f, 'cellID')].index.tolist() 
+
+plt.figure(figsize=(20,10))
+plt.rcParams.update({'font.size': 35})
+plt.plot(GlobalTable_meca['compNum'][indices].values, GlobalTable_meca['bestH0'][indices].values)
+plt.axvline(x = 5.5, color = 'r', marker='.')
+plt.xlabel('Compression Number')
+plt.ylabel('bestH0 (nm)')
+plt.title('bestH0 vs Compression No. | '+f)
+plt.savefig('D:/Anumita/MagneticPincherData/Figures/Historique/2022-04-20/MecaAnalysis_allCells/'+f+'_H0vT.png')
+plt.show()
+
+
+# Boxplot of compressions
+
+
+
 
 # %%% Objects declaration
 

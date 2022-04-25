@@ -92,66 +92,11 @@ BLUE  = '\033[36m' # blue
 
 # %% (1) Utility functions
 
-# def createFieldFile(f, extDataDir, expDf, out_path):
-#     """
-#     Creates a nice _Field.txt file in the right formation from the weird LOG file from MetaMorph 
-#     to obtain the accurate times of acquisition of the three planes for the timelapse.
-    
-#     f: The file of interest
-#     extDataDir: Path of external data direction to obtain th Metamorph .LOG file
-
-#     """
-    
-#     manipID = findInfosInFileName(f, 'manipID')
-    
-#     if manipID not in expDf['manipID'].values:
-#         print('Error! No experimental data found for: ' + manipID)
-#     else:
-#         expDf_line = expDf.loc[expDf['manipID'] == manipID]
-#         Nuplet = int(expDf_line['normal field multi images'])
-#         magField = int(expDf_line['normal field'])
-        
-#     out_path = out_path + '_Field.txt'
-#     file = extDataDir+'/test.LOG'
-    
-#     #Reads .LOG file, skips the first couple of rows which are not useful
-#     data = pd.read_csv(file, sep=',', skiprows=[0,3,7,8])
-    
-#     col_planeNo =  np.asarray(data[data.columns[0]])
-#     col_time = np.asarray(data[data.columns[1]])
-#     col_plane =  np.asarray(data[data.columns[2]])
-#     #totalFrames = len(out_path+'/SplitTriplets')/noOfPlanes
-#     times = []
-#     planes = []
-#     planeNos = []
-    
-#     for i in range(len(col_planeNo)):
-#         #Finds the row for the first plane of each acquisition and appends
-#         #the next couple of rows to an empty array which are all written to a .txt file 
-#         #at the end in the right format
-#         if (col_planeNo[i] == '1') == True: 
-#             for j in range(0,Nuplet):
-#                 ind = i+j
-#                 time = col_time[ind]
-#                 plane = col_plane[ind][1:]
-#                 planeNo =  col_planeNo[ind]
-#                 split_time = time[2:-1].split(':')
-#                 time_sec = 3600*int(split_time[0]) + 60*int(split_time[1]) + float(split_time[2])
-#                 np.asarray(times.append(time_sec))
-#                 np.asarray(planes.append(plane))
-#                 np.asarray(planeNos.append(planeNo))
-#         else:
-#             continue
-      
-#     #Creating a fake magnetic field column
-#     field = [magField]*len(times)
-#     field = np.asarray(field)
-    
-#     #writing the data in a new txt file
-#     all_data = np.asarray([field, times, field, planes])
-#     np.savetxt(out_path, all_data.T, fmt='%s,%s,%s,%s')
-            
-            
+def findActivation(fieldDf):
+    maxZidx = fieldDf['Z'].argmax() #Finding the index of the max Z
+    maxZ = fieldDf['Z'][maxZidx] #To check if the value is correct
+    return maxZidx, maxZ
+                     
 def findInfosInFileName(f, infoType):
     """
     Return a given type of info from a file name.
@@ -767,10 +712,6 @@ class PincherTimeLapse:
         self.modeNoUIactivated = False
         # End of the initialization !
        
-        
-       
-        
-       
     
     def checkIfBlackFrames(self):
         """
@@ -865,6 +806,7 @@ class PincherTimeLapse:
         # N = N0 - Nexclu
         Nct = N0 - Nramp0 # N
         i_nUp = 1
+        
 
         # print(N0,Nramp0,Nexclu,nUp)
 
@@ -902,13 +844,13 @@ class PincherTimeLapse:
         # N = N0 - Nexclu
         Nct = N0 - 2*Nramp0 # N
         i_nUp = 1
-
+        
         # if not self.wFluoEveryLoop:
         #     mask_notAlreadyExcluded = self.dictLog['status_frame'] >= 0
         #     print(mask_notAlreadyExcluded)
         # else:
         #     mask_notAlreadyExcluded = np.ones(len(self.dictLog['status_frame']), dtype = bool)
-            
+        
         for i in range(self.nLoop):
             totalExcludedOutward = np.sum(self.excludedFrames_outward[i])
             jstart = int(i*N0 + totalExcludedOutward)
@@ -932,6 +874,7 @@ class PincherTimeLapse:
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
                 i_nUp = max(self.dictLog['status_nUp']) + 1
+                    
 
     def determineFramesStatus_optoGen(self):
         #### Exp type dependance here
@@ -959,6 +902,33 @@ class PincherTimeLapse:
     def determineFramesStatus_BR(self):
         #### Exp type dependance here
         pass
+    
+    def makeOptoMetadata(self, fieldDf, display = 1, save = False, path = ''):
+        # actFirst = self.activationFirst
+        actFreq = self.activationFreq
+        actExp = self.activationExp
+        actType = [self.activationType]
+        idxActivation = findActivation(fieldDf)[0]
+        actFirst = idxActivation//self.loop_totalSize
+        actN = ((self.nLoop - actFirst))//actFreq
+        
+        metadataDict = {}
+        metadataDict['Total'] = actN*np.ones(actN, dtype = int)
+        metadataDict['Slice'] = idxActivation
+        metadataDict['T_abs'] = fieldDf['T_abs'][idxActivation]
+        metadataDict['Exp'] = actExp*np.ones(actN, dtype = int)
+        metadataDict['Type'] = actType*actN
+        
+        metadataDf = pd.DataFrame(metadataDict)
+        if save:
+            metadataDf.to_csv(path, sep='\t')
+        
+        if display == 1:
+            print('\n\n* Initialized Log Table:\n')
+            print(metadataDf)
+        # if display == 2:
+        #     print('\n\n* Filled Log Table:\n')
+        #     print(dfLog[dfLog['UI']])
                 
     def saveLog(self, display = 1, save = False, path = ''):
         """
@@ -983,6 +953,8 @@ class PincherTimeLapse:
         if display == 2:
             print('\n\n* Filled Log Table:\n')
             print(dfLog[dfLog['UI']])
+            
+    
 
 
     def importLog(self, path):
@@ -1401,7 +1373,7 @@ class PincherTimeLapse:
             
             #### >>> Exp type dependance here (01)
             if 'compressions' in self.expType or 'constant field' in self.expType:
-                self.listTrajectories[iB].dict['idxAnalysis'].append(1 * (self.listFrames[init_iF].status_frame == 0))
+                self.listTrajectories[iB].dict['idxAnalysis'].append((self.listFrames[init_iF].status_frame == 0))
                 
             #### TBC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             elif 'sinus' in self.expType:
@@ -1578,17 +1550,18 @@ class PincherTimeLapse:
             #### >>> Exp type dependance here (02)
             if 'compressions' in self.expType or 'constant field' in self.expType:
                 # idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
+                
                 if self.expType == 'compressions':
                     idxAnalysis = (self.listFrames[iF].status_frame == 0) \
                         * (max(self.listTrajectories[iB].dict['idxAnalysis']) \
-                           + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))
+                           + 1*(self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))
                             
                 elif self.expType == 'compressionsLowStart': 
                 # a pre-ramp has the same idxAnalysis than a ramp but in negative.
                     idxAnalysis = (self.listFrames[iF].status_frame == 0) \
-                        * (max(self.listTrajectories[iB].dict['idxAnalysis']) + 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
+                        * (max(self.listTrajectories[iB].dict['idxAnalysis']) + 1*(self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
                             - (self.listFrames[iF].status_frame == 0.1) \
-                        * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1 * (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
+                        * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - 1*(self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0)))
                         
                 elif self.expType == 'constant field':
                     idxAnalysis = 0
@@ -1601,7 +1574,23 @@ class PincherTimeLapse:
                  idxAnalysis = 0
             
             elif 'optoGen' in self.expType:
-                idxAnalysis = 0
+                # idxFirstActivation = findFirstActivation(fieldDf)
+                # if self.expType == 'optoGen_compressions':
+                # #idxAnalysis = 0 if not in a ramp, and = number of ramp else. Basically increase by 1 each time you have an interval between two ramps.
+                #     idxAnalysis = (self.listFrames[iF].status_frame == 0) \
+                #         * (max(self.listTrajectories[iB].dict['idxAnalysis']) \
+                #            + (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))
+                            
+                # elif self.expType == 'optoGen_compressionsLowStart': 
+                # # a pre-ramp has the same idxAnalysis than a ramp but in negative.
+                #     idxAnalysis = (self.listFrames[iF].status_frame == 0) \
+                #         * (max(self.listTrajectories[iB].dict['idxAnalysis']) + (self.listTrajectories[iB].dict['idxAnalysis'][-1] <= 0)) \
+                #             - (self.listFrames[iF].status_frame == 0.1) \
+                #         * (abs(min(self.listTrajectories[iB].dict['idxAnalysis']) - (self.listTrajectories[iB].dict['idxAnalysis'][-1] == 0))) \
+                #             + self.listTrajectories[iB].dict['idxAnalysis']
+                        
+                # elif self.expType == 'optoGen_constant field':
+                    idxAnalysis = 0
             
             
             
@@ -2170,6 +2159,7 @@ class Trajectory:
         self.depthoStep = 20
         self.depthoZFocus = 200
         self.Zstep = Zstep # The step in microns between 2 consecutive frames in a multi-frame Nuplet
+        self.idxFirstActivation = findFirstActivation
 
     def __str__(self):
         text = 'iS : ' + str(self.series_iS)
@@ -2606,8 +2596,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         for f in fileList:
             if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
-                # if metaMorph == True: 
-                #     createFieldFile(f, extDataDir, expDf, fPath)
                 if os.path.isfile(fPath[:-4] + '_Field.txt'):
                     imagesToAnalyse.append(f)
                     imagesToAnalyse_Paths.append(os.path.join(rd, f))    
@@ -2664,7 +2652,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             fieldCols = ['B_set', 'B', 'T_abs']
             fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
         
-            
+        #### Find index of first activation
+        optoMetaPath = fP[:-4] + '_OptoMetadata.txt'
+        PTL.makeOptoMetadata(fieldDf, display = 1, save = True, path = optoMetaPath)
         
         #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
@@ -2697,6 +2687,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
+                print('completed L40 stage')
             elif 'sin' in f:
                 PTL.determineFramesStatus_Sinus()
             elif 'brokenRamp' in f:
@@ -3011,7 +3002,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 'dy' : np.zeros(nT),
                 'dz' : np.zeros(nT),
                 'D2' : np.zeros(nT),
-                'D3' : np.zeros(nT)
+                'D3' : np.zeros(nT),
             }
 
             #### 5.1.2 - Input common values:
@@ -3031,7 +3022,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             timeSeries['dz'] = (traj2.dict['Zr']*traj2.depthoStep - traj1.dict['Zr']*traj1.depthoStep)/1000
             timeSeries['dz'] *= PTL.OptCorrFactor
             timeSeries['D3'] = (timeSeries['D2']**2 +  timeSeries['dz']**2)**0.5
-
 
             #print('\n\n* timeSeries:\n')
             #print(timeSeries_DF[['T','B','F','dx','dy','dz','D2','D3']])

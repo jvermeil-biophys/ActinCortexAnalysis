@@ -83,7 +83,7 @@ timeSeriesDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_An
 # %% Import of the experimental conditions
 
 experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental"
-expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ',')
 
 # %% EXAMPLE -- 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% M1
@@ -425,7 +425,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # %%%% M6 : Half activation, At beads, 500ms once
 
 dates = '22.03.31'
-manips, wells, cells = 6, 2, 2
+manips, wells, cells = 6, 2, 3
 depthoNames = '22.03.31_P1_M450_step20_100X'
   
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
