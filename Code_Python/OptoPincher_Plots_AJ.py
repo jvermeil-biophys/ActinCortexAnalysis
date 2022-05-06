@@ -10,247 +10,349 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import os
+import re
+from datetime import date
+import sys
+import scipy.stats as st
 
+
+# Local imports
+COMPUTERNAME = os.environ['COMPUTERNAME']
+if COMPUTERNAME == 'ORDI-JOSEPH':
+    mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+    rawDir = "D://MagneticPincherData"
+    ownCloudDir = "C://Users//JosephVermeil//ownCloud//ActinCortexAnalysis"
+elif COMPUTERNAME == 'LARISA':
+    mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+    rawDir = "F://JosephVermeil//MagneticPincherData"    
+    ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
+elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
+    mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
+    rawDir = "D:/Anumita/MagneticPincherData"  
+elif COMPUTERNAME == '':
+    mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//josep//ownCloud//ActinCortexAnalysis"
+
+# Add the folder to path
+sys.path.append(mainDir + "//Code_Python")
+import utilityFunctions_JV as jvu
 
 #%% Global constants
 
 bead_dia = 4.503
 
 
-#%% Utility functions
+# These regex are used to correct the stupid date conversions done by Excel
+dateFormatExcel = re.compile(r'\d{2}/\d{2}/\d{4}')
+dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
+dateFormatOk = re.compile(r'\d{2}-\d{2}-\d{2}')
 
-def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
-    """"
-    Import the table with all the conditions in a clean way.
-    It is a tedious function to read because it's doing a boring job:
-    Converting strings into numbers when possible
-    Converting commas into dots to correct for the French decimal notation
-    Converting semicolon separated values into lists when needed
-    Etc
-    """
-    #### 0. Import the table
-    experimentalDataFile = 'ExperimentalConditions.csv'
-    experimentalDataFilePath = os.path.join(experimentalDataDir, experimentalDataFile)
-    expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=sep, header=0)
-    print(BLUE + 'Importing Experimental Conditions' + NORMAL)
-    print(BLUE + 'Extracted a table with ' + str(expConditionsDF.shape[0]) + ' lines and ' + str(expConditionsDF.shape[1]) + ' columns' + NORMAL)
-    #### 1. Clean the table
-    
-    #### 1.1 Remove useless columns
-    for c in expConditionsDF.columns:
-        if 'Unnamed' in c:
-            expConditionsDF = expConditionsDF.drop([c], axis=1)
-        if '.1' in c:
-            expConditionsDF = expConditionsDF.drop([c], axis=1)
-    expConditionsDF = expConditionsDF.convert_dtypes()
+SCALE_100X = 15.8 # pix/µm 
+NORMAL  = '\033[0m'
+RED  = '\033[31m' # red
+GREEN = '\033[32m' # green
+ORANGE  = '\033[33m' # orange
+BLUE  = '\033[36m' # blue
 
-    #### 1.2 Convert commas into dots
-    listTextColumns = []
-    for col in expConditionsDF.columns:
-        try:
-            if expConditionsDF[col].dtype == 'string':
-                listTextColumns.append(col)
-        except:
-            pass
-    expConditionsDF[listTextColumns] = expConditionsDF[listTextColumns].apply(lambda x: x.str.replace(',','.'))
+# %% Directories adress
 
-    #### 1.3 Format 'scale'
-    expConditionsDF['scale pixel per um'] = expConditionsDF['scale pixel per um'].astype(float)
-    
-    #### 1.4 Format 'optical index correction'
-    try: # In case the format is 'n1/n2'
-        expConditionsDF['optical index correction'] = \
-                  expConditionsDF['optical index correction'].apply(lambda x: x.split('/')[0]).astype(float) \
-                / expConditionsDF['optical index correction'].apply(lambda x: x.split('/')[1]).astype(float)
-        print(ORANGE + 'optical index correction : format changed' + NORMAL)
-    except:
-        pass
-    
-    #### 1.5 Format 'magnetic field correction'
-    expConditionsDF['magnetic field correction'] = expConditionsDF['magnetic field correction'].astype(float)
-    
-    #### 1.6 Format 'with fluo images'
-    expConditionsDF['with fluo images'] = expConditionsDF['with fluo images'].astype(bool)
+experimentalDataDir = os.path.join(mainDir, "Data_Experimental")
+dataDir = os.path.join(mainDir, "Data_Analysis")
+timeSeriesDataDir = os.path.join(dataDir, "TimeSeriesData")
 
-    # #### 1.7 Format 'ramp field'
-    # try:
-    #     print(ORANGE + 'ramp field : converted to list successfully' + NORMAL)
-    #     expConditionsDF['ramp field'] = \
-    #     expConditionsDF['ramp field'].apply(lambda x: [x.split(';')[0], x.split(';')[1]] if not pd.isnull(x) else [])
-    # except:
-    #     pass
-
-    #### 1.8 Format 'date'
-    dateExemple = expConditionsDF.loc[expConditionsDF.index[1],'date']
-    if re.match(dateFormatExcel, dateExemple):
-        print(ORANGE + 'dates : format corrected' + NORMAL)
-        expConditionsDF.loc[:,'date'] = expConditionsDF.loc[:,'date'].apply(lambda x: x.split('/')[0] + '-' + x.split('/')[1] + '-' + x.split('/')[2][2:])        
-    elif re.match(dateFormatExcel2, dateExemple):
-        print(ORANGE + 'dates : format corrected' + NORMAL)
-        expConditionsDF.loc[:,'date'] = expConditionsDF.loc[:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])  
-        
-    #### 1.9 Format activation fields
-    expConditionsDF['first activation'] = expConditionsDF['first activation'].astype(np.float)
-    expConditionsDF['activation frequency'] = expConditionsDF['activation frequency'].astype(np.float)
+figDir = os.path.join(dataDir, "Figures")
+todayFigDir = os.path.join(figDir, "Historique//" + str(date.today()))
 
 
-    #### 2. Save the table, if required
-    if save:
-        saveName = 'ExperimentalConditions.csv'
-        savePath = os.path.join(experimentalDataDir, saveName)
-        expConditionsDF.to_csv(savePath, sep=';')
+#%% Utility functions specific to Opto experiments
 
-    #### 3. Generate additionnal field that won't be saved
-    
-    def str2int(s):
-        try:
-            x = int(s)
-        except:
-            x = np.nan
-        return(x)
-    
-    def str2float(s):
-        try:
-            x = float(s)
-        except:
-            x = np.nan
-        return(x)
-    
-    #### 3.1 Make 'manipID'
-    expConditionsDF['manipID'] = expConditionsDF['date'] + '_' + expConditionsDF['manip']
+def findActivation(fieldDf):
+    maxZidx = fieldDf['Z'].argmax() #Finding the index of the max Z
+    maxZ = fieldDf['Z'][maxZidx] #To check if the value is correct
+    return maxZidx, maxZ
 
-def findInfosInFileName(f, infoType):
-    """
-    Return a given type of info from a file name.
-    Inputs : f (str), the file name.
-             infoType (str), the type of info wanted.
-             infoType can be equal to : 
-             * 'M', 'P', 'C' -> will return the number of manip (M), well (P), or cell (C) in a cellID.
-             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'C', the function will return 8.
-             * 'manipID'     -> will return the full manip ID.
-             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'manipID', the function will return '21-01-18_M2'.
-             * 'cellID'     -> will return the full cell ID.
-             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'cellID', the function will return '21-01-18_M2_P1_C8'.
-    """
-    if infoType in ['M', 'P', 'C']:
-        acceptedChar = [str(i) for i in range(10)] + ['.', '-']
-        string = '_' + infoType
-        iStart = re.search(string, f).end()
-        i = iStart
-        infoString = '' + f[i]
-        while f[i+1] in acceptedChar and i < len(f)-1:
-            i += 1
-            infoString += f[i]
+def getCellTimeSeriesData(cellID, fromPython = True):
+    if fromPython:
+        allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) 
+                              if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) 
+                                  and f.endswith("PY.csv"))]
+    else:
+        allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) 
+                              if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) 
+                                  and f.endswith(".csv") and not f.endswith("PY.csv"))]
+    fileFound = False
+    nFile = len(allTimeSeriesDataFiles)
+    iFile = 0
+    while (not fileFound) and (iFile < nFile):
+        f = allTimeSeriesDataFiles[iFile]
+        if f.startswith(cellID + '_'):
+            timeSeriesDataFilePath = os.path.join(timeSeriesDataDir, f)
+            timeSeriesDataFrame = pd.read_csv(timeSeriesDataFilePath, sep=';')
+            fileFound = True
+        iFile += 1
+    if not fileFound:
+        timeSeriesDataFrame = pd.DataFrame([])
+    else:
+        for c in timeSeriesDataFrame.columns:
+                if 'Unnamed' in c:
+                    timeSeriesDataFrame = timeSeriesDataFrame.drop([c], axis=1)
+    return(timeSeriesDataFrame)
+
+
+def getOptoMeta(cellID):
+    date = jvu.findInfosInFileName(cellID, 'date')
+    date = date.replace('-', '.')
+    optoMetaDataPath = rawDir+'//Raw//'+date
+    allOptoMetaDataFiles = [f for f in os.listdir(optoMetaDataPath) 
+                          if (os.path.isfile(os.path.join(optoMetaDataPath, f)) 
+                              and f.endswith("OptoMetadata.txt"))]
+    fileFound = False
+    nFile = len(allOptoMetaDataFiles)
+    iFile = 0
+    while (not fileFound) and (iFile < nFile):
+        f = allOptoMetaDataFiles[iFile]
+        if f.startswith(cellID + '_'):
+            optoMetaDataPath = os.path.join(optoMetaDataPath, f)
+            optoMetaDatadf = pd.read_csv(optoMetaDataPath, sep='\t')
+            fileFound = True
+        iFile += 1
+    if not fileFound:
+        optoMetaDatadf = pd.DataFrame([])
+    else:
+        for c in optoMetaDatadf.columns:
+                if 'Unnamed' in c:
+                    optoMetaDatadf = optoMetaDatadf.drop([c], axis=1)
+    return(optoMetaDatadf)
+
+
+
+def addStat_df(ax, data, box_pairs, param, cond, test = 'Mann-Whitney', percentHeight = 95):
+    refHeight = np.percentile(data[param].values, percentHeight)
+    currentHeight = refHeight
+    scale = ax.get_yscale()
+    xTicks = ax.get_xticklabels()
+    dictXTicks = {xTicks[i].get_text() : xTicks[i].get_position()[0] for i in range(len(xTicks))}
+    for bp in box_pairs:
+        c1 = data[data[cond] == bp[0]][param].values
+        c2 = data[data[cond] == bp[1]][param].values
+        if test == 'Mann-Whitney' or test == 'Wilcox_2s' or test == 'Wilcox_greater' or test == 'Wilcox_less' or test == 't-test':
+            if test=='Mann-Whitney':
+                statistic, pval = st.mannwhitneyu(c1,c2)
+            elif test=='Wilcox_2s':
+                statistic, pval = st.wilcoxon(c1,c2, alternative = 'two-sided')
+            elif test=='Wilcox_greater':
+                statistic, pval = st.wilcoxon(c1,c2, alternative = 'greater')
+            elif test=='Wilcox_less':
+                statistic, pval = st.wilcoxon(c1,c2, alternative = 'less')
+            elif test=='t-test':
+                statistic, pval = st.ttest_ind(c1,c2)
+            text = 'ns'
+            if pval < 0.05 and pval > 0.01:
+                text = '*'
+            elif pval < 0.01 and pval > 0.001:
+                text = '**'
+            elif pval < 0.001 and pval < 0.001:
+                text = '***'
+            elif pval < 0.0001:
+                text = '****'
+            ax.plot([bp[0], bp[1]], [currentHeight, currentHeight], 'k-', lw = 1)
+            XposText = (dictXTicks[bp[0]]+dictXTicks[bp[1]])/2
+            if scale == 'log':
+                power = 0.01* (text=='ns') + 0.000 * (text!='ns')
+                YposText = currentHeight*(refHeight**power)
+            else:
+                factor = 0.03 * (text=='ns') + 0.000 * (text!='ns')
+                YposText = currentHeight + factor*refHeight
+            ax.text(XposText, YposText, text, ha = 'center', color = 'k')
+    #         if text=='ns':
+    #             ax.text(posText, currentHeight + 0.025*refHeight, text, ha = 'center')
+    #         else:
+    #             ax.text(posText, currentHeight, text, ha = 'center')
+            if scale == 'log':
+                currentHeight = currentHeight*(refHeight**0.05)
+            else:
+                currentHeight =  currentHeight + 0.15*refHeight
+        ax.set_ylim([ax.get_ylim()[0], currentHeight])
+
+        if test == 'pairwise':
+            ratio = (c2/c1)
+            stdError = np.std(ratio)/np.sqrt(np.size(c1))
+            confInt = 1.96 * stdError
+            print(stdError)
+            print(ratio)
+            cdict = {True: '*', False: '0'}
             
-    elif infoType == 'date':
-        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
-        date = f[datePos.start():datePos.end()]
-        infoString = date
-    
-    elif infoType == 'manipID':
-        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
-        date = f[datePos.start():datePos.end()]
-        manip = 'M' + findInfosInFileName(f, 'M')
-        infoString = date + '_' + manip
+            # fig, ax = plt.subplots()
+            # for g in np.unique(group):
+            #     ix = np.where(group == g)
+            #     ax.plot(c1[ix], c2[ix], c = cdict[g], marker = g, s = 100)
+            # XposText = (dictXTicks[bp[0]]+dictXTicks[bp[1]])/2     
+
+def ctFieldThicknessInidividual(rawDir, experimentalDataDir, date, save = False, plotType = 'all'):
+    expDf = jvu.getExperimentalConditions(experimentalDataDir, save = False, sep = ',') 
+    files = os.listdir(rawDir+'/Raw/'+date)
+    print(files)
+    # for f in files:
+    #     if f.endswith('.tif'):
+    #         cellID = listOfCells[i]
+    #         date = np.char.replace(jvu.findInfosInFileName(cellID, 'date'), '-', '.')
+            
+    #         timeSeriesDf = getCellTimeSeriesData(cellID)
+    #         optoMetaDataDf = getOptoMeta(cellID)
+    #         fieldDf = mainDataDir+'/'+date+'/'+cellID
+    #         manipID = jvu.findInfosInFileName(cellID, 'manipID')
         
-    elif infoType == 'cellID':
-        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
-        date = f[datePos.start():datePos.end()]
-        infoString = date + '_' + 'M' + findInfosInFileName(f, 'M') + \
-                            '_' + 'P' + findInfosInFileName(f, 'P') + \
-                            '_' + 'C' + findInfosInFileName(f, 'C')
-                            
-    elif infoType == 'substrate':
-        try:
-            pos = re.search(r"disc[\d]*um", f)
-            infoString = f[pos.start():pos.end()]
-        except:
-            infoString = ''
-                 
-                             
-    return(infoString)
-
-def isFileOfInterest(f, manips, wells, cells):
-    """
-    Determine if a file f correspond to the given criteria.
-    More precisely, return a boolean saying if the manip, well and cell number are in the given range.
-    f is a file name. Each of the fields 'manips', 'wells', 'cells' can be either a number, a list of numbers, or 'all'.
-    Example : if f = '21-01-18_M2_P1_C8.tif'
-    * manips = 'all', wells = 'all', cells = 'all' -> the function return True.
-    * manips = 1, wells = 'all', cells = 'all' -> the function return False.
-    * manips = [1, 2], wells = 'all', cells = 'all' -> the function return True.
-    * manips = [1, 2], wells = 2, cells = 'all' -> the function return False.
-    * manips = [1, 2], wells = 1, cells = [5, 6, 7, 8] -> the function return True.
-    Note : if manips = 'all', the code will consider that wells = 'all', cells = 'all'.
-           if wells = 'all', the code will consider that cells = 'all'.
-           This means you can add filters only in this order : manips > wells > cells.
-    """
-    test = False
-    if f.endswith(".tif"):
-        if manips == 'all':
-            test = True
-        else:
-            try:
-                manips_str = [str(i) for i in manips]
-            except:
-                manips_str = [str(manips)]
-            infoM = findInfosInFileName(f, 'M')
-            if infoM in manips_str:
-                if wells == 'all':
-                    test = True
-                else:
-                    try:
-                        wells_str = [str(i) for i in wells]
-                    except:
-                        wells_str = [str(wells)]
-                    infoP = findInfosInFileName(f, 'P')
-                    if infoP in wells_str:
-                        if cells == 'all':
-                            test = True
-                        else:
-                            try:
-                                cells_str = [str(i) for i in cells]
-                            except:
-                                cells_str = [str(cells)]
-                            infoC = findInfosInFileName(f, 'C')
-                            if infoC in cells_str:
-                                test = True
-    return(test)
-
-
-def getFieldFile(f):
-    return
+        
+        if plotType == 'all'
     
-####Plot median thickness before and after activation (box plots)
-def cfComparison(f):
-    return
 
-####Plot only 3D distance vs Time
+def ctFieldThicknessSummary(experimentalDataDir, listOfCells):
+    expDf = jvu.getExperimentalConditions(experimentalDataDir, save = False, sep = ',')
+    cellConditionsDf = pd.read_csv(experimentalDataDir+'/cellConditions.csv')
+    summaryDict = {}
+    summaryDict['cellID'] = []
+    summaryDict['medianThickness'] = []
+    summaryDict['activationTag'] = []
+    summaryDict['activationType'] = []
+    summaryDict['fluctuations'] = []
+    summaryDict['blebCondition'] = []
+    
+    for i in range(len(listOfCells)):
+        cellID = listOfCells[i]
+        
+        timeSeriesDf = getCellTimeSeriesData(cellID)
+        optoMetaDataDf = getOptoMeta(cellID)
+        manipID = jvu.findInfosInFileName(cellID, 'manipID')
+
+        Tact = optoMetaDataDf['T_abs'].values[0]
+    
+        summaryDict['cellID'].append(cellID)
+        thicknessBefore = (timeSeriesDf['D3']-bead_dia)[(timeSeriesDf['Tabs']*1000 < Tact)]
+        medianThicknessBefore = thicknessBefore.median()
+        fluctBefore = np.percentile(thicknessBefore, 90) - np.percentile(thicknessBefore, 10)
+        summaryDict['medianThickness'].append(medianThicknessBefore)
+        summaryDict['activationTag'].append('Before')
+        summaryDict['activationType'].append(expDf['activation type'][(expDf['manipID'] == manipID)].values[0])
+        summaryDict['fluctuations'].append(fluctBefore)
+        summaryDict['blebCondition'].append(cellConditionsDf['blebCondition'][cellConditionsDf['cellID']==cellID].values[0])
+
+        summaryDict['cellID'].append(cellID)
+        thicknessAfter = (timeSeriesDf['D3']-bead_dia)[(timeSeriesDf['Tabs']*1000 > Tact)]
+        medianThicknessAfter = thicknessAfter.median()
+        fluctAfter = np.percentile(thicknessAfter, 90) - np.percentile(thicknessAfter, 10)
+        summaryDict['medianThickness'].append(medianThicknessAfter)
+        summaryDict['activationTag'].append('After')
+        summaryDict['activationType'].append(expDf['activation type'][(expDf['manipID'] == manipID)].values[0])
+        summaryDict['fluctuations'].append(fluctAfter)
+        summaryDict['blebCondition'].append(cellConditionsDf['blebCondition'][cellConditionsDf['cellID']==cellID].values[0])
+        
+        summaryDf = pd.DataFrame(summaryDict)
+
+        
+    #### Subplots of each activation type, thickness
+    activationType = ['global', 'at beads', 'away from beads']
+    fig1, axs = plt.subplots(nrows = 1, ncols = 3)
+    color = ['r', 'g', 'b']
+    for j in range(len(activationType)):
+        dataSpecific = summaryDf[summaryDf['activationType'] == activationType[j]]
+        
+        y1 = dataSpecific['medianThickness'][dataSpecific['activationTag'] == 'Before']
+        y2 = dataSpecific['medianThickness'][dataSpecific['activationTag'] == 'After']
+        
+        axs[j].plot((np.zeros(len(y1), dtype = int), np.ones(len(y2), dtype = int)), (y1, y2), '-o', color = color[j])
+
+        axs[j].set_title(activationType[j])
+        labels = ['Before, After']
+        axs[j].set_xticks = ([1,2], labels)
+
+    plt.suptitle('Median Thickness')
+    fig1.tight_layout()
+    plt.show()
+    
+    #### Subplots of each activation type, fluctuations
+    activationType = ['global', 'at beads', 'away from beads']
+    fig2, axs = plt.subplots(nrows = 1, ncols = 3)
+    color = ['r', 'g', 'b']
+    for j in range(len(activationType)):
+        dataSpecific = summaryDf[summaryDf['activationType'] == activationType[j]]
+        
+        y1 = dataSpecific['fluctuations'][dataSpecific['activationTag'] == 'Before']
+        y2 = dataSpecific['fluctuations'][dataSpecific['activationTag'] == 'After']
+        
+        axs[j].plot((np.zeros(len(y1), dtype = int), np.ones(len(y2), dtype = int)), (y1, y2), '-o', color = color[j])
+        # axs[j].plot((y1, y2), '-o', color = color[j])
+
+        axs[j].set_title(activationType[j])
+        labels = ['Before, After']
+        # axs[j].set_xlim([-0.2, 1.2])
+        axs[j].set_xticks = ([1,2], labels)
+        # axs[j].set_xticklabels([' ','Before', 'After'])
+    
+    plt.suptitle('Fluctuations')
+    fig2.tight_layout()
+    plt.show()
+    
+    ####Only globally activated cells before/after
+    ax1 = plt.figure()
+    data_onlyGlobal = summaryDf[summaryDf['activationType'] == 'global']
+    ax1 = sns.boxplot(x = 'activationTag', y='medianThickness', data=data_onlyGlobal, color = 'skyblue')
+    ax1 = sns.swarmplot(x = 'activationTag', y='medianThickness', data=data_onlyGlobal, hue = 'blebCondition')
+    addStat_df(ax1, data_onlyGlobal, [('Before', 'After')], 'medianThickness', cond = 'activationTag')
+    for patch in ax1.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .3))
+    
+    plt.show()
+    
+    
+    ####All cells before/after activation
+    ax2 = plt.figure()
+    ax2 = sns.boxplot(x = 'activationTag', y='medianThickness', data=summaryDf, color = 'skyblue')
+    ax2 = sns.swarmplot(x = 'activationTag', y='medianThickness', data=summaryDf, hue = 'activationType')
+    addStat_df(ax2, summaryDf, [('Before', 'After')], 'medianThickness', cond = 'activationTag')
+    for patch in ax2.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .3))
+    plt.show()
+    
+    
+    ####Plot fluctuations before and after activation
+    ax3 = plt.figure()
+    ax3 = sns.boxplot(x = 'activationTag', y='fluctuations', data=summaryDf, color = 'skyblue')
+    ax3 = sns.swarmplot(x = 'activationTag', y='fluctuations', data=summaryDf, hue = 'activationType')
+    addStat_df(ax3, summaryDf, [('Before', 'After')], 'fluctuations', cond = 'activationTag')
+    for patch in ax3.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .3))
+    plt.show()
+    
+    ####Plot fluctuations vs. median thickness
+    ax4 = plt.figure()
+    ax4 = sns.scatterplot(x = 'medianThickness', y='fluctuations', data=summaryDf, style = 'activationTag', hue = 'activationType')
+    plt.show()
+    
+    return(summaryDf)
+
+#%% More tests 
+#%%
+
+listOfCells = np.asarray(cellDf['cellID'][cellDf['excluded'] == 'no'])
+summaryDf = ctFieldThicknessSummary(experimentalDataDir, listOfCells)
 
 
-####Plot 3D distance, 2D distance and Dz vs. Time
-
-
+# %%
+plt.close('all')
 #%% Tests
 
 path = 'D:/Anumita/MagneticPincherData/Raw/22.03.31/'
 expt = '22-03-31_M6_P1_C2_disc20um_L40'
 file = path+expt+'_Field.txt'
 
-def findFirstActivation(f):
-    allData = pd.read_csv(file, sep='\t') #Read the _Field.txt file
-    maxZidx = (allData[allData.columns[3]].argmax()) #Finding the index of the max Z
-    maxZ = allData[allData.columns[3]][maxZidx] #To check if the value is correct
-    return maxZidx, maxZ
-
-
-maxZ = findFirstActivation(file)
-
 #%% Plotting all three graphs (3D, 2D and Dz)
 
-expt = '20220331_100xoil_3t3optorhoa_4.5beads_15mT_Mechanics'
-folder = '22-03-31_M7_P1_C2_disc20um_L40'
-date = '22.03.31'
+expt = '20220412_100xoil_3t3optorhoa_4.5beads_15mT_Mechanics'
+folder = '22-04-12_M1_P1_C5_disc20um'
+date = '22.04.12'
 
 file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+folder+'_PY.csv'
 data = pd.read_csv(file, sep=';')

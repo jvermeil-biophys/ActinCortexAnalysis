@@ -11,14 +11,14 @@ import datetime
 import matplotlib.pyplot as plt
 
 
-expt = '20220322_100xoil_3t3optorhoa_4.5beads_15mT'
-folder = '22-03-22_M2_P1_C2_disc20um'
-date = '22.03.22'
+expt = '20220301_100xoil_3t3optorhoa_4.5beads_15mT'
+folder = '22-03-01_M1_P1_C2_disc20um'
+date = '22.03.01'
 
 out_path = 'D:/Anumita/MagneticPincherData/Raw/'+date+'/'+folder+'_Field.txt'
 
-file = 'E:/Cortex Experiments/optoPincher Experiments/'+expt+'/'+date+'/'+folder+'/test.LOG'
-data = pd.read_csv(file, sep=',', skiprows=[0,3,7,8])
+file = 'G:/Cortex Experiments/optoPincher Experiments/'+expt+'/'+date+'/'+folder+'/test.LOG'
+data = pd.read_csv(file, sep='\t', skiprows=[0,3,7,8])
 
 col_planeNo =  np.asarray(data[data.columns[0]])
 col_time = np.asarray(data[data.columns[1]])

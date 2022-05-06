@@ -672,14 +672,19 @@ class PincherTimeLapse:
         #### Import data from the optogen condition columns, if they exist
         try:
             self.activationFirst = int(manipDict['first activation'])
+            # first activation is the number of the loop at the end of which the first activ is.
+            # when you count the loop starting from 1.
             self.activationFreq = int(manipDict['activation frequency'])
             self.activationExp = manipDict['activation exp']
             self.activationType = manipDict['activation type']
+            self.microscope = manipDict['microscope']
             
             if (not pd.isna(self.activationFreq)) and self.activationFreq > 0:
                 LoopActivations = np.array([k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)])
+                # k-1 here cause we counted the loops starting from 1 but python start from 0.
             else:
                 LoopActivations = np.array([self.activationFirst-1])
+            self.LoopActivations = LoopActivations
             self.totalActivationImages = np.array([np.sum(LoopActivations < kk) for kk in range(self.nLoop)])
             
             self.excludedFrames_outward += self.totalActivationImages
@@ -734,10 +739,6 @@ class PincherTimeLapse:
                 checkSum = np.sum(self.I[j])
 
 
-
-
-
-
     def saveFluoAside(self, fluoDirPath, f):
         """
         If wFluo = True in the expDf, modify the 'status_frame' & 'status_nUp' fields to '-1' in the dictLog.
@@ -745,50 +746,53 @@ class PincherTimeLapse:
         find and save all of the fluo images there.
         """
         
-        
-        try: # Optogenetic activations behaviour
-            print(ORANGE + 'tried optogen fluo detection' + NORMAL)
-            if self.activationFirst > 0 and not self.wFluoEveryLoop:
-                if (not pd.isna(self.activationFreq)) and self.activationFreq > 0: # Meaning there is a repetition of activation
-                    LoopActivations = [k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)]
-                    for iLoopActivation in LoopActivations:
-                        j = int(((iLoopActivation+1)*self.loop_totalSize) - self.excludedFrames_black[iLoopActivation])
+        if self.microscope == 'labview':
+            try: # Optogenetic activations behaviour
+                print(ORANGE + 'tried optogen fluo detection' + NORMAL)
+                if self.activationFirst > 0 and not self.wFluoEveryLoop:
+                    if (not pd.isna(self.activationFreq)) and self.activationFreq > 0: # Meaning there is a repetition of activation
+                        # LoopActivations = [k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)]
+                        for iLoopActivation in self.LoopActivations:
+                            totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
+                            j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+                            self.dictLog['status_frame'][j] = -1
+                            self.dictLog['status_nUp'][j] = -1
+                            
+                    else: # Set self.activationFreq = 0 to only detect one single activation
+                        iLoopActivation = self.activationFirst-1
+                        totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
+                        # LoopActivations = [iLoopActivation]
+                        
+                        j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
                         self.dictLog['status_frame'][j] = -1
                         self.dictLog['status_nUp'][j] = -1
                         
-                else: # Set self.activationFreq = 0 to only detect one single activation
-                    iLoopActivation = self.activationFirst-1
-                    LoopActivations = [iLoopActivation]
-                    
-                    j = int(((iLoopActivation+1)*self.loop_totalSize) - self.excludedFrames_black[iLoopActivation])
+                    if not os.path.exists(fluoDirPath):
+                        os.makedirs(fluoDirPath)
+                        for iLoopActivation in self.LoopActivations:
+                            totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
+                            j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+                            Ifluo = self.I[j]
+                            path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
+                            io.imsave(path, Ifluo)
+    
+            except: 
+                pass
+            
+            
+            if self.wFluoEveryLoop: # Normal behaviour
+                for i in range(self.nLoop):
+                    j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFrames_black[i])
                     self.dictLog['status_frame'][j] = -1
                     self.dictLog['status_nUp'][j] = -1
-                    
+    
                 if not os.path.exists(fluoDirPath):
                     os.makedirs(fluoDirPath)
-                    for iLoopActivation in LoopActivations:
-                        j = int(((iLoopActivation+1)*self.loop_totalSize) - self.excludedFrames_black[iLoopActivation])
+                    for i in range(self.nLoop):
+                        j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFrames_black[i])
                         Ifluo = self.I[j]
                         path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
                         io.imsave(path, Ifluo)
-
-        except: 
-            pass
-        
-        
-        if self.wFluoEveryLoop: # Normal behaviour
-            for i in range(self.nLoop):
-                j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFrames_black[i])
-                self.dictLog['status_frame'][j] = -1
-                self.dictLog['status_nUp'][j] = -1
-
-            if not os.path.exists(fluoDirPath):
-                os.makedirs(fluoDirPath)
-                for i in range(self.nLoop):
-                    j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFrames_black[i])
-                    Ifluo = self.I[j]
-                    path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
-                    io.imsave(path, Ifluo)
                         
 
     def determineFramesStatus_R40(self):
@@ -877,7 +881,7 @@ class PincherTimeLapse:
                     
 
     def determineFramesStatus_optoGen(self):
-        #### Exp type dependance here
+    #### Exp type dependance here
         N0 = self.loop_totalSize
         Nramp0 = self.loop_rampSize
         # Nexclu = self.loop_excludedSize
@@ -886,13 +890,22 @@ class PincherTimeLapse:
         i_nUp = 1
 
         # print(N0,Nramp0,Nexclu,nUp)
-
-        for i in range(self.nLoop):
-            jstart = int(i*N0)
-            for j in range(N0): # N
-                self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
-                self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
-            i_nUp = max(self.dictLog['status_nUp']) + 1
+        if self.microscope == 'metamorph':
+            for i in range(self.nLoop):
+                jstart = int(i*N0)
+                for j in range(N0): # N
+                    self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
+                i_nUp = max(self.dictLog['status_nUp']) + 1
+        elif self.microscope == 'labview':
+            for i in range(self.nLoop):
+                totalExcludedOutward = np.sum(self.excludedFrames_outward[i])
+                jstart = int(i*N0 + totalExcludedOutward)
+                for j in range(N0): # N
+                    self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
+                    self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
+                i_nUp = max(self.dictLog['status_nUp']) + 1
+            
         
                 
     def determineFramesStatus_Sinus(self):
@@ -904,18 +917,27 @@ class PincherTimeLapse:
         pass
     
     def makeOptoMetadata(self, fieldDf, display = 1, save = False, path = ''):
-        # actFirst = self.activationFirst
         actFreq = self.activationFreq
         actExp = self.activationExp
         actType = [self.activationType]
-        idxActivation = findActivation(fieldDf)[0]
-        actFirst = idxActivation//self.loop_totalSize
+        microscope = self.microscope
+        if microscope == 'labview':
+            idxActivation = findActivation(fieldDf)[0]
+            actFirst = idxActivation//self.loop_totalSize
+            timeScaleFactor = 1000
+        elif microscope == 'metamorph':
+            actFirst = self.activationFirst
+            #+2 in idxAnalysis because the time included in the timeSeriesfile is the third of the triplet
+            idxActivation = actFirst*self.loop_totalSize-1
+            timeScaleFactor = 1
+        
         actN = ((self.nLoop - actFirst))//actFreq
         
         metadataDict = {}
         metadataDict['Total'] = actN*np.ones(actN, dtype = int)
         metadataDict['Slice'] = idxActivation
-        metadataDict['T_abs'] = fieldDf['T_abs'][idxActivation]
+        #timeScaleFactor converts the time to milliseconds for the labview code and keeps it the same if from Metamorph
+        metadataDict['T_abs'] = fieldDf['T_abs'][idxActivation]/timeScaleFactor 
         metadataDict['Exp'] = actExp*np.ones(actN, dtype = int)
         metadataDict['Type'] = actType*actN
         
@@ -926,9 +948,9 @@ class PincherTimeLapse:
         if display == 1:
             print('\n\n* Initialized Log Table:\n')
             print(metadataDf)
-        # if display == 2:
-        #     print('\n\n* Filled Log Table:\n')
-        #     print(dfLog[dfLog['UI']])
+        if display == 2:
+            print('\n\n* Filled Log Table:\n')
+            print(metadataDf[metadataDf['UI']])
                 
     def saveLog(self, display = 1, save = False, path = ''):
         """
@@ -953,9 +975,6 @@ class PincherTimeLapse:
         if display == 2:
             print('\n\n* Filled Log Table:\n')
             print(dfLog[dfLog['UI']])
-            
-    
-
 
     def importLog(self, path):
         """
@@ -1643,8 +1662,8 @@ class PincherTimeLapse:
             iField = []
             for i in range(nT):
                 iF = self.listTrajectories[iB].dict['iF'][i]
+                print(iF)
                 iLoop = ((iF)//self.loop_totalSize)
-                
                 offset = self.excludedFrames_black[iLoop] 
                 # For now : excludedFrames_inward = excludedFrames_black
                 # For now : excludedFrames_outward = excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
@@ -2159,7 +2178,6 @@ class Trajectory:
         self.depthoStep = 20
         self.depthoZFocus = 200
         self.Zstep = Zstep # The step in microns between 2 consecutive frames in a multi-frame Nuplet
-        self.idxFirstActivation = findFirstActivation
 
     def __str__(self):
         text = 'iS : ' + str(self.series_iS)
@@ -3006,12 +3024,11 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             }
 
             #### 5.1.2 - Input common values:
-            T0 = fieldDf['T_abs'].values[0]/1000
+            T0 = fieldDf['T_abs'].values[0]/1000 # From ms to s conversion
             timeSeries['idxAnalysis'] = traj1.dict['idxAnalysis']
-            timeSeries['Tabs'] = (fieldDf['T_abs'][traj1.dict['iField']])/1000
+            timeSeries['Tabs'] = (fieldDf['T_abs'][traj1.dict['iField']])/1000 # From ms to s conversion
             timeSeries['T'] = timeSeries['Tabs'].values - T0*np.ones(nT)
             timeSeries['B'] = fieldDf['B_set'][traj1.dict['iField']].values
-            # print((timeSeries['B']))
             timeSeries['B'] *= PTL.MagCorrFactor
 
             #### 5.1.3 - Compute distances
