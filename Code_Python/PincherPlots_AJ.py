@@ -240,42 +240,42 @@ plt.show()
 
 
 # %%% List files
-allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) \
-                          if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) and f.endswith(".csv"))]
-print(allTimeSeriesDataFiles)
+# allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) \
+#                           if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) and f.endswith(".csv"))]
+# print(allTimeSeriesDataFiles)
 
 
 # %%% Get a time series
 
-df = aja.getCellTimeSeriesData('22-03-31_M6_P1_C2')
+# df = aja.getCellTimeSeriesData('22-03-31_M9_P2_C2')
 
 
-# %%% Plot a time series
+# # %%% Plot a time series
 
-# aja.plotCellTimeSeriesData('21-02-10_M1_P1_C2')
+# aja.plotCellTimeSeriesData('22-03-31_M9_P2_C2')
 
 
 # %%% Plot multiple time series
 
-allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) and f.endswith(".csv"))]
-for f in allTimeSeriesDataFiles:
-    if '22-02-09_M2' in f:
-        aja.plotCellTimeSeriesData(f[:-4])
+# allTimeSeriesDataFiles = [f for f in os.listdir(timeSeriesDataDir) if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) and f.endswith(".csv"))]
+# for f in allTimeSeriesDataFiles:
+#     if '22-04-12_M2' in f:
+#         aja.plotCellTimeSeriesData(f[:-4])
 
 
-# %%% Close all
+# # %%% Close all
 
-plt.close('all')
+# plt.close('all')
 
 
 # #############################################################################
-# %% GlobalTables functions
+# %% GlobalTables plotting functions
 
 
 
 # %%% Experimental conditions
 
-expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ',')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ';')
 
 # =============================================================================
 # %%% Constant Field
@@ -285,12 +285,13 @@ expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ','
 # aja.computeGlobalTable_ctField(task='updateExisting', fileName = '', save=False, source = 'Python')
 
 
+
 # %%%% Refresh the whole table
 
 # aja.computeGlobalTable_ctField(task = 'fromScratch', fileName = '', save = True, source = 'Python')
 
 
-# %%%% Display
+# # %%%% Display
 
 # df = aja.getGlobalTable_ctField().head()
 
@@ -302,19 +303,19 @@ expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ','
 # %%%% Update the table
 
 # aja.computeGlobalTable_meca(task = 'updateExisting', fileName = '', 
-#                             save = False, PLOT = False, source = 'Python')
+#                             save = True, PLOT = True, source = 'Python')
 
 
 # %%%% Refresh the whole table
 
-# aja.computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData_AJ', 
-#                             save = False, PLOT = True, source = 'Python')
+aja.computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData_AJ', 
+                            save = True, PLOT = True, source = 'Python')
 
 # %%%% Specific experiments
 
-Task = '22-03-31_M8_P2_C2' # For instance '22-03-30 & '22-03-31'
-aja.computeGlobalTable_meca(task = Task, fileName = 'Global_MecaData_AJ', 
-                            save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
+# Task = '22-03-31_M9_P2_C2' # For instance '22-03-30 & '22-03-31'
+# aja.computeGlobalTable_meca(task = Task, fileName = 'Global_MecaData_AJ', 
+#                             save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
 
 
 # %%%% Precise dates (to plot)
@@ -404,6 +405,107 @@ GlobalTable_meca_nonLin.head()
 
 # %% > Plotting Functions
 
+def TmodulusVsCompression(GlobalTable_meca, selectedStressRange, activationType = 'all'):
+    sns.set_style('darkgrid')
+    stressRanges = ['100+/-100', '150+/-100', '200+/-100', '250+/-100', \
+                   '300+/-100', '350+/-100', '400+/-100', '450+/-100', \
+                   '500+/-100', '550+/-100', '600+/-100', '650+/-100', \
+                   '700+/-100', '750+/-100', '800+/-100', '850+/-100', \
+                   '950+/-100', '1000+/-100', '1050+/-100', '1100+/-100']
+    
+    if not activationType == 'all':
+        GlobalTable_meca = GlobalTable_meca[GlobalTable_meca['activation type'] == activationType]
+    
+    
+    allFiles = np.unique(GlobalTable_meca['cellID'])
+    # print(allFiles)
+    lenSubplots = len(allFiles)
+    rows= int(np.floor(np.sqrt(lenSubplots)))
+    cols= int(np.ceil(lenSubplots/rows))
+    fontsize = 15
+    
+    if selectedStressRange == 'all':
+       for selectedStressRange in stressRanges:
+           fig, axes = plt.subplots(nrows = rows, ncols = cols, figsize = (15,15))
+           _axes = []
+           for ax_array in axes:
+               for ax in ax_array:
+                   _axes.append(ax)
+           for cellID, ax in zip(allFiles, _axes):
+               print(cellID)
+               GlobalTable_meca_spec = GlobalTable_meca[(GlobalTable_meca['cellID'] == cellID)]
+               KChadwick = GlobalTable_meca_spec['KChadwick_S='+selectedStressRange].values
+               compNum = GlobalTable_meca_spec['compNum'].values
+               firstActivation = GlobalTable_meca['first activation'].values[0]
+               categories = (GlobalTable_meca_spec['validatedFit_S='+selectedStressRange] == True).values
+       
+               categories = np.asarray(categories*1)
+               colormap = np.asarray(['r', 'b'])
+               labels = np.asarray(['Not valid', 'Valid'])
+               ax.scatter(compNum, KChadwick, c = colormap[categories], label = labels[categories])
+               ax.set_title(cellID, fontsize = 10)
+               
+               
+               ax.set_ylim(0,10000)
+               ax.set_xlim(0, len(compNum)+1)
+               ax.axvline(x = firstActivation, color = 'r')
+               
+               plt.setp(ax.get_xticklabels(), fontsize=fontsize)
+               plt.setp(ax.get_yticklabels(), fontsize=fontsize)
+               fig.suptitle('KChadwick_S='+selectedStressRange+' vs. CompNum_'+activationType)
+               try:
+                   os.mkdir(todayFigDir)
+               except:
+                   pass
+               
+               plt.savefig(todayFigDir+'/TModulusVsComp_'+(selectedStressRange[:-6])+'_'+activationType+'.png')
+           plt.show()
+           plt.clf()
+    else:
+        fig, axes = plt.subplots(nrows = rows, ncols = cols, figsize = (15,15))
+        _axes = []
+        for ax_array in axes:
+            for ax in ax_array:
+                _axes.append(ax)
+        for cellID, ax in zip(allFiles, _axes):
+            print(cellID)
+            GlobalTable_meca_spec = GlobalTable_meca[(GlobalTable_meca['cellID'] == cellID)]
+            KChadwick = GlobalTable_meca_spec['KChadwick_S='+selectedStressRange].values
+            compNum = GlobalTable_meca_spec['compNum'].values
+            firstActivation = GlobalTable_meca['first activation'].values[0]
+            categories = (GlobalTable_meca_spec['validatedFit_S='+selectedStressRange] == True).values
+    
+            categories = np.asarray(categories*1)
+            colormap = np.asarray(['r', 'b'])
+            labels = np.asarray(['Not valid', 'Valid'])
+            ax.scatter(compNum, KChadwick, c = colormap[categories], label = labels[categories])
+            ax.set_title(cellID, fontsize = 10)
+            
+            
+            ax.set_ylim(0,10000)
+            ax.set_xlim(0, len(compNum)+1)
+            ax.axvline(x = firstActivation, color = 'r')
+            
+            plt.setp(ax.get_xticklabels(), fontsize=fontsize)
+            plt.setp(ax.get_yticklabels(), fontsize=fontsize)
+            fig.suptitle('KChadwick_S='+selectedStressRange+' vs. CompNum_'+activationType)
+            try:
+                os.mkdir(todayFigDir)
+            except:
+                pass
+            
+            plt.savefig(todayFigDir+'/TModulusVsComp_'+(selectedStressRange[:-6])+'_'+activationType+'.png')
+        plt.show()
+    
+
+
+#%%%% Plotting TModulus vs. Compression Number
+selectedStressRange = '200+/-100'
+activationType = 'at beads'
+TmodulusVsCompression(GlobalTable_meca, selectedStressRange, activationType)
+
+
+# %%%
 
 # H0 vs Compression Number
 expt = '20220331_100xoil_3t3optorhoa_4.5beads_15mT_Mechanics'
@@ -425,11 +527,6 @@ plt.ylabel('bestH0 (nm)')
 plt.title('bestH0 vs Compression No. | '+f)
 plt.savefig('D:/Anumita/MagneticPincherData/Figures/Historique/2022-04-20/MecaAnalysis_allCells/'+f+'_H0vT.png')
 plt.show()
-
-
-# Boxplot of compressions
-
-
 
 
 # %%% Objects declaration

@@ -649,7 +649,7 @@ class PincherTimeLapse:
             # else:
                 # self.loop_excludedSize = 0
             self.nLoop = int(np.round(nS/self.loop_totalSize))
-
+            
         #### Broken ramp and sinus. TBC !!!! for the BR
         elif 'sinus' in self.expType:
             self.loop_totalSize = nS
@@ -676,6 +676,7 @@ class PincherTimeLapse:
             # when you count the loop starting from 1.
             self.activationFreq = int(manipDict['activation frequency'])
             self.activationExp = manipDict['activation exp']
+            
             self.activationType = manipDict['activation type']
             self.microscope = manipDict['microscope']
             
@@ -841,6 +842,7 @@ class PincherTimeLapse:
         > in the status_nUp field: -1 means excluded ; 0 means not in a n-uplet ; x > 0 means *number of* the n-uplet.
         Not very elegant but very confortable to work with.
         """
+        
         N0 = self.loop_totalSize
         Nramp0 = self.loop_rampSize
         # Nexclu = self.loop_excludedSize
@@ -854,7 +856,7 @@ class PincherTimeLapse:
         #     print(mask_notAlreadyExcluded)
         # else:
         #     mask_notAlreadyExcluded = np.ones(len(self.dictLog['status_frame']), dtype = bool)
-        
+
         for i in range(self.nLoop):
             totalExcludedOutward = np.sum(self.excludedFrames_outward[i])
             jstart = int(i*N0 + totalExcludedOutward)
@@ -947,7 +949,6 @@ class PincherTimeLapse:
         
         if display == 1:
             print('\n\n* Initialized Log Table:\n')
-            print(metadataDf)
         if display == 2:
             print('\n\n* Filled Log Table:\n')
             print(metadataDf[metadataDf['UI']])
@@ -1662,7 +1663,6 @@ class PincherTimeLapse:
             iField = []
             for i in range(nT):
                 iF = self.listTrajectories[iB].dict['iF'][i]
-                print(iF)
                 iLoop = ((iF)//self.loop_totalSize)
                 offset = self.excludedFrames_black[iLoop] 
                 # For now : excludedFrames_inward = excludedFrames_black
@@ -2206,9 +2206,9 @@ class Trajectory:
 # #### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
 
-                # plot = 0
-                # if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
-                #     plot = 1
+                plot = 0
+                if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
+                    plot = 1
 
 # ############################ OK?! ###################################
 
@@ -2306,8 +2306,8 @@ class Trajectory:
 
             # now use listStatus_1, listProfiles, self.deptho + data about the jump between Nuplets ! (TBA)
             # to compute the correlation function
-            nVoxels = int(np.round(self.Zstep/self.depthoStep))
-
+            nVoxels = int(np.round(int(self.Zstep)/self.depthoStep))
+            
             listDistances = np.zeros((Nframes, depthoDepth))
             listZ = np.zeros(Nframes, dtype = int)
             for i in range(Nframes):
@@ -2391,7 +2391,8 @@ class Trajectory:
                 iSNuplet = [F.iS+1 for F in framesNuplet]
                 fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
                 Nfig = plt.gcf().number
-                fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig'+str(Nfig)+'.png')
+                fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig_'+str(self.iB)+'_'+str(iSNuplet[0])+'.png')
+                plt.close(fig)
 
             return(Z)
 
@@ -2687,7 +2688,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         print(BLUE + 'OK!')
 
         print(BLUE + 'Pretreating the image...' + NORMAL)
-
+        print(PTL.nLoop)
         #### 0.7 - Detect fluo & black images
         current_date = findInfosInFileName(f, 'date')
         current_date = current_date.replace("-", ".")
@@ -2705,7 +2706,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
-                print('completed L40 stage')
             elif 'sin' in f:
                 PTL.determineFramesStatus_Sinus()
             elif 'brokenRamp' in f:
@@ -2953,6 +2953,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                         traj.depthoPath = depthoPath
                         traj.depthoStep = depthoStepHD
                         traj.depthoZFocus = depthoZFocusHD
+                        print(traj.depthoStep)
 
         #### 4.2 - Compute z for each traj
 

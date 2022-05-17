@@ -2255,6 +2255,34 @@ def computeGlobalTable_sinus(task = 'fromScratch', fileName = 'Global_Sinus', sa
 
 
 
+
+# %%% (4.6) OptoGen
+
+def getOptoMeta(cellID):
+    date = jvu.findInfosInFileName(cellID, 'date')
+    date = date.replace('-', '.')
+    optoMetaDataPath = rawDir+'//Raw//'+date
+    allOptoMetaDataFiles = [f for f in os.listdir(optoMetaDataPath) 
+                          if (os.path.isfile(os.path.join(optoMetaDataPath, f)) 
+                              and f.endswith("OptoMetadata.txt"))]
+    fileFound = False
+    nFile = len(allOptoMetaDataFiles)
+    iFile = 0
+    while (not fileFound) and (iFile < nFile):
+        f = allOptoMetaDataFiles[iFile]
+        if f.startswith(cellID + '_'):
+            optoMetaDataPath = os.path.join(optoMetaDataPath, f)
+            optoMetaDatadf = pd.read_csv(optoMetaDataPath, sep='\t')
+            fileFound = True
+        iFile += 1
+    if not fileFound:
+        optoMetaDatadf = pd.DataFrame([])
+    else:
+        for c in optoMetaDatadf.columns:
+                if 'Unnamed' in c:
+                    optoMetaDatadf = optoMetaDatadf.drop([c], axis=1)
+    return(optoMetaDatadf)
+
 # %% (5) General import functions
 
 # %%% Utility functions
@@ -2403,6 +2431,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
         GlobalTable = getGlobalTable_meca(kind)
         expDf = jvu.getExperimentalConditions(experimentalDataDir)
         fluoDf = getFluoData()
+        
         GlobalTable = pd.merge(GlobalTable, expDf, how="inner", on='manipID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
         #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
