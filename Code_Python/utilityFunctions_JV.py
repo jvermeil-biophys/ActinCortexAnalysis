@@ -43,10 +43,19 @@ elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
     ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
     tempPlot = 'C://Users//Joseph//Desktop//TempPlots'
+elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
+    mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
+    rawDir = "D:/Anumita/MagneticPincherData"  
 elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
     ownCloudDir = "C://Users//josep//ownCloud//ActinCortexAnalysis"
     tempPlot = 'C://Users//josep//Desktop//TempPlots'
+
+try:
+    ownCloudFigDir = os.path.join(ownCloudDir, "Data_Analysis", "Figures")
+    ownCloudTodayFigDir = os.path.join(ownCloudFigDir, "Historique//" + str(date.today()))
+except:
+    ownCloudFigDir, ownCloudTodayFigDir = '', ''
 
 import sys
 sys.path.append(mainDir + "//Code_Python")
@@ -88,6 +97,10 @@ dateFormatExcel = re.compile(r'\d{2}/\d{2}/\d{4}')
 dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
 dateFormatOk = re.compile(r'\d{2}-\d{2}-\d{2}')
 dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
+
+
+# def findFirstActivation(cellID):
+    
 
 def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     """"
@@ -158,6 +171,10 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     elif re.match(dateFormatExcel2, dateExemple):
         print(ORANGE + 'dates : format corrected' + NORMAL)
         expConditionsDF.loc[:,'date'] = expConditionsDF.loc[:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])  
+        
+    #### 1.9 Format activation fields
+    expConditionsDF['first activation'] = expConditionsDF['first activation'].astype(np.float)
+    expConditionsDF['activation frequency'] = expConditionsDF['activation frequency'].astype(np.float)
 
 
     #### 2. Save the table, if required

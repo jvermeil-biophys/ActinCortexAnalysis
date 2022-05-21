@@ -50,6 +50,8 @@ elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
     rawDir = "F:\JosephVermeil\MagneticPincherData"    
     ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
+elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
+    mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
 elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
     ownCloudDir = "C://Users//josep//ownCloud//ActinCortexAnalysis"
@@ -74,6 +76,7 @@ ownCloudTodayFigDir = os.path.join(ownCloudFigDir, "Historique//" + str(date.tod
 #### Local imports
 sys.path.append(mainDir + "//Code_Python")
 import PincherAnalysis_JV as jva
+import MechanicsAnalysis_AJ as aja
 import utilityFunctions_JV as jvu
 
 #### Potentially useful lines of code
