@@ -1439,10 +1439,10 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 
                 
                 
-                thisAx5.set_xlabel('epsilon')
-                thisAx5.set_ylabel('sigma (Pa)')
+                thisAx5.set_xlabel('Strain')
+                thisAx5.set_ylabel('Stress (Pa)')
                 if not fitError and not findH0_fitError:
-                    thisAx5.plot(strainCompr, stressCompr, color = main_color, marker = 'o', markersize = 3, ls = '', alpha = 0.8)
+                    thisAx5.plot(strainCompr, stressCompr, color = main_color, marker = 'o', markersize = 2, ls = '', alpha = 0.8)
                     
                     for k in range(len(fit_toPlot)):
                         fit = fit_toPlot[k]
@@ -1530,7 +1530,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                             if (E/K_fit) > relErrFilter:
                                 mec = 'orangered'
                             thisAx6.errorbar([fitCentersPlot[k]], [K_fit], yerr = [E/2],
-                                         color = color, marker = 'o', ms = 5, mec = mec)                           
+                                          color = color, marker = 'o', ms = 5, mec = mec)                           
                             
                         
                     relativeError_subset = relativeError[relativeError != 0]
@@ -1551,6 +1551,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         for item in ([ax.title, ax.xaxis.label, \
                                       ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
                             item.set_fontsize(9)
+                            
+                
                         
                 #### fig7
                 if plotSmallElements:
@@ -1834,9 +1836,9 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 thisAx6 = ax6[rowSp,colSp]
             title = thisAx6.title.get_text()
             if not 'NON VALIDATED' in title:
-                thisAx6.set_xlim([0,1000])
+                thisAx6.set_xlim([0,600])
                 # thisAx6.set_ylim([KMin, KMax])
-                thisAx6.set_ylim([100, 5e4])
+                thisAx6.set_ylim([0, 1.2e4/1000]) # REMOVE THE /1000 !!
                 
                 
         Allfigs = [fig1,fig2,fig3,fig4,fig5,fig6,fig7]

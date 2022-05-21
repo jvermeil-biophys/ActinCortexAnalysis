@@ -581,10 +581,6 @@ drugTask = '22-03-30'
 nonLinTask = '21-12-08 & 22-01-12 & 22-02-09'
 # jva.computeGlobalTable_meca(task = nonLinTask, fileName = 'Global_MecaData_NonLin_Py', 
 #                             save = False, PLOT = False, source = 'Python') # task = 'updateExisting'
-# jva.computeGlobalTable_meca(task = '22-02-09_M1', fileName = 'Global_MecaData_NonLin2_Py', 
-#                             save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
-jva.computeGlobalTable_meca(task = '21-01-18_M2_P1_C3', fileName = 'Global_MecaData_NonLin2_Py', 
-                            save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
 
 
 # %%%% MCA
@@ -601,6 +597,12 @@ MCAtask = '21-01-18 & 21-01-21'
 # jva.computeGlobalTable_meca(task = '22-02-09', fileName = 'Global_MecaData_Py2', save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
 # jva.computeGlobalTable_meca(task = '21-01-18', fileName = 'Global_MecaData_Py2', save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
 # jva.computeGlobalTable_meca(task = '21-01-21', fileName = 'Global_MecaData_Py2', save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
+# jva.computeGlobalTable_meca(task = '22-02-09_M1', fileName = 'Global_MecaData_NonLin2_Py', 
+#                             save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
+# jva.computeGlobalTable_meca(task = '21-01-18_M2_P1_C3', fileName = 'Global_MecaData_NonLin2_Py', 
+#                             save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
+jva.computeGlobalTable_meca(task = '22-02-09_M1_P1_C9', fileName = 'aaa', 
+                            save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
 
 
 # %%%% Display
@@ -769,6 +771,8 @@ def D1Plot(data, fig = None, ax = None, CondCol=[], Parameters=[], Filters=[],
     for fltr in Filters:
         data_filtered = data_filtered.loc[fltr]    
     NCond = len(CondCol)
+    
+    print(data_filtered.shape)
     
     if NCond == 1:
         CondCol = CondCol[0]
@@ -1215,6 +1219,8 @@ def D2Plot_wFit(data, fig = None, ax = None,
     else:
         co_order = Conditions
         colorList, markerList = colorList30, markerList10
+        
+    colorList = [colorList40[32]]
     
     if fig == None:
         fig, ax = plt.subplots(1, 1, figsize = (8*figSizeFactor,5))
@@ -1269,10 +1275,14 @@ def D2Plot_wFit(data, fig = None, ax = None,
                     eqnText += " ; p-val = {:.3f}".format(pval)
                     print("Y = {:.5} X + {:.5}".format(params[1], params[0]))
                     print("p-value on the 'a' coefficient: {:.4e}".format(pval))
-                    fitY = params[1]*X + params[0]
-                    imin = np.argmin(X)
-                    imax = np.argmax(X)
-                    ax.plot([X[imin],X[imax]], [fitY[imin],fitY[imax]], '--', lw = '1',
+                    # fitY = params[1]*X + params[0]
+                    # imin = np.argmin(X)
+                    # imax = np.argmax(X)
+                    # ax.plot([X[imin],X[imax]], [fitY[imin],fitY[imax]], '--', lw = '1',
+                    #         color = color, zorder = 4)
+                    fitX = np.linspace(np.min(X), np.max(X), 100)
+                    fitY = params[1]*fitX + params[0]
+                    ax.plot(fitX, fitY, '--', lw = '1', 
                             color = color, zorder = 4)
 
                 elif modelType == 'y=A*exp(kx)':
@@ -1282,10 +1292,14 @@ def D2Plot_wFit(data, fig = None, ax = None,
                     eqnText += " ; p-val = {:.3f}".format(pval)
                     print("Y = {:.5}*exp({:.5}*X)".format(np.exp(params[0]), params[1]))
                     print("p-value on the 'k' coefficient: {:.4e}".format(pval))
-                    fitY = np.exp(params[0])*np.exp(params[1]*X)
-                    imin = np.argmin(X)
-                    imax = np.argmax(X)
-                    ax.plot([X[imin],X[imax]], [fitY[imin],fitY[imax]], '--', lw = '1',
+                    # fitY = np.exp(params[0])*np.exp(params[1]*X)
+                    # imin = np.argmin(X)
+                    # imax = np.argmax(X)
+                    # ax.plot([X[imin],X[imax]], [fitY[imin],fitY[imax]], '--', lw = '1',
+                    #         color = color, zorder = 4)
+                    fitX = np.linspace(np.min(X), np.max(X), 100)
+                    fitY = np.exp(params[0])*np.exp(params[1]*fitX)
+                    ax.plot(fitX, fitY, '--', lw = '1', 
                             color = color, zorder = 4)
                     
                 elif modelType == 'y=k*x^a':
@@ -1302,10 +1316,14 @@ def D2Plot_wFit(data, fig = None, ax = None,
                     print("Y = {:.4e} * X^{:.4f}".format(k, a))
                     print("p-value on the 'a' coefficient: {:.4e}".format(pval))
                     print("R2 of the fit: {:.4f}".format(R2))
-                    fitY = k * X**a
-                    imin = np.argmin(X)
-                    imax = np.argmax(X)
-                    ax.plot([X[imin],X[imax]], [fitY[imin],fitY[imax]], '--', lw = '1', 
+                    # fitY = k * X**a
+                    # imin = np.argmin(X)
+                    # imax = np.argmax(X)
+                    # ax.plot([X[imin],X[imax]], [fitY[imin],fitY[imax]], '--', lw = '1', 
+                    #         color = color, zorder = 4)
+                    fitX = np.linspace(np.min(X), np.max(X), 100)
+                    fitY = k * fitX**a
+                    ax.plot(fitX, fitY, '--', lw = '1', 
                             color = color, zorder = 4)
                 
                 print('Number of values : {:.0f}'.format(len(Y)))
@@ -3571,6 +3589,61 @@ plt.show()
 # jvu.archiveFig(fig, ax, name='3T3aSFL_Jan21_K_multipleIntervals_250pa_lin', figDir = todayFigDirLocal + '//' + figSubDir, figSubDir = figSubDir)
 # jvu.archiveFig(fig, ax, name='3T3aSFL_Jan21_K_multipleIntervals_250pa_lin', figDir = ownCloudTodayFigDir, figSubDir = figSubDir)
 
+# %%%%% Only One Stress Range - K(stress), ctrl vs doxy
+
+# '21-01-18', '21-01-21' > standard aSFL (A11)
+# '21-04-27', '21-04-28' > long linker aSFL (6FP)
+# '21-09-08' > long linker aSFL (6FP-2)
+# '21-09-09' > 'high expresser' aSFL (A8)
+
+data = GlobalTable_meca_MCA
+dates = ['21-01-18', '21-01-21']
+listeS = [300]
+# listeS = [200, 300, 400, 500, 600, 700, 800, 900, 1000]
+
+
+fig, axes = plt.subplots(1, len(listeS), figsize = (6,5))
+kk = 0
+
+intervalSize = 200
+
+for S in listeS:
+    interval = str(S-intervalSize//2) + '<s<' + str(S+intervalSize//2)
+
+    Filters = [(data['validatedFit_'+interval] == True),
+               (data['validatedThickness'] == True),
+               (data['date'].apply(lambda x : x in dates))]
+    
+    
+    # axes.set_yscale('log')
+    # axes.set_ylim([5e2, 5e4])
+    # axes.set_yscale('linear')
+    axes.set_ylim([500, 3e4])
+
+    fig, ax = D1Plot(data, fig=fig, ax=axes, CondCol=['drug'], Parameters=['KChadwick_'+interval], 
+                     Filters=Filters, Boxplot=True, cellID='cellID', co_order=['none', 'doxycyclin'], 
+                     stats=True, statMethod='Mann-Whitney', AvgPerCell = False, box_pairs=[], 
+                     figSizeFactor = 1, markersizeFactor=1.1, orientation = 'h', stressBoxPlot = True, 
+                     bypassLog = False)
+
+    # axes.legend(loc = 'upper right', fontsize = 8)
+    label = axes.get_ylabel()
+    axes.set_title(label.split('_')[-1] + 'Pa\n', fontsize = 10)
+    axes.tick_params(axis='x', labelrotation = 30, labelsize = 14)
+    axes.set_ylim([-10, 3e4])
+    
+renameAxes(axes,{'none':'Control', 'doxycyclin':'Increased MCA', 'KChadwick_'+interval:'Tangeantial Modulus (Pa)'})
+fig.tight_layout()
+# fig.suptitle('Tangeantial modulus of aSFL 3T3 - control vs iMC linker')
+
+plt.show()
+
+
+# jvu.archiveFig(fig, ax, name='3T3aSFL_Jan21_K_multipleIntervals_250pa_lin', figDir = todayFigDirLocal + '//' + figSubDir, figSubDir = figSubDir)
+# jvu.archiveFig(fig, ax, name='3T3aSFL_Jan21_K_multipleIntervals_250pa_lin', figDir = ownCloudTodayFigDir, figSubDir = figSubDir)
+
+
+
 
 # %%%%% All stress ranges - K(stress), ctrl vs doxy - 200nm < H0 < 300nm
 
@@ -4181,12 +4254,19 @@ plt.show()
 data = GlobalTable_meca_MCA # Tracking python, postprocessing python
 dates = []
 
-Filters = [(data['validatedThickness'] == True), (data['bestH0'] <= 1000)]
+Filters = [(data['validatedThickness'] == True), (data['bestH0'] <= 900)]
+
+fig, ax = plt.subplots(1, 1, figsize = (6,5))
 
 co_order = makeOrder(['none','doxycyclin'])
-fig, ax = D1Plot(data, CondCol=['drug'],Parameters=['bestH0'], AvgPerCell = False,
-                 Filters=Filters,stats=True,co_order=co_order,figSizeFactor=1.5)
-renameAxes(ax,renameDict1)
+fig, ax = D1Plot(fig=fig, ax=ax, data=data, CondCol=['drug'],Parameters=['bestH0'], AvgPerCell = False,
+                 Filters=Filters,stats=True, co_order=co_order, figSizeFactor=1.0, 
+                 markersizeFactor = 0.7, stressBoxPlot = True)
+
+
+ax[0].set_ylim([0, 1000])
+rD = {'none':'Control', 'doxycyclin':'Increased MCA', 'bestH0' : 'Thickness (nm)'}
+renameAxes(ax,rD)
 # ax[0].set_ylim([0,600])
 # ax[1].set_ylim([0,600])
 fig.suptitle('3T3aSFL on patterns\nBest H0 from fits\nB~5mT', fontsize = 12)
@@ -8084,12 +8164,33 @@ q = st.t.ppf(alpha, dof) # Student coefficient
 
 d_val = {'S' : fitCenters, 'Kavg' : Kavg, 'Kstd' : Kstd, 'D10' : D10, 'D90' : D90, 'N' : N}
 
+# FIT ?
+X, Y = fitCenters, Kavg
+eqnText = "Linear Fit"
+params, results = jvu.fitLine(X, Y) # Y=a*X+b ; params[0] = b,  params[1] = a
+pval = results.pvalues[1] # pvalue on the param 'a'
+eqnText += " ; Y = {:.1f} X + {:.1f}".format(params[1], params[0])
+eqnText += " ; p-val = {:.3f}".format(pval)
+print("Y = {:.5} X + {:.5}".format(params[1], params[0]))
+print("p-value on the 'a' coefficient: {:.4e}".format(pval))
+fitY = params[1]*X + params[0]
+imin = np.argmin(X)
+imax = np.argmax(X)
+
+
 fig, ax = plt.subplots(1,1, figsize = (9,6)) # (2,1, figsize = (9,12))
 
 # ax[0]
-ax.errorbar(fitCenters, Kavg, yerr = q*Kste, marker = 'o', color = my_default_color_list[0], 
-               ecolor = 'k', elinewidth = 0.8, capsize = 3, label = 'Weighted means\nWeighted ste 95% as error')
-ax.set_ylim([500,2e4])
+ax.errorbar(fitCenters, Kavg/1000, yerr = q*Kste/1000, 
+            marker = 'o', color = my_default_color_list[0],
+            markersize = 7.5, lw = 2,
+            ecolor = 'k', elinewidth = 1.5, capsize = 5, 
+            label = 'Weighted means\nWeighted ste 95% as error')
+ax.set_ylim([0,1.6e4/1000])
+ax.set_xlim([0,1150])
+
+ax.plot([X[imin],X[imax]], [fitY[imin]/1000,fitY[imax]/1000], 
+        ls = '--', lw = '1', color = 'darkorange', zorder = 1, label = eqnText)
 
 # ax[1].errorbar(fitCenters, Kavg, yerr = [D10, D90], marker = 'o', color = my_default_color_list[3], 
 #                ecolor = 'k', elinewidth = 0.8, capsize = 3, label = 'Weighted means\nD9-D1 as error')
@@ -8103,15 +8204,16 @@ ax.set_ylim([500,2e4])
 #     for kk in range(len(N)):
 #         ax[k].text(x=fitCenters[kk]+5, y=Kavg[kk]**0.98, s='n='+str(N[kk]), fontsize = 6)
 ax.legend(loc = 'upper left')
-ax.set_yscale('log')
+ax.set_yscale('linear')
 ax.set_xlabel('Stress (Pa)') #' [center of a 150Pa large interval]')
-ax.set_ylabel('K (Pa)') #' [tangeant modulus w/ Chadwick]')
+ax.set_ylabel('Tangeantial Modulus (kPa)') #' [tangeant modulus w/ Chadwick]')
 for kk in range(len(N)):
-    ax.text(x=fitCenters[kk]+5, y=Kavg[kk]**0.98, s='n='+str(N[kk]), fontsize = 6)
+    # ax.text(x=fitCenters[kk]+5, y=(Kavg[kk]**0.98), s='n='+str(N[kk]), fontsize = 10)
+    ax.text(x=fitCenters[kk]+5, y=(Kavg[kk]-500)/1000, s='n='+str(N[kk]), fontsize = 8)
 
 # fig.suptitle('K(sigma)')
-ax.set_title('Stress stiffening - All compressions pooled') #  '\n22-02-09 experiment, 36 cells, 232 compression')
-# jvu.archiveFig(fig, ax, todayFigDirLocal + '//NonLin', name='NonLin_K(s)', dpi = 100)
+ax.set_title('Stress-stiffening of the actin cortex\nALL compressions pooled') #  '\n22-02-09 experiment, 36 cells, 232 compression')
+jvu.archiveFig(fig, ax, todayFigDirLocal + '//NonLin', name='NonLin_K(s)_lin', dpi = 100)
 plt.show()
 
 # df_val = pd.DataFrame(d_val)
@@ -8200,7 +8302,7 @@ fig, ax = plt.subplots(1,1, figsize = (9,6)) # (2,1, figsize = (9,12))
 # ax[0]
 ax.errorbar(fitCenters2, Kavg, yerr = q*Kste, marker = 'o', color = my_default_color_list[0], 
                ecolor = 'k', elinewidth = 0.8, capsize = 3, label = 'Weighted means\nWeighted ste 95% as error')
-ax.set_ylim([500,2e4])
+ax.set_ylim([0,1.4e4])
 
 # ax[1].errorbar(fitCenters, Kavg, yerr = [D10, D90], marker = 'o', color = my_default_color_list[3], 
 #                ecolor = 'k', elinewidth = 0.8, capsize = 3, label = 'Weighted means\nD9-D1 as error')
@@ -8214,7 +8316,7 @@ ax.set_ylim([500,2e4])
 #     for kk in range(len(N)):
 #         ax[k].text(x=fitCenters[kk]+5, y=Kavg[kk]**0.98, s='n='+str(N[kk]), fontsize = 6)
 ax.legend(loc = 'upper left')
-ax.set_yscale('log')
+ax.set_yscale('linear')
 ax.set_xlabel('Stress (Pa)')
 ax.set_ylabel('K (Pa)')
 for kk in range(len(N)):
@@ -8222,7 +8324,7 @@ for kk in range(len(N)):
 
 # fig.suptitle('K(sigma)')
 ax.set_title('Stress stiffening\nOnly compressions including the [100, 800]Pa range')
-# jvu.archiveFig(fig, ax, todayFigDirLocal + '//NonLin', name='NonLin_K(s)_100-800Pa', dpi = 100)
+jvu.archiveFig(fig, ax, todayFigDirLocal + '//NonLin', name='NonLin_K(s)_100-800Pa_lin', dpi = 100)
 plt.show()
 
 # df_val = pd.DataFrame(d_val)
@@ -8231,15 +8333,15 @@ plt.show()
 # df_val
 
 
-# %%%%% 100-600Pa range
+# %%%%% 100-700Pa range
 
 
 # print(data_f.head())
 
 # print(fitCenters)
 
-extraFilters = [data_f['minStress'] <= 100, data_f['maxStress'] >= 600]
-fitCenters2 = fitCenters[fitCenters<650]
+extraFilters = [data_f['minStress'] <= 100, data_f['maxStress'] >= 700]
+fitCenters2 = fitCenters[fitCenters<=700]
 
 data_ff = data_f
 globalExtraFilter = extraFilters[0]
@@ -8311,7 +8413,7 @@ fig, ax = plt.subplots(1,1, figsize = (9,6)) # (2,1, figsize = (9,12))
 # ax[0]
 ax.errorbar(fitCenters2, Kavg, yerr = q*Kste, marker = 'o', color = my_default_color_list[0], 
                ecolor = 'k', elinewidth = 0.8, capsize = 3, label = 'Weighted means\nWeighted ste 95% as error')
-ax.set_ylim([500,2e4])
+ax.set_ylim([0,1.4e4])
 
 # ax[1].errorbar(fitCenters, Kavg, yerr = [D10, D90], marker = 'o', color = my_default_color_list[3], 
 #                ecolor = 'k', elinewidth = 0.8, capsize = 3, label = 'Weighted means\nD9-D1 as error')
@@ -8325,16 +8427,136 @@ ax.set_ylim([500,2e4])
 #     for kk in range(len(N)):
 #         ax[k].text(x=fitCenters[kk]+5, y=Kavg[kk]**0.98, s='n='+str(N[kk]), fontsize = 6)
 ax.legend(loc = 'upper left')
-ax.set_yscale('log')
-ax.set_xlabel('Stress (Pa)') #  [center of a 150Pa large interval]
-ax.set_ylabel('K (Pa)') # [tangeant modulus w/ Chadwick]
+ax.set_yscale('linear')
+ax.set_xlabel('Stress (Pa)')
+ax.set_ylabel('K (Pa)')
 for kk in range(len(N)):
     ax.text(x=fitCenters2[kk]+5, y=Kavg[kk]**0.98, s='n='+str(N[kk]), fontsize = 6)
 
 # fig.suptitle('K(sigma)')
-ax.set_title('Stress stiffening\nOnly compressions including the [100, 600]Pa range')
+ax.set_title('Stress stiffening\nOnly compressions including the [100, 700]Pa range')
+jvu.archiveFig(fig, ax, todayFigDirLocal + '//NonLin', name='NonLin_K(s)_100-700Pa_lin', dpi = 100)
+plt.show()
 
-# jvu.archiveFig(fig, ax, todayFigDirLocal + '//NonLin', name='NonLin_K(s)_100-600Pa', dpi = 100)
+# df_val = pd.DataFrame(d_val)
+# dftest = pd.DataFrame(d)
+
+# df_val
+
+
+# %%%%% 100-600Pa range
+
+
+# print(data_f.head())
+
+# print(fitCenters)
+
+extraFilters = [data_f['minStress'] <= 100, data_f['maxStress'] >= 550]
+fitCenters2 = fitCenters[fitCenters<=550]
+
+data_ff = data_f
+globalExtraFilter = extraFilters[0]
+for k in range(1, len(extraFilters)):
+    globalExtraFilter = globalExtraFilter & extraFilters[k]
+
+data_ff = data_ff[globalExtraFilter]
+print(len(data_ff['cellID'].unique()), data_ff['cellID'].unique())
+inspectDict = {}
+for cId in data_ff['cellID'].unique():
+    inspectDict[cId] = data_ff[data_ff['cellID'] == cId].shape[0]
+print(inspectDict)
+
+def w_std(x, w):
+    m = np.average(x, weights=w)
+    v = np.average((x-m)**2, weights=w)
+    std = v**0.5
+    return(std)
+
+def nan2zero(x):
+    if np.isnan(x):
+        return(0)
+    else:
+        return(x)
+
+valStr = 'KChadwick_'
+weightStr = 'K_Weight_'
+
+Kavg = []
+Kstd = []
+D10 = []
+D90 = []
+N = []
+
+for S in fitCenters2:
+    rFN = str(S-75) + '<s<' + str(S+75)
+    variable = valStr+rFN
+    weight = weightStr+rFN
+    
+    x = data_ff[variable].apply(nan2zero).values
+    w = data_ff[weight].apply(nan2zero).values
+    
+    if S == 250:
+        d = {'x' : x, 'w' : w}
+    
+    m = np.average(x, weights=w)
+    v = np.average((x-m)**2, weights=w)
+    std = v**0.5
+    
+    d10, d90 = np.percentile(x[x != 0], (10, 90))
+    n = len(x[x != 0])
+    
+    Kavg.append(m)
+    Kstd.append(std)
+    D10.append(d10)
+    D90.append(d90)
+    N.append(n)
+
+Kavg = np.array(Kavg)
+Kstd = np.array(Kstd)
+D10 = np.array(D10)
+D90 = np.array(D90)
+N = np.array(N)
+Kste = Kstd / (N**0.5)
+
+alpha = 0.975
+dof = N
+q = st.t.ppf(alpha, dof) # Student coefficient
+
+d_val = {'S' : fitCenters, 'Kavg' : Kavg, 'Kstd' : Kstd, 'D10' : D10, 'D90' : D90, 'N' : N}
+
+fig, ax = plt.subplots(1,1, figsize = (9,6)) # (2,1, figsize = (9,12))
+
+# ax[0]
+ax.errorbar(fitCenters2, Kavg/1000, yerr = q*Kste/1000, 
+            marker = 'o', color = my_default_color_list[0],
+            markersize = 10, lw = 2,
+            ecolor = 'k', elinewidth = 1.5, capsize = 5, 
+            label = 'Weighted means\nWeighted ste 95% as error')
+ax.set_ylim([0,1.0e4/1000])
+
+# ax[1].errorbar(fitCenters, Kavg, yerr = [D10, D90], marker = 'o', color = my_default_color_list[3], 
+#                ecolor = 'k', elinewidth = 0.8, capsize = 3, label = 'Weighted means\nD9-D1 as error')
+# ax[1].set_ylim([500,1e6])
+
+# for k in range(1): #2
+#     ax[k].legend(loc = 'upper left')
+#     ax[k].set_yscale('log')
+#     ax[k].set_xlabel('Stress (Pa) [center of a 150Pa large interval]')
+#     ax[k].set_ylabel('K (Pa) [tangeant modulus w/ Chadwick]')
+#     for kk in range(len(N)):
+#         ax[k].text(x=fitCenters[kk]+5, y=Kavg[kk]**0.98, s='n='+str(N[kk]), fontsize = 6)
+ax.legend(loc = 'upper left')
+ax.set_yscale('linear')
+ax.set_xlabel('Stress (Pa)') #  [center of a 150Pa large interval]
+ax.set_ylabel('Tangeantial Modulus (kPa)') # [tangeant modulus w/ Chadwick]
+#### Decomment to get the number of compressions again
+# for kk in range(len(N)):
+#     ax.text(x=fitCenters2[kk]+5, y=Kavg[kk]**0.98, s='n='+str(N[kk]), fontsize = 6)
+
+# fig.suptitle('K(sigma)')
+ax.set_title('Stress-stiffening of the actin cortex')#'\nOnly compressions including the [100, 600]Pa range')
+
+jvu.archiveFig(fig, ax, todayFigDirLocal + '//NonLin', name='NonLin_K(s)_100-600Pa_lin', dpi = 100)
 plt.show()
 
 # df_val = pd.DataFrame(d_val)
@@ -8389,16 +8611,13 @@ fig.tight_layout()
 fig.suptitle('Tangeantial modulus of aSFL 3T3 - 0.5>50mT lowStartCompressions - avg per cell')
 plt.show()
 jvu.archiveFig(fig, ax, name='3T3aSFL_Feb22_nonLinK_multipleIntervals', figSubDir = 'NonLin')
-    
-warnings.filterwarnings('always')
 
 
 # %%%%% Multiple K(h)
 
 
-warnings.filterwarnings('ignore')
 
-data = GlobalTable_meca_Py2
+data = GlobalTable_meca_nonLin
 
 listeS = [100, 150, 200, 250, 300, 400, 500, 600, 700, 800]
 
@@ -8437,9 +8656,59 @@ for S in listeS:
 # renameAxes(axes,{'none':'ctrl', 'doxycyclin':'iMC'})
 # fig.tight_layout()
 plt.show()
-    
-warnings.filterwarnings('always')
 
+
+# %%%%% Multiple K(h) - 2
+
+
+
+data = GlobalTable_meca_nonLin
+
+listeS = [200]
+
+# fig, axes = plt.subplots(len(listeS), 1, figsize = (9,40))
+# kk = 0
+
+for S in listeS:
+    halfWidth = 125
+    interval = str(S-halfWidth) + '<s<' + str(S+halfWidth)
+    textForFileName = str(S-halfWidth) + '-' + str(S+halfWidth) + 'Pa'
+
+    Filters = [(data['validatedFit_'+interval] == True),
+               (data['validatedThickness'] == True),
+               (data['bestH0'] <= 650),
+               (data['date'].apply(lambda x : x in ['22-02-09']))] #, '21-12-16'
+
+    fig, ax = D2Plot_wFit(data, #fig=fig, ax=axes[kk], 
+                          XCol='bestH0', YCol='KChadwick_'+interval, 
+                          CondCol = ['bead type'], Filters=Filters, 
+                          cellID = 'cellID', AvgPerCell=False, 
+                          xscale = 'log', yscale = 'log', modelFit=True, 
+                          modelType='y=k*x^a', markersizeFactor = 1.2)
+    
+    # individual figs
+    ax.set_xlim([2e2, 700])
+    ax.set_ylim([5e2, 3e4])
+    # ax.set_ylim([0, 8000])
+    fig.suptitle(interval)
+    ax.get_legend().set_visible(False)
+    rD = {'bestH0':'Thickness (nm)',
+          'KChadwick_'+interval : 'Tangeantial Modulus (Pa)'}
+    renameAxes(ax,rD)
+    fig.set_size_inches(8,7)
+    fig.tight_layout()
+#     jvu.archiveFig(fig, ax, name='3T3aSFL_Feb22_nonLin_K(h)_' + textForFileName, figSubDir = 'NonLin')
+    
+    
+    # one big fig
+#     axes[kk].set_xlim([8e1, 1.2e3])
+#     axes[kk].set_ylim([3e2, 5e4])
+#     kk+=1
+
+
+# renameAxes(axes,{'none':'ctrl', 'doxycyclin':'iMC'})
+# fig.tight_layout()
+plt.show()
 
 # %%%%% test
 
@@ -8687,6 +8956,39 @@ renameAxes(axes.flatten(),{'none':'ctrl', 'doxycyclin':'iMC', 'bestH0' : 'Best H
 # fig.tight_layout()
 # fig.suptitle('Tangeantial modulus of aSFL 3T3 - control vs iMC linker')
 
+plt.show()
+
+
+# %%%  Drug experiments
+
+# %%%%% 3T3 aSFL - March 22 - Compression experiments
+
+
+data = GlobalTable_meca_Py2
+
+dates = ['22-03-30']
+fit = '175<s<325'
+
+Filters = [(data['validatedFit'] == True), 
+           (data['validatedThickness'] == True), 
+           (data['bestH0'] <= 800),
+           (data['validatedFit_' + fit] == True), 
+           (data['drug'].apply(lambda x : x in ['dmso', 'blebbistatin'])),
+           (data['date'].apply(lambda x : x in dates))]
+
+fig, ax = D1Plot(data, CondCol=['drug'], Parameters=['bestH0', 'KChadwick_' + fit], Filters=Filters, 
+                Boxplot=True, cellID='cellID', co_order=['dmso', 'blebbistatin'], stats=True, statMethod='Mann-Whitney', 
+                box_pairs=[], figSizeFactor = 0.9, markersizeFactor=1, orientation = 'v', AvgPerCell = False)
+
+rD = {'dmso' : 'Control', 'blebbistatin' : 'Blebbistatin',
+              'bestH0' : 'Thickness (nm)', 'KChadwick_' + fit : 'Tangeantial Modulus (Pa)'}
+
+renameAxes(ax, rD)
+ax[0].set_ylim([0, 1000])
+# ax[0].legend(loc = 'upper right', fontsize = 8)
+# ax[1].legend(loc = 'upper right', fontsize = 8)
+fig.suptitle('3T3aSFL & drugs\nPreliminary data')
+# jvu.archiveFig(fig, ax, name='3T3aSFL_Jan21_drug_H&Echad_simple', figSubDir = figSubDir)
 plt.show()
 
 
