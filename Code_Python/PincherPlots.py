@@ -46,18 +46,22 @@ if COMPUTERNAME == 'ORDI-JOSEPH':
     mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
     rawDir = "D://MagneticPincherData"
     ownCloudDir = "C://Users//JosephVermeil//ownCloud//ActinCortexAnalysis"
+    experimentalDataDir = os.path.join(mainDir, "Data_Experimental_JV")
 elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
     rawDir = "F:\JosephVermeil\MagneticPincherData"    
     ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
+    experimentalDataDir = os.path.join(mainDir, "Data_Experimental_JV")
 elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
     mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
+    experimentalDataDir = os.path.join(mainDir, "Data_Experimental_AJ")
 elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
     ownCloudDir = "C://Users//josep//ownCloud//ActinCortexAnalysis"
+    experimentalDataDir = os.path.join(mainDir, "Data_Experimental_JV")
 
 
-experimentalDataDir = os.path.join(mainDir, "Data_Experimental")
+# experimentalDataDir = os.path.join(mainDir, "Data_Experimental")
 dataDir = os.path.join(mainDir, "Data_Analysis")
 timeSeriesDataDir = os.path.join(dataDir, "TimeSeriesData")
 
