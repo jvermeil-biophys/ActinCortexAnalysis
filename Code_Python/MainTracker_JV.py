@@ -92,8 +92,8 @@ ownCloud_timeSeriesDataDir = os.path.join(ownCloudDir, 'Data_Analysis', 'TimeSer
 
 # 9. Import of the experimental conditions
 
-experimentalDataDir = os.path.join(mainDir, 'Data_Experimental')
-expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
+experimentalDataDir = os.path.join(mainDir, 'Data_Experimental_JV')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ';', suffix = '_JV')
 
 # %% Small things
 

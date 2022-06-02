@@ -35,13 +35,16 @@ if COMPUTERNAME == 'ORDI-JOSEPH':
     mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
     rawDir = "D://MagneticPincherData"
     ownCloudDir = "C://Users//JosephVermeil//ownCloud//ActinCortexAnalysis"
+    experimentalDataDir = os.path.join(mainDir, "Data_Experimental_JV")
 elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
     rawDir = "F://JosephVermeil//MagneticPincherData"    
     ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
+    experimentalDataDir = os.path.join(mainDir, "Data_Experimental_JV")
 elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
     ownCloudDir = "C://Users//josep//ownCloud//ActinCortexAnalysis"
+    experimentalDataDir = os.path.join(mainDir, "Data_Experimental_JV")
 
 # Add the folder to path
 
@@ -103,7 +106,7 @@ for ii in range(2, -1, -1):
 
 # %% (1) Directories adress
 
-experimentalDataDir = os.path.join(mainDir, "Data_Experimental")
+# experimentalDataDir = os.path.join(mainDir, "Data_Experimental")
 dataDir = os.path.join(mainDir, "Data_Analysis")
 timeSeriesDataDir = os.path.join(dataDir, "TimeSeriesData")
 
@@ -443,7 +446,7 @@ def createDataDict_ctField(list_ctFieldFiles):
     tableDict['duration'], tableDict['medianRawB'], tableDict['medianThickness'] = [], [], []
     tableDict['1stDThickness'], tableDict['9thDThickness'], tableDict['fluctuAmpli'] = [], [], []
     tableDict['R2_polyFit'], tableDict['validated'] = [], []
-    expDf = jvu.getExperimentalConditions(experimentalDataDir)
+    expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
     for f in list_ctFieldFiles:
         split_f = f.split('_')
         tableDict['date'].append(split_f[0])
@@ -1439,10 +1442,10 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 
                 
                 
-                thisAx5.set_xlabel('epsilon')
-                thisAx5.set_ylabel('sigma (Pa)')
+                thisAx5.set_xlabel('Strain')
+                thisAx5.set_ylabel('Stress (Pa)')
                 if not fitError and not findH0_fitError:
-                    thisAx5.plot(strainCompr, stressCompr, color = main_color, marker = 'o', markersize = 3, ls = '', alpha = 0.8)
+                    thisAx5.plot(strainCompr, stressCompr, color = main_color, marker = 'o', markersize = 2, ls = '', alpha = 0.8)
                     
                     for k in range(len(fit_toPlot)):
                         fit = fit_toPlot[k]
@@ -1530,7 +1533,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                             if (E/K_fit) > relErrFilter:
                                 mec = 'orangered'
                             thisAx6.errorbar([fitCentersPlot[k]], [K_fit], yerr = [E/2],
-                                         color = color, marker = 'o', ms = 5, mec = mec)                           
+                                          color = color, marker = 'o', ms = 5, mec = mec)                           
                             
                         
                     relativeError_subset = relativeError[relativeError != 0]
@@ -1551,6 +1554,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         for item in ([ax.title, ax.xaxis.label, \
                                       ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
                             item.set_fontsize(9)
+                            
+                
                         
                 #### fig7
                 if plotSmallElements:
@@ -1834,9 +1839,9 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 thisAx6 = ax6[rowSp,colSp]
             title = thisAx6.title.get_text()
             if not 'NON VALIDATED' in title:
-                thisAx6.set_xlim([0,1000])
+                thisAx6.set_xlim([0,600])
                 # thisAx6.set_ylim([KMin, KMax])
-                thisAx6.set_ylim([100, 5e4])
+                thisAx6.set_ylim([0, 1.2e4/1000]) # REMOVE THE /1000 !!
                 
                 
         Allfigs = [fig1,fig2,fig3,fig4,fig5,fig6,fig7]
@@ -1900,7 +1905,7 @@ def createDataDict_meca(list_mecaFiles, listColumnsMeca, PLOT):
     Subfunction of computeGlobalTable_meca
     Create the dictionnary that will be converted in a pandas table in the end.
     """
-    expDf = jvu.getExperimentalConditions(experimentalDataDir)
+    expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
     tableDict = {}
     Nfiles = len(list_mecaFiles)
     PLOT_SHOW = (Nfiles==1)
@@ -1923,7 +1928,8 @@ def createDataDict_meca(list_mecaFiles, listColumnsMeca, PLOT):
 
 
 
-def computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData', save = False, PLOT = False, \
+def computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData', 
+                            save = False, PLOT = False, \
                             source = 'Matlab', listColumnsMeca=listColumnsMeca):
     """
     Compute the GlobalTable_meca from the time series data files.
@@ -2113,7 +2119,7 @@ def createDataDict_sinus(listFiles, listColumns, PLOT):
     Subfunction of computeGlobalTable_meca
     Create the dictionnary that will be converted in a pandas table in the end.
     """
-    expDf = jvu.getExperimentalConditions(experimentalDataDir)
+    expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
     tableDict = {}
     Nfiles = len(listFiles)
     PLOT_SHOW = (Nfiles==1)
@@ -2251,8 +2257,7 @@ def removeColumnsDuplicate(df):
 def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
     if kind == 'ctField':
         GlobalTable = getGlobalTable_ctField()
-        experimentalDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Data_Experimental"
-        expDf = jvu.getExperimentalConditions(experimentalDataDir)
+        expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
         fluoDf = getFluoData()
         GlobalTable = pd.merge(expDf, GlobalTable, how="inner", on='manipID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
@@ -2269,8 +2274,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
     
     elif kind == 'ctField_py':
         GlobalTable = getGlobalTable_ctField('Global_CtFieldData_Py')
-        experimentalDataDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis//Data_Experimental"
-        expDf = jvu.getExperimentalConditions(experimentalDataDir)
+        expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
         fluoDf = getFluoData()
         GlobalTable = pd.merge(expDf, GlobalTable, how="inner", on='manipID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
@@ -2289,7 +2293,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
 
     elif kind == 'meca_matlab':
         GlobalTable = getGlobalTable_meca('Global_MecaData')
-        expDf = jvu.getExperimentalConditions(experimentalDataDir)
+        expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
         fluoDf = getFluoData()
         GlobalTable = pd.merge(GlobalTable, expDf, how="inner", on='manipID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
@@ -2308,7 +2312,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
 
     elif kind == 'meca_py':
         GlobalTable = getGlobalTable_meca('Global_MecaData_Py')
-        expDf = jvu.getExperimentalConditions(experimentalDataDir)
+        expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
         fluoDf = getFluoData()
         GlobalTable = pd.merge(GlobalTable, expDf, how="inner", on='manipID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
@@ -2327,7 +2331,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
 
     elif kind == 'meca_py2':
         GlobalTable = getGlobalTable_meca('Global_MecaData_Py2')
-        expDf = jvu.getExperimentalConditions(experimentalDataDir)
+        expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
         fluoDf = getFluoData()
         GlobalTable = pd.merge(GlobalTable, expDf, how="inner", on='manipID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
@@ -2345,7 +2349,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
     
     elif kind == 'meca_nonLin':
         GlobalTable = getGlobalTable_meca('Global_MecaData_NonLin_Py')
-        expDf = jvu.getExperimentalConditions(experimentalDataDir)
+        expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
         fluoDf = getFluoData()
         GlobalTable = pd.merge(GlobalTable, expDf, how="inner", on='manipID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
@@ -2363,7 +2367,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
     
     elif kind == 'meca_MCA':
         GlobalTable = getGlobalTable_meca('Global_MecaData_MCA')
-        expDf = jvu.getExperimentalConditions(experimentalDataDir)
+        expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
         fluoDf = getFluoData()
         GlobalTable = pd.merge(GlobalTable, expDf, how="inner", on='manipID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
@@ -2381,7 +2385,7 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
     
     else:
         GlobalTable = getGlobalTable_meca(kind)
-        expDf = jvu.getExperimentalConditions(experimentalDataDir)
+        expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
         fluoDf = getFluoData()
         GlobalTable = pd.merge(GlobalTable, expDf, how="inner", on='manipID',
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,

@@ -43,10 +43,19 @@ elif COMPUTERNAME == 'LARISA':
     mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
     ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
     tempPlot = 'C://Users//Joseph//Desktop//TempPlots'
+elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
+    mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
+    rawDir = "D:/Anumita/MagneticPincherData"  
 elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
     ownCloudDir = "C://Users//josep//ownCloud//ActinCortexAnalysis"
     tempPlot = 'C://Users//josep//Desktop//TempPlots'
+
+try:
+    ownCloudFigDir = os.path.join(ownCloudDir, "Data_Analysis", "Figures")
+    ownCloudTodayFigDir = os.path.join(ownCloudFigDir, "Historique//" + str(date.today()))
+except:
+    ownCloudFigDir, ownCloudTodayFigDir = '', ''
 
 import sys
 sys.path.append(mainDir + "//Code_Python")
@@ -89,7 +98,11 @@ dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
 dateFormatOk = re.compile(r'\d{2}-\d{2}-\d{2}')
 dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
 
-def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
+
+# def findFirstActivation(cellID):
+    
+
+def getExperimentalConditions(experimentalDataDir, save = False, sep = ';', suffix = ''):
     """"
     Import the table with all the conditions in a clean way.
     It is a tedious function to read because it's doing a boring job:
@@ -99,7 +112,10 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     Etc
     """
     #### 0. Import the table
-    experimentalDataFile = 'ExperimentalConditions.csv'
+    if suffix == '':
+        experimentalDataFile = 'ExperimentalConditions.csv'
+    else:
+        experimentalDataFile = 'ExperimentalConditions' + suffix + '.csv'
     experimentalDataFilePath = os.path.join(experimentalDataDir, experimentalDataFile)
     expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=sep, header=0)
     print(BLUE + 'Importing Experimental Conditions' + NORMAL)
@@ -158,7 +174,13 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     elif re.match(dateFormatExcel2, dateExemple):
         print(ORANGE + 'dates : format corrected' + NORMAL)
         expConditionsDF.loc[:,'date'] = expConditionsDF.loc[:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])  
-
+        
+    #### 1.9 Format activation fields
+    try:
+        expConditionsDF['first activation'] = expConditionsDF['first activation'].astype(np.float)
+        expConditionsDF['activation frequency'] = expConditionsDF['activation frequency'].astype(np.float)
+    except:
+        pass
 
     #### 2. Save the table, if required
     if save:

@@ -154,7 +154,9 @@ for x1=0:2
     end
 end
   
-
+% mixed zone limits ; 
+% mixed 1 is mix inside each rectangle
+% mixed 2 is mix of single size rectangles
 
 Sfull = 101600;
 S1 = Sfull-2000;
