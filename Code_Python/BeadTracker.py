@@ -868,15 +868,24 @@ class PincherTimeLapse:
             else:
                 Nramp = Nramp0-self.excludedFrames_black[i]
                 for j in range(Nct//2): # Ct field before ramp
+                    if self.dictLog['status_frame'][jstart + j] != 0:
+                        print(ORANGE + 'Careful ! Rewriting on some data in position {:.0f} (starting from 0)'.format(jstart + j) + '' + NORMAL)
+                        print(ORANGE + 'Writing {:.1f} instead of {:.1f}'.format(1 + j%self.Nuplet, self.dictLog['status_frame'][jstart + j]) + '' + NORMAL)
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
                 jstart += int(Nct//2)
                 for j in range(Nramp0): # Pre-ramp
+                    if self.dictLog['status_frame'][jstart + j] != 0:
+                        print(ORANGE + 'Careful ! Rewriting on some data in position {:.0f} (starting from 0)'.format(jstart + j) + '' + NORMAL)
+                        print(ORANGE + 'Writing {:.1f} instead of {:.1f}'.format(1 + j%self.Nuplet, self.dictLog['status_frame'][jstart + j]) + '' + NORMAL)
                     self.dictLog['status_frame'][jstart + j] = 0.1
                     self.dictLog['status_nUp'][jstart + j] = 0
                 i_nUp = max(self.dictLog['status_nUp']) + 1
                 jstart += int(Nramp0 + Nramp) # In the ramp itself, the two status stay equal to 0
                 for j in range(Nct//2): # Ct field after ramp
+                    if self.dictLog['status_frame'][jstart + j] != 0:
+                        print(ORANGE + 'Careful ! Rewriting on some data in position {:.0f} (starting from 0)'.format(jstart + j) + '' + NORMAL)
+                        print(ORANGE + 'Writing {:.1f} instead of {:.1f}'.format(1 + j%self.Nuplet, self.dictLog['status_frame'][jstart + j]) + '' + NORMAL)
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
                 i_nUp = max(self.dictLog['status_nUp']) + 1
@@ -2203,12 +2212,12 @@ class Trajectory:
             previousZ = -1
             while iF <= max(self.dict['iF']):
 
-# #### Important plotting option here
+#### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
 
-                plot = 0
-                if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
-                    plot = 1
+                # plot = 0
+                # if iF >= 2094 and iF <= 2130:# or (iF < 190 and iF > 150):
+                #     plot = 1
 
 # ############################ OK?! ###################################
 
@@ -2547,7 +2556,6 @@ class Trajectory:
         self.dict['Neighbour_R'] = arrayNeighbours[:,1]
 
 
-
     def detectInOut_ui(self, Nimg, frequency): # NOT VERY WELL MADE FOR NOW
         # Almost copy paste of detectNeighbours_ui
         ncols = 4
@@ -2746,7 +2754,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         Td = time.time()
 
         #### 1.1 - Check if a _Results.txt exists and import it if it's the case
-        resFilePath = fP[:-4] + '_ResultsPY.txt'
+        # resFilePath = fP[:-4] + '_Results.txt'
         resFileImported = False
         
         if MatlabStyle:
@@ -2956,9 +2964,14 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                         print(traj.depthoStep)
 
         #### 4.2 - Compute z for each traj
-
-        matchingDirection = 'downward' # Change when needed !!
-
+        #### ! Expt dependence here !
+        if PTL.microscope == 'metamorph':
+            matchingDirection = 'downward' # Change when needed !!
+            print(ORANGE + "Deptho detection 'downward' mode" + NORMAL)
+        elif PTL.microscope == 'labview':
+            matchingDirection = 'upward'
+            print(ORANGE + "Deptho detection 'upward' mode" + NORMAL)
+            
         if redoAllSteps or not trajFilesImported:
             for iB in range(PTL.NB):
                 np.set_printoptions(threshold=np.inf)

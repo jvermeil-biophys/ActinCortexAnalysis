@@ -11,6 +11,7 @@ import datetime
 import matplotlib.pyplot as plt
 import os
 
+#%%
 
 date = '22.05.09'
 expt = '20220509_100xoil_3t3optorhoa_4.5beads_15mT'
@@ -111,9 +112,10 @@ date = '22.03.01'
 out_path = 'D:/Anumita/MagneticPincherData/Raw/'+date+'/'+folder
 extDataDir = 'E:/Cortex Experiments/optoPincher Experiments/'+expt+'/'+date+'/'+folder
 
-def CreateFieldFile(self, extDataDir, out_path):
-    noOfPlanes = self.Nuplet
-    fieldValue = self.MagField
+#%%
+def CreateFieldFile(extDataDir, out_path):
+    noOfPlanes = 3
+    fieldValue = 15
     out_path = out_path+'_Field.txt'
     file = extDataDir+'/test.LOG'
     
@@ -164,3 +166,17 @@ out_path = 'D:/Anumita/MagneticPincherData/Raw/'+date+'/'+folder
 extDataDir = 'E:/Cortex Experiments/optoPincher Experiments/'+expt+'/'+date+'/'+folder
 
 CreateFieldFile(extDataDir, out_path)
+
+# %%
+date = '22.06.09'
+expt = '20220906_100xoil_3t3optorhoa_4.5beads_15mT'
+
+extDir = 'F:/Cortex Experiments/OptoPincher Experiments/20220906_100xoil_3t3optorhoa_4.5beads_15mT/22.06.09/'
+
+allFiles = os.listdir(extDir)
+
+for i in allFiles:
+    out_path = 'D:/Anumita/MagneticPincherData/Raw/'+date+'/'+i
+    extDataDir = 'F:/Cortex Experiments/OptoPincher Experiments/'+expt+'/'+date+'/'+i
+    
+    CreateFieldFile(extDataDir, out_path)

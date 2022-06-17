@@ -6,7 +6,7 @@ cellID,blebCondition,excluded,comments
 22-03-01_M1_P1_C5,none,no,
 22-03-01_M1_P1_C6,none,no,
 22-03-01_M1_P1_C7,none,no,
-22-03-22_M1_P1_C1,none,no,Cell looks a bit unhealthy
+22-03-22_M1_P1_C1,none,yes,Cell looks a bit unhealthy
 22-03-22_M2_P1_C2,dynamic,no,Many many many beads!!
 22-03-22_M2_P1_C3,nan,yes,cell ate bead
 22-03-22_M2_P1_C4,nan,yes,cell ate bead

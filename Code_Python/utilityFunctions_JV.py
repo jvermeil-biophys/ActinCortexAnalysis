@@ -669,7 +669,6 @@ def get_R2(Y1, Y2):
     return(R2)
 
 def get_Chi2(Ymeas, Ymodel, dof, S):
-    #### To be validated soon !
     residuals = Ymeas-Ymodel
     Chi2 = np.sum((residuals/S)**2)
     Chi2_dof = Chi2/dof

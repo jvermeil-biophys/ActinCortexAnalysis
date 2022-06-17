@@ -9,14 +9,14 @@
 7;22-02-03;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;;;;;;False;3;500;1500;metamorph;on Atchoum. optimised illumination
 8;22-02-03;M4;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;;;;;;False;3;500;1500;metamorph;on Atchoum. optimised illumination
 9;22-02-03;M5;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;;;;;;False;3;500;1500;metamorph;on Atchoum. optimised illumination
-10;22-03-01;M1;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;15.0;1.0;100;global;1.0;False;3;500;150;metamorph;on Atchoum
-11;22-03-01;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;15.0;1.0;100;at beads;1.0;False;3;500;150;metamorph;on Atchoum
-12;22-03-01;M2;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;15.0;1.0;100;away from beads;1.0;False;3;500;150;metamorph;on Atchoum
-13;22-03-22;M1;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;15.0;2.0;50;global;1.0;False;3;500;150;metamorph;on Atchoum
-14;22-03-22;M2;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;15.0;1.0;50;global;1.0;False;3;500;150;metamorph;on Atchoum
-15;22-03-22;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;15.0;1.0;50;at beads;1.0;False;3;500;150;metamorph;on Atchoum
-16;22-03-22;M4;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;15.0;1.0;50;away from beads;1.0;False;3;500;150;metamorph;on Atchoum
-17;22-03-22;M5;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;15.0;1.0;50;global;1.0;False;3;500;150;metamorph;on Atchoum
+10;22-03-01;M1;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;10.0;1.0;100;global;1.0;False;3;500;150;metamorph;on Atchoum
+11;22-03-01;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;10.0;1.0;100;at beads;1.0;False;3;500;150;metamorph;on Atchoum
+12;22-03-01;M2;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;10.0;1.0;100;away from beads;1.0;False;3;500;150;metamorph;on Atchoum
+13;22-03-22;M1;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;10.0;2.0;50;global;1.0;False;3;500;150;metamorph;on Atchoum
+14;22-03-22;M2;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;10.0;1.0;50;global;1.0;False;3;500;150;metamorph;on Atchoum
+15;22-03-22;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;10.0;1.0;50;at beads;1.0;False;3;500;150;metamorph;on Atchoum
+16;22-03-22;M4;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;10.0;1.0;50;away from beads;1.0;False;3;500;150;metamorph;on Atchoum
+17;22-03-22;M5;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;10.0;1.0;50;global;1.0;False;3;500;150;metamorph;on Atchoum
 18;22-03-31;M4;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;5.0;5.0;100;global;0.6;False;3;500;302_133;labview;in PMMH
 19;22-03-31;M6;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;5.0;5.0;500;at beads;0.6;False;3;500;302_133;labview;in PMMH
 20;22-03-31;M7;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;5.0;5.0;500;away from beads;0.6;False;3;500;302_133;labview;in PMMH
@@ -30,9 +30,16 @@
 28;22-04-28;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500;away from beads;0.6;False;3;500_20;302_133;labview;in PMMH
 29;22-04-28;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500;global;0.6;False;3;500_20;302_133;labview;in PMMH
 30;22-04-28;M4;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500;away from beads;0.6;False;3;500_20;302_133;labview;in PMMH
-31;22-05-09;M1;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;15.0;1.0;50;global;1.2;False;3;500;150;metamorph;on Atchoum
-32;22-05-09;M2;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;15.0;1.0;50;away from beads;1.2;False;3;500;150;metamorph;on Atchoum
-33;22-05-09;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;15.0;1.0;50;at beads;3.2;False;3;500;150;metamorph;on Atchoum
-34;22-05-09;M4;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;15.0;1.0;50;away from beads;3.2;False;3;500;150;metamorph;on Atchoum
-35;22-05-09;M5;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;15.0;1.0;50;global;1.2;False;3;500;150;metamorph;on Atchoum
-36;22-05-09;M6;optoGen;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;15.0;1.0;50;global;3.2;False;3;500;150;metamorph;on Atchoum
+31;22-05-09;M1;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;global;1.2;False;3;500;150;metamorph;on Atchoum
+32;22-05-09;M2;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;away from beads;1.2;False;3;500;150;metamorph;on Atchoum
+33;22-05-09;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;at beads;3.2;False;3;500;150;metamorph;on Atchoum
+34;22-05-09;M4;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;away from beads;3.2;False;3;500;150;metamorph;on Atchoum
+35;22-05-09;M5;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;global;1.2;False;3;500;150;metamorph;on Atchoum
+36;22-05-09;M6;optoGen;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;global;3.2;False;3;500;150;metamorph;on Atchoum
+37;22-05-31;M1;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;305_133;labview;in PMMH. Strange file. Loop structure all wrong. Seems like the only one with this weirdness. BE CAREFUL! Field file and image file in this drive edited.
+38;22-05-31;M2;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+39;22-05-31;M3;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+40;22-05-31;M4;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+41;22-05-31;M5;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+42;22-05-31;M6;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+43;22-05-31;M7;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
