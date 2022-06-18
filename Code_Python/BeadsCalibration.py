@@ -306,7 +306,7 @@ def mainChainNupAnalysis(mainPath, depthoPath, approxDiameter):
         resDf = resDf.sort_values(by=['Slice', 'XM'])
         print(resDf)
         
-        # Get the nUplets
+        # Get the nUplets # DO NOT MODIFY
         nz, ny, nx = I.shape[0], I.shape[1], I.shape[2]
         dZ_nUplets = 0.5 # µm
         dZ_stack = 0.02 # µm
@@ -319,7 +319,10 @@ def mainChainNupAnalysis(mainPath, depthoPath, approxDiameter):
                 max_I = np.max(I[z])
                 z_max = z
         
+        # Can modify
         center_Zoffset = [ii for ii in range (-50, 55, 25)]
+        
+        
         # center_Zoffset = [0]
         # nUpletsIndices = [[z_max + center_Zoffset[ii] - dN_nUplets,
         #                     z_max + center_Zoffset[ii],
@@ -327,7 +330,7 @@ def mainChainNupAnalysis(mainPath, depthoPath, approxDiameter):
         #                    for ii in range(len(center_Zoffset))]
             
         nUpletsIndices = [[z_max + center_Zoffset[ii] + kk*dN_nUplets \
-                            for kk in range(-1,2)] \
+                            for kk in range(-2,3)] \
                             for ii in range(len(center_Zoffset))]
         nUpletsIndices = np.array(nUpletsIndices)
     
@@ -373,8 +376,10 @@ def mainChainNupAnalysis(mainPath, depthoPath, approxDiameter):
    
     distanceDf = pd.DataFrame(distanceDict)
     xyzDf = pd.DataFrame(XYZdict)
-    out = np.percentile(distanceDf.D3.values, 97)
-    distanceDf = distanceDf.drop(index = distanceDf.loc[distanceDf.D3 >= out].index)
+    out_up = np.percentile(distanceDf.D3.values, 97)
+    out_down = np.percentile(distanceDf.D3.values, 3)
+    distanceDf = distanceDf.drop(index = distanceDf.loc[distanceDf.D3 >= out_up].index)
+    distanceDf = distanceDf.drop(index = distanceDf.loc[distanceDf.D3 <= out_down].index)
     
     # percentile list
     perc =[.10, .25, .50, .75, .90]
@@ -389,7 +394,7 @@ def mainChainNupAnalysis(mainPath, depthoPath, approxDiameter):
     #### PLOT
     fig, ax = plt.subplots(1,2, figsize = (12,8))
     sns.violinplot(y="D3", data=distanceDf, ax=ax[0], inner="quartile")
-    sns.swarmplot(y="D3", data=distanceDf, ax=ax[1])
+    sns.swarmplot(y="D3", data=distanceDf, ax=ax[1], size = 3)
     plt.show()
 
     return(xyzDf, distanceDf, statsDf)
@@ -798,25 +803,39 @@ def computeDepthoQuality(depthoPath):
 # %%% (3.1) SCRIPT for simple chains
 
 mainPath = 'D://MagneticPincherData//Raw//22.03.21_CalibrationNewM450//Chains'
-depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.03.21_M1_M450_step20_100X'
+depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.03.21_CALIBRATION_M450_step20_100X'
 
 
 xyzDf_01, distanceDf_01, statsDf_01 = mainChainAnalysis(mainPath, depthoPath, 4.5)
 
 
-# %%% (3.2) SCRIPT for deptho chains
+# %%% (3.2) SCRIPT for deptho chains 2nd try
 
-mainPath = 'D://MagneticPincherData//Raw//22.03.21_CalibrationNewM450//DepthoChains'
-depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.03.21_M1_M450_step20_100X'
+mainPath = 'D://MagneticPincherData//Raw//22.04.29_CalibrationM450-2023_SecondTry//DepthoChains'
+depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.04.29_CALIBRATION_M450_step20_100X'
+
+xyzDf_02, distanceDf_02, statsDf_02 = mainChainNupAnalysis(mainPath, depthoPath, 4.5)
+
+# %%% (3.2) SCRIPT for deptho chains 1st try
+
+mainPath = 'D://MagneticPincherData//Raw//22.03.21_CalibrationM450-2023_FirstTry//DepthoChains'
+depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.03.21_CALIBRATION_M450_step20_100X'
 
 xyzDf_02, distanceDf_02, statsDf_02 = mainChainNupAnalysis(mainPath, depthoPath, 4.5)
 
 # %%% (3.3) SCRIPT for deptho qlt
 
+# %%%% New obj 2
+
+# mainPath = 'D://MagneticPincherData//Raw//22.04.29_CalibrationNewM450//DepthoChains'
+depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.04.29_CALIBRATION_M450_step20_100X'
+
+listZQualityNewObj = computeDepthoQuality(depthoPath)
+
 # %%%% New obj
 
 # mainPath = 'D://MagneticPincherData//Raw//22.03.21_CalibrationNewM450//DepthoChains'
-depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.03.21_M1_M450_step20_100X'
+depthoPath = 'D://MagneticPincherData//Raw//EtalonnageZ//22.03.21_CALIBRATION_M450_step20_100X'
 
 listZQualityNewObj = computeDepthoQuality(depthoPath)
 

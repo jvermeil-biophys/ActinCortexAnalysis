@@ -184,7 +184,7 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';', suff
 
     #### 2. Save the table, if required
     if save:
-        saveName = 'ExperimentalConditions.csv'
+        saveName = experimentalDataFile
         savePath = os.path.join(experimentalDataDir, saveName)
         expConditionsDF.to_csv(savePath, sep=';')
 
