@@ -50,7 +50,11 @@ elif COMPUTERNAME == '':
     mainDir = "C://Users//josep//Desktop//ActinCortexAnalysis"
     ownCloudDir = "C://Users//josep//ownCloud//ActinCortexAnalysis"
     tempPlot = 'C://Users//josep//Desktop//TempPlots'
-
+    
+elif COMPUTERNAME =='DATA2JHODR':
+    mainDir = "C://Utilisateurs//BioMecaCell//Bureau//ActinCortexAnalysis"
+    tempPlot = 'C://Utilisateurs//BioMecaCell//Bureau//TempPlots'
+    
 try:
     ownCloudFigDir = os.path.join(ownCloudDir, "Data_Analysis", "Figures")
     ownCloudTodayFigDir = os.path.join(ownCloudFigDir, "Historique//" + str(date.today()))
@@ -184,7 +188,7 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';', suff
 
     #### 2. Save the table, if required
     if save:
-        saveName = experimentalDataFile
+        saveName = 'ExperimentalConditions' + suffix + '.csv'
         savePath = os.path.join(experimentalDataDir, saveName)
         expConditionsDF.to_csv(savePath, sep=';')
 
@@ -674,7 +678,6 @@ def get_R2(Y1, Y2):
     return(R2)
 
 def get_Chi2(Ymeas, Ymodel, dof, S):
-    #### To be validated soon !
     residuals = Ymeas-Ymodel
     Chi2 = np.sum((residuals/S)**2)
     Chi2_dof = Chi2/dof
