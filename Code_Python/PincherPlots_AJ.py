@@ -268,14 +268,9 @@ plt.show()
 # plt.close('all')
 
 
-# #############################################################################
-# %% GlobalTables plotting functions
-
-
-
 # %%% Experimental conditions
 
-expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ';')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ',')
 
 # =============================================================================
 # %%% Constant Field
@@ -302,14 +297,14 @@ expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ';'
 
 # %%%% Update the table
 
-# aja.computeGlobalTable_meca(task = 'updateExisting', fileName = '', 
+# aja.computeGlobalTable_meca(task = 'updateExisting', fileName = 'Global_MecaData_AJ', 
 #                             save = True, PLOT = True, source = 'Python')
 
 
 # %%%% Refresh the whole table
 
-aja.computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData_AJ', 
-                            save = True, PLOT = True, source = 'Python')
+# aja.computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData_AJ', 
+#                             save = True, PLOT = True, source = 'Python')
 
 # %%%% Specific experiments
 
@@ -320,9 +315,9 @@ aja.computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData_AJ
 
 # %%%% Precise dates (to plot)
 
-# date = '22-03-31' # For instance '22-03-30 & '22-03-31'
-# aja.computeGlobalTable_meca(task = date, fileName = 'Global_MecaData_AJ', 
-#                             save = True, PLOT = False, source = 'Python') # task = 'updateExisting'
+date = '22-05-31' # For instance '22-03-30 & '22-03-31'
+aja.computeGlobalTable_meca(task = date, fileName = 'Global_MecaData_AJ', 
+                            save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
 
 
 # %%%% Display
@@ -405,7 +400,7 @@ GlobalTable_meca_nonLin.head()
 
 # %% > Plotting Functions
 
-def TmodulusVsCompression(GlobalTable_meca, selectedStressRange, activationType = 'all'):
+def TmodulusVsCompression(GlobalTable_meca, dates, selectedStressRange, activationType = 'all'):
     sns.set_style('darkgrid')
     stressRanges = ['100+/-100', '150+/-100', '200+/-100', '250+/-100', \
                    '300+/-100', '350+/-100', '400+/-100', '450+/-100', \
@@ -413,6 +408,9 @@ def TmodulusVsCompression(GlobalTable_meca, selectedStressRange, activationType 
                    '700+/-100', '750+/-100', '800+/-100', '850+/-100', \
                    '950+/-100', '1000+/-100', '1050+/-100', '1100+/-100']
     
+    if not dates == 'all':
+        GlobalTable_meca = GlobalTable_meca[GlobalTable_meca['manipID'].str.contains(dates)]
+        
     if not activationType == 'all':
         GlobalTable_meca = GlobalTable_meca[GlobalTable_meca['activation type'] == activationType]
     
@@ -426,27 +424,34 @@ def TmodulusVsCompression(GlobalTable_meca, selectedStressRange, activationType 
     
     if selectedStressRange == 'all':
        for selectedStressRange in stressRanges:
+           print(selectedStressRange)
            fig, axes = plt.subplots(nrows = rows, ncols = cols, figsize = (15,15))
            _axes = []
            for ax_array in axes:
                for ax in ax_array:
                    _axes.append(ax)
+                   
            for cellID, ax in zip(allFiles, _axes):
-               print(cellID)
                GlobalTable_meca_spec = GlobalTable_meca[(GlobalTable_meca['cellID'] == cellID)]
                KChadwick = GlobalTable_meca_spec['KChadwick_S='+selectedStressRange].values
                compNum = GlobalTable_meca_spec['compNum'].values
-               firstActivation = GlobalTable_meca['first activation'].values[0]
+               firstActivation = GlobalTable_meca['first activation'].values[0] + 1
                categories = (GlobalTable_meca_spec['validatedFit_S='+selectedStressRange] == True).values
-       
+               activationTag = GlobalTable_meca['activation type'][GlobalTable_meca['cellID'] == cellID].values[0]
+               if activationTag == 'global':
+                   markerColor = 'orange'
+               elif activationTag == 'at beads':
+                   markerColor = 'blue'
+               elif activationTag == 'away from beads':   
+                   markerColor = 'green'
                categories = np.asarray(categories*1)
-               colormap = np.asarray(['r', 'b'])
-               labels = np.asarray(['Not valid', 'Valid'])
+               colormap = np.asarray(['r', markerColor])
+               labels = np.asarray(['Not valid', activationTag])
                ax.scatter(compNum, KChadwick, c = colormap[categories], label = labels[categories])
-               ax.set_title(cellID, fontsize = 10)
+               ax.set_title(cellID+'-'+activationTag, fontsize = 15)
                
                
-               ax.set_ylim(0,10000)
+               ax.set_ylim(0, 40000)
                ax.set_xlim(0, len(compNum)+1)
                ax.axvline(x = firstActivation, color = 'r')
                
@@ -458,7 +463,7 @@ def TmodulusVsCompression(GlobalTable_meca, selectedStressRange, activationType 
                except:
                    pass
                
-               plt.savefig(todayFigDir+'/TModulusVsComp_'+(selectedStressRange[:-6])+'_'+activationType+'.png')
+               plt.savefig(todayFigDir+'/'+dates+'TModulusVsComp_'+(selectedStressRange[:-6])+'_'+activationType+'.png')
            plt.show()
            plt.clf()
     else:
@@ -472,17 +477,24 @@ def TmodulusVsCompression(GlobalTable_meca, selectedStressRange, activationType 
             GlobalTable_meca_spec = GlobalTable_meca[(GlobalTable_meca['cellID'] == cellID)]
             KChadwick = GlobalTable_meca_spec['KChadwick_S='+selectedStressRange].values
             compNum = GlobalTable_meca_spec['compNum'].values
-            firstActivation = GlobalTable_meca['first activation'].values[0]
+            firstActivation = GlobalTable_meca['first activation'].values[0] + 1
             categories = (GlobalTable_meca_spec['validatedFit_S='+selectedStressRange] == True).values
-    
+            c = GlobalTable_meca['activation type'][GlobalTable_meca['cellID'] == cellID].values[0]
+            activationTag = GlobalTable_meca['activation type'][GlobalTable_meca['cellID'] == cellID].values[0]
+            if activationTag == 'global':
+                markerColor = 'orange'
+            elif activationTag == 'at beads':
+                markerColor = 'blue'
+            elif activationTag == 'away from beads':   
+                markerColor = 'green'
             categories = np.asarray(categories*1)
-            colormap = np.asarray(['r', 'b'])
-            labels = np.asarray(['Not valid', 'Valid'])
+            colormap = np.asarray(['r', markerColor])
+            labels = np.asarray(['Not valid', activationTag])
             ax.scatter(compNum, KChadwick, c = colormap[categories], label = labels[categories])
-            ax.set_title(cellID, fontsize = 10)
+            ax.set_title(cellID+'-'+activationTag, fontsize = 15)
             
             
-            ax.set_ylim(0,10000)
+            ax.set_ylim(0,40000)
             ax.set_xlim(0, len(compNum)+1)
             ax.axvline(x = firstActivation, color = 'r')
             
@@ -494,39 +506,100 @@ def TmodulusVsCompression(GlobalTable_meca, selectedStressRange, activationType 
             except:
                 pass
             
-            plt.savefig(todayFigDir+'/TModulusVsComp_'+(selectedStressRange[:-6])+'_'+activationType+'.png')
+            plt.savefig(todayFigDir+'/'+dates+'TModulusVsComp_'+(selectedStressRange[:-6])+'_'+activationType+'.png')
         plt.show()
     
-
+def bestH0vsCompression(GlobalTable_meca, dates, activationType = 'all'):
+    
+    allFiles = np.unique(GlobalTable_meca['cellID'])
+    lenSubplots = len(allFiles)
+    rows= int(np.floor(np.sqrt(lenSubplots)))
+    cols= int(np.ceil(lenSubplots/rows))
+    fontsize = 15
+    
+    if not dates == 'all':
+        GlobalTable_meca = GlobalTable_meca[GlobalTable_meca['manipID'].str.contains(dates)]
+        
+    if not activationType == 'all':
+        GlobalTable_meca = GlobalTable_meca[GlobalTable_meca['activation type'] == activationType]
+    
+    fig, axes = plt.subplots(nrows = rows, ncols = cols, figsize = (15,15))
+    _axes = []
+    for ax_array in axes:
+        for ax in ax_array:
+            _axes.append(ax)
+            
+    for cellID, ax in zip(allFiles, _axes):
+        print(cellID)
+        GlobalTable_meca_spec = GlobalTable_meca[(GlobalTable_meca['cellID'] == cellID)]
+        firstActivation = GlobalTable_meca['first activation'].values[0] + 1
+        c = GlobalTable_meca['activation type'][GlobalTable_meca['cellID'] == cellID].values[0]
+        activationTag = GlobalTable_meca['activation type'][GlobalTable_meca['cellID'] == cellID].values[0]
+        if activationTag == 'global':
+            markerColor = 'orange'
+        elif activationTag == 'at beads':
+            markerColor = 'blue'
+        elif activationTag == 'away from beads':   
+            markerColor = 'green'
+        
+        bestH0 = GlobalTable_meca_spec['bestH0'].values
+        compNum = GlobalTable_meca_spec['compNum'].values
+        
+        ax.scatter(compNum, bestH0, color = markerColor)
+        ax.set_title(cellID+'-'+activationTag, fontsize = 15)
+        
+        
+        ax.set_ylim(0,2000)
+        ax.set_xlim(0, len(compNum)+1)
+        ax.axvline(x = firstActivation, color = 'r')
+        
+        plt.setp(ax.get_xticklabels(), fontsize=fontsize)
+        plt.setp(ax.get_yticklabels(), fontsize=fontsize)
+        fig.suptitle('bestH0 vs. CompNum_'+activationType)
+        try:
+            os.mkdir(todayFigDir)
+        except:
+            pass
+        
+        plt.savefig(todayFigDir+'/'+dates+'H0VsComp_'+activationType+'.png')
+    plt.show()
+    
 
 #%%%% Plotting TModulus vs. Compression Number
-selectedStressRange = '200+/-100'
+selectedStressRange = 'all'
+dates = '22.05.31'
 activationType = 'at beads'
-TmodulusVsCompression(GlobalTable_meca, selectedStressRange, activationType)
+TmodulusVsCompression(GlobalTable_meca, dates, selectedStressRange, activationType)
+
+#%%%% Plotting best H0 vs. Compression Number
+
+dates = '22.05.31'
+activationType = 'at beads'
+bestH0vsCompression(GlobalTable_meca, dates, activationType)
+
+#%%%%
+# # %%% Tests
+
+# # H0 vs Compression Number
+# expt = '20220331_100xoil_3t3optorhoa_4.5beads_15mT_Mechanics'
+# f = '22-03-31_M8_P2_C2_disc20um_L40'
+# date = '22.03.31'
+
+# file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+f+'_PY.csv'
+# tsDF = pd.read_csv(file, sep=';')
 
 
-# %%%
+# indices = GlobalTable_meca[GlobalTable_meca['cellID'] == jvu.findInfosInFileName(f, 'cellID')].index.tolist() 
 
-# H0 vs Compression Number
-expt = '20220331_100xoil_3t3optorhoa_4.5beads_15mT_Mechanics'
-f = '22-03-31_M8_P2_C2_disc20um_L40'
-date = '22.03.31'
-
-file = 'C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Analysis/TimeSeriesData/'+f+'_PY.csv'
-tsDF = pd.read_csv(file, sep=';')
-
-
-indices = GlobalTable_meca[GlobalTable_meca['cellID'] == jvu.findInfosInFileName(f, 'cellID')].index.tolist() 
-
-plt.figure(figsize=(20,10))
-plt.rcParams.update({'font.size': 35})
-plt.plot(GlobalTable_meca['compNum'][indices].values, GlobalTable_meca['bestH0'][indices].values)
-plt.axvline(x = 5.5, color = 'r', marker='.')
-plt.xlabel('Compression Number')
-plt.ylabel('bestH0 (nm)')
-plt.title('bestH0 vs Compression No. | '+f)
-plt.savefig('D:/Anumita/MagneticPincherData/Figures/Historique/2022-04-20/MecaAnalysis_allCells/'+f+'_H0vT.png')
-plt.show()
+# plt.figure(figsize=(20,10))
+# plt.rcParams.update({'font.size': 35})
+# plt.plot(GlobalTable_meca['compNum'][indices].values, GlobalTable_meca['bestH0'][indices].values)
+# plt.axvline(x = 5.5, color = 'r', marker='.')
+# plt.xlabel('Compression Number')
+# plt.ylabel('bestH0 (nm)')
+# plt.title('bestH0 vs Compression No. | '+f)
+# plt.savefig('D:/Anumita/MagneticPincherData/Figures/Historique/2022-04-20/MecaAnalysis_allCells/'+f+'_H0vT.png')
+# plt.show()
 
 
 # %%% Objects declaration

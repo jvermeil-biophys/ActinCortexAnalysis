@@ -105,7 +105,7 @@ for ii in range(2, -1, -1):
 
 # %% (1) Directories adress
 
-experimentalDataDir = os.path.join(mainDir, "Data_Experimental")
+experimentalDataDir = os.path.join(mainDir, "Data_Experimental_AJ")
 dataDir = os.path.join(mainDir, "Data_Analysis")
 timeSeriesDataDir = os.path.join(dataDir, "TimeSeriesData")
 
@@ -1816,6 +1816,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             if not 'NON VALIDATED' in title:
                 sMin = max(0, sMin)
                 eMin = max(0, eMin)
+                eMax = min(0.5, eMax)
                 thisAx5.set_ylim([sMin, sMax])
                 thisAx5.set_xlim([eMin, eMax])
                 

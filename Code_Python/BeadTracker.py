@@ -555,7 +555,7 @@ class PincherTimeLapse:
     * a dictionnary dictLog, saving the status_frame of each frame (see below)
                              and all of the user inputs (points and clicks) during the tracking,
     * a pandas DataFrame detectBeadsResult, that contains the raw output of the bead tracking,
-    * metadata about the experiment (cellID, expType, loopStruct, loop_totalSize, loop_rampSize,
+    * metadata about the experiment (cellID, expType, loopStruct, loop_mainSize, loop_rampSize,
                                         loop_excludedSize, nLoop, Nuplet, excludedFrames_inward).
 
     When a PincherTimeLapse is initialised, most of these variables are initialised to zero values.
@@ -617,11 +617,11 @@ class PincherTimeLapse:
         # This is an ugly but necessary part of the code
         # This loopStruct field contains from 1 to 3 numbers, separated by a '_'
         # The convention for now is : 'totalLoopSize_rampSize_excludedSize'
-        # totalLoopSize > compulsary. The size of an entire loop of images.
-        # rampSize > compulsary only for compressions exp. The number of images belonging to the compression per loop.
-        # excludedSize > optional. Indicates if some images (eg. fluorescence ones) should be systematically excluded at the end of each loop.
+        # loop_mainSize > compulsary. The size of an entire loop of images, WO the fluo at the end !!!!
+        # loop_rampSize > compulsary only for compressions exp. The number of images belonging to the compression per loop.
+        # excludedSize > deprecated. Indicates if some images (eg. fluorescence ones) should be systematically excluded at the end of each loop.
         if 'compressions' in self.expType or 'constant field' in self.expType:
-            self.loop_totalSize = int(loopStruct[0])
+            self.loop_mainSize = int(loopStruct[0])
 
             if self.expType == 'compressions':
                 self.loop_rampSize = int(loopStruct[1])
@@ -637,10 +637,10 @@ class PincherTimeLapse:
             # else:
             #     self.loop_excludedSize = 0
             
-            self.nLoop = int(np.round(nS/self.loop_totalSize))
+            self.nLoop = int(np.round(nS/self.loop_mainSize))
 
         elif 'optoGen' in self.expType:
-            self.loop_totalSize = int(loopStruct[0])
+            self.loop_mainSize = int(loopStruct[0])
 
             if self.expType == 'compressions':
                 self.loop_rampSize = int(loopStruct[1])
@@ -656,18 +656,18 @@ class PincherTimeLapse:
             # else:
                 # self.loop_excludedSize = 0
                 
-            self.nLoop = int(np.round(nS/self.loop_totalSize))
+            self.nLoop = int(np.round(nS/self.loop_mainSize))
             
         #### Broken ramp and sinus. TBC !!!! for the BR
         elif 'sinus' in self.expType:
-            self.loop_totalSize = nS
+            self.loop_mainSize = nS
             self.loop_rampSize = 0
             # self.loop_excludedSize = 0
             self.nLoop = 1
             
         
         elif 'brokenRamp' in self.expType:
-            self.loop_totalSize = nS
+            self.loop_mainSize = nS
             self.loop_rampSize = 0
             # self.loop_excludedSize = 0
             self.nLoop = 1
@@ -678,38 +678,39 @@ class PincherTimeLapse:
             
         
         #### Import data from the optogen condition columns, if they exist
-        self.microscope = manipDict['microscope']
+
         fluo = False
         
         try:
             print(ORANGE + 'Reading optogen parameters...' + NORMAL)
+            
             # "activationFirst" is the number of the loop 
             # at the end of which the first activ is
             # when you count the loop starting from 1
+            
             self.activationFirst = int(manipDict['first activation'])
-            
-            
             self.activationFreq = int(manipDict['activation frequency'])
             self.activationExp = manipDict['activation exp']
             self.activationType = manipDict['activation type']
-            
             
             if (not pd.isna(self.activationFreq)) and self.activationFreq > 0:
                 self.LoopActivations = np.array([k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)])
                 # k-1 here cause we counted the loops starting from 1 but python start from 0.
             else:
                 self.LoopActivations = np.array([self.activationFirst-1])
+                
             fluo = True
                 
         except:
             print(ORANGE + 'No optogen parameters found' + NORMAL)
-            print(self.wFluoEveryLoop)
             if self.wFluoEveryLoop:
+                print(ORANGE + 'Fluo every loop detection...' + NORMAL)
                 self.LoopActivations = np.arange(self.nLoop, dtype = int)
+                
                 fluo = True
         
-        print(fluo)
         if fluo == False:
+            print(ORANGE + 'No fluo !' + NORMAL)
             self.LoopActivations = np.array([])
             
             
@@ -748,8 +749,12 @@ class PincherTimeLapse:
         To detect them, compute the checkSum = np.sum(self.I[j]).
         Then modify the 'status_frame' & 'status_nUp' fields to '-1' in the dictLog.
         """
+        
+        offsets = np.array([np.sum(self.LoopActivations <= kk) 
+                            for kk in range(self.nLoop)])
+        
         for i in range(self.nLoop):
-            j = ((i+1)*self.loop_totalSize) - 1
+            j = ((i+1)*self.loop_mainSize) - 1 + offsets[i]
             checkSum = np.sum(self.I[j])
             while checkSum == 0:
 #                 self.dictLog['Black'][j] = True
@@ -774,7 +779,7 @@ class PincherTimeLapse:
                 if self.activationFirst > 0:
                     for iLoop in self.LoopActivations:
                         totalExcludedOutward = self.excludedFrames_outward[iLoop]
-                        j = int(((iLoop+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
+                        j = int(((iLoop+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
                         self.dictLog['status_frame'][j] = -1
                         self.dictLog['status_nUp'][j] = -1
                         
@@ -782,7 +787,7 @@ class PincherTimeLapse:
                 if self.wFluoEveryLoop:
                     for iLoop in self.LoopActivations:
                         totalExcludedOutward = self.excludedFrames_outward[iLoop]
-                        j = int(((iLoop+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
+                        j = int(((iLoop+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
                         self.dictLog['status_frame'][j] = -1
                         self.dictLog['status_nUp'][j] = -1
                     
@@ -792,10 +797,10 @@ class PincherTimeLapse:
                 os.makedirs(fluoDirPath)
                 for iLoop in self.LoopActivations:
                     totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoop])
-                    j = int(((iLoop+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
+                    j = int(((iLoop+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
                     Ifluo = self.I[j]
-                    path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
-                    io.imsave(path, Ifluo)
+                    path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j+1) + '.tif')
+                    io.imsave(path, Ifluo, check_contrast=False)
             
             
             
@@ -806,7 +811,7 @@ class PincherTimeLapse:
             #         # self.LoopActivations = np.array([k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)])    
             #             for iLoopActivation in self.LoopActivations:
             #                 totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
-            #                 j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+            #                 j = int(((iLoopActivation+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
             #                 self.dictLog['status_frame'][j] = -1
             #                 self.dictLog['status_nUp'][j] = -1
                             
@@ -815,7 +820,7 @@ class PincherTimeLapse:
             #             totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
             #             # LoopActivations = [iLoopActivation]
                         
-            #             j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+            #             j = int(((iLoopActivation+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
             #             self.dictLog['status_frame'][j] = -1
             #             self.dictLog['status_nUp'][j] = -1
                         
@@ -823,7 +828,7 @@ class PincherTimeLapse:
             #             os.makedirs(fluoDirPath)
             #             for iLoopActivation in self.LoopActivations:
             #                 totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
-            #                 j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+            #                 j = int(((iLoopActivation+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
             #                 Ifluo = self.I[j]
             #                 path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
             #                 io.imsave(path, Ifluo)
@@ -837,7 +842,7 @@ class PincherTimeLapse:
             # if self.wFluoEveryLoop: # Behaviour when fluo check every loop => Not Optogen
             #     print(ORANGE + 'Doing classic fluo detection' + NORMAL)
             #     for i in range(self.nLoop):
-            #         j = int(((i+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[i])
+            #         j = int(((i+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[i])
             #         self.dictLog['status_frame'][j] = -1
             #         self.dictLog['status_nUp'][j] = -1
             #         print(j)
@@ -845,7 +850,7 @@ class PincherTimeLapse:
             #     if not os.path.exists(fluoDirPath):
             #         os.makedirs(fluoDirPath)
             #         for i in range(self.nLoop):
-            #             j = int(((i+1)*self.loop_totalSize) - self.excludedFrames_black[i])
+            #             j = int(((i+1)*self.loop_mainSize) - self.excludedFrames_black[i])
             #             Ifluo = self.I[j]
             #             path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
             #             io.imsave(path, Ifluo)
@@ -859,7 +864,7 @@ class PincherTimeLapse:
         > in the status_nUp field: -1 means excluded ; 0 means ramp ; >0 means *number of* the n-uplet.
         Not very elegant but very confortable to work with.
         """
-        N0 = self.loop_totalSize
+        N0 = self.loop_mainSize
         Nramp0 = self.loop_rampSize
         # Nexclu = self.loop_excludedSize
         nUp = self.Nuplet
@@ -898,7 +903,7 @@ class PincherTimeLapse:
         Not very elegant but very confortable to work with.
         """
         
-        N0 = self.loop_totalSize
+        N0 = self.loop_mainSize
         Nramp0 = self.loop_rampSize
         # Nexclu = self.loop_excludedSize
         nUp = self.Nuplet
@@ -925,6 +930,9 @@ class PincherTimeLapse:
             else:
                 Nramp = Nramp0-self.excludedFrames_black[i]
                 for j in range(Nct//2): # Ct field before ramp
+                    if self.dictLog['status_frame'][jstart + j] != 0:
+                        print(ORANGE + 'Careful ! Rewriting on some data in position {:.0f} (starting from 0)'.format(jstart + j) + '' + NORMAL)
+                        print(ORANGE + 'Writing {:.1f} instead of {:.1f}'.format(1 + j%self.Nuplet, self.dictLog['status_frame'][jstart + j]) + '' + NORMAL)
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
                 jstart += int(Nct//2)
@@ -934,6 +942,9 @@ class PincherTimeLapse:
                 i_nUp = max(self.dictLog['status_nUp']) + 1
                 jstart += int(Nramp0 + Nramp) # In the ramp itself, the two status stay equal to 0
                 for j in range(Nct//2): # Ct field after ramp
+                    if self.dictLog['status_frame'][jstart + j] != 0:
+                        print(ORANGE + 'Careful ! Rewriting on some data in position {:.0f} (starting from 0)'.format(jstart + j) + '' + NORMAL)
+                        print(ORANGE + 'Writing {:.1f} instead of {:.1f}'.format(1 + j%self.Nuplet, self.dictLog['status_frame'][jstart + j]) + '' + NORMAL)
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
                 i_nUp = max(self.dictLog['status_nUp']) + 1
@@ -941,7 +952,7 @@ class PincherTimeLapse:
 
     def determineFramesStatus_optoGen(self):
     #### Exp type dependance here
-        N0 = self.loop_totalSize
+        N0 = self.loop_mainSize
         Nramp0 = self.loop_rampSize
         # Nexclu = self.loop_excludedSize
         nUp = self.Nuplet
@@ -983,12 +994,12 @@ class PincherTimeLapse:
         microscope = self.microscope
         if microscope == 'labview':
             idxActivation = findActivation(fieldDf)[0]
-            actFirst = idxActivation//self.loop_totalSize
+            actFirst = idxActivation//self.loop_mainSize
             timeScaleFactor = 1000
         elif microscope == 'metamorph':
             actFirst = self.activationFirst
             #+2 in idxAnalysis because the time included in the timeSeriesfile is the third of the triplet
-            idxActivation = actFirst*self.loop_totalSize-1
+            idxActivation = actFirst*self.loop_mainSize-1
             timeScaleFactor = 1
         
         actN = ((self.nLoop - actFirst))//actFreq
@@ -1056,7 +1067,7 @@ class PincherTimeLapse:
         CURRENTLY NOT USED IN THE MAIN FUNCTION.
         """
         threshold = 0
-        end_z = 2*self.loop_totalSize
+        end_z = 2*self.loop_mainSize
         if method == 'otsu':
             threshold = factorT*filters.threshold_otsu(self.I[:end_z])
         elif method == 'max_entropy':
@@ -1089,7 +1100,7 @@ class PincherTimeLapse:
         confirm the threshold or recompute it with new parameters in a recursive way.
         """
         threshold = 0
-        end_z = 2*self.loop_totalSize
+        end_z = 2*self.loop_mainSize
         if method == 'otsu':
             threshold = factorT*filters.threshold_otsu(self.I[:end_z])
         elif method == 'max_entropy':
@@ -1098,7 +1109,7 @@ class PincherTimeLapse:
             threshold = factorT*max_entropy_threshold(I8)*(bitDepth/(2**8))
 
         # New version of the plot
-        loopSize = self.loop_totalSize
+        loopSize = self.loop_mainSize
         N = min(4, ((self.nS//loopSize)//loopInterval)-1)
         L_I_plot = [self.I[loopSize * loopInterval * k + 2] for k in range(N)]
         L_I_thresh = [I_plot > threshold for I_plot in L_I_plot]
@@ -1712,7 +1723,7 @@ class PincherTimeLapse:
         # In that case you have to skip the X lines corresponding to the end of the ramp part, X being the nb of black images at the end of the current loop
         # This is because when black images occurs, they do because of the high frame rate during ramp parts and thus replace these last ramp images.
         
-        Nct = (self.loop_totalSize-self.loop_rampSize)//2
+        Nct = (self.loop_mainSize-self.loop_rampSize)//2
         
         for iB in range(self.NB):
             self.listTrajectories[iB].dict['Zr'] = np.zeros(nT)
@@ -1720,7 +1731,7 @@ class PincherTimeLapse:
             iField = []
             for i in range(nT):
                 iF = self.listTrajectories[iB].dict['iF'][i]
-                iLoop = ((iF)//self.loop_totalSize)
+                iLoop = ((iF)//self.loop_mainSize)
                 try:
                     offset = self.excludedFrames_black[iLoop]
                 except:
@@ -1729,7 +1740,7 @@ class PincherTimeLapse:
                     print(self.excludedFrames_black)
                 # For now : excludedFrames_inward = excludedFrames_black
                 # For now : excludedFrames_outward = excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
-                i_lim = iLoop*self.loop_totalSize + (self.loop_totalSize - (Nct) - (offset))
+                i_lim = iLoop*self.loop_mainSize + (self.loop_mainSize - (Nct) - (offset))
                 # i_lim is the first index after the end of the ramp
                 addOffset = (iF >= i_lim) # Is this ramp going further than it should, considering the black images ?
                 SField = iF + int(addOffset*offset)
@@ -1737,8 +1748,8 @@ class PincherTimeLapse:
                 # except:
                 #     print(i, nT, offset)
                 #     iF = self.listTrajectories[iB].dict['iF'][i]
-                #     iLoop = ((iF+1)//self.loop_totalSize)
-                #     print(iF, self.loop_totalSize, iLoop)
+                #     iLoop = ((iF+1)//self.loop_mainSize)
+                #     print(iF, self.loop_mainSize, iLoop)
                 #     [].concat()
                     
             self.listTrajectories[iB].dict['iField'] = iField
@@ -2265,11 +2276,11 @@ class Trajectory:
             previousZ = -1
             while iF <= max(self.dict['iF']):
 
-# #### Important plotting option here
+#### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
 
                 # plot = 0
-                # if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
+                # if iF >= 2094 and iF <= 2130:# or (iF < 190 and iF > 150):
                 #     plot = 1
 
 # ############################ OK?! ###################################
@@ -2609,7 +2620,6 @@ class Trajectory:
         self.dict['Neighbour_R'] = arrayNeighbours[:,1]
 
 
-
     def detectInOut_ui(self, Nimg, frequency): # NOT VERY WELL MADE FOR NOW
         # Almost copy paste of detectNeighbours_ui
         ncols = 4
@@ -2802,8 +2812,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         PTL.makeFramesList()
         
         # Test the 
-        expected_frames_per_loop = PTL.loop_totalSize
-        actual_frames_per_loop = PTL.loop_totalSize
+        expected_frames_per_loop = PTL.loop_mainSize
+        actual_frames_per_loop = PTL.loop_mainSize
         print(expected_frames_per_loop, actual_frames_per_loop, 
               'Correct struct for listFrame : ' + str(expected_frames_per_loop == actual_frames_per_loop))
 
@@ -2816,7 +2826,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         Td = time.time()
 
         #### 1.1 - Check if a _Results.txt exists and import it if it's the case
-        resFilePath = fP[:-4] + '_ResultsPY.txt'
+        # resFilePath = fP[:-4] + '_Results.txt'
         resFileImported = False
         
         if MatlabStyle:
@@ -2936,7 +2946,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #         beadType = PTL.beadTypes[0] # M270 or M450
         #     else:
         #         beadType = 'detect'
-        #     traj.detectNeighbours(frequency = PTL.loop_totalSize, beadType = beadType)
+        #     traj.detectNeighbours(frequency = PTL.loop_mainSize, beadType = beadType)
 
         # Current way, with user input
         if redoAllSteps or not trajFilesImported:
@@ -2949,7 +2959,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                     beadType = PTL.beadTypes[0] # M270 or M450
                 else:
                     beadType = 'detect'
-                traj.detectNeighbours_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize, beadType = beadType)
+                traj.detectNeighbours_ui(Nimg = PTL.nLoop, frequency = PTL.loop_mainSize, beadType = beadType)
 
 
         #### 3.3 - Detect in/out bead
@@ -2958,7 +2968,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         if redoAllSteps or not trajFilesImported:
             for iB in range(PTL.NB):
                 traj = PTL.listTrajectories[iB]
-                InOut = traj.detectInOut_ui(Nimg = PTL.nLoop, frequency = PTL.loop_totalSize)
+                InOut = traj.detectInOut_ui(Nimg = PTL.nLoop, frequency = PTL.loop_mainSize)
 
 
     #### 4. Compute dz
@@ -3026,9 +3036,14 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                         print(traj.depthoStep)
 
         #### 4.2 - Compute z for each traj
-
-        matchingDirection = 'upward' # Change when needed !!
-
+        #### ! Expt dependence here !
+        if PTL.microscope == 'metamorph':
+            matchingDirection = 'downward' # Change when needed !!
+            print(ORANGE + "Deptho detection 'downward' mode" + NORMAL)
+        elif PTL.microscope == 'labview':
+            matchingDirection = 'upward'
+            print(ORANGE + "Deptho detection 'upward' mode" + NORMAL)
+            
         if redoAllSteps or not trajFilesImported:
             for iB in range(PTL.NB):
                 np.set_printoptions(threshold=np.inf)
@@ -3188,7 +3203,7 @@ def XYZtracking(I, cellID, NB, manipDict, depthoDir, depthoNames):
             beadType = PTL.beadTypes[0] # M270 or M450
         else:
             beadType = 'detect'
-        traj.detectNeighbours(frequency = PTL.loop_totalSize, beadType = beadType)
+        traj.detectNeighbours(frequency = PTL.loop_mainSize, beadType = beadType)
     XYZtracking_computeZ(PTL, depthoDir, depthoNames, plot = 1)
     return(PTL)
 
@@ -3689,15 +3704,15 @@ class BeadDeptho:
             self.plotProfiles()
 
 
-    def saveBeadDeptho(self, path, manipID, step, bestDetphoType = 'HD', bestFocusType = 'HD_hd'):
-        supDataDir = manipID + '_supData'
+    def saveBeadDeptho(self, path, ID, step, bestDetphoType = 'HD', bestFocusType = 'HD_hd'):
+        supDataDir = ID + '_supData'
         supDataDirPath = os.path.join(path, supDataDir)
         if not os.path.exists(supDataDirPath):
             os.makedirs(supDataDirPath)
 
-        cleanROIName = manipID + '_cleanROI.tif'
+        cleanROIName = ID + '_cleanROI.tif'
         cleanROIPath = os.path.join(path, cleanROIName)
-        io.imsave(cleanROIPath, self.I_cleanROI)
+        io.imsave(cleanROIPath, self.I_cleanROI, check_contrast=False)
 
         profilesRaw_keys = ['intensity_v', 'intensity_h', 'intensity_HD'] #, 'intensity_tot']
         profileDictRaw = {k: self.profileDict[k] for k in profilesRaw_keys}
@@ -3713,7 +3728,7 @@ class BeadDeptho:
         ZfocusDict_df.to_csv(os.path.join(supDataDirPath, 'Zfoci.csv'))
 
         bestFocus = self.ZfocusDict['Zm_' + bestFocusType]
-        metadataPath = os.path.join(path, manipID + '_Metadata.csv')
+        metadataPath = os.path.join(path, ID + '_Metadata.csv')
         with open(metadataPath, 'w') as f:
             f.write('step;bestFocus')
 #             for k in self.ZfocusDict.keys():
@@ -3725,7 +3740,7 @@ class BeadDeptho:
 #                 f.write(';')
 #                 f.write(str(self.ZfocusDict[k]))
 
-        depthoPath = os.path.join(path, manipID + '_deptho.tif')
+        depthoPath = os.path.join(path, ID + '_deptho.tif')
         bestDeptho = self.depthosDict['deptho_' + bestDetphoType]
         io.imsave(depthoPath, bestDeptho)
 
@@ -3902,7 +3917,8 @@ def depthoMaker(dirPath, savePath, specif, saveLabel, scale, beadType = 'M450', 
         for BD in listBD:
 #             BD_manipID = findInfosInFileName(BD.fileName, 'manipID')
             subFileSavePath = os.path.join(savePath, 'Intermediate_Py', saveLabel + '_step' + str(step))
-            BD.saveBeadDeptho(subFileSavePath, specif +  '_' + str(i), step = step, bestDetphoType = 'HD', bestFocusType = 'HD_hd')
+            # BD.saveBeadDeptho(subFileSavePath, specif +  '_' + str(i), step = step, bestDetphoType = 'HD', bestFocusType = 'HD_hd')
+            BD.saveBeadDeptho(subFileSavePath, f, step = step, bestDetphoType = 'HD', bestFocusType = 'HD_hd')
             i += 1
 
 #

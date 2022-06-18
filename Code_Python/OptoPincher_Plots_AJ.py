@@ -56,7 +56,7 @@ BLUE  = '\033[36m' # blue
 
 # %% Directories adress
 
-experimentalDataDir = os.path.join(mainDir, "Data_Experimental")
+experimentalDataDir = os.path.join(mainDir, "Data_Experimental_AJ")
 dataDir = os.path.join(mainDir, "Data_Analysis")
 timeSeriesDataDir = os.path.join(dataDir, "TimeSeriesData")
 
@@ -188,7 +188,7 @@ def ctFieldThicknessIndividual(experimentalDataDir, todayFigDir, date, save = Fa
     except:
         pass
     
-    expDf = jvu.getExperimentalConditions(experimentalDataDir, save = False, sep = ';') 
+    expDf = jvu.getExperimentalConditions(experimentalDataDir, save = False, sep = ',') 
     files = os.listdir(rawDir+'/Raw/'+date)
 
     if background == 'dark':
@@ -226,7 +226,48 @@ def ctFieldThicknessIndividual(experimentalDataDir, todayFigDir, date, save = Fa
             plt.savefig(todayFigDir+'/'+cellID+'_ThicknessvTime')
             plt.show()
 
-            
+def ctFieldThicknessAll(experimentalDataDir, todayFigDir, date, tag = 'all', save = False, background = 'default'):
+    bead_dia = 4.503
+    
+    try:
+        os.mkdir(todayFigDir)
+    except:
+        pass
+    
+    if background == 'dark':
+        plt.style.use('dark_background')
+    else:
+        plt.style.use('default')
+    
+    expDf = jvu.getExperimentalConditions(experimentalDataDir, save = False, sep = ';') 
+    expDf = expDf[expDf['experimentType'] == 'optoGen']
+    expDf = expDf[expDf['microscope'] == 'metamorph']
+    cellConditionsDf = pd.read_csv(experimentalDataDir+'/cellConditions.csv')
+    cellConditionsDf = cellConditionsDf[cellConditionsDf['excluded'] == 'no']
+    allCells = cellConditionsDf['cellID'].values
+    cellIDs = []
+    
+    if tag == 'all':
+        cellIDs = allCells
+    elif tag != 'all':
+        selectedManipIDs = expDf['manipID'][expDf['activation type'] == tag].values
+        for each in selectedManipIDs:
+            cellID = (cellConditionsDf['cellID'][cellConditionsDf['cellID'].str.contains(each)])
+            cellID = cellID.values
+            if len(cellID) >= 1:
+                cellIDs.extend(cellID)  
+    cellIDs = np.asarray(cellIDs)
+        
+    for cellID in cellIDs:
+        timeSeriesDf = getCellTimeSeriesData(cellID)            
+        optoMetaDataDf = getOptoMeta(cellID)
+        Tact = optoMetaDataDf['T_abs'].values[0]
+        time = timeSeriesDf['T'].values*1000/60
+        plt.plot(time, timeSeriesDf['D3'].values - bead_dia, label = cellID)
+        plt.axvline(x = 5.0, color = 'r')
+    plt.title('Thickness (um) vs Time : '+tag)
+    plt.show()
+    plt.legend()
 
 def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, background = 'default'):
     try:
@@ -245,13 +286,19 @@ def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, backg
     summaryDict = {}
     summaryDict['cellID'] = []
     summaryDict['medianThickness'] = []
+    summaryDict['medianThickness5minRange'] = []
     summaryDict['activationTag'] = []
     summaryDict['activationType'] = []
     summaryDict['fluctuations'] = []
+    summaryDict['fluctuations5minRange'] = []
     summaryDict['blebCondition'] = []
     summaryDict['ratioThickness'] = []
     summaryDict['ratioFluctuations'] = []
+    summaryDict['ratioFluctThick'] = []
+    summaryDict['ratioFluctuations5min'] = []
+    summaryDict['ratioThickness5min'] = []
     
+    #### Constructing CT Field Summary Table
     for i in range(len(listOfCells)):
         
         cellID = listOfCells[i]
@@ -273,7 +320,11 @@ def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, backg
         summaryDict['blebCondition'].append(cellConditionsDf['blebCondition'][cellConditionsDf['cellID']==cellID].values[0])
         summaryDict['ratioThickness'].append(np.nan)
         summaryDict['ratioFluctuations'].append(np.nan)
-        
+        summaryDict['ratioFluctThick'].append(np.nan)
+        summaryDict['ratioFluctuations5min'].append(np.nan)
+        summaryDict['ratioThickness5min'].append(np.nan)
+        summaryDict['medianThickness5minRange'].append(medianThicknessBefore)
+        summaryDict['fluctuations5minRange'].append(fluctBefore)
         
         summaryDict['cellID'].append(cellID)
         thicknessAfter = (timeSeriesDf['D3']-bead_dia)[(timeSeriesDf['Tabs']*1000 > Tact)]
@@ -286,7 +337,16 @@ def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, backg
         summaryDict['blebCondition'].append(cellConditionsDf['blebCondition'][cellConditionsDf['cellID']==cellID].values[0])
         summaryDict['ratioThickness'].append(medianThicknessAfter/medianThicknessBefore)
         summaryDict['ratioFluctuations'].append(fluctAfter/fluctBefore)
+        summaryDict['ratioFluctThick'].append((fluctAfter/fluctBefore)/(medianThicknessAfter/medianThicknessBefore))
         
+        thicknessLast5min = thicknessAfter[timeSeriesDf['T']*1000/60 > 10.0]
+        medianThicknessLast5min = thicknessLast5min.median()
+        summaryDict['medianThickness5minRange'].append(medianThicknessLast5min)
+        fluctuationsLast5min = np.percentile(thicknessLast5min, 90) - np.percentile(thicknessLast5min, 10)
+        summaryDict['fluctuations5minRange'].append(fluctuationsLast5min)
+        summaryDict['ratioFluctuations5min'].append(fluctuationsLast5min/fluctBefore)
+        summaryDict['ratioThickness5min'].append(medianThicknessLast5min/medianThicknessBefore)
+
         summaryDf = pd.DataFrame(summaryDict)
 
         
@@ -334,6 +394,51 @@ def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, backg
     plt.savefig(todayFigDir+'/ActivationSpecificSubplots_Fluctuations.png')
     plt.show()
     
+    #### medianThickness first/last 5mins boxplots, global
+    ax1a_0 = plt.figure()
+    activationType = 'global'
+    data_onlyGlobal = summaryDf[summaryDf['activationType'] == activationType]
+    ax1a_0 = sns.boxplot(x = 'activationTag', y='medianThickness5minRange', data=data_onlyGlobal, color = 'skyblue')
+    ax1a_0 = sns.swarmplot(x = 'activationTag', y='medianThickness5minRange', data=data_onlyGlobal, hue = 'blebCondition')
+    addStat_df(ax1a_0, data_onlyGlobal, [('After', 'Before')], 'medianThickness5minRange', test = 'Wilcox_greater', cond = 'activationTag')
+    ax1a_0.set_ylim(0, 1)
+    for patch in ax1a_0.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .3))
+    plt.suptitle(activationType)
+    plt.savefig(todayFigDir+'/AllThickness_Before-AfterActivation5mins_'+activationType+'.png')
+    plt.show()
+    
+    ####  medianThickness first/last 5mins boxplots, at beads
+    ax1b_0 = plt.figure()
+    activationType = 'at beads'
+    data_onlyGlobal = summaryDf[summaryDf['activationType'] == activationType]
+    ax1b_0 = sns.boxplot(x = 'activationTag', y='medianThickness5minRange', data=data_onlyGlobal, color = 'skyblue')
+    ax1b_0 = sns.swarmplot(x = 'activationTag', y='medianThickness5minRange', data=data_onlyGlobal, hue = 'blebCondition')
+    addStat_df(ax1b_0, data_onlyGlobal, [('After', 'Before')], 'medianThickness5minRange', test = 'Wilcox_greater', cond = 'activationTag')
+    ax1b_0.set_ylim(0, 1)
+    for patch in ax1b_0.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .3))
+    plt.suptitle(activationType)
+    plt.savefig(todayFigDir+'/AllThickness_Before-AfterActivation5mins_'+activationType+'.png')
+    plt.show()
+    
+    ####  medianThickness first/last 5mins boxplots, away from beads
+    ax1c_0 = plt.figure()
+    activationType = 'away from beads'
+    data_onlyGlobal = summaryDf[summaryDf['activationType'] == activationType]
+    ax1c_0 = sns.boxplot(x = 'activationTag', y='medianThickness5minRange', data=data_onlyGlobal, color = 'skyblue')
+    ax1c_0 = sns.swarmplot(x = 'activationTag', y='medianThickness5minRange', data=data_onlyGlobal, hue = 'blebCondition')
+    addStat_df(ax1c_0, data_onlyGlobal, [('After', 'Before')], 'medianThickness5minRange', test = 'Wilcox_greater', cond = 'activationTag')
+    ax1c_0.set_ylim(0, 1)
+    for patch in ax1c_0.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .3))
+    plt.suptitle(activationType)
+    plt.savefig(todayFigDir+'/AllThickness_Before-AfterActivation5mins_'+activationType+'.png')
+    plt.show()
+    
     #### medianThickness boxplots, global
     ax1a = plt.figure()
     activationType = 'global'
@@ -377,6 +482,51 @@ def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, backg
         patch.set_facecolor((r, g, b, .3))
     plt.suptitle(activationType)
     plt.savefig(todayFigDir+'/AllThickness_Before-AfterActivation_'+activationType+'.png')
+    plt.show()
+    
+    ####  fluctuations first/last 5mins boxplots, away from beads
+    ax2c_0 = plt.figure()
+    activationType = 'away from beads'
+    data_onlyGlobal = summaryDf[summaryDf['activationType'] == activationType]
+    ax2c_0 = sns.boxplot(x = 'activationTag', y='fluctuations5minRange', data=data_onlyGlobal, color = 'skyblue')
+    ax2c_0 = sns.swarmplot(x = 'activationTag', y='fluctuations5minRange', data=data_onlyGlobal, hue = 'blebCondition')
+    addStat_df(ax2c_0, data_onlyGlobal, [('After', 'Before')], 'fluctuations5minRange', test = 'Wilcox_greater', cond = 'activationTag')
+    ax2c_0.set_ylim(0, 1)
+    for patch in ax2c_0.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .3))
+    plt.suptitle(activationType)
+    plt.savefig(todayFigDir+'/AllFluctuations_Before-AfterActivation5mins_'+activationType+'.png')
+    plt.show()
+    
+    #### fluctuations first/last 5mins boxplots, global
+    ax2b_0 = plt.figure()
+    activationType = 'global'
+    data_onlyGlobal = summaryDf[summaryDf['activationType'] == activationType]
+    ax2b_0 = sns.boxplot(x = 'activationTag', y='fluctuations5minRange', data=data_onlyGlobal, color = 'skyblue')
+    ax2b_0 = sns.swarmplot(x = 'activationTag', y='fluctuations5minRange', data=data_onlyGlobal, hue = 'blebCondition')
+    addStat_df(ax2b_0, data_onlyGlobal, [('After', 'Before')], 'fluctuations5minRange', test = 'Wilcox_greater', cond = 'activationTag')
+    ax2b_0.set_ylim(0, 1)
+    plt.suptitle(activationType)
+    for patch in ax2b_0.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .3))
+    plt.savefig(todayFigDir+'/AllFluctuations_Before-AfterActivation5mins_'+activationType+'.png')
+    plt.show()
+    
+    #### fluctuations first/last 5mins boxplots, at beads
+    ax2c_0 = plt.figure()
+    activationType = 'at beads'
+    data_onlyGlobal = summaryDf[summaryDf['activationType'] == activationType]
+    ax2c_0 = sns.boxplot(x = 'activationTag', y='fluctuations5minRange', data=data_onlyGlobal, color = 'skyblue')
+    ax2c_0 = sns.swarmplot(x = 'activationTag', y='fluctuations5minRange', data=data_onlyGlobal, hue = 'blebCondition')
+    addStat_df(ax2c_0, data_onlyGlobal, [('After', 'Before')], 'fluctuations5minRange', test = 'Wilcox_greater', cond = 'activationTag')
+    ax2c_0.set_ylim(0, 1)
+    for patch in ax2c_0.artists:
+        r, g, b, a = patch.get_facecolor()
+        patch.set_facecolor((r, g, b, .3))
+    plt.suptitle(activationType)
+    plt.savefig(todayFigDir+'/AllFluctuations_Before-AfterActivation5mins_'+activationType+'.png')
     plt.show()
     
     ####  fluctuations boxplots, away from beads
@@ -456,36 +606,104 @@ def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, backg
     plt.savefig(todayFigDir+'/Summary_FluctuationsvsThickness.png')
     plt.show()
     
-     #### Ratio of thicknesses after/before activation
+    #### Ratio of thicknesses first/last 5 mins after/before activation
+    
+    ax5_0 = plt.figure()
+    ax5_0 = sns.scatterplot(x = 'cellID',  y = 'ratioThickness5min', data=summaryDf, style = 'blebCondition', hue = 'activationType', s = 100)
+    ax5_0.set_xlabel('cellID')
+    ax5_0.set_ylabel('After/Before Ratio Thickness (5 mins before/after)')
+    # confInt = addStat_df(ax5, summaryDf, [('Before', 'After')], 'medianThickness', test = 'pairwise', cond = 'activationTag')
+    # plt.suptitle("Mean - 1.96*StdError: " + str(confInt))
+    ax5_0.set_xticklabels(summaryDf['cellID'].values, rotation = 90)
+    ax5_0.axhline(y = 1.0, color = 'r')
+    ax5_0.set_ylim(0,4)
+    plt.savefig(todayFigDir+'/Summary_RatioThickness5mins.png')
+    plt.show()
+    
+    #### Ratio of thicknesses after/before activation
+    
     ax5 = plt.figure()
     ax5 = sns.scatterplot(x = 'cellID',  y = 'ratioThickness', data=summaryDf, style = 'blebCondition', hue = 'activationType', s = 100)
     ax5.set_xlabel('cellID')
     ax5.set_ylabel('After/Before Ratio Thickness')
-    confInt = addStat_df(ax5, summaryDf, [('Before', 'After')], 'fluctuations', test = 'pairwise', cond = 'activationTag')
-    plt.suptitle("Mean - 1.96*StdError: " + str(confInt))
+    # confInt = addStat_df(ax5, summaryDf, [('Before', 'After')], 'medianThickness', test = 'pairwise', cond = 'activationTag')
+    # plt.suptitle("Mean - 1.96*StdError: " + str(confInt))
     ax5.set_xticklabels(summaryDf['cellID'].values, rotation = 90)
+    ax5.axhline(y = 1.0, color = 'r')
     ax5.set_ylim(0,4)
     plt.savefig(todayFigDir+'/Summary_RatioThickness.png')
     plt.show()
     
+    #### Ratio of fluctuations first/last 5 mins after/before activation
+    ax6_0 = plt.figure()
+    ax6_0 = sns.scatterplot(x = 'cellID',  y = 'ratioFluctuations5min', data=summaryDf, style = 'blebCondition', hue = 'activationType', s = 100)
+    ax6_0.set_xlabel('cellID')
+    ax6_0.set_ylabel('After/Before Ratio Fluctuations (5 mins before/after)')
+    # confInt = addStat_df(ax6, summaryDf, [('Before', 'After')], 'fluctuations', test = 'pairwise', cond = 'activationTag')
+    # plt.suptitle("Mean - 1.96*StdError: " + str(confInt))
+    ax6_0.set_xticklabels(summaryDf['cellID'].values, rotation = 90)
+    ax6_0.axhline(y = 1.0, color = 'r')
+    ax6_0.set_ylim(0,4)
+    plt.savefig(todayFigDir+'/Summary_RatioFluctuations5mins.png')
+    plt.show()
+    
+    #### Ratio of fluctuations after/before activation
     ax6 = plt.figure()
     ax6 = sns.scatterplot(x = 'cellID',  y = 'ratioFluctuations', data=summaryDf, style = 'blebCondition', hue = 'activationType', s = 100)
     ax6.set_xlabel('cellID')
     ax6.set_ylabel('After/Before Ratio Fluctuations')
-    confInt = addStat_df(ax6, summaryDf, [('Before', 'After')], 'fluctuations', test = 'pairwise', cond = 'activationTag')
-    plt.suptitle("Mean - 1.96*StdError: " + str(confInt))
+    # confInt = addStat_df(ax6, summaryDf, [('Before', 'After')], 'fluctuations', test = 'pairwise', cond = 'activationTag')
+    # plt.suptitle("Mean - 1.96*StdError: " + str(confInt))
     ax6.set_xticklabels(summaryDf['cellID'].values, rotation = 90)
+    ax6.axhline(y = 1.0, color = 'r')
     ax6.set_ylim(0,4)
     plt.savefig(todayFigDir+'/Summary_RatioFluctuations.png')
     plt.show()
     
+    #### Ratio of fluctuation/Ratio of Thickness Before/After
+    ax7 = plt.figure()
+    ax7 = sns.scatterplot(x = 'cellID',  y = 'ratioFluctThick', data=summaryDf, style = 'blebCondition', hue = 'activationType', s = 100)
+    ax7.set_xlabel('cellID')
+    ax7.set_ylabel('After/Before Ratio Fluctuations/Ratio Thickness')
+    # confInt = addStat_df(ax7, summaryDf, [('Before', 'After')], 'ratioFluctThick', test = 'pairwise', cond = 'activationTag')
+    # plt.suptitle("Mean - 1.96*StdError: " + str(confInt))
+    ax7.set_xticklabels(summaryDf['cellID'].values, rotation = 90)
+    ax7.axhline(y = 1.0, color = 'r')
+    ax7.set_ylim(0,4)
+    plt.savefig(todayFigDir+'/Summary_RatioFluctThickness.png')
+    plt.show()
     
+    #### Median Thickness After vs. Median Thickness Before 
+    ax8 = plt.figure()
+    x = summaryDf['medianThickness'][summaryDf['activationTag'] == 'Before'].values
+    y = summaryDf['medianThickness'][summaryDf['activationTag'] == 'After'].values
+    hue = summaryDf['activationType'][summaryDf['activationTag'] == 'After'].values
+    style = summaryDf['blebCondition'][summaryDf['activationTag'] == 'After'].values
+    ax8 = sns.scatterplot(x = x, y = y, hue = hue, style = style, s = 100)
+    ax8.set_xlabel('medianThicknessBefore (um)')
+    ax8.set_ylabel('medianThicknessAfter (um)')
+    plt.savefig(todayFigDir+'/Summary_MedianThicknessBefore-After.png')
+    plt.legend()
+    plt.show()
+    
+     #### Fluctuations Before vs. Fluctuation After
+    ax9 = plt.figure()
+    x = summaryDf['fluctuations'][summaryDf['activationTag'] == 'Before'].values
+    y = summaryDf['fluctuations'][summaryDf['activationTag'] == 'After'].values
+    hue = summaryDf['activationType'][summaryDf['activationTag'] == 'After'].values
+    style = summaryDf['blebCondition'][summaryDf['activationTag'] == 'After'].values
+    ax9 = sns.scatterplot(x = x, y = y, hue = hue, style = style, s = 100)
+    ax9.set_xlabel('fluctuationsBefore (um)')
+    ax9.set_ylabel('fluctuationsAfter (um)')
+    plt.savefig(todayFigDir+'/Summary_FluctuationsBefore-After.png')
+    plt.legend()
+    plt.show()
     
     return(summaryDf)
 
 
-#%% Constant field plots
-#%%% Plotting summary of thickness plots
+ #%% Constant field plots
+# #%%% Plotting summary of thickness plots
 cellDf = pd.read_csv(experimentalDataDir+'/cellConditions.csv', sep=',')
 listOfCells = np.asarray(cellDf['cellID'][cellDf['excluded'] == 'no'])
 summaryDf = ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells)
@@ -501,6 +719,16 @@ plt.close('all')
 
 # %%
 # plt.close('all')
+
+#%%% Plotting 3D trajectories of all cells
+
+# tag = 'global'
+# ctFieldThicknessAll(experimentalDataDir, figDir, date, tag = tag, save = True, background = 'default')
+
+
+# %%
+# plt.close('all')
+
 
 #%% shitty test plots
 #%%% Plotting all three graphs (3D, 2D and Dz)
@@ -591,7 +819,7 @@ fig = plt.figure(figsize=(30,10))
 fig.suptitle(folder, fontsize=16)
 plt.rcParams.update({'font.size': 40})
 plt.axvline(x = 5, color = 'r', label = 'Activation begins')
-plt.xlim(0.5,8)
+# plt.xlim(0.5,8)
 
 plt.ylabel('Thickness (um)')
 plt.xlabel('Time (mins)')
