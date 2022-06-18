@@ -66,7 +66,7 @@ def Zprojection(currentCell, microscope, kind = 'min'):
 
 def shape_selection(event, x, y, flags, param):
     # grab references to the global variables
-    global ref_point, crop
+    global ref_point, crop, allZimg, iZ
 
     # if the left mouse button was clicked, record the starting
     # (x, y) coordinates and indicate that cropping is being performed
@@ -80,7 +80,7 @@ def shape_selection(event, x, y, flags, param):
         ref_point.append((x, y))
 
         # draw a rectangle around the region of interest
-        cv2.rectangle(allZimg[i], ref_point[0], ref_point[1], (0, 255, 0), 1)
+        cv2.rectangle(allZimg[iZ], ref_point[0], ref_point[1], (0, 255, 0), 1)
 
 def crop(mainDir, allRefPoints, allCells, microscope):
     count = 0
@@ -103,7 +103,7 @@ def crop(mainDir, allRefPoints, allCells, microscope):
         
         x1, x2, y1, y2 = int(i[0][0]), int(i[1][0]), int(i[0][1]), int(i[1][1])
         cropped = stack[:, y1:y2, x1:x2]
-        
+        print(BLUE + 'Done' + NORMAL)
         io.imsave(mainDir+'/'+j+'.tif', cropped)
         print(GREEN + j +' saved sucessfully' + NORMAL)
         if count%10 == 0:
@@ -121,11 +121,8 @@ def moveFiles(mainDir, allCells, filename):
                 destination = mainDir+f+'.txt'
                 shutil.copy(source, destination)
                 break
-        
-    
-    
 
-#%% Define parameters
+#%% Define parameters # Numi
 
 mainDir = 'D:/Anumita/MagneticPincherData/Raw/22.06.09'
 extDir = 'F:/Cortex Experiments/OptoPincher Experiments/20220906_100xoil_3t3optorhoa_4.5beads_15mT/22.06.09/'
@@ -133,71 +130,88 @@ prefix = 'cell'
 channel = 'w1TIRF DIC'
 microscope = 'metamorph'
 
+#%% Define parameters # Jojo
+
+mainDir = 'D:/MagneticPincherData/Raw/22.05.05/test'
+extDir = 'E:/22.05.05_HoxB8/M1_glass_tko/here'
+# prefix = 'cell'
+# channel = 'w1TIRF DIC'
+microscope = 'labview'
+
+
+# preprocess(extDir, mainDir, microscope, reset = 0)    
 
 #%% Main function
 
-def preprocess(extDir, mainDir, microscope, reset = 0):
-    allCells = os.listdir(extDir)
+# def preprocess(extDir, mainDir, microscope, reset = 0):
+    
+allCells = os.listdir(extDir)
+ref_point = []
+allRefPoints = []
+allZimg = []
+allZimg_og = []
+reset = 0
+
+print(BLUE + 'Constructing all Z-Projections...' + NORMAL)
+
+scaleFactor = 4
+for i in range(len(allCells)):
+    currentCell = allCells[i]
+    print(currentCell)
+    Zimg = Zprojection(currentCell, microscope)
+    allZimg.append(Zimg)
+
+
+allZimg_og = np.copy(np.asarray(allZimg))
+
+
+print(ORANGE + 'Draw the ROIs to crop...' + NORMAL)
+
+if reset == 1:
+    allZimg = np.copy(allZimg_og)
     ref_point = []
     allRefPoints = []
-    allZimg = []
-    allZimg_og = []
-    reset = 0
-    
-    print(BLUE + 'Constructing all Z-Projections...' + NORMAL)
-    
-    scaleFactor = 4
-    for i in range(len(allCells)):
-        currentCell = allCells[i]
-        print(currentCell)
-        Zimg = Zprojection(currentCell, microscope)
-        allZimg.append(Zimg)
+
+count = 0
+for iZ in range(len(allZimg)):
     
     
-    allZimg_og = np.copy(np.asarray(allZimg))
     
-    
-    print(ORANGE + 'Draw the ROIs to crop...' + NORMAL)
-    
-    if reset == 1:
-        allZimg = np.copy(allZimg_og)
-        ref_point = []
-        allRefPoints = []
-    
-    count = 0
-    for i in range(len(allZimg)):
-        if count%25 == 0:
-            count = 0
-            
-        currentCell = allCells[i]
+    if count%25 == 0:
+        count = 0
         
-        Nimg = len(allZimg)
-        ncols = 5
-        nrows = ((Nimg-1) // ncols) + 1
-        clone = allZimg[i].copy()
-        
-        cv2.namedWindow(currentCell)
-        cv2.moveWindow(currentCell, (count//ncols)*400, count%ncols*200)
-        cv2.setMouseCallback(currentCell, shape_selection)
-        
-        while True:
-        # display the image and wait for a keypress
-            currentCell = allCells[i]
-            cv2.imshow(currentCell, allZimg[i])
-            key = cv2.waitKey(20) & 0xFF
-            
-        # press 'r' to reset the crop
-            if key == ord("r"):
-                allZimg[i] = clone.copy()    
-        
-        # if the 'a' key is pressed, break from the loop and move on to the next file
-            elif key == ord("a"):
-                allRefPoints.append(np.asarray(ref_point)*scaleFactor)
-                break
-            
-        count = count + 1
-        
-    cv2.destroyAllWindows()
+    currentCell = allCells[iZ]
     
-    print(BLUE + 'Saving all tiff stacks...' + NORMAL)
-    crop(mainDir, allRefPoints, allCells, microscope)
+    Nimg = len(allZimg)
+    ncols = 5
+    nrows = ((Nimg-1) // ncols) + 1
+    clone = allZimg[iZ].copy()
+    
+    cv2.namedWindow(currentCell)
+    cv2.moveWindow(currentCell, (count//ncols)*400, count%ncols*200)
+    cv2.setMouseCallback(currentCell, shape_selection)
+    
+    while True:
+    # display the image and wait for a keypress
+        currentCell = allCells[iZ]
+        cv2.imshow(currentCell, allZimg[iZ])
+        key = cv2.waitKey(20) & 0xFF
+        
+    # press 'r' to reset the crop
+        if key == ord("r"):
+            allZimg[iZ] = clone.copy()    
+    
+    # if the 'a' key is pressed, break from the loop and move on to the next file
+        elif key == ord("a"):
+            allRefPoints.append(np.asarray(ref_point)*scaleFactor)
+            break
+        
+    count = count + 1
+    
+cv2.destroyAllWindows()
+
+print(BLUE + 'Saving all tiff stacks...' + NORMAL)
+crop(mainDir, allRefPoints, allCells, microscope)
+    
+
+
