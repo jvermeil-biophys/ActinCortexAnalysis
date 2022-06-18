@@ -102,7 +102,7 @@ dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
 # def findFirstActivation(cellID):
     
 
-def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
+def getExperimentalConditions(experimentalDataDir, save = False, sep = ';', suffix = ''):
     """"
     Import the table with all the conditions in a clean way.
     It is a tedious function to read because it's doing a boring job:
@@ -112,7 +112,10 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
     Etc
     """
     #### 0. Import the table
-    experimentalDataFile = 'ExperimentalConditions.csv'
+    if suffix == '':
+        experimentalDataFile = 'ExperimentalConditions.csv'
+    else:
+        experimentalDataFile = 'ExperimentalConditions' + suffix + '.csv'
     experimentalDataFilePath = os.path.join(experimentalDataDir, experimentalDataFile)
     expConditionsDF = pd.read_csv(experimentalDataFilePath, sep=sep, header=0)
     print(BLUE + 'Importing Experimental Conditions' + NORMAL)
@@ -173,13 +176,15 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';'):
         expConditionsDF.loc[:,'date'] = expConditionsDF.loc[:,'date'].apply(lambda x: x.split('-')[0] + '-' + x.split('-')[1] + '-' + x.split('-')[2][2:])  
         
     #### 1.9 Format activation fields
-    expConditionsDF['first activation'] = expConditionsDF['first activation'].astype(np.float)
-    expConditionsDF['activation frequency'] = expConditionsDF['activation frequency'].astype(np.float)
-
+    try:
+        expConditionsDF['first activation'] = expConditionsDF['first activation'].astype(np.float)
+        expConditionsDF['activation frequency'] = expConditionsDF['activation frequency'].astype(np.float)
+    except:
+        pass
 
     #### 2. Save the table, if required
     if save:
-        saveName = 'ExperimentalConditions.csv'
+        saveName = experimentalDataFile
         savePath = os.path.join(experimentalDataDir, saveName)
         expConditionsDF.to_csv(savePath, sep=';')
 

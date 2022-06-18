@@ -648,6 +648,7 @@ class PincherTimeLapse:
                 # self.loop_excludedSize = int(loopStruct[2])
             # else:
                 # self.loop_excludedSize = 0
+                
             self.nLoop = int(np.round(nS/self.loop_totalSize))
             
         #### Broken ramp and sinus. TBC !!!! for the BR
@@ -664,37 +665,50 @@ class PincherTimeLapse:
             # self.loop_excludedSize = 0
             self.nLoop = 1
             
-        self.excludedFrames_inward = np.zeros(self.nLoop)
-        self.excludedFrames_black = np.zeros(self.nLoop) 
-        self.excludedFrames_outward = np.zeros(self.nLoop)
+        self.excludedFrames_inward = np.zeros(self.nLoop, dtype = int)
+        self.excludedFrames_black = np.zeros(self.nLoop, dtype = int) 
+        self.excludedFrames_outward = np.zeros(self.nLoop, dtype = int)
             
         
         #### Import data from the optogen condition columns, if they exist
+        self.microscope = manipDict['microscope']
+        fluo = False
+        
         try:
+            print(ORANGE + 'Reading optogen parameters...' + NORMAL)
+            # "activationFirst" is the number of the loop 
+            # at the end of which the first activ is
+            # when you count the loop starting from 1
             self.activationFirst = int(manipDict['first activation'])
-            # first activation is the number of the loop at the end of which the first activ is.
-            # when you count the loop starting from 1.
+            
+            
             self.activationFreq = int(manipDict['activation frequency'])
             self.activationExp = manipDict['activation exp']
-            
             self.activationType = manipDict['activation type']
-            self.microscope = manipDict['microscope']
+            
             
             if (not pd.isna(self.activationFreq)) and self.activationFreq > 0:
-                LoopActivations = np.array([k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)])
+                self.LoopActivations = np.array([k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)])
                 # k-1 here cause we counted the loops starting from 1 but python start from 0.
             else:
-                LoopActivations = np.array([self.activationFirst-1])
-            self.LoopActivations = LoopActivations
-            self.totalActivationImages = np.array([np.sum(LoopActivations < kk) for kk in range(self.nLoop)])
-            
-            self.excludedFrames_outward += self.totalActivationImages
-            
+                self.LoopActivations = np.array([self.activationFirst-1])
+            fluo = True
+                
         except:
-            pass
+            print(ORANGE + 'No optogen parameters found' + NORMAL)
+            print(self.wFluoEveryLoop)
+            if self.wFluoEveryLoop:
+                self.LoopActivations = np.arange(self.nLoop, dtype = int)
+                fluo = True
         
-        if self.wFluoEveryLoop:
-            self.excludedFrames_outward += 1
+        print(fluo)
+        if fluo == False:
+            self.LoopActivations = np.array([])
+            
+            
+        self.totalActivationImages = np.array([np.sum(self.LoopActivations < kk) 
+                                               for kk in range(self.nLoop)])
+        self.excludedFrames_outward += self.totalActivationImages
         
         # 3. Field that are just initialized for now and will be filled by calling different methods.
         self.threshold = 0
@@ -748,52 +762,85 @@ class PincherTimeLapse:
         """
         
         if self.microscope == 'labview':
-            try: # Optogenetic activations behaviour
-                print(ORANGE + 'tried optogen fluo detection' + NORMAL)
-                if self.activationFirst > 0 and not self.wFluoEveryLoop:
-                    if (not pd.isna(self.activationFreq)) and self.activationFreq > 0: # Meaning there is a repetition of activation
-                        # LoopActivations = [k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)]
-                        for iLoopActivation in self.LoopActivations:
-                            totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
-                            j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
-                            self.dictLog['status_frame'][j] = -1
-                            self.dictLog['status_nUp'][j] = -1
-                            
-                    else: # Set self.activationFreq = 0 to only detect one single activation
-                        iLoopActivation = self.activationFirst-1
-                        totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
-                        # LoopActivations = [iLoopActivation]
-                        
-                        j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+            try:
+                if self.activationFirst > 0:
+                    for iLoop in self.LoopActivations:
+                        totalExcludedOutward = self.excludedFrames_outward[iLoop]
+                        j = int(((iLoop+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
                         self.dictLog['status_frame'][j] = -1
                         self.dictLog['status_nUp'][j] = -1
                         
-                    if not os.path.exists(fluoDirPath):
-                        os.makedirs(fluoDirPath)
-                        for iLoopActivation in self.LoopActivations:
-                            totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
-                            j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
-                            Ifluo = self.I[j]
-                            path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
-                            io.imsave(path, Ifluo)
-    
-            except: 
-                pass
+            except:
+                if self.wFluoEveryLoop:
+                    for iLoop in self.LoopActivations:
+                        totalExcludedOutward = self.excludedFrames_outward[iLoop]
+                        j = int(((iLoop+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
+                        self.dictLog['status_frame'][j] = -1
+                        self.dictLog['status_nUp'][j] = -1
+                    
+                        
+                    
+            if not os.path.exists(fluoDirPath):
+                os.makedirs(fluoDirPath)
+                for iLoop in self.LoopActivations:
+                    totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoop])
+                    j = int(((iLoop+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
+                    Ifluo = self.I[j]
+                    path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
+                    io.imsave(path, Ifluo)
             
             
-            if self.wFluoEveryLoop: # Normal behaviour
-                for i in range(self.nLoop):
-                    j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFrames_black[i])
-                    self.dictLog['status_frame'][j] = -1
-                    self.dictLog['status_nUp'][j] = -1
+            
+            # try: # Optogenetic activations behaviour
+            #     print(ORANGE + 'Trying optogen fluo detection...' + NORMAL)
+            #     if self.activationFirst > 0 and not self.wFluoEveryLoop:
+            #         if (not pd.isna(self.activationFreq)) and self.activationFreq > 0: # Meaning there is a repetition of activation
+            #         # self.LoopActivations = np.array([k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)])    
+            #             for iLoopActivation in self.LoopActivations:
+            #                 totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
+            #                 j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+            #                 self.dictLog['status_frame'][j] = -1
+            #                 self.dictLog['status_nUp'][j] = -1
+                            
+            #         else: # Set self.activationFreq = 0 to only detect one single activation
+            #             iLoopActivation = self.activationFirst-1
+            #             totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
+            #             # LoopActivations = [iLoopActivation]
+                        
+            #             j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+            #             self.dictLog['status_frame'][j] = -1
+            #             self.dictLog['status_nUp'][j] = -1
+                        
+            #         if not os.path.exists(fluoDirPath):
+            #             os.makedirs(fluoDirPath)
+            #             for iLoopActivation in self.LoopActivations:
+            #                 totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
+            #                 j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+            #                 Ifluo = self.I[j]
+            #                 path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
+            #                 io.imsave(path, Ifluo)
+                            
+            #     print(ORANGE + '...success' + NORMAL)
     
-                if not os.path.exists(fluoDirPath):
-                    os.makedirs(fluoDirPath)
-                    for i in range(self.nLoop):
-                        j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFrames_black[i])
-                        Ifluo = self.I[j]
-                        path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
-                        io.imsave(path, Ifluo)
+            # except: 
+            #     print(ORANGE + '...failure' + NORMAL)
+            
+            
+            # if self.wFluoEveryLoop: # Behaviour when fluo check every loop => Not Optogen
+            #     print(ORANGE + 'Doing classic fluo detection' + NORMAL)
+            #     for i in range(self.nLoop):
+            #         j = int(((i+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[i])
+            #         self.dictLog['status_frame'][j] = -1
+            #         self.dictLog['status_nUp'][j] = -1
+            #         print(j)
+    
+            #     if not os.path.exists(fluoDirPath):
+            #         os.makedirs(fluoDirPath)
+            #         for i in range(self.nLoop):
+            #             j = int(((i+1)*self.loop_totalSize) - self.excludedFrames_black[i])
+            #             Ifluo = self.I[j]
+            #             path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
+            #             io.imsave(path, Ifluo)
                         
 
     def determineFramesStatus_R40(self):
@@ -851,6 +898,8 @@ class PincherTimeLapse:
         Nct = N0 - 2*Nramp0 # N
         i_nUp = 1
         
+        print(self.excludedFrames_outward)
+        
         # if not self.wFluoEveryLoop:
         #     mask_notAlreadyExcluded = self.dictLog['status_frame'] >= 0
         #     print(mask_notAlreadyExcluded)
@@ -858,7 +907,7 @@ class PincherTimeLapse:
         #     mask_notAlreadyExcluded = np.ones(len(self.dictLog['status_frame']), dtype = bool)
 
         for i in range(self.nLoop):
-            totalExcludedOutward = np.sum(self.excludedFrames_outward[i])
+            totalExcludedOutward = self.excludedFrames_outward[i]
             jstart = int(i*N0 + totalExcludedOutward)
             if Nramp0 == 0:
                 for j in range(N0): # N
@@ -875,10 +924,7 @@ class PincherTimeLapse:
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
                 jstart += int(Nct//2)
                 for j in range(Nramp0): # Pre-ramp
-                    if self.dictLog['status_frame'][jstart + j] != 0:
-                        print(ORANGE + 'Careful ! Rewriting on some data in position {:.0f} (starting from 0)'.format(jstart + j) + '' + NORMAL)
-                        print(ORANGE + 'Writing {:.1f} instead of {:.1f}'.format(1 + j%self.Nuplet, self.dictLog['status_frame'][jstart + j]) + '' + NORMAL)
-                    self.dictLog['status_frame'][jstart + j] = 0.1
+                    self.dictLog['status_frame'][jstart + j] = 0.1 
                     self.dictLog['status_nUp'][jstart + j] = 0
                 i_nUp = max(self.dictLog['status_nUp']) + 1
                 jstart += int(Nramp0 + Nramp) # In the ramp itself, the two status stay equal to 0
@@ -908,9 +954,10 @@ class PincherTimeLapse:
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
                     self.dictLog['status_nUp'][jstart + j] = i_nUp + j//self.Nuplet
                 i_nUp = max(self.dictLog['status_nUp']) + 1
+                
         elif self.microscope == 'labview':
             for i in range(self.nLoop):
-                totalExcludedOutward = np.sum(self.excludedFrames_outward[i])
+                totalExcludedOutward = (self.excludedFrames_outward[i])
                 jstart = int(i*N0 + totalExcludedOutward)
                 for j in range(N0): # N
                     self.dictLog['status_frame'][jstart + j] = 1 + j%self.Nuplet
@@ -2200,7 +2247,7 @@ class Trajectory:
 
     def computeZ(self, matchingDirection, plot = 0):
         #### SETTING ! Tweek the maxDz here
-        maxDz = 60
+        maxDz = 40
 
 
         if len(self.deptho) == 0:
@@ -2400,7 +2447,7 @@ class Trajectory:
                 iSNuplet = [F.iS+1 for F in framesNuplet]
                 fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
                 Nfig = plt.gcf().number
-                fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig_'+str(self.iB)+'_'+str(iSNuplet[0])+'.png')
+                # fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig_'+str(self.iB)+'_'+str(iSNuplet[0])+'.png')
                 plt.close(fig)
 
             return(Z)
@@ -2679,15 +2726,19 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             fieldCols = ['B_set', 'B', 'T_abs']
             fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
         
-        #### Find index of first activation
-        optoMetaPath = fP[:-4] + '_OptoMetadata.txt'
-        PTL.makeOptoMetadata(fieldDf, display = 1, save = True, path = optoMetaPath)
+        #### 0.51 Find index of first activation
+        try:
+            optoMetaPath = fP[:-4] + '_OptoMetadata.txt'
+            PTL.makeOptoMetadata(fieldDf, display = 1, save = True, path = optoMetaPath)
+        except:
+            pass
         
         #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
         logFileImported = False
         if redoAllSteps:
-            pass
+            logFileImported = False
+            
         elif os.path.isfile(logFilePath):
             PTL.importLog(logFilePath)
             PTL.dictLog['UILog'] = PTL.dictLog['UILog'].astype(str)
@@ -2696,7 +2747,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         print(BLUE + 'OK!')
 
         print(BLUE + 'Pretreating the image...' + NORMAL)
-        print(PTL.nLoop)
+        
         #### 0.7 - Detect fluo & black images
         current_date = findInfosInFileName(f, 'date')
         current_date = current_date.replace("-", ".")
@@ -2708,7 +2759,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
 
         #### 0.8 - Sort slices
         #### ! Exp type dependance here !
-        print(f)
         if not logFileImported:
             if 'R40' in f or 'thickness' in f:
                 PTL.determineFramesStatus_R40()
@@ -2720,7 +2770,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.determineFramesStatus_BR()
             elif 'disc20um' in f:
                 PTL.determineFramesStatus_optoGen()
-                pass
+                
 
         PTL.saveLog(display = False, save = (not logFileImported), path = logFilePath)
 
@@ -2742,8 +2792,12 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
 
         #### 0.11 - Create list of Frame objects
         PTL.makeFramesList()
-        print(len(PTL.listFrames)/PTL.nLoop, int(len(PTL.listFrames)/PTL.nLoop), 
-              'Correct struct for listFrame : ' + str((len(PTL.listFrames)/PTL.nLoop) == int(len(PTL.listFrames)/PTL.nLoop)))
+        
+        # Test the 
+        expected_frames_per_loop = PTL.loop_totalSize
+        actual_frames_per_loop = PTL.loop_totalSize
+        print(expected_frames_per_loop, actual_frames_per_loop, 
+              'Correct struct for listFrame : ' + str(expected_frames_per_loop == actual_frames_per_loop))
 
         print(BLUE + 'OK!' + NORMAL)
 
@@ -2902,7 +2956,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     #### 4. Compute dz
 
         #### 4.1 - Import depthographs
-        HDZfactor = 5
+        HDZfactor = 10
         
         if len(PTL.beadTypes) == 1:
             depthoPath = os.path.join(depthoDir, depthoNames)
@@ -3236,6 +3290,121 @@ def XYZtracking_computeZ(PTL, depthoDir, depthoNames, plot = 0):
 
 
 
+
+# def structureTester(mainDataDir, rawDataDir, depthoDir, 
+#                     interDataDir, figureDir, timeSeriesDataDir,
+#                     date, manip, well, cell, expDf,
+#                     sourceField = 'default'):
+    
+#     start = time.time()
+
+#     #### 0. Load different data sources & Preprocess : fluo, black images, sort slices (ct/ramp ; down/middle/up)
+#         #### 0.1 - Make list of files to analyse
+
+#     imagesToAnalyse = []
+#     imagesToAnalyse_Paths = []
+#     if not isinstance(date, str):
+#         rawDirList = [os.path.join(rawDataDir, d) for d in date]
+#     else:
+#         rawDirList = [os.path.join(rawDataDir, date)]
+#     for rd in rawDirList:
+#         fileList = os.listdir(rd)
+#         for f in fileList:
+#             if isFileOfInterest(f, manip, well, cell): # See Utility Functions > isFileOfInterest
+#                 fPath = os.path.join(rd, f)
+#                 if os.path.isfile(fPath[:-4] + '_Field.txt'):
+#                     imagesToAnalyse.append(f)
+#                     imagesToAnalyse_Paths.append(os.path.join(rd, f))    
+    
+    
+#     i = 0
+    
+#     f, fP = imagesToAnalyse[i], imagesToAnalyse_Paths[i]
+#     manipID = findInfosInFileName(f, 'manipID') # See Utility Functions > findInfosInFileName
+#     cellID = findInfosInFileName(f, 'cellID') # See Utility Functions > findInfosInFileName
+
+#     print('\n')
+#     print(BLUE + 'Analysis of file {:.0f}/{:.0f} : {}'.format(i+1, len(imagesToAnalyse), f))
+#     print('Loading image and experimental data...' + NORMAL)
+
+#     #### 0.3 - Load exp data
+#     if manipID not in expDf['manipID'].values:
+#         print(RED + 'Error! No experimental data found for: ' + manipID + NORMAL)
+#         return()
+#     else:
+#         expDf_line = expDf.loc[expDf['manipID'] == manipID]
+#         manipDict = {}
+#         for c in expDf_line.columns.values:
+#             manipDict[c] = expDf_line[c].values[0]
+
+#     #### 0.4 - Load image and init PTL
+#     I = io.imread(fP) # Approx 0.5s per image
+#     PTL = PincherTimeLapse(I, cellID, manipDict, 2)
+
+#     #### 0.5 - Load field file
+#     fieldFilePath = fP[:-4] + '_Field.txt'
+#     if sourceField == 'default':
+#         fieldCols = ['B_set', 'T_abs', 'B', 'Z']
+#         fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
+#     elif sourceField == 'fastImagingVI':
+#         fieldCols = ['B_set', 'B', 'T_abs']
+#         fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
+    
+#     #### Find index of first activation
+#     optoMetaPath = fP[:-4] + '_OptoMetadata.txt'
+#     PTL.makeOptoMetadata(fieldDf, display = 1, save = True, path = optoMetaPath)
+    
+#     #### 0.6 - Check if a log file exists and load it if required
+#     logFilePath = fP[:-4] + '_LogPY.txt'
+#     logFileImported = False
+
+
+#     print(BLUE + 'OK!')
+
+#     print(BLUE + 'Pretreating the image...' + NORMAL)
+#     print(PTL.nLoop)
+#     #### 0.7 - Detect fluo & black images
+#     current_date = findInfosInFileName(f, 'date')
+#     current_date = current_date.replace("-", ".")
+#     fluoDirPath = os.path.join(rawDataDir, current_date + '_Fluo', f[:-4])
+
+#     PTL.checkIfBlackFrames()
+#     PTL.saveFluoAside(fluoDirPath, f)
+
+
+#     #### 0.8 - Sort slices
+#     #### ! Exp type dependance here !
+#     print(f)
+#     if not logFileImported:
+#         if 'R40' in f or 'thickness' in f:
+#             PTL.determineFramesStatus_R40()
+#         elif 'L40' in f:
+#             PTL.determineFramesStatus_L40()
+#         elif 'sin' in f:
+#             PTL.determineFramesStatus_Sinus()
+#         elif 'brokenRamp' in f:
+#             PTL.determineFramesStatus_BR()
+#         elif 'disc20um' in f:
+#             PTL.determineFramesStatus_optoGen()
+#             pass
+
+#     PTL.saveLog(display = False, save = (not logFileImported), path = logFilePath)
+
+#     MDpath = fP[:-4] + '_MetaDataPY.txt'
+
+#     #### 0.10 - Save some metadata
+#     PTL.saveMetaData(MDpath)
+
+#     #### 0.11 - Create list of Frame objects
+#     PTL.makeFramesList()
+    
+#     # Check the good number
+    
+#     print(len(PTL.listFrames)/PTL.nLoop, int(len(PTL.listFrames)/PTL.nLoop), 
+#           'Correct struct for listFrame : ' + str((len(PTL.listFrames)/PTL.nLoop) == int(len(PTL.listFrames)/PTL.nLoop)))
+
+#     print(BLUE + 'OK!' + NORMAL)
+
 # %% (3) Depthograph making classes & functions
 
 # %%%% BeadDeptho
@@ -3283,7 +3452,7 @@ class BeadDeptho:
     def buildCleanROI(self, plot = 0):
         # Determine if the bead is to close to the edge on the max frame
         D0 = self.D0 + 4.5*(self.D0 == 0)
-        roughSize = np.floor(1.2*D0*self.scale)
+        roughSize = np.floor(1.1*D0*self.scale)
         mx, Mx = np.min(self.X0 - 0.5*roughSize), np.max(self.X0 + 0.5*roughSize)
         my, My = np.min(self.Y0 - 0.5*roughSize), np.max(self.Y0 + 0.5*roughSize)
         testImageSize = mx > 0 and Mx < self.nx and my > 0 and My < self.ny
