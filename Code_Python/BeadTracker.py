@@ -44,6 +44,12 @@ elif COMPUTERNAME == 'LARISA':
     tempPlot = 'C://Users//Joseph//Desktop//TempPlots'
 elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
     mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME =='DATA2JHODR':
+    mainDir = "C://Utilisateurs//BioMecaCell//Bureau//ActinCortexAnalysis"
+    tempPlot = 'C://Utilisateurs//BioMecaCell//Bureau//TempPlots'
+
+
+
 import sys
 sys.path.append(mainDir + "//Code_Python")
 
@@ -599,6 +605,7 @@ class PincherTimeLapse:
         for k in range(len(self.beadTypes)):
             self.dictBeadDiameters[self.beadTypes[k]] = self.beadDiameters[k]
 
+        self.microscope = manipDict['microscope']
 
          
 
@@ -762,6 +769,7 @@ class PincherTimeLapse:
         """
         
         if self.microscope == 'labview':
+            print(self.excludedFrames_black)
             try:
                 if self.activationFirst > 0:
                     for iLoop in self.LoopActivations:
@@ -1464,7 +1472,6 @@ class PincherTimeLapse:
                  self.listTrajectories[iB].dict['idxAnalysis'].append(0)
 
         #### 3. Start the tracking
-        print('started tracking')
         previous_iF = init_iF
         previous_iBoi = init_iBoi
         previous_BXY = init_BXY
@@ -1720,7 +1727,12 @@ class PincherTimeLapse:
             for i in range(nT):
                 iF = self.listTrajectories[iB].dict['iF'][i]
                 iLoop = ((iF)//self.loop_totalSize)
-                offset = self.excludedFrames_black[iLoop] 
+                try:
+                    offset = self.excludedFrames_black[iLoop]
+                except:
+                    print(iF)
+                    print(iLoop)
+                    print(self.excludedFrames_black)
                 # For now : excludedFrames_inward = excludedFrames_black
                 # For now : excludedFrames_outward = excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
                 i_lim = iLoop*self.loop_totalSize + (self.loop_totalSize - (Nct) - (offset))
@@ -2668,6 +2680,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     for rd in rawDirList:
         fileList = os.listdir(rd)
         for f in fileList:
+            print(f)
             if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
                 if os.path.isfile(fPath[:-4] + '_Field.txt'):
@@ -3063,9 +3076,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 traj_df.to_csv(trajPath, sep = '\t', index = False)
                 
                 # save in ownCloud
-                if ownCloud_timeSeriesDataDir != '':
-                    OC_trajPath = os.path.join(ownCloud_timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
-                    traj_df.to_csv(OC_trajPath, sep = '\t', index = False)
+                # if ownCloud_timeSeriesDataDir != '':
+                #     OC_trajPath = os.path.join(ownCloud_timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
+                #     traj_df.to_csv(OC_trajPath, sep = '\t', index = False)
     
     
     #### 5. Define pairs and compute distances
@@ -3144,9 +3157,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             timeSeriesFilePath = os.path.join(timeSeriesDataDir, f[:-4] + '_PY.csv')
             timeSeries_DF.to_csv(timeSeriesFilePath, sep = ';', index=False)
             
-            if ownCloud_timeSeriesDataDir != '':
-                OC_timeSeriesFilePath = os.path.join(ownCloud_timeSeriesDataDir, f[:-4] + '_PY.csv')
-                timeSeries_DF.to_csv(OC_timeSeriesFilePath, sep = ';', index=False)
+            # if ownCloud_timeSeriesDataDir != '':
+            #     OC_timeSeriesFilePath = os.path.join(ownCloud_timeSeriesDataDir, f[:-4] + '_PY.csv')
+            #     timeSeries_DF.to_csv(OC_timeSeriesFilePath, sep = ';', index=False)
     
     print(BLUE + '\nTotal time:' + NORMAL)
     print(BLUE + str(time.time()-start) + NORMAL)
@@ -3449,7 +3462,7 @@ class BeadDeptho:
         self.ZfocusDict = {}
 
 
-    def buildCleanROI(self, plot = 0):
+    def buildCleanROI(self, plot):
         # Determine if the bead is to close to the edge on the max frame
         D0 = self.D0 + 4.5*(self.D0 == 0)
         roughSize = np.floor(1.1*D0*self.scale)
@@ -3540,7 +3553,7 @@ class BeadDeptho:
                 print('Error for the file: ' + self.fileName)
 
 
-    def buildDeptho(self, plot = 0):
+    def buildDeptho(self, plot):
         preferedDeptho = 'v'
         side_ROI = self.I_cleanROI.shape[1]
         mid_ROI = side_ROI//2
