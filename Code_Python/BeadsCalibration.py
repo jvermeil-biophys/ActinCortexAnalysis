@@ -306,7 +306,9 @@ def mainChainNupAnalysis(mainPath, depthoPath, approxDiameter):
         resDf = resDf.sort_values(by=['Slice', 'XM'])
         print(resDf)
         
-        # Get the nUplets # DO NOT MODIFY
+        
+        # OPTIONS OF THE Z TRACKING HERE !
+        # Get the nUplets
         nz, ny, nx = I.shape[0], I.shape[1], I.shape[2]
         dZ_nUplets = 0.5 # µm
         dZ_stack = 0.02 # µm
@@ -319,7 +321,6 @@ def mainChainNupAnalysis(mainPath, depthoPath, approxDiameter):
                 max_I = np.max(I[z])
                 z_max = z
         
-        # Can modify
         center_Zoffset = [ii for ii in range (-50, 55, 25)]
         
         
@@ -742,7 +743,7 @@ def computeZ_V2(I, X, Y, deptho, Zfocus, depthoStep, ImgZStep, D, plot = 0):
     #     print('' + NORMAL)
     
     
-# %%% (1.4) Compute deptho qua
+# %%% (1.4) Compute deptho quality
 
 def computeDepthoQuality(depthoPath):
     #### 1 - Import depthograph
