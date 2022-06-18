@@ -769,6 +769,7 @@ class PincherTimeLapse:
         """
         
         if self.microscope == 'labview':
+            print(self.excludedFrames_black)
             try:
                 if self.activationFirst > 0:
                     for iLoop in self.LoopActivations:
@@ -1465,7 +1466,6 @@ class PincherTimeLapse:
                  self.listTrajectories[iB].dict['idxAnalysis'].append(0)
 
         #### 3. Start the tracking
-        print('started tracking')
         previous_iF = init_iF
         previous_iBoi = init_iBoi
         previous_BXY = init_BXY
