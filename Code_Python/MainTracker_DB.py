@@ -170,8 +170,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 
 
 
-
-# %% Example Topic : Drugs & perturbation
+# %% EXAMPLE FROM JV - Topic : Drugs & perturbation
 
 # %%% Example Date : 22.03.30, compressionsLowStart of 3T3 LG +++, M450, M1 = Blebbi, M2 = LatA, M3 = Ctrl, M4 = DMSO
 
