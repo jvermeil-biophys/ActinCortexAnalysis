@@ -44,6 +44,12 @@ elif COMPUTERNAME == 'LARISA':
     tempPlot = 'C://Users//Joseph//Desktop//TempPlots'
 elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
     mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME =='DATA2JHODR':
+    mainDir = "C://Utilisateurs//BioMecaCell//Bureau//ActinCortexAnalysis"
+    tempPlot = 'C://Utilisateurs//BioMecaCell//Bureau//TempPlots'
+
+
+
 import sys
 sys.path.append(mainDir + "//Code_Python")
 
@@ -599,6 +605,7 @@ class PincherTimeLapse:
         for k in range(len(self.beadTypes)):
             self.dictBeadDiameters[self.beadTypes[k]] = self.beadDiameters[k]
 
+        self.microscope = manipDict['microscope']
 
          
 
@@ -678,7 +685,7 @@ class PincherTimeLapse:
             self.activationExp = manipDict['activation exp']
             
             self.activationType = manipDict['activation type']
-            self.microscope = manipDict['microscope']
+            
             
             if (not pd.isna(self.activationFreq)) and self.activationFreq > 0:
                 LoopActivations = np.array([k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)])
@@ -694,7 +701,9 @@ class PincherTimeLapse:
             pass
         
         if self.wFluoEveryLoop:
-            self.excludedFrames_outward += 1
+            self.LoopActivations = np.arange(self.nLoop, dtype = int)
+            self.totalActivationImages = np.array([np.sum(self.LoopActivations < kk) for kk in range(self.nLoop)])
+            self.excludedFrames_outward += self.totalActivationImages
         
         # 3. Field that are just initialized for now and will be filled by calling different methods.
         self.threshold = 0
@@ -783,14 +792,14 @@ class PincherTimeLapse:
             
             if self.wFluoEveryLoop: # Normal behaviour
                 for i in range(self.nLoop):
-                    j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFrames_black[i])
+                    j = int(((i+1)*self.loop_totalSize) - self.excludedFrames_black[i])
                     self.dictLog['status_frame'][j] = -1
                     self.dictLog['status_nUp'][j] = -1
     
                 if not os.path.exists(fluoDirPath):
                     os.makedirs(fluoDirPath)
                     for i in range(self.nLoop):
-                        j = int(((i+1)*self.loop_totalSize) - 1 - self.excludedFrames_black[i])
+                        j = int(((i+1)*self.loop_totalSize) - self.excludedFrames_black[i])
                         Ifluo = self.I[j]
                         path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j) + '.tif')
                         io.imsave(path, Ifluo)
@@ -1664,7 +1673,12 @@ class PincherTimeLapse:
             for i in range(nT):
                 iF = self.listTrajectories[iB].dict['iF'][i]
                 iLoop = ((iF)//self.loop_totalSize)
-                offset = self.excludedFrames_black[iLoop] 
+                try:
+                    offset = self.excludedFrames_black[iLoop]
+                except:
+                    print(iF)
+                    print(iLoop)
+                    print(self.excludedFrames_black)
                 # For now : excludedFrames_inward = excludedFrames_black
                 # For now : excludedFrames_outward = excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
                 i_lim = iLoop*self.loop_totalSize + (self.loop_totalSize - (Nct) - (offset))
@@ -2206,9 +2220,9 @@ class Trajectory:
 # #### Important plotting option here
 # ####### Decomment these lines to enable some plots ##################
 
-                plot = 0
-                if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
-                    plot = 1
+                # plot = 0
+                # if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
+                #     plot = 1
 
 # ############################ OK?! ###################################
 
@@ -2613,6 +2627,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     for rd in rawDirList:
         fileList = os.listdir(rd)
         for f in fileList:
+            print(f)
             if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
                 if os.path.isfile(fPath[:-4] + '_Field.txt'):
@@ -2672,8 +2687,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             fieldDf = pd.read_csv(fieldFilePath, sep = '\t', names = fieldCols) # '\t'
         
         #### Find index of first activation
-        optoMetaPath = fP[:-4] + '_OptoMetadata.txt'
-        PTL.makeOptoMetadata(fieldDf, display = 1, save = True, path = optoMetaPath)
+        # optoMetaPath = fP[:-4] + '_OptoMetadata.txt'
+        # PTL.makeOptoMetadata(fieldDf, display = 1, save = True, path = optoMetaPath)
         
         #### 0.6 - Check if a log file exists and load it if required
         logFilePath = fP[:-4] + '_LogPY.txt'
@@ -2957,7 +2972,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
 
         #### 4.2 - Compute z for each traj
 
-        matchingDirection = 'downward' # Change when needed !!
+        matchingDirection = 'upward' # Change when needed !!
 
         if redoAllSteps or not trajFilesImported:
             for iB in range(PTL.NB):
@@ -2996,9 +3011,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 traj_df.to_csv(trajPath, sep = '\t', index = False)
                 
                 # save in ownCloud
-                if ownCloud_timeSeriesDataDir != '':
-                    OC_trajPath = os.path.join(ownCloud_timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
-                    traj_df.to_csv(OC_trajPath, sep = '\t', index = False)
+                # if ownCloud_timeSeriesDataDir != '':
+                #     OC_trajPath = os.path.join(ownCloud_timeSeriesDataDir, 'Trajectories', f[:-4] + '_traj' + str(iB) + '_' + traj.beadInOut + '_PY.csv')
+                #     traj_df.to_csv(OC_trajPath, sep = '\t', index = False)
     
     
     #### 5. Define pairs and compute distances
@@ -3077,9 +3092,9 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             timeSeriesFilePath = os.path.join(timeSeriesDataDir, f[:-4] + '_PY.csv')
             timeSeries_DF.to_csv(timeSeriesFilePath, sep = ';', index=False)
             
-            if ownCloud_timeSeriesDataDir != '':
-                OC_timeSeriesFilePath = os.path.join(ownCloud_timeSeriesDataDir, f[:-4] + '_PY.csv')
-                timeSeries_DF.to_csv(OC_timeSeriesFilePath, sep = ';', index=False)
+            # if ownCloud_timeSeriesDataDir != '':
+            #     OC_timeSeriesFilePath = os.path.join(ownCloud_timeSeriesDataDir, f[:-4] + '_PY.csv')
+            #     timeSeries_DF.to_csv(OC_timeSeriesFilePath, sep = ';', index=False)
     
     print(BLUE + '\nTotal time:' + NORMAL)
     print(BLUE + str(time.time()-start) + NORMAL)
@@ -3267,7 +3282,7 @@ class BeadDeptho:
         self.ZfocusDict = {}
 
 
-    def buildCleanROI(self, plot = 0):
+    def buildCleanROI(self, plot):
         # Determine if the bead is to close to the edge on the max frame
         D0 = self.D0 + 4.5*(self.D0 == 0)
         roughSize = np.floor(1.2*D0*self.scale)
@@ -3358,7 +3373,7 @@ class BeadDeptho:
                 print('Error for the file: ' + self.fileName)
 
 
-    def buildDeptho(self, plot = 0):
+    def buildDeptho(self, plot):
         preferedDeptho = 'v'
         side_ROI = self.I_cleanROI.shape[1]
         mid_ROI = side_ROI//2
