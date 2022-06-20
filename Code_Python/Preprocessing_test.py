@@ -136,7 +136,7 @@ microscope = 'metamorph'
 #%% Define parameters # Jojo
 
 mainDir = 'D:/MagneticPincherData/Raw/22.05.03'
-extDir = 'E:/22.05.03_HoxB8/M4_patterns_ctrl/here'
+extDir = 'E:/22.05.03_HoxB8/M4_patterns_ctrl'
 # prefix = 'cell'
 # channel = 'w1TIRF DIC'
 microscope = 'labview'
