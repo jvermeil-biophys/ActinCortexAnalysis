@@ -1803,32 +1803,35 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             if not 'NON VALIDATED' in title:
                 sMin = max(0, sMin)
                 eMin = max(0, eMin)
+                # sMax = min(3000, sMax)
+                eMax = min(0.5, eMax)
                 thisAx5.set_ylim([sMin, sMax])
                 thisAx5.set_xlim([eMin, eMax])
                 
         #### fig6
         # Rescale fig6 axes
         
-        # KMin, KMax = 1e5, 1
-        # sMin, sMax = 1000, 0
-        # for i in range(1, Ncomp+1):
-        #     colSp = (i-1) % nColsSubplot
-        #     rowSp = (i-1) // nColsSubplot
-        #     # ax2[i-1] with the 1 line plot
-        #     if nRowsSubplot == 1:
-        #         thisAx6 = ax6[colSp]
-        #     elif nRowsSubplot >= 1:
-        #         thisAx6 = ax6[rowSp,colSp]
-        #     title = thisAx6.title.get_text()
-        #     if not 'NON VALIDATED' in title:
-        #         # if thisAx6.get_ylim()[0] < KMin:
-        #         #     KMin = thisAx6.get_ylim()[0]
-        #         # if thisAx6.get_ylim()[1] > KMax:
-        #         #     KMax = thisAx6.get_ylim()[1]
-        #         if thisAx6.get_xlim()[0] < sMin:
-        #             sMin = thisAx6.get_xlim()[0]
-        #         if thisAx6.get_xlim()[1] > sMax:
-        #             sMax = thisAx6.get_xlim()[1]
+        KMin, KMax = 1e5, 1
+        sMin, sMax = 1000, 0
+        for i in range(1, Ncomp+1):
+            colSp = (i-1) % nColsSubplot
+            rowSp = (i-1) // nColsSubplot
+            # ax2[i-1] with the 1 line plot
+            if nRowsSubplot == 1:
+                thisAx6 = ax6[colSp]
+            elif nRowsSubplot >= 1:
+                thisAx6 = ax6[rowSp,colSp]
+            title = thisAx6.title.get_text()
+            if not 'NON VALIDATED' in title:
+                # if thisAx6.get_ylim()[0] < KMin:
+                #     KMin = thisAx6.get_ylim()[0]
+                # if thisAx6.get_ylim()[1] > KMax:
+                #     KMax = thisAx6.get_ylim()[1]
+                if thisAx6.get_xlim()[0] < sMin:
+                    sMin = thisAx6.get_xlim()[0]
+                if thisAx6.get_xlim()[1] > sMax:
+                    sMax = thisAx6.get_xlim()[1]
+        
         for i in range(1, Ncomp+1):
             colSp = (i-1) % nColsSubplot
             rowSp = (i-1) // nColsSubplot
@@ -1840,8 +1843,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             title = thisAx6.title.get_text()
             if not 'NON VALIDATED' in title:
                 thisAx6.set_xlim([0,600])
-                # thisAx6.set_ylim([KMin, KMax])
-                thisAx6.set_ylim([0, 1.2e4/1000]) # REMOVE THE /1000 !!
+                thisAx6.set_ylim([KMin, KMax])
+                # thisAx6.set_ylim([0, 1.2e4])
                 
                 
         Allfigs = [fig1,fig2,fig3,fig4,fig5,fig6,fig7]

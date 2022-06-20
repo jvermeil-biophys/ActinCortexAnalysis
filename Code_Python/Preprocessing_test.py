@@ -100,11 +100,16 @@ def crop(mainDir, allRefPoints, allCells, microscope):
         stack = io.concatenate_images(ic)
         
         x1, x2, y1, y2 = int(i[0][0]), int(i[1][0]), int(i[0][1]), int(i[1][1])
+        
+        # To avoid that the cropped region gets bigger than the image itself
+        ny, nx = stack.shape[1], stack.shape[2]
+        x1, x2, y1, y2 = max(0, x1), min(nx, x2), max(0, y1), min(ny, y2)
+        
         cropped = stack[:, y1:y2, x1:x2]
-        print(BLUE + 'Done' + NORMAL)
+
         io.imsave(mainDir+'/'+j+'.tif', cropped)
         print(GREEN + j +' saved sucessfully' + NORMAL)
-        if count%10 == 0:
+        if count%5 == 0:
             joke = pj.get_joke(language='en', category= 'all')
             print(joke)
             count = count + 1
@@ -130,8 +135,8 @@ microscope = 'metamorph'
 
 #%% Define parameters # Jojo
 
-mainDir = 'D:/MagneticPincherData/Raw/22.05.05/test'
-extDir = 'E:/22.05.05_HoxB8/M1_glass_tko/here'
+mainDir = 'D:/MagneticPincherData/Raw/22.05.03'
+extDir = 'E:/22.05.03_HoxB8/M4_patterns_ctrl/here'
 # prefix = 'cell'
 # channel = 'w1TIRF DIC'
 microscope = 'labview'
@@ -153,12 +158,23 @@ reset = 0
 print(BLUE + 'Constructing all Z-Projections...' + NORMAL)
 
 scaleFactor = 4
+invalidCellIndex = []
 for i in range(len(allCells)):
     currentCell = allCells[i]
     print(currentCell)
-    Zimg = Zprojection(currentCell, microscope)
-    allZimg.append(Zimg)
+    try:
+        Zimg = Zprojection(currentCell, microscope)
+        allZimg.append(Zimg)
+    except:
+        print(currentCell + ' is not a valid cell')
+        invalidCellIndex.append(i)
 
+allCells2 = []
+for i in range(len(allCells)):
+    if not i in invalidCellIndex:
+        allCells2.append(allCells[i])
+        
+allCells = allCells2
 
 allZimg_og = np.copy(np.asarray(allZimg))
 
@@ -172,9 +188,7 @@ if reset == 1:
 
 count = 0
 for iZ in range(len(allZimg)):
-    
-    
-    
+
     if count%25 == 0:
         count = 0
         

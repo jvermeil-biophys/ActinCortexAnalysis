@@ -774,7 +774,6 @@ class PincherTimeLapse:
         """
         
         if self.microscope == 'labview':
-            print(self.excludedFrames_black)
             try:
                 if self.activationFirst > 0:
                     for iLoop in self.LoopActivations:
@@ -911,7 +910,6 @@ class PincherTimeLapse:
         Nct = N0 - 2*Nramp0 # N
         i_nUp = 1
         
-        print(self.excludedFrames_outward)
         
         # if not self.wFluoEveryLoop:
         #     mask_notAlreadyExcluded = self.dictLog['status_frame'] >= 0
@@ -2685,7 +2683,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     for rd in rawDirList:
         fileList = os.listdir(rd)
         for f in fileList:
-            print(f)
             if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
                 if os.path.isfile(fPath[:-4] + '_Field.txt'):
@@ -2974,7 +2971,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     #### 4. Compute dz
 
         #### 4.1 - Import depthographs
-        HDZfactor = 10
+        HDZfactor = 5
         
         if len(PTL.beadTypes) == 1:
             depthoPath = os.path.join(depthoDir, depthoNames)
