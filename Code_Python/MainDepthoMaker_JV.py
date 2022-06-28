@@ -93,6 +93,88 @@ scale = SCALE_100X # pix/µm
 
 depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
 
+
+
+mainDirPath = 'D://MagneticPincherData//Raw'
+date = '22.05.05'
+
+subdir = 'M2'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M2_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+# %% All depthos from 22.05.04 HoxB8 experiments
+
+mainDirPath = 'D://MagneticPincherData//Raw'
+date = '22.05.04'
+
+subdir = 'M1'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M1_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+
+mainDirPath = 'D://MagneticPincherData//Raw'
+date = '22.05.04'
+
+subdir = 'M2'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M2_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+
+mainDirPath = 'D://MagneticPincherData//Raw'
+date = '22.05.04'
+
+subdir = 'M3'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M3_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+
+mainDirPath = 'D://MagneticPincherData//Raw'
+date = '22.05.04'
+
+subdir = 'M4'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M4_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
 # %% All depthos from 22.05.03 HoxB8 experiments
 
 mainDirPath = 'D://MagneticPincherData//Raw'
@@ -105,6 +187,54 @@ savePath = os.path.join(mainDirPath, 'EtalonnageZ')
 specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
 beadType = 'M450'
 saveLabel = date + '_M1_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+
+mainDirPath = 'D://MagneticPincherData//Raw'
+date = '22.05.03'
+
+subdir = 'M2'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M2_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+
+mainDirPath = 'D://MagneticPincherData//Raw'
+date = '22.05.03'
+
+subdir = 'M3'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M3_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+
+mainDirPath = 'D://MagneticPincherData//Raw'
+date = '22.05.03'
+
+subdir = 'M4'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M4_M450_step20_100X'
 # convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
 scale = SCALE_100X # pix/µm
 

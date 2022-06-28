@@ -586,12 +586,28 @@ nonLinTask = '21-12-08 & 22-01-12 & 22-02-09'
 # jva.computeGlobalTable_meca(task = nonLinTask, fileName = 'Global_MecaData_NonLin_Py', 
 #                             save = False, PLOT = False, source = 'Python') # task = 'updateExisting'
 
-
 # %%%% MCA
 
 MCAtask = '21-01-18 & 21-01-21'
 # jva.computeGlobalTable_meca(task = MCAtask, fileName = 'Global_MecaData_MCA', 
 #                             save = False, PLOT = False, source = 'Python') # task = 'updateExisting'
+# jva.computeGlobalTable_meca(task = MCAtask, fileName = 'Global_MecaData_MCA2', 
+#                             save = True, PLOT = False, source = 'Python') # task = 'updateExisting'
+
+
+# %%%% HoxB8
+
+HoxB8task = '22-05-03_M2' #' & 22-05-04 & 22-05-05'
+jva.computeGlobalTable_meca(task = HoxB8task, fileName = 'Global_MecaData_HoxB8', 
+                            save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
+# jva.computeGlobalTable_meca(task = MCAtask, fileName = 'Global_MecaData_MCA2', 
+#                             save = True, PLOT = False, source = 'Python') # task = 'updateExisting'
+
+# %%%% Demo for Duya
+
+Demo = '22-06-16' #' & 22-05-04 & 22-05-05'
+jva.computeGlobalTable_meca(task = Demo, fileName = 'Global_MecaData_Demo', 
+                            save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
 # jva.computeGlobalTable_meca(task = MCAtask, fileName = 'Global_MecaData_MCA2', 
 #                             save = True, PLOT = False, source = 'Python') # task = 'updateExisting'
 
@@ -675,6 +691,12 @@ GlobalTable_meca_Py2.head()
 GlobalTable_meca_nonLin = jva.getGlobalTable(kind = 'Global_MecaData_NonLin2_Py')
 GlobalTable_meca_nonLin.head()
 
+
+#### Global_MecaData_MCA
+
+# GlobalTable_meca_MCA = jva.getGlobalTable(kind = 'meca_MCA')
+GlobalTable_meca_MCA = jva.getGlobalTable(kind = 'Global_MecaData_MCA2')
+GlobalTable_meca_MCA.head()
 
 #### Global_MecaData_MCA
 
