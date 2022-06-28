@@ -603,6 +603,14 @@ jva.computeGlobalTable_meca(task = HoxB8task, fileName = 'Global_MecaData_HoxB8'
 # jva.computeGlobalTable_meca(task = MCAtask, fileName = 'Global_MecaData_MCA2', 
 #                             save = True, PLOT = False, source = 'Python') # task = 'updateExisting'
 
+# %%%% Demo for Duya
+
+Demo = '22-06-16' #' & 22-05-04 & 22-05-05'
+jva.computeGlobalTable_meca(task = Demo, fileName = 'Global_MecaData_Demo', 
+                            save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
+# jva.computeGlobalTable_meca(task = MCAtask, fileName = 'Global_MecaData_MCA2', 
+#                             save = True, PLOT = False, source = 'Python') # task = 'updateExisting'
+
 
 # %%%% Precise dates (to plot)
 

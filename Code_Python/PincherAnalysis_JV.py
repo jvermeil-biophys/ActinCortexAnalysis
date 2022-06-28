@@ -1496,15 +1496,15 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 elif nRowsSubplot >= 1:
                     thisAx6 = ax6[rowSp,colSp]
                 
-                thisAx6bis = thisAx6.twinx()
+                # thisAx6bis = thisAx6.twinx()
                 
                 thisAx6.set_xlabel('sigma (Pa)')
                 thisAx6.set_xlim([0,1000])
-                thisAx6.set_yscale('log')
+                # thisAx6.set_yscale('log')
                 thisAx6.set_ylabel('K (Pa)')
                 
-                thisAx6bis.set_yscale('linear')
-                thisAx6bis.set_ylabel('relative error', color='red')
+                # thisAx6bis.set_yscale('linear')
+                # thisAx6bis.set_ylabel('relative error', color='red')
                 relErrFilter = 0.5
                 
                 
@@ -1536,18 +1536,18 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                                           color = color, marker = 'o', ms = 5, mec = mec)                           
                             
                         
-                    relativeError_subset = relativeError[relativeError != 0]
-                    fitCenters_subset = fitCentersPlot[relativeError != 0]
-                    thisAx6bis.plot([0,1000], [relErrFilter, relErrFilter], ls = '--', color = 'red', lw = 0.5)
-                    thisAx6bis.plot(fitCenters_subset, relativeError_subset, marker = 'd', ms = 3, color = 'red', ls = '')
+                #     relativeError_subset = relativeError[relativeError != 0]
+                #     fitCenters_subset = fitCentersPlot[relativeError != 0]
+                #     thisAx6bis.plot([0,1000], [relErrFilter, relErrFilter], ls = '--', color = 'red', lw = 0.5)
+                #     thisAx6bis.plot(fitCenters_subset, relativeError_subset, marker = 'd', ms = 3, color = 'red', ls = '')
                     
-                    thisAx6bis.set_ylim([0,2])
-                    thisAx6bis.tick_params(axis='y', labelcolor='red')
-                    thisAx6bis.set_yticks([0,0.5,1,1.5,2])
+                    # thisAx6bis.set_ylim([0,2])
+                    # thisAx6bis.tick_params(axis='y', labelcolor='red')
+                    # thisAx6bis.set_yticks([0,0.5,1,1.5,2])
                             
                     # thisAx6.legend(loc = 'lower center', bbox_to_anchor=(0.5, 1.1), ncol = 3, prop={'size': 5})
                     
-                    multiAxes = [thisAx6, thisAx6bis]
+                    multiAxes = [thisAx6] #, thisAx6bis]
                     
                     for ax in multiAxes:
                         ax.title.set_text(titleText)
@@ -1811,40 +1811,66 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         #### fig6
         # Rescale fig6 axes
         
-        KMin, KMax = 1e5, 1
-        sMin, sMax = 1000, 0
+        # KMin, KMax = 1e5, 1
+        # sMin, sMax = 1000, 0
+        # for i in range(1, Ncomp+1):
+        #     colSp = (i-1) % nColsSubplot
+        #     rowSp = (i-1) // nColsSubplot
+        #     # ax2[i-1] with the 1 line plot
+        #     if nRowsSubplot == 1:
+        #         thisAx6 = ax6[colSp]
+        #     elif nRowsSubplot >= 1:
+        #         thisAx6 = ax6[rowSp,colSp]
+        #     title = thisAx6.title.get_text()
+        #     if not 'NON VALIDATED' in title:
+        #         # if thisAx6.get_ylim()[0] < KMin:
+        #         #     KMin = thisAx6.get_ylim()[0]
+        #         if thisAx6.get_ylim()[1] > KMax:
+        #             KMax = thisAx6.get_ylim()[1]
+        #         if thisAx6.get_xlim()[0] < sMin:
+        #             sMin = thisAx6.get_xlim()[0]
+        #         if thisAx6.get_xlim()[1] > sMax:
+        #             sMax = thisAx6.get_xlim()[1]
+        
+        # for i in range(1, Ncomp+1):
+        #     colSp = (i-1) % nColsSubplot
+        #     rowSp = (i-1) // nColsSubplot
+        #     # ax2[i-1] with the 1 line plot
+        #     if nRowsSubplot == 1:
+        #         thisAx6 = ax6[colSp]
+        #     elif nRowsSubplot >= 1:
+        #         thisAx6 = ax6[rowSp,colSp]
+        #     title = thisAx6.title.get_text()
+        #     if not 'NON VALIDATED' in title:
+        #         thisAx6.set_xlim([0,sMax])
+        #         # thisAx6.set_ylim([KMin, KMax])
+        #         thisAx6.set_ylim([0, KMax])
+        #         # thisAx6.set_ylim([0, 1.2e4])
+        
+        sMax = 0
         for i in range(1, Ncomp+1):
             colSp = (i-1) % nColsSubplot
             rowSp = (i-1) // nColsSubplot
-            # ax2[i-1] with the 1 line plot
             if nRowsSubplot == 1:
                 thisAx6 = ax6[colSp]
             elif nRowsSubplot >= 1:
                 thisAx6 = ax6[rowSp,colSp]
             title = thisAx6.title.get_text()
             if not 'NON VALIDATED' in title:
-                # if thisAx6.get_ylim()[0] < KMin:
-                #     KMin = thisAx6.get_ylim()[0]
-                # if thisAx6.get_ylim()[1] > KMax:
-                #     KMax = thisAx6.get_ylim()[1]
-                if thisAx6.get_xlim()[0] < sMin:
-                    sMin = thisAx6.get_xlim()[0]
                 if thisAx6.get_xlim()[1] > sMax:
                     sMax = thisAx6.get_xlim()[1]
         
         for i in range(1, Ncomp+1):
             colSp = (i-1) % nColsSubplot
             rowSp = (i-1) // nColsSubplot
-            # ax2[i-1] with the 1 line plot
             if nRowsSubplot == 1:
                 thisAx6 = ax6[colSp]
             elif nRowsSubplot >= 1:
                 thisAx6 = ax6[rowSp,colSp]
             title = thisAx6.title.get_text()
             if not 'NON VALIDATED' in title:
-                thisAx6.set_xlim([0,600])
-                thisAx6.set_ylim([KMin, KMax])
-                # thisAx6.set_ylim([0, 1.2e4])
+                thisAx6.set_xlim([0,sMax])
+                thisAx6.set_ylim([0, 1.2e4])
                 
                 
         Allfigs = [fig1,fig2,fig3,fig4,fig5,fig6,fig7]
