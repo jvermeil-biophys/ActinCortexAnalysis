@@ -597,9 +597,9 @@ MCAtask = '21-01-18 & 21-01-21'
 
 # %%%% HoxB8
 
-HoxB8task = '22-05-03' #' & 22-05-04 & 22-05-05'
+HoxB8task = '22-05-03_M2' #' & 22-05-04 & 22-05-05'
 jva.computeGlobalTable_meca(task = HoxB8task, fileName = 'Global_MecaData_HoxB8', 
-                            save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
+                            save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
 # jva.computeGlobalTable_meca(task = MCAtask, fileName = 'Global_MecaData_MCA2', 
 #                             save = True, PLOT = False, source = 'Python') # task = 'updateExisting'
 
