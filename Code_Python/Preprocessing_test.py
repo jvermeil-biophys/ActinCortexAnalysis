@@ -21,6 +21,33 @@ BLUE  = '\033[36m' # blue
 
 # %% Functions
 
+
+def removeFrames(mainDir):
+    allFiles = os.listdir(mainDir)
+    for f in allFiles:
+        if f.endswith('.tif'):
+            print('Loading..'+f)
+            ic = io.ImageCollection(mainDir+'/'+f, conserve_memory = True)
+            stack = io.concatenate_images(ic[:4500])
+            print('Saving...'+f)
+            io.imsave(mainDir+'/'+f, stack)
+
+def AllMMTriplets2Stack(extDir, mainDir, currentCell, prefix, channel):
+    allFiles = os.listdir(currentCell)
+    path = os.path.join(extDir, currentCell)
+    allFiles = [path+'/'+string for string in allFiles if channel in string]
+    #+4 at the end corrosponds to the '_t' part to sort the array well
+    limiter = len(path)+len(prefix)+len(channel)+4 
+    allFiles.sort(key=lambda x: int(x[limiter:-4]))
+    ic = io.ImageCollection(allFiles, conserve_memory = True)
+    stack = io.concatenate_images(ic)
+    if '561' in channel:
+        try:
+            os.mkdir()
+        except:
+            pass
+    io.imsave(mainDir+'/'+currentCell, stack)
+        
 def renamePrefix(extDir, currentCell, newPrefix):
     path = os.path.join(extDir, currentCell)
     allImages = os.listdir(path)
@@ -100,6 +127,10 @@ def crop(mainDir, allRefPoints, allCells, microscope):
         stack = io.concatenate_images(ic)
         
         x1, x2, y1, y2 = int(i[0][0]), int(i[1][0]), int(i[0][1]), int(i[1][1])
+        
+        ny, nx = stack.shape[1], stack.shape[2]
+        x1, x2, y1, y2 = max(0, x1), min(nx, x2), max(0, y1), min(ny, y2)
+        
         cropped = stack[:, y1:y2, x1:x2]
         
         io.imsave(mainDir+'/'+j+'.tif', cropped)
@@ -119,83 +150,85 @@ def moveFiles(mainDir, allCells, filename):
                 destination = mainDir+f+'.txt'
                 shutil.copy(source, destination)
                 break
-        
-    
-    
 
 #%% Define parameters
 
-mainDir = 'D:/Anumita/MagneticPincherData/Raw/22.06.09'
-extDir = 'F:/Cortex Experiments/OptoPincher Experiments/20220906_100xoil_3t3optorhoa_4.5beads_15mT/22.06.09/'
+mainDir = 'D:/Anumita/MagneticPincherData/Raw/22.06.21'
+extDir = 'F:/Cortex Experiments/OptoPincher Experiments/20220621_100xoil_3t3optorhoa_4.5beads_Mechanics/22.06.21'
 prefix = 'cell'
 channel = 'w1TIRF DIC'
-microscope = 'metamorph'
+microscope = 'labview'
 
 
 #%% Main function
 
-def preprocess(extDir, mainDir, microscope, reset = 0):
-    allCells = os.listdir(extDir)
+
+allCells = os.listdir(extDir)
+ref_point = []
+allRefPoints = []
+allZimg = []
+allZimg_og = []
+reset = 0
+
+try:
+    os.mkdir(mainDir)
+except:
+    pass
+
+print(BLUE + 'Constructing all Z-Projections...' + NORMAL)
+
+scaleFactor = 4
+for i in range(len(allCells)):
+    currentCell = allCells[i]
+    print(currentCell)
+    Zimg = Zprojection(currentCell, microscope)
+    allZimg.append(Zimg)
+
+        
+allZimg_og = np.copy(np.asarray(allZimg))
+
+
+print(ORANGE + 'Draw the ROIs to crop...' + NORMAL)
+
+if reset == 1:
+    allZimg = np.copy(allZimg_og)
     ref_point = []
     allRefPoints = []
-    allZimg = []
-    allZimg_og = []
-    reset = 0
+
+count = 0
+for i in range(len(allZimg)):
+    if count%25 == 0:
+        count = 0
+        
+    currentCell = allCells[i]
     
-    print(BLUE + 'Constructing all Z-Projections...' + NORMAL)
+    Nimg = len(allZimg)
+    ncols = 5
+    nrows = ((Nimg-1) // ncols) + 1
+    clone = allZimg[i].copy()
     
-    scaleFactor = 4
-    for i in range(len(allCells)):
+    cv2.namedWindow(currentCell)
+    cv2.moveWindow(currentCell, (count//ncols)*400, count%ncols*200)
+    cv2.setMouseCallback(currentCell, shape_selection)
+    
+    while True:
+    # display the image and wait for a keypress
         currentCell = allCells[i]
-        print(currentCell)
-        Zimg = Zprojection(currentCell, microscope)
-        allZimg.append(Zimg)
-    
-    
-    allZimg_og = np.copy(np.asarray(allZimg))
-    
-    
-    print(ORANGE + 'Draw the ROIs to crop...' + NORMAL)
-    
-    if reset == 1:
-        allZimg = np.copy(allZimg_og)
-        ref_point = []
-        allRefPoints = []
-    
-    count = 0
-    for i in range(len(allZimg)):
-        if count%25 == 0:
-            count = 0
-            
-        currentCell = allCells[i]
+        cv2.imshow(currentCell, allZimg[i])
+        key = cv2.waitKey(20) & 0xFF
         
-        Nimg = len(allZimg)
-        ncols = 5
-        nrows = ((Nimg-1) // ncols) + 1
-        clone = allZimg[i].copy()
-        
-        cv2.namedWindow(currentCell)
-        cv2.moveWindow(currentCell, (count//ncols)*400, count%ncols*200)
-        cv2.setMouseCallback(currentCell, shape_selection)
-        
-        while True:
-        # display the image and wait for a keypress
-            currentCell = allCells[i]
-            cv2.imshow(currentCell, allZimg[i])
-            key = cv2.waitKey(20) & 0xFF
-            
-        # press 'r' to reset the crop
-            if key == ord("r"):
-                allZimg[i] = clone.copy()    
-        
-        # if the 'a' key is pressed, break from the loop and move on to the next file
-            elif key == ord("a"):
-                allRefPoints.append(np.asarray(ref_point)*scaleFactor)
-                break
-            
-        count = count + 1
-        
-    cv2.destroyAllWindows()
+    # press 'r' to reset the crop
+        if key == ord("r"):
+            allZimg[i] = clone.copy()    
     
-    print(BLUE + 'Saving all tiff stacks...' + NORMAL)
-    crop(mainDir, allRefPoints, allCells, microscope)
+    # if the 'a' key is pressed, break from the loop and move on to the next file
+        elif key == ord("a"):
+            allRefPoints.append(np.asarray(ref_point)*scaleFactor)
+            break
+        
+    count = count + 1
+    
+cv2.destroyAllWindows()
+
+print(BLUE + 'Saving all tiff stacks...' + NORMAL)
+crop(mainDir, allRefPoints[5:], allCells[5:], microscope)

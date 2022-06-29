@@ -1,29 +1,42 @@
-cellID,blebCondition,excluded,comments
-22-03-01_M1_P1_C1,none,yes,bead pulled away because of repulsive forces and excessive lamellipodia formation
-22-03-01_M1_P1_C2,dynamic,no,
-22-03-01_M1_P1_C3,none,no,
-22-03-01_M1_P1_C4,nan,yes,cell ate bead
-22-03-01_M1_P1_C5,none,no,
-22-03-01_M1_P1_C6,none,no,
-22-03-01_M1_P1_C7,none,no,
-22-03-22_M1_P1_C1,none,yes,Cell looks a bit unhealthy
-22-03-22_M2_P1_C2,dynamic,no,Many many many beads!!
-22-03-22_M2_P1_C3,nan,yes,cell ate bead
-22-03-22_M2_P1_C4,nan,yes,cell ate bead
-22-03-22_M2_P1_C5,none,yes,Z not well detected; check again
-22-05-09_M5_P1_C6,none,no,
-22-05-09_M6_P1_C4,none,no,
-22-05-09_M6_P2_C6,dynamic,no,
-22-03-01_M3_P1_C6,dynamic,no,
-22-03-22_M3_P1_C5,none,no,
-22-05-09_M3_P2_C5,none,no,its beautiful
-22-05-09_M3_P2_C3,dynamic,no,
-22-05-09_M3_P1_C3,dynamic,no,
-22-03-01_M2_P1_C7,dynamic,no,"Seems like it was blebbing from before, probably because it was globally activated previously"
-22-03-22_M4_P1_C5,none,no,
-22-05-09_M2_P1_C2,none,yes,oscillating
-22-05-09_M2_P1_C7,none,no,a bit unhealthy looking
-22-05-09_M4_P1_C3,dynamic,no,
-22-05-09_M4_P1_C4,dynamic,no,
-22-05-09_M4_P1_C5,dynamic,no,
-22-05-09_M4_P2_C2,dynamic,no,
+cellID,blebCondition,phenotype,excluded,comments
+22-03-01_M1_P1_C1,none,,yes,bead pulled away because of repulsive forces and excessive lamellipodia formation
+22-03-01_M1_P1_C2,dynamic,blebby,no,
+22-03-01_M1_P1_C3,none,contracted,no,
+22-03-01_M1_P1_C4,nan,,yes,cell ate bead
+22-03-01_M1_P1_C5,none,contracted,no,
+22-03-01_M1_P1_C6,none,contracted,no,
+22-03-01_M1_P1_C7,none,ambiguous,no,
+22-03-22_M1_P1_C1,none,ambiguous,no,Cell looks a bit unhealthy
+22-03-22_M2_P1_C2,dynamic,blebby,no,Many many many beads!!
+22-03-22_M2_P1_C3,nan,,yes,cell ate bead
+22-03-22_M2_P1_C4,nan,,yes,cell ate bead
+22-03-22_M2_P1_C5,none,ambiguous,yes,Z not well detected; check again
+22-05-09_M5_P1_C6,dynamic,blebby,no,
+22-05-09_M6_P1_C4,none,polarised,no,
+22-05-09_M6_P2_C6,dynamic,blebby,no,
+22-03-01_M3_P1_C6,dynamic,blebby,no,
+22-06-09_M3_P3_C7,none,oscillating,no,
+22-03-22_M3_P1_C5,none,ambiguous,no,
+22-05-09_M3_P2_C5,none,polarised,no,its beautiful
+22-05-09_M3_P2_C3,none,polarised,no,
+22-05-09_M3_P1_C3,dynamic,polarised,no,
+22-03-01_M2_P1_C7,dynamic,polarised,no,"Seems like it was blebbing from before, probably because it was globally activated previously"
+22-06-09_M1_P1_C1,dynamic,polarised,no,funny looking with a stable protrusion on one side (maybe lamellipodia)
+22-06-09_M1_P1_C2,none,polarised,no,
+22-06-09_M1_P1_C4,none,oscillating,no,
+22-06-09_M1_P1_C5,dynamic,polarised,yes,Need to fix Z
+22-06-09_M1_P1_C6,none,polarised,no,
+22-06-09_M1_P1_C7,none,polarised,no,
+22-03-22_M4_P1_C5,none,ambiguous,no,
+22-05-09_M2_P1_C2,none,oscillating,yes,oscillating
+22-05-09_M2_P1_C7,none,ambiguous,no,a bit unhealthy looking
+22-05-09_M4_P1_C3,dynamic,blebby,no,
+22-05-09_M4_P1_C4,dynamic,blebby,no,
+22-05-09_M4_P1_C5,dynamic,blebby,no,
+22-05-09_M4_P2_C2,dynamic,blebby,no,
+22-06-09_M2_P1_C7,none,polarised,no,
+22-06-09_M2_P1_C8,none,ambiguous,no,
+22-06-09_M2_P2_C2,none,polarised,no,
+22-06-09_M2_P2_C6,dynamic,blebby,no,
+22-06-09_M2_P3_C4,dynamic,blebby,no,Need to fix Z
+22-06-09_M2_P3_C6,none,ambiguous,no,

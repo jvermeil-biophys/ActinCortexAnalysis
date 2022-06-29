@@ -738,6 +738,7 @@ class PincherTimeLapse:
                 self.excludedFrames_inward[i] += 1 # More general
                 j -= 1
                 checkSum = np.sum(self.I[j])
+                
 
 
     def saveFluoAside(self, fluoDirPath, f):
@@ -767,6 +768,7 @@ class PincherTimeLapse:
                         j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
                         self.dictLog['status_frame'][j] = -1
                         self.dictLog['status_nUp'][j] = -1
+                        
                         
                     if not os.path.exists(fluoDirPath):
                         os.makedirs(fluoDirPath)
@@ -1289,10 +1291,15 @@ class PincherTimeLapse:
         Nup = self.Nuplet
         nT = self.listTrajectories[0].nT
         status_nUp = self.listTrajectories[0].dict['status_nUp']
-        std = np.zeros(nT)
+        sum_std = np.zeros(nT)
+        print(len(sum_std))
         for i in range(self.NB):
-            std += np.array(self.listTrajectories[i].dict['StdDev'])
-
+            # print(nT)
+            # print(i)
+            # print(self.listTrajectories[i].dict['StdDev'])
+            # print(len(self.listTrajectories[i].dict['StdDev']))
+            sum_std += np.array(self.listTrajectories[i].dict['StdDev'])
+        
         bestStd = np.zeros(nT, dtype = bool)
         i = 0
         while i < nT:
@@ -1307,7 +1314,7 @@ class PincherTimeLapse:
                     j += 1
                     L.append(i+j)
                 #print(L)
-                loc_std = std[L]
+                loc_std = sum_std[L]
                 i_bestStd = i + int(np.argmax(loc_std))
                 bestStd[i_bestStd] = True
                 L = []
@@ -1406,18 +1413,15 @@ class PincherTimeLapse:
                 
             #### TBC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             elif 'sinus' in self.expType:
-                 print('Passed expt type')
                  self.listTrajectories[iB].dict['idxAnalysis'].append(0)
                  
             elif 'brokenRamp' in self.expType:
-                 print('Passed expt type')
                  self.listTrajectories[iB].dict['idxAnalysis'].append(0)
                  
             elif 'optoGen' in self.expType:
                  self.listTrajectories[iB].dict['idxAnalysis'].append(0)
 
         #### 3. Start the tracking
-        print('started tracking')
         previous_iF = init_iF
         previous_iBoi = init_iBoi
         previous_BXY = init_BXY
@@ -1656,14 +1660,13 @@ class PincherTimeLapse:
         #### 4. Refine the trajectories
         
         nT = len(self.listTrajectories[0].dict['Bead'])
-        
+
         #### 4.1 Black Images deletion in the trajectory
         
         # Add the pointer to the correct line of the _Field.txt file.
         # It's just exactly the iS already saved in the dict, except if there are black images at the end of loops.
         # In that case you have to skip the X lines corresponding to the end of the ramp part, X being the nb of black images at the end of the current loop
         # This is because when black images occurs, they do because of the high frame rate during ramp parts and thus replace these last ramp images.
-        
         Nct = (self.loop_totalSize-self.loop_rampSize)//2
         
         for iB in range(self.NB):
@@ -1672,10 +1675,11 @@ class PincherTimeLapse:
             iField = []
             for i in range(nT):
                 iF = self.listTrajectories[iB].dict['iF'][i]
+                print(iF)
                 iLoop = ((iF)//self.loop_totalSize)
                 offset = self.excludedFrames_black[iLoop] 
                 # For now : excludedFrames_inward = excludedFrames_black
-                # For now : excludedFrames_outward = excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
+                # For now : excludedFrames_outward =.. excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
                 i_lim = iLoop*self.loop_totalSize + (self.loop_totalSize - (Nct) - (offset))
                 # i_lim is the first index after the end of the ramp
                 addOffset = (iF >= i_lim) # Is this ramp going further than it should, considering the black images ?
@@ -1689,9 +1693,10 @@ class PincherTimeLapse:
                 #     [].concat()
                     
             self.listTrajectories[iB].dict['iField'] = iField
+              
+            
             
         #### 4.2 Find the image with the best std within each n-uplet
-            
         bestStd = self.findBestStd()
         for i in range(self.NB):
             self.listTrajectories[i].dict['bestStd'] = bestStd
@@ -2704,7 +2709,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
 
         PTL.checkIfBlackFrames()
         PTL.saveFluoAside(fluoDirPath, f)
-
+        
+        
 
         #### 0.8 - Sort slices
         #### ! Exp type dependance here !
@@ -2714,6 +2720,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
+                
             elif 'sin' in f:
                 PTL.determineFramesStatus_Sinus()
             elif 'brokenRamp' in f:
@@ -2721,7 +2728,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             elif 'disc20um' in f:
                 PTL.determineFramesStatus_optoGen()
                 pass
-
+        
         PTL.saveLog(display = False, save = (not logFileImported), path = logFilePath)
 
         #### 0.9 - Import or determine global threshold

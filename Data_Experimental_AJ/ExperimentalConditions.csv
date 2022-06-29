@@ -35,11 +35,16 @@
 33;22-05-09;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;at beads;3.2;False;3;500;150;metamorph;on Atchoum
 34;22-05-09;M4;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;away from beads;3.2;False;3;500;150;metamorph;on Atchoum
 35;22-05-09;M5;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;global;1.2;False;3;500;150;metamorph;on Atchoum
-36;22-05-09;M6;optoGen;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;global;3.2;False;3;500;150;metamorph;on Atchoum
-37;22-05-31;M1;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;305_133;labview;in PMMH. Strange file. Loop structure all wrong. Seems like the only one with this weirdness. BE CAREFUL! Field file and image file in this drive edited.
-38;22-05-31;M2;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
-39;22-05-31;M3;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
-40;22-05-31;M4;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
-41;22-05-31;M5;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
-42;22-05-31;M6;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
-43;22-05-31;M7;compressionsLowStart;none;20um fibronectin discs;;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+36;22-05-09;M6;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;global;3.2;False;3;500;150;metamorph;on Atchoum
+37;22-05-31;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;305_133;labview;in PMMH. Strange file. Loop structure all wrong. Seems like the only one with this weirdness. BE CAREFUL! Field file and image file in this drive edited.
+38;22-05-31;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+39;22-05-31;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+40;22-05-31;M4;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+41;22-05-31;M5;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+42;22-05-31;M6;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+43;22-05-31;M7;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;500;at beads;1.6;False;3;500;302_133;labview;in PMMH
+44;22-06-09;M1;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;at beads;3.2;False;3;500;150;metamorph;on Atchoum
+45;22-06-09;M2;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;away from beads;3.2;False;3;500;150;metamorph;on Atchoum
+46;22-06-09;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;global;3.2;False;3;500;150;metamorph;on Atchoum
+47;22-06-21;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;600;at beads;3.2;False;3;500;302_133;labview;in PMMH
+48;22-06-21;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;600;away from beads;3.2;False;3;500;302_133;labview;in PMMH

@@ -13,9 +13,9 @@ import os
 
 #%%
 
-date = '22.05.09'
-expt = '20220509_100xoil_3t3optorhoa_4.5beads_15mT'
-folder = '22-05-09_M1_P1_C1_disc20um'
+date = '22.06.09'
+expt = '20220906_100xoil_3t3optorhoa_4.5beads_15mT'
+folder = '22-06-09_M1_P1_C1_disc20um'
 
 out_path = 'D:/Anumita/MagneticPincherData/Raw/'+date+'/'+folder+'_Field.txt'
 rawDir = 'F:/Cortex Experiments/OptoPincher Experiments/'+expt+'/'+date
@@ -25,7 +25,7 @@ allFiles = os.listdir(rawDir)
 for f in allFiles:
     file = 'F:/Cortex Experiments/OptoPincher Experiments/'+expt+'/'+date+'/'+f+'/test.LOG'
     out_path = 'D:/Anumita/MagneticPincherData/Raw/'+date+'/'+f+'_Field.txt'
-    data = pd.read_csv(file, sep=',', skiprows=[0,3,7,8])
+    data = pd.read_csv(file, sep=',', skiprows=[0,3])
     
     col_planeNo =  np.asarray(data[data.columns[0]])
     col_time = np.asarray(data[data.columns[1]])
@@ -72,31 +72,6 @@ for f in allFiles:
 # %% Making a text file for the main tracker analysis
 
 
-
-# %% Categorising all the 1st planes to get an idea of the time between two aquisitions 
-
-p1_times = []
-frames = []
-delta_sec = []
-for i in range(len(planeNos)):
-    if planeNos[i] == '1':
-        p1_times.append(datetime.datetime.strptime(times[i], '%H:%M:%S.%f'))
-        frames.append(i)
-p1_times = np.asarray(p1_times)
-frames = np.asarray(frames)
-
-delta = np.roll(p1_times,-1) - p1_times
-
-for i in delta:
-    delta = i.total_seconds()*1000
-    delta_sec.append(delta)
-
-plt.figure(figsize=(20,20))
-plt.rcParams.update({'font.size': 22})
-plt.ylabel('Time interval (ms)')
-plt.xlabel('Frame No.')
-frame = np.linspace(0, len(delta_sec[0:-2]), len(delta_sec[0:-2]))
-plt.plot(frames[0:-2], delta_sec[0:-2])
 
 # %%
 import numpy as np

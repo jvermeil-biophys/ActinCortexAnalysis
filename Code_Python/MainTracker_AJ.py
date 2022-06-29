@@ -73,7 +73,6 @@ import utilityFunctions_JV as jvu
 # %% Setting of the directories
 
 mainDataDir = 'D:/Anumita/MagneticPincherData'
-extDataDir = 'E'
 rawDataDir = os.path.join(mainDataDir, 'Raw')
 depthoDir = os.path.join(rawDataDir, 'EtalonnageZ')
 interDataDir = os.path.join(mainDataDir, 'Intermediate')
@@ -244,7 +243,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 
 # %%%% M2
 dates = '21.12.20'
-manips, wells, cells = 2, 1, 'all'
+manips, wells, cells = 2, 3, 'all'
 depthoNames = '21.12.20_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -438,7 +437,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # %%%% M2 : Global activation, 60s frequency
 
 dates = '22.05.09'
-manips, wells, cells = 2, 1, 'all'
+manips, wells, cells = 2, 2, 'all'
 depthoNames = '22.05.09_P1_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -534,8 +533,43 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = True, MatlabStyle = True)
 
+# %% 09/06/2022 : 3.2 uW Power
 
+# %%%% M1 : Half activation, away from beads, 50ms, 30s frequency
 
+dates = '22.06.09'
+manips, wells, cells = 1, 1, 'all'
+depthoNames = '22.06.09_P'+str(wells)+'_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
+  # %%%% M2 : Half activation, at beads, 50ms, 30s frequency
+
+dates = '22.06.09'
+manips, wells, cells = 2, 3, 'all'
+depthoNames = '22.06.09_P'+str(wells)+'_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
+  # %%%% M3 : Global activation, 50ms, 30s frequency
+
+dates = '22.06.09'
+manips, wells, cells = 3, 3, 'all'
+depthoNames = '22.06.09_P'+str(wells)+'_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
 # %% 31/03/2022 : Experiment in PMMH Mechanics:
 
 # %%%% M6 : Half activation, At beads, 500ms once
@@ -647,6 +681,21 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 dates = '22.05.31'
 manips, wells, cells = 7, 2, 'all'
 depthoNames = '22.05.31_P'+str(wells)+'_M450_step20_100X'
+  
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
+# %% 21/06/2022 : Experiment in PMMH Mechanics
+
+# %%%% M1 : At beads activation, level 3 fluo intensity, filter 6, initial 500ms 
+# with 50ms activation at the end of every loop
+
+dates = '22.06.21'
+manips, wells, cells = 2, 1, 4
+depthoNames = '22.06.21_M450_step20_100X' 
   
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
