@@ -252,7 +252,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  redoAllSteps = True, MatlabStyle = True, trackAll = False, 
                                   sourceField = 'default',
                                   ownCloudDir = ownCloudDir, 
                                   ownCloud_figureDir = ownCloud_figureDir, 

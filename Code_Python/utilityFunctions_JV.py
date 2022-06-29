@@ -103,7 +103,10 @@ dateFormatOk = re.compile(r'\d{2}-\d{2}-\d{2}')
 dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
 
 
-# def findFirstActivation(cellID):
+def findActivation(fieldDf):
+    maxZidx = fieldDf['Z'].argmax() #Finding the index of the max Z
+    maxZ = fieldDf['Z'][maxZidx] #To check if the value is correct
+    return(maxZidx, maxZ)
     
 
 def getExperimentalConditions(experimentalDataDir, save = False, sep = ';', suffix = ''):
@@ -461,7 +464,7 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
             if offsets[i] < 0:
                 shift = abs(offsets[i])*NVox
                 D = listD[i]
-                fillVal = D[-1]
+                fillVal = max(D)
                 D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.float64)
                 listD2.append(D2)
             if offsets[i] == 0:
@@ -470,7 +473,7 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
             if offsets[i] > 0:
                 shift = abs(offsets[i])*NVox
                 D = listD[i]
-                fillVal = D[0]
+                fillVal = max(D)
                 D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.float64)
                 listD2.append(D2)
     elif direction == 'downward':
@@ -478,7 +481,7 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
             if offsets[i] > 0:
                 shift = abs(offsets[i])*NVox
                 D = listD[i]
-                fillVal = D[-1]
+                fillVal = max(D)
                 D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.float64)
                 listD2.append(D2)
             if offsets[i] == 0:
@@ -487,7 +490,7 @@ def matchDists(listD, listStatus, Nup, NVox, direction):
             if offsets[i] < 0:
                 shift = abs(offsets[i])*NVox
                 D = listD[i]
-                fillVal = D[0]
+                fillVal = max(D)
                 D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.float64)
                 listD2.append(D2)
     return(np.array(listD2))
