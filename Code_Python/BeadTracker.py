@@ -2250,11 +2250,13 @@ class Trajectory:
         self.depthoStep = 20
         self.depthoZFocus = 200
         self.Zstep = Zstep # The step in microns between 2 consecutive frames in a multi-frame Nuplet
-        self.HDZfactor = 1
+        
+        #### Z detection settings here
+        self.HDZfactor = 5
         self.maxDz_triplets = 60 # Max Dz allowed between images
         self.maxDz_singlets = 30
-        self.HWScan_triplets = 1000 # Half width of the scans
-        self.HWScan_singlets = 500
+        self.HWScan_triplets = 1200 # Half width of the scans
+        self.HWScan_singlets = 600
         
     def __str__(self):
         text = 'iS : ' + str(self.series_iS)
@@ -2267,7 +2269,6 @@ class Trajectory:
         df.to_csv(path, sep = '\t', index = False)
 
     def computeZ(self, matchingDirection, plot = 0):
-        #### SETTING ! Tweek the maxDz here
         
 
         if len(self.deptho) == 0:
@@ -2280,10 +2281,10 @@ class Trajectory:
             
             
             while iF <= max(self.dict['iF']):
-            #### Enable the Z detection plots here
-                # plot = 0
-                # if iF >= 400 and iF <= 440:# or (iF < 190 and iF > 150):
-                #     plot = 1
+            #### Enable plots of Z detection  here
+                plot = 0
+                if (iF >= 0 and iF <= 30) or (iF >= 400 and iF <= 440):
+                    plot = 1
             # ###################################################################
 
                 if iF not in self.dict['iF']: # this index isn't in the trajectory list => the frame was removed for some reason.
@@ -3113,7 +3114,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     #### 4. Compute dz
 
         #### 4.1 - Import depthographs
-        HDZfactor = 10
+        HDZfactor = PTL.listTrajectories[0].HDZfactor
         
         if len(PTL.beadTypes) == 1:
             depthoPath = os.path.join(depthoDir, depthoNames)
@@ -3173,7 +3174,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                         traj.depthoPath = depthoPath
                         traj.depthoStep = depthoStepHD
                         traj.depthoZFocus = depthoZFocusHD
-                        print(traj.depthoStep)
 
         #### 4.2 - Compute z for each traj
         #### ! Expt dependence here !

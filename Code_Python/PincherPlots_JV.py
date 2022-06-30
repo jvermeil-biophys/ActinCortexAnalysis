@@ -621,8 +621,8 @@ jva.computeGlobalTable_meca(task = Demo, fileName = 'Global_MecaData_Demo',
 #                             save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
 # jva.computeGlobalTable_meca(task = '21-01-18_M2_P1_C3', fileName = 'Global_MecaData_NonLin2_Py', 
 #                             save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
-jva.computeGlobalTable_meca(task = '22-02-09_M1_P1_C9', fileName = 'aaa', 
-                            save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
+jva.computeGlobalTable_meca(task = '22-02-09_M1_P1_C3', fileName = 'aaa', 
+                            save = False, PLOT = False, source = 'Python') # task = 'updateExisting'
 
 
 # %%%% Display

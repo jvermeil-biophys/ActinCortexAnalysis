@@ -855,7 +855,7 @@ def compressionFitChadwick_StressStrain(hCompr, fCompr, H0, DIAMETER):
 
 
 
-def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
+def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, task, PLOT, PLOT_SHOW):
     
     plotSmallElements = True
     
@@ -1830,7 +1830,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         # archiveFig(fig7, ax7, name=results['cellID'][-1] + '_07_smallElements', dpi = dpi1)
         
 
-        figDir = os.path.join(todayFigDirLocal, 'MecaAnalysis_allCells')
+        figDir = os.path.join(todayFigDirLocal, 'MecaAnalysis_allCells_' + task)
         jvu.archiveFig(fig1, ax1, figDir, name=results['cellID'][-1] + '_01_h(t)', dpi = dpi1)
         jvu.archiveFig(fig2, ax2, figDir, name=results['cellID'][-1] + '_02_F(h)', dpi = dpi1)
         jvu.archiveFig(fig3, ax3, figDir, name=results['cellID'][-1] + '_03_sig(eps)', dpi = dpi1)
@@ -1840,7 +1840,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         jvu.archiveFig(fig7, ax7, figDir, name=results['cellID'][-1] + '_07_smallElements', dpi = dpi1)
         
 
-        figDir = os.path.join(ownCloudTodayFigDir, 'MecaAnalysis_allCells')
+        figDir = os.path.join(ownCloudTodayFigDir, 'MecaAnalysis_allCells_' + task)
         jvu.archiveFig(fig1, ax1, figDir, name=results['cellID'][-1] + '_01_h(t)', dpi = dpi2)
         jvu.archiveFig(fig2, ax2, figDir, name=results['cellID'][-1] + '_02_F(h)', dpi = dpi2)
         jvu.archiveFig(fig3, ax3, figDir, name=results['cellID'][-1] + '_03_sig(eps)', dpi = dpi2)
@@ -1863,7 +1863,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
 
 
 
-def createDataDict_meca(list_mecaFiles, listColumnsMeca, PLOT):
+def createDataDict_meca(list_mecaFiles, listColumnsMeca, task, PLOT):
     """
     Subfunction of computeGlobalTable_meca
     Create the dictionnary that will be converted in a pandas table in the end.
@@ -1882,7 +1882,8 @@ def createDataDict_meca(list_mecaFiles, listColumnsMeca, PLOT):
         current_tsDF = pd.read_csv(tS_DataFilePath, sep = ';')
          # MAIN SUBFUNCTION
         current_resultDict = analyseTimeSeries_meca(f, current_tsDF, expDf, 
-                                                    listColumnsMeca, PLOT, PLOT_SHOW)
+                                                    listColumnsMeca, task,
+                                                    PLOT, PLOT_SHOW)
         for k in current_resultDict.keys():
             tableDict[k] += current_resultDict[k]
 #     for k in tableDict.keys():
@@ -1890,10 +1891,43 @@ def createDataDict_meca(list_mecaFiles, listColumnsMeca, PLOT):
     return(tableDict)
 
 
+def update_uiDf(ui_fileName, mecaDf):
+    """
+    """
+    listColumnsUI = ['date','cellName','cellID','manipID','compNum',
+                     'UI_Valid','UI_Comments']
+
+    try:
+        print('Imported existing UI table')
+        savePath = os.path.join(dataDir, (ui_fileName + '.csv'))
+        uiDf = pd.read_csv(savePath, sep='\t', )
+        fromScratch = False
+    except:
+        print('No existing UI table found with this name')
+        fromScratch = True
+
+    new_uiDf = mecaDf[listColumnsUI[:5]]
+    if not fromScratch:
+        existingCellId = uiDf['cellID'].values
+        new_uiDf = new_uiDf.loc[new_uiDf['cellID'].apply(lambda x : x not in existingCellId), :]
+    
+    nrows = new_uiDf.shape[0]
+    new_uiDf['UI_Valid'] = np.ones(nrows, dtype = bool)
+    new_uiDf['UI_Comments'] = np.array(['' for i in range(nrows)])
+    
+    if not fromScratch:
+        new_uiDf = pd.concat([uiDf, new_uiDf], axis = 0, ignore_index=True)
+        
+    savePath = os.path.join(dataDir, (ui_fileName + '.csv'))
+    new_uiDf.sort_values(by=['cellID', 'compNum'], inplace = True)
+    new_uiDf.to_csv(savePath, sep='\t', index = False)
+
+
 
 def computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData', 
                             save = False, PLOT = False, \
-                            source = 'Matlab', listColumnsMeca=listColumnsMeca):
+                            source = 'Matlab', listColumnsMeca=listColumnsMeca,
+                            ui_fileName = 'UserManualSelection_MecaData'):
     """
     Compute the GlobalTable_meca from the time series data files.
     Option task='fromScratch' will analyse all the time series data files and construct a new GlobalTable from them regardless of the existing GlobalTable.
@@ -1922,22 +1956,25 @@ def computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData',
     
     if task == 'fromScratch':
         # create a dict containing the data
-        tableDict = createDataDict_meca(list_mecaFiles, listColumnsMeca, PLOT) # MAIN SUBFUNCTION
+        tableDict = createDataDict_meca(list_mecaFiles, listColumnsMeca, task, PLOT) # MAIN SUBFUNCTION
+        
         # create the dataframe from it
-        meca_DF = pd.DataFrame(tableDict)
+        mecaDf = pd.DataFrame(tableDict)
+        
+        update_uiDf(ui_fileName, mecaDf)
         
         # last step: now that the dataFrame is complete, one can use "compStartTimeThisDay" col to compute the start time of each compression relative to the first one done this day.
-        allDates = list(meca_DF['date'].unique())
+        allDates = list(mecaDf['date'].unique())
         for d in allDates:
-            subDf = meca_DF.loc[meca_DF['date'] == d]
+            subDf = mecaDf.loc[mecaDf['date'] == d]
             experimentStartTime = np.min(subDf['compStartTimeThisDay'])
-            meca_DF['compStartTimeThisDay'].loc[meca_DF['date'] == d] = meca_DF['compStartTimeThisDay'] - experimentStartTime
+            mecaDf['compStartTimeThisDay'].loc[mecaDf['date'] == d] = mecaDf['compStartTimeThisDay'] - experimentStartTime
         
     elif task == 'updateExisting':
         # get existing table
         try:
             savePath = os.path.join(dataDir, (fileName + '.csv'))
-            existing_meca_DF = pd.read_csv(savePath, sep=';')
+            existing_mecaDf = pd.read_csv(savePath, sep=';')
         except:
             print('No existing table found')
             
@@ -1946,20 +1983,21 @@ def computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData',
         for f in list_mecaFiles:
             split_f = f.split('_')
             currentCellID = split_f[0] + '_' + split_f[1] + '_' + split_f[2] + '_' + split_f[3]
-            if currentCellID not in existing_meca_DF.cellID.values:
+            if currentCellID not in existing_mecaDf.cellID.values:
                 new_list_mecaFiles.append(f)
                 
         # create the dict with new data
-        new_tableDict = createDataDict_meca(new_list_mecaFiles, listColumnsMeca, PLOT) # MAIN SUBFUNCTION
+        new_tableDict = createDataDict_meca(new_list_mecaFiles, listColumnsMeca, task, PLOT) # MAIN SUBFUNCTION
         # create the dataframe from it
-        new_meca_DF = pd.DataFrame(new_tableDict)
+        new_mecaDf = pd.DataFrame(new_tableDict)
         # fuse the existing table with the new one
-        meca_DF = pd.concat([existing_meca_DF, new_meca_DF])
+        mecaDf = pd.concat([existing_mecaDf, new_mecaDf])
+        
+        update_uiDf(ui_fileName, mecaDf)
         
     else: # If task is neither 'fromScratch' nor 'updateExisting'
     # Then task can be a substring that can be in some timeSeries file !
-    # It will create a table with only these files, WITHOUT SAVING IT !
-    # But it can plot figs from it.
+    # It will create a table with only these files !
         # save = False
         task_list = task.split(' & ')
         new_list_mecaFiles = []
@@ -1971,55 +2009,57 @@ def computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData',
                     new_list_mecaFiles.append(f)
                     break
         # create the dict with new data
-        new_tableDict = createDataDict_meca(new_list_mecaFiles, listColumnsMeca, PLOT) # MAIN SUBFUNCTION
+        new_tableDict = createDataDict_meca(new_list_mecaFiles, listColumnsMeca, task, PLOT) # MAIN SUBFUNCTION
         # create the dataframe from it
-        meca_DF = pd.DataFrame(new_tableDict)
+        mecaDf = pd.DataFrame(new_tableDict)
+        
+        update_uiDf(ui_fileName, mecaDf)
     
-    for c in meca_DF.columns:
+    for c in mecaDf.columns:
             if 'Unnamed' in c:
-                meca_DF = meca_DF.drop([c], axis=1)
+                mecaDf = mecaDf.drop([c], axis=1)
     
     if save:
         saveName = fileName + '.csv'
         savePath = os.path.join(dataDir, saveName)
-        meca_DF.to_csv(savePath, sep=';')
+        mecaDf.to_csv(savePath, sep=';')
     
     delta = time.time() - top
     print(delta)
     
-    return(meca_DF)
+    return(mecaDf)
             
 
     
 def getGlobalTable_meca(fileName):
     try:
         savePath = os.path.join(dataDir, (fileName + '.csv'))
-        meca_DF = pd.read_csv(savePath, sep=';')
-        print('Extracted a table with ' + str(meca_DF.shape[0]) + ' lines and ' + str(meca_DF.shape[1]) + ' columns.')
+        mecaDf = pd.read_csv(savePath, sep=';')
+        print('Extracted a table with ' + str(mecaDf.shape[0]) + ' lines and ' + str(mecaDf.shape[1]) + ' columns.')
     except:
         print('No existing table found')
         
-    for c in meca_DF.columns:
+    for c in mecaDf.columns:
         if 'Unnamed' in c:
-            meca_DF = meca_DF.drop([c], axis=1)
+            mecaDf = mecaDf.drop([c], axis=1)
         # if 'K_CIW_' in c:    
-        #     meca_DF[c].apply(lambda x : x.strip('][').split(', ')).apply(lambda x : [float(x[0]), float(x[1])])
+        #     mecaDf[c].apply(lambda x : x.strip('][').split(', ')).apply(lambda x : [float(x[0]), float(x[1])])
     
-    if 'ExpDay' in meca_DF.columns:
-        dateExemple = meca_DF.loc[meca_DF.index[0],'ExpDay']
-        if not ('manipID' in meca_DF.columns):
-            meca_DF['manipID'] = meca_DF['ExpDay'] + '_' + meca_DF['CellID'].apply(lambda x: x.split('_')[0])
+    if 'ExpDay' in mecaDf.columns:
+        dateExemple = mecaDf.loc[mecaDf.index[0],'ExpDay']
+        if not ('manipID' in mecaDf.columns):
+            mecaDf['manipID'] = mecaDf['ExpDay'] + '_' + mecaDf['CellID'].apply(lambda x: x.split('_')[0])
             
-    elif 'date' in meca_DF.columns:
-        dateExemple = meca_DF.loc[meca_DF.index[0],'date']
+    elif 'date' in mecaDf.columns:
+        dateExemple = mecaDf.loc[mecaDf.index[0],'date']
         if re.match(dateFormatExcel, dateExemple):
             print('bad date')
         
-    if not ('manipID' in meca_DF.columns):
-        meca_DF['manipID'] = meca_DF['date'] + '_' + meca_DF['cellName'].apply(lambda x: x.split('_')[0])
+    if not ('manipID' in mecaDf.columns):
+        mecaDf['manipID'] = mecaDf['date'] + '_' + mecaDf['cellName'].apply(lambda x: x.split('_')[0])
 
         
-    return(meca_DF)
+    return(mecaDf)
 
 # %%% (4.4) Fluorescence data
 
@@ -2148,7 +2188,7 @@ def computeGlobalTable_sinus(task = 'fromScratch', fileName = 'Global_Sinus', sa
         # get existing table
         try:
             savePath = os.path.join(dataDir, (fileName + '.csv'))
-            existing_meca_DF = pd.read_csv(savePath, sep=';')
+            existing_mecaDf = pd.read_csv(savePath, sep=';')
         except:
             print('No existing table found')
             
@@ -2157,15 +2197,15 @@ def computeGlobalTable_sinus(task = 'fromScratch', fileName = 'Global_Sinus', sa
         for f in list_mecaFiles:
             split_f = f.split('_')
             currentCellID = split_f[0] + '_' + split_f[1] + '_' + split_f[2] + '_' + split_f[3]
-            if currentCellID not in existing_meca_DF.cellID.values:
+            if currentCellID not in existing_mecaDf.cellID.values:
                 new_list_mecaFiles.append(f)
                 
         # create the dict with new data
         new_tableDict = createDataDict_meca(new_list_mecaFiles, listColumnsMeca, PLOT) # MAIN SUBFUNCTION
         # create the dataframe from it
-        new_meca_DF = pd.DataFrame(new_tableDict)
+        new_mecaDf = pd.DataFrame(new_tableDict)
         # fuse the existing table with the new one
-        DF = pd.concat([existing_meca_DF, new_meca_DF])
+        DF = pd.concat([existing_mecaDf, new_mecaDf])
         
     else: # If task is neither 'fromScratch' nor 'updateExisting'
     # Then task can be a substring that can be in some timeSeries file !
