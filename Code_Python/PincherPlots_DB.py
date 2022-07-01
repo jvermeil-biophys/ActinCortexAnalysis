@@ -328,11 +328,11 @@ dba.computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData_DB
 
 date = '22-06-10' # For instance '22-03-30 & '22-03-31'
 dba.computeGlobalTable_meca(task = date, fileName = 'Global_MecaData_DB', 
-                            save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
+                            save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
 
 date = '22-06-16' # For instance '22-03-30 & '22-03-31'
 dba.computeGlobalTable_meca(task = date, fileName = 'Global_MecaData_DB', 
-                            save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
+                            save = False, PLOT = True, source = 'Python') # task = 'updateExisting'
 # %%%% Display
 
 df = dba.getGlobalTable_meca('Global_MecaData_Py2').tail()

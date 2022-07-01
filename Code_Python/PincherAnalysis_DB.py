@@ -910,6 +910,8 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     # else:
     #     DIAMETER = int(diameters[0])
     DIAMETER = diameters
+    
+    
     EXPTYPE = str(thisExpDf.at[thisExpDf.index.values[0], 'experimentType'])
 
     results = {}
@@ -961,28 +963,30 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
         ax1.set_ylabel('h (nm)', color=color)
         ax1.tick_params(axis='y', labelcolor=color)
         
-
         nColsSubplot = 5
         nRowsSubplot = ((Ncomp-1) // nColsSubplot) + 1
         
         # 2nd plot - fig2 & ax2, gather all the F(h) curves, and will be completed later in the code
         fig2, ax2 = plt.subplots(nRowsSubplot,nColsSubplot,figsize=(3*nColsSubplot,3*nRowsSubplot))
+        
         # 3rd plot - fig3 & ax3, gather all the stress-strain curves, and will be completed later in the code
         fig3, ax3 = plt.subplots(nRowsSubplot,nColsSubplot,figsize=(3*nColsSubplot,3*nRowsSubplot))
+        
         # 4th plot - fig4 & ax4, gather all the F(h) curves with local fits, and will be completed later in the code
         fig4, ax4 = plt.subplots(nRowsSubplot,nColsSubplot,figsize=(3*nColsSubplot,3*nRowsSubplot))
         alreadyLabeled4 = []
+        
         # 5th plot - fig5 & ax5, gather all the stress-strain curves with local fits, and will be completed later in the code
         fig5, ax5 = plt.subplots(nRowsSubplot,nColsSubplot,figsize=(3*nColsSubplot,3*nRowsSubplot))
         alreadyLabeled5 = []
+        
         # 6th plot - fig6 & ax6
         fig6, ax6 = plt.subplots(nRowsSubplot,nColsSubplot,figsize=(3*nColsSubplot,3*nRowsSubplot))
         
         if plotSmallElements:
             # 7th plot - fig7 & ax7, gather all the "small elements", and will be completed later in the code
             fig7, ax7 = plt.subplots(nRowsSubplot,nColsSubplot,figsize=(3*nColsSubplot,3*nRowsSubplot))
-            
-        
+
 
 
     for i in range(1, Ncomp+1):#Ncomp+1):
@@ -999,7 +1003,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             maskCompAndPrecomp = np.abs(tsDF['idxAnalysis']) == i
             iStart = jvu.findFirst(np.abs(tsDF['idxAnalysis']), i)
             for c in colToCorrect:
-                jump = tsDF[c].values[iStart+2] - tsDF[c].values[iStart-1]
+                jump = np.mean(tsDF[c].values[iStart:iStart+3]) - tsDF[c].values[iStart-1]
                 tsDF.loc[maskCompAndPrecomp, c] -= jump
                 if c == 'D3':
                     D3corrected = True
@@ -1101,6 +1105,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             surroundingPoints = np.concatenate([tsDF.D3.values[max(0,iStart-(loop_ctSize//2)):iStart],tsDF.D3.values[iStop:iStop+(loop_ctSize//2)]]) - DIAMETER
             surroundingPointsX = np.concatenate([tsDF.dx.values[max(0,iStart-(loop_ctSize//2)):iStart],tsDF.dx.values[iStop:iStop+(loop_ctSize//2)]]) - DIAMETER
             surroundingPointsZ = np.concatenate([tsDF.dz.values[max(0,iStart-(loop_ctSize//2)):iStart],tsDF.dz.values[iStop:iStop+(loop_ctSize//2)]])
+            
             # Parameters relative to the thickness ( = D3-DIAMETER)
             results['initialThickness'].append(np.mean(hCompr[0:3]))
             results['minThickness'].append(np.min(hCompr))
@@ -1158,6 +1163,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 results['EChadwick_CIWidth'].append(np.nan)
                 results['validatedFit'].append(validatedFit)
                 results['comments'].append('fitFailure')
+                
                 
             #### (4.0) Find the best H0
             findH0_NbPts = 15
@@ -1317,15 +1323,16 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 
                 #### fig1
                 if not fitError:
-                    if validatedFit:
-                        ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'chartreuse', linestyle = '-', linewidth = 1.25)
-                    else:
-                        ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'gold', linestyle = '-', linewidth = 1.25)
+                    ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'chartreuse', linestyle = '-', linewidth = 1.25)
+                    
+                    # if validatedFit:
+                    #     ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'chartreuse', linestyle = '-', linewidth = 1.25)
+                    # else:
+                    #     ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'gold', linestyle = '-', linewidth = 1.25)
                 else:
                     ax1.plot(thisCompDf['T'].values, thisCompDf['D3'].values-DIAMETER, color = 'crimson', linestyle = '-', linewidth = 1.25)
                 
                 # Display jumpD3 >>> DISABLED
-                
                 # if jumpD3 != 0:
                 #     x = np.mean(thisCompDf['T'].values)
                 #     y = np.mean(thisCompDf['D3'].values-DIAMETER) * 1.3
@@ -1357,18 +1364,19 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                     legendText += 'H0 = {:.1f}nm\nE = {:.2e}Pa\nR2 = {:.3f}\nChi2 = {:.1f}'.format(H0, E, R2, Chi2)
                     thisAx2.plot(hPredict,fCompr,'k--', linewidth = 0.8, label = legendText, zorder = 2)
                     thisAx2.legend(loc = 'upper right', prop={'size': 6})
-                    if not validatedFit:
-                        titleText += '\nNON VALIDATED'
+                    # if not validatedFit:
+                    #     titleText += '\nNON VALIDATED'
                         
                     if not findH0_fitError:
-                        thisAx3.plot(stressCompr, strainCompr, 'ko', ms = 3)
+                        thisAx3.plot(stressCompr, strainCompr, 'go', ms = 3)
                         # thisAx3.plot(stressCompr, trueStrainCompr, 'bo', ms = 2)
                         thisAx3.plot([np.percentile(stressCompr,10), np.percentile(stressCompr,90)], 
                                      [np.percentile(stressCompr,10)/E, np.percentile(stressCompr,90)/E],
-                                     'r--', linewidth = 1.2, label = legendText)
+                                     'k--', linewidth = 1.2, label = legendText)
                         thisAx3.legend(loc = 'lower right', prop={'size': 6})
-                    thisAx3.set_xlabel('sigma (Pa)')
-                    thisAx3.set_ylabel('epsilon')
+                    thisAx3.set_xlabel('Stress (Pa)')
+                    thisAx3.set_ylabel('Strain')
+                    
                 else:
                     titleText += '\nFIT ERROR'
                     
@@ -1378,10 +1386,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                     low_f = np.linspace(0, min_f, 20)
                     R = DIAMETER/2
                     low_h = bestH0 - ((3*bestH0*low_f)/(np.pi*(findH0_E/1e6)*R))**0.5
-                    # def inversedChadwickModel(f, E, H0):
-                    #     R = DIAMETER/2
-                    #     h = H0 - ((3*H0*f)/(np.pi*E*R))**0.5
-                    #     return(h)
+
                     
                     legendText2 = 'bestH0 = {:.2f}nm'.format(bestH0)
                     plot_startH = np.concatenate((low_h, findH0_hPredict[:]))
@@ -1466,14 +1471,11 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         if fit not in alreadyLabeled4:
                             alreadyLabeled4.append(fit)
                             legendText4 += '' + fit + ''
-                            # legendText4 += 'K2 = {:.2e}Pa'.format(K2_fit)
                             thisAx4.plot(hPredict_fit2, fCompr_fit, color = color, ls = '-', linewidth = 1.8, label = legendText4)
-                            # thisAx4.legend(loc = 'lower center', bbox_to_anchor=(0.5, 1.1), ncol = 3, prop={'size': 5})
                         elif fit in alreadyLabeled4:
                             thisAx4.plot(hPredict_fit2, fCompr_fit, color = color, ls = '-', linewidth = 1.8)
                     else:
                         pass
-                        # thisAx4.plot([], [], color = color, ls = '--', linewidth = 0.8, label = legendText4)
                 
                 
                 
@@ -1503,16 +1505,13 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                             if fit not in alreadyLabeled5:
                                 alreadyLabeled5.append(fit)
                                 legendText5 += '' + fit + ''
-                                # legendText5 += 'K={:.1e}Pa'.format(K_fit)
                                 thisAx5.plot(strainPredict_fit, stressCompr_fit,  
                                              color = color, ls = '-', linewidth = 1.8, label = legendText5)
-                                # thisAx5.legend(loc = 'lower center', bbox_to_anchor=(0.5, 1.1), ncol = 3, prop={'size': 5})
                             elif fit in alreadyLabeled5:
                                 thisAx5.plot(strainPredict_fit, stressCompr_fit,  
                                              color = color, ls = '-', linewidth = 1.8)
                         else:
                             pass
-                            # thisAx5.plot([], [], color = color, ls = '--', linewidth = 0.8, label = legendText5)
 
                 multiAxes = [thisAx4, thisAx5]
                 
@@ -1532,19 +1531,10 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 elif nRowsSubplot >= 1:
                     thisAx6 = ax6[rowSp,colSp]
                 
-                thisAx6bis = thisAx6.twinx()
                 
                 thisAx6.set_xlabel('sigma (Pa)')
-                thisAx6.set_xlim([0,1000])
-                #### !!!!! CHANGE Y LIM OF AXIS HERE !!!!!!
-                thisAx6.set_ylim([0,10**3])
-                thisAx6.set_yscale('log')
-                thisAx6.set_ylabel('K (Pa)')
-                
-                thisAx6bis.set_yscale('linear')
-                thisAx6bis.set_ylabel('relative error', color='red')
-                relErrFilter = 0.5
-                
+                thisAx6.set_xlim([0, 1200])
+                thisAx6.set_ylabel('K (kPa)')
                 
                 relativeError = np.zeros(len(K_fitToPlot))
                 if not fitError and not findH0_fitError:
@@ -1565,32 +1555,19 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         
                         if not fitError_fit:
                             
-                            E = K_CIW_fit
-                            relativeError[k] = (E/K_fit)
+                            Err = K_CIW_fit
+                            relativeError[k] = (Err/K_fit)
                             mec = None
-                            if (E/K_fit) > relErrFilter:
-                                mec = 'orangered'
-                            thisAx6.errorbar([fitCentersPlot[k]], [K_fit], yerr = [E/2],
+                            thisAx6.errorbar([fitCentersPlot[k]], [K_fit/1000], yerr = [(Err/2)/1000],
                                           color = color, marker = 'o', ms = 5, mec = mec)                           
                             
                         
-                    relativeError_subset = relativeError[relativeError != 0]
-                    fitCenters_subset = fitCentersPlot[relativeError != 0]
-                    thisAx6bis.plot([0,1000], [relErrFilter, relErrFilter], ls = '--', color = 'red', lw = 0.5)
-                    thisAx6bis.plot(fitCenters_subset, relativeError_subset, marker = 'd', ms = 3, color = 'red', ls = '')
-                    
-                    thisAx6bis.set_ylim([0,2])
-                    thisAx6bis.tick_params(axis='y', labelcolor='red')
-                    thisAx6bis.set_yticks([0,0.5,1,1.5,2])
-                            
-                    # thisAx6.legend(loc = 'lower center', bbox_to_anchor=(0.5, 1.1), ncol = 3, prop={'size': 5})
-                    
-                    multiAxes = [thisAx6, thisAx6bis]
+                    multiAxes = [thisAx6]
                     
                     for ax in multiAxes:
                         ax.title.set_text(titleText)
-                        for item in ([ax.title, ax.xaxis.label, \
-                                      ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+                        for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + \
+                                     ax.get_xticklabels() + ax.get_yticklabels()):
                             item.set_fontsize(9)
                             
                 
@@ -1650,7 +1627,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                         if len(strainCompr[epsLim]) > 0:
                             strainLimit = np.max(strainCompr[epsLim])
                             minPlot, maxPlot = thisAx5.get_ylim()
-                            thisAx5.plot([strainLimit, strainLimit], [minPlot, maxPlot], color = 'gold', ls = '--')
+                            # thisAx5.plot([strainLimit, strainLimit], [minPlot, maxPlot], color = 'gold', ls = '--')
                             minPlot, maxPlot = thisAx7.get_ylim()
                             thisAx7.plot([strainLimit, strainLimit], [minPlot, maxPlot], color = 'gold', ls = '--')
                         
@@ -1768,16 +1745,12 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 thisAx3 = ax3[colSp]
             elif nRowsSubplot >= 1:
                 thisAx3 = ax3[rowSp,colSp]
-            title = thisAx3.title.get_text()
-            if not 'NON VALIDATED' in title:
-                if thisAx3.get_ylim()[0] < eMin:
-                    eMin = thisAx3.get_ylim()[0]
-                if thisAx3.get_ylim()[1] > eMax:
-                    eMax = thisAx3.get_ylim()[1]
-                if thisAx3.get_xlim()[0] < sMin:
-                    sMin = thisAx3.get_xlim()[0]
-                if thisAx3.get_xlim()[1] > sMax:
-                    sMax = thisAx3.get_xlim()[1]
+                
+            if thisAx3.get_ylim()[1] > eMax:
+                eMax = thisAx3.get_ylim()[1]
+            if thisAx3.get_xlim()[1] > sMax:
+                sMax = thisAx3.get_xlim()[1]
+                
         for i in range(1, Ncomp+1):
             colSp = (i-1) % nColsSubplot
             rowSp = (i-1) // nColsSubplot
@@ -1786,10 +1759,12 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 thisAx3 = ax3[colSp]
             elif nRowsSubplot >= 1:
                 thisAx3 = ax3[rowSp,colSp]
-            title = thisAx3.title.get_text()
-            if not 'NON VALIDATED' in title:
-                thisAx3.set_xlim([sMin, sMax])
-                thisAx3.set_ylim([eMin, eMax])
+                
+            sMax = min(sMax, 2100)
+            eMax = min(eMax, 0.5)
+            
+            thisAx3.set_xlim([0, sMax])
+            thisAx3.set_ylim([0, eMax])
                 
         #### fig4
         NL = len(alreadyLabeled4)
@@ -1819,16 +1794,12 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 thisAx5 = ax5[colSp]
             elif nRowsSubplot >= 1:
                 thisAx5 = ax5[rowSp,colSp]
-            title = thisAx5.title.get_text()
-            if not 'NON VALIDATED' in title:
-                if thisAx5.get_xlim()[0] < eMin:
-                    eMin = thisAx5.get_xlim()[0]
-                if thisAx5.get_xlim()[1] > eMax:
-                    eMax = thisAx5.get_xlim()[1]
-                if thisAx5.get_ylim()[0] < sMin:
-                    sMin = thisAx5.get_ylim()[0]
-                if thisAx5.get_ylim()[1] > sMax:
-                    sMax = thisAx5.get_ylim()[1]
+                
+            if thisAx5.get_xlim()[1] > eMax:
+                eMax = thisAx5.get_xlim()[1]
+            if thisAx5.get_ylim()[1] > sMax:
+                sMax = thisAx5.get_ylim()[1]
+                
         for i in range(1, Ncomp+1):
             colSp = (i-1) % nColsSubplot
             rowSp = (i-1) // nColsSubplot
@@ -1837,55 +1808,49 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                 thisAx5 = ax5[colSp]
             elif nRowsSubplot >= 1:
                 thisAx5 = ax5[rowSp,colSp]
-            title = thisAx5.title.get_text()
-            if not 'NON VALIDATED' in title:
-                sMin = max(0, sMin)
-                eMin = max(0, eMin)
-                thisAx5.set_ylim([sMin, sMax])
-                thisAx5.set_xlim([eMin, eMax])
+            
+            sMax = min(sMax, 2100)
+            eMax = min(eMax, 0.5)
+            thisAx5.set_ylim([0, sMax])
+            thisAx5.set_xlim([0, eMax])
                 
         #### fig6
         # Rescale fig6 axes
         
-        # KMin, KMax = 1e5, 1
-        # sMin, sMax = 1000, 0
-        # for i in range(1, Ncomp+1):
-        #     colSp = (i-1) % nColsSubplot
-        #     rowSp = (i-1) // nColsSubplot
-        #     # ax2[i-1] with the 1 line plot
-        #     if nRowsSubplot == 1:
-        #         thisAx6 = ax6[colSp]
-        #     elif nRowsSubplot >= 1:
-        #         thisAx6 = ax6[rowSp,colSp]
-        #     title = thisAx6.title.get_text()
-        #     if not 'NON VALIDATED' in title:
-        #         # if thisAx6.get_ylim()[0] < KMin:
-        #         #     KMin = thisAx6.get_ylim()[0]
-        #         # if thisAx6.get_ylim()[1] > KMax:
-        #         #     KMax = thisAx6.get_ylim()[1]
-        #         if thisAx6.get_xlim()[0] < sMin:
-        #             sMin = thisAx6.get_xlim()[0]
-        #         if thisAx6.get_xlim()[1] > sMax:
-        #             sMax = thisAx6.get_xlim()[1]
+        sMax = 0
+        Kmax = 0
+
         for i in range(1, Ncomp+1):
             colSp = (i-1) % nColsSubplot
             rowSp = (i-1) // nColsSubplot
-            # ax2[i-1] with the 1 line plot
             if nRowsSubplot == 1:
                 thisAx6 = ax6[colSp]
             elif nRowsSubplot >= 1:
                 thisAx6 = ax6[rowSp,colSp]
-            title = thisAx6.title.get_text()
-            if not 'NON VALIDATED' in title:
-                thisAx6.set_xlim([0,600])
-                # thisAx6.set_ylim([KMin, KMax])
-                thisAx6.set_ylim([0, 1.2e4/1000]) # REMOVE THE /1000 !!
+
+            if thisAx6.get_xlim()[1] > sMax:
+                sMax = thisAx6.get_xlim()[1]
+            if thisAx6.get_ylim()[1] > Kmax:
+                Kmax = thisAx6.get_xlim()[1]
+        
+        for i in range(1, Ncomp+1):
+            colSp = (i-1) % nColsSubplot
+            rowSp = (i-1) // nColsSubplot
+            if nRowsSubplot == 1:
+                thisAx6 = ax6[colSp]
+            elif nRowsSubplot >= 1:
+                thisAx6 = ax6[rowSp,colSp]
+                
+            Kmax = min(Kmax, 20)
+
+            thisAx6.set_xlim([0, sMax])
+            thisAx6.set_ylim([0, Kmax])
                 
                 
         Allfigs = [fig1,fig2,fig3,fig4,fig5,fig6,fig7]
+        
         for fig in Allfigs:
-            # fig.tight_layout()
-            pass
+            fig.tight_layout()
 
     
     
