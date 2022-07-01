@@ -1716,14 +1716,17 @@ class PincherTimeLapse:
         nT = len(self.listTrajectories[0].dict['Bead'])
         
         #### 4.1 Black Images deletion in the trajectory
-        
+
         # Add the pointer to the correct line of the _Field.txt file.
         # It's just exactly the iS already saved in the dict, except if there are black images at the end of loops.
         # In that case you have to skip the X lines corresponding to the end of the ramp part, X being the nb of black images at the end of the current loop
         # This is because when black images occurs, they do because of the high frame rate during ramp parts and thus replace these last ramp images.
-        
+
+        # For now : excludedFrames_inward = excludedFrames_black
+        # For now : excludedFrames_outward = excludedFrames_fluo # self.excludedFrames_outward[iLoop] +
+
         Nct = (self.loop_mainSize-self.loop_rampSize)//2
-        
+
         for iB in range(self.NB):
             self.listTrajectories[iB].dict['Zr'] = np.zeros(nT)
             self.listTrajectories[iB].nT = nT
@@ -1737,12 +1740,13 @@ class PincherTimeLapse:
                     print(iF)
                     print(iLoop)
                     print(self.excludedFrames_black)
-                # For now : excludedFrames_inward = excludedFrames_black
-                # For now : excludedFrames_outward = excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
+
                 i_lim = iLoop*self.loop_mainSize + (self.loop_mainSize - (Nct) - (offset))
+
                 # i_lim is the first index after the end of the ramp
                 addOffset = (iF >= i_lim) # Is this ramp going further than it should, considering the black images ?
-                SField = iF + int(addOffset*offset)
+
+                SField = iF + int(addOffset*offset) + self.excludedFrames_outward[iLoop]
                 iField.append(SField)
                 # except:
                 #     print(i, nT, offset)
@@ -1750,8 +1754,10 @@ class PincherTimeLapse:
                 #     iLoop = ((iF+1)//self.loop_mainSize)
                 #     print(iF, self.loop_mainSize, iLoop)
                 #     [].concat()
-                    
+
             self.listTrajectories[iB].dict['iField'] = iField
+
+        
             
         #### 4.2 Find the image with the best std within each n-uplet
             
@@ -2282,9 +2288,9 @@ class Trajectory:
             
             while iF <= max(self.dict['iF']):
             #### Enable plots of Z detection  here
-                plot = 0
-                if (iF >= 0 and iF <= 30) or (iF >= 400 and iF <= 440):
-                    plot = 1
+                # plot = 0
+                # if (iF >= 0 and iF <= 30) or (iF > 400 and iF <= 440):
+                #     plot = 1
             # ###################################################################
 
                 if iF not in self.dict['iF']: # this index isn't in the trajectory list => the frame was removed for some reason.
