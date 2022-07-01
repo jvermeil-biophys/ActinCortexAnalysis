@@ -243,7 +243,7 @@ def ctFieldThicknessAll(experimentalDataDir, todayFigDir, date, tag = 'all', sav
     expDf = jvu.getExperimentalConditions(experimentalDataDir, save = False, sep = ';') 
     expDf = expDf[expDf['experimentType'] == 'optoGen']
     expDf = expDf[expDf['microscope'] == 'metamorph']
-    cellConditionsDf = pd.read_csv(experimentalDataDir+'/cellConditions.csv')
+    cellConditionsDf = pd.read_csv(experimentalDataDir+'/cellConditions_Ct.csv')
     cellConditionsDf = cellConditionsDf[cellConditionsDf['excluded'] == 'no']
     allCells = cellConditionsDf['cellID'].values
     cellIDs = []
@@ -258,7 +258,8 @@ def ctFieldThicknessAll(experimentalDataDir, todayFigDir, date, tag = 'all', sav
             if len(cellID) >= 1:
                 cellIDs.extend(cellID)  
     cellIDs = np.asarray(cellIDs)
-        
+    
+    plt.figure(figsize=(20,10))
     for cellID in cellIDs:
         timeSeriesDf = getCellTimeSeriesData(cellID)            
         optoMetaDataDf = getOptoMeta(cellID)
@@ -267,8 +268,10 @@ def ctFieldThicknessAll(experimentalDataDir, todayFigDir, date, tag = 'all', sav
         plt.plot(time, timeSeriesDf['D3'].values - bead_dia, label = cellID)
         plt.axvline(x = 5.0, color = 'r')
     plt.title('Thickness (um) vs Time : '+tag)
-    plt.show()
     plt.legend()
+    plt.show()
+    plt.savefig(todayFigDir+'/All_'+tag+'_ThicknessvTime')
+    
 
 def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, parameter, background = 'default'):
     try:
@@ -283,7 +286,7 @@ def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, param
     
     
     expDf = jvu.getExperimentalConditions(experimentalDataDir, save = False, sep = ';')
-    cellConditionsDf = pd.read_csv(experimentalDataDir+'/cellConditions.csv')
+    cellConditionsDf = pd.read_csv(experimentalDataDir+'/cellConditions_Ct.csv')
     summaryDict = {}
     summaryDict['cellID'] = []
     summaryDict['medianThickness'] = []
@@ -718,18 +721,18 @@ def ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, param
 
 # %% Constant field plots
 #%%% Plotting summary of thickness plots
-cellDf = pd.read_csv(experimentalDataDir+'/cellConditions.csv', sep=',')
-listOfCells = np.asarray(cellDf['cellID'][cellDf['excluded'] == 'no'])
-parameter = 'phenotype'
-summaryDf = ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, parameter)
+# cellDf = pd.read_csv(experimentalDataDir+'/cellConditions_Ct.csv', sep=',')
+# listOfCells = np.asarray(cellDf['cellID'][cellDf['excluded'] == 'no'])
+# parameter = 'blebCondition'
+# summaryDf = ctFieldThicknessSummary(experimentalDataDir, todayFigDir, listOfCells, parameter)
 
 
-# %% Close all open plots
-plt.close('all')
+# # %% Close all open plots
+# plt.close('all')
 
-#%%% Plotting all three plots (3D, 2D, Dz vs Time) of an experiment
-# date = '22.06.09'
-# ctFieldThicknessIndividual(experimentalDataDir, figDir, date, save = True, background = 'dark')
+# #%%% Plotting all three plots (3D, 2D, Dz vs Time) of an experiment
+# date = '22.03.01'
+# ctFieldThicknessIndividual(experimentalDataDir, todayFigDir, date, save = True, background = 'dark')
 
 
 # # %%
@@ -738,7 +741,7 @@ plt.close('all')
 #%%% Plotting 3D trajectories of all cells
 
 tag = 'away from beads'
-ctFieldThicknessAll(experimentalDataDir, figDir, date, tag = tag, save = True, background = 'default')
+ctFieldThicknessAll(experimentalDataDir, todayFigDir, date, tag = tag, save = True, background = 'default')
 
 
 # %%

@@ -83,7 +83,7 @@ timeSeriesDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_An
 # %% Import of the experimental conditions
 
 experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental_AJ"
-expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ',')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
 
 # %% EXAMPLE -- 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% M1
@@ -348,7 +348,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # %%%% M3 : Activation at beads
 
 dates = '22.03.01'
-manips, wells, cells = 3, 'all', 'all'
+manips, wells, cells = 3, 1, 6
 depthoNames = '22.03.01_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -679,7 +679,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # with 50ms activation at the end of every loop
 
 dates = '22.05.31'
-manips, wells, cells = 7, 2, 'all'
+manips, wells, cells = 7, 1, 8
 depthoNames = '22.05.31_P'+str(wells)+'_M450_step20_100X'
   
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -694,7 +694,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # with 50ms activation at the end of every loop
 
 dates = '22.06.21'
-manips, wells, cells = 2, 1, 4
+manips, wells, cells = 2, 2, 2
 depthoNames = '22.06.21_M450_step20_100X' 
   
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 

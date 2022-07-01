@@ -11,6 +11,8 @@ import os, sys
 from skimage import io
 import shutil
 import pyjokes as pj
+import utilityFunctions_JV as jvu
+
 
 #%% Colours
 NORMAL  = '\033[0m'
@@ -32,21 +34,28 @@ def removeFrames(mainDir):
             print('Saving...'+f)
             io.imsave(mainDir+'/'+f, stack)
 
-def AllMMTriplets2Stack(extDir, mainDir, currentCell, prefix, channel):
-    allFiles = os.listdir(currentCell)
-    path = os.path.join(extDir, currentCell)
-    allFiles = [path+'/'+string for string in allFiles if channel in string]
-    #+4 at the end corrosponds to the '_t' part to sort the array well
-    limiter = len(path)+len(prefix)+len(channel)+4 
-    allFiles.sort(key=lambda x: int(x[limiter:-4]))
-    ic = io.ImageCollection(allFiles, conserve_memory = True)
-    stack = io.concatenate_images(ic)
-    if '561' in channel:
-        try:
-            os.mkdir()
-        except:
-            pass
-    io.imsave(mainDir+'/'+currentCell, stack)
+def AllMMTriplets2Stack(extDir, mainDir, prefix, channel):
+    allCells = os.listdir(extDir)
+    for currentCell in allCells:
+        path = os.path.join(extDir, currentCell)
+        allFiles = os.listdir(path)
+        date = jvu.findInfosInFileName(currentCell, 'date')
+        allFiles = [path+'/'+string for string in allFiles if channel in string]
+        #+4 at the end corrosponds to the '_t' part to sort the array well
+        limiter = len(path)+len(prefix)+len(channel)+4 
+        allFiles.sort(key=lambda x: int(x[limiter:-4]))
+        ic = io.ImageCollection(allFiles, conserve_memory = True)
+        stack = io.concatenate_images(ic)
+        if '561' in channel:
+            date = date.replace('-', '.')
+            folderName = date+'_561'
+            fluoPath = os.path.join(mainDir, folderName)
+            try:
+                os.mkdir(fluoPath)
+            except:
+                pass
+            
+        io.imsave(fluoPath+'/'+currentCell+'.tif', stack)
         
 def renamePrefix(extDir, currentCell, newPrefix):
     path = os.path.join(extDir, currentCell)
@@ -231,4 +240,16 @@ for i in range(len(allZimg)):
 cv2.destroyAllWindows()
 
 print(BLUE + 'Saving all tiff stacks...' + NORMAL)
-crop(mainDir, allRefPoints[5:], allCells[5:], microscope)
+crop(mainDir, allRefPoints, allCells, microscope)
+
+
+#%% Creating .tif stacks of 561n recruitment images
+
+mainDir = 'D:/Anumita/MagneticPincherData/Raw/'
+extDir = 'F:/Cortex Experiments/OptoPincher Experiments/20220322_100xoil_3t3optorhoa_4.5beads_15mT/22.03.22'
+prefix = 'cell'
+channel = 'w3TIRF 561'
+
+
+AllMMTriplets2Stack(extDir, mainDir, prefix, channel)
+

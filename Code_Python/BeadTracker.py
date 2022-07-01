@@ -728,9 +728,11 @@ class PincherTimeLapse:
         Then modify the 'status_frame' & 'status_nUp' fields to '-1' in the dictLog.
         """
         for i in range(self.nLoop):
-            j = ((i+1)*self.loop_totalSize) - 1
+            j = ((i+1)*self.loop_totalSize) - 1 + self.
             checkSum = np.sum(self.I[j])
+            print('Passing trough checksum')
             while checkSum == 0:
+                print('Black found')
 #                 self.dictLog['Black'][j] = True
                 self.dictLog['status_frame'][j] = -1
                 self.dictLog['status_nUp'][j] = -1
@@ -738,7 +740,7 @@ class PincherTimeLapse:
                 self.excludedFrames_inward[i] += 1 # More general
                 j -= 1
                 checkSum = np.sum(self.I[j])
-                
+        print('check if black frames done')
 
 
     def saveFluoAside(self, fluoDirPath, f):
@@ -759,6 +761,8 @@ class PincherTimeLapse:
                             j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
                             self.dictLog['status_frame'][j] = -1
                             self.dictLog['status_nUp'][j] = -1
+                        print('Total excluded fluoro: '+str(totalExcludedOutward))
+                        
                             
                     else: # Set self.activationFreq = 0 to only detect one single activation
                         iLoopActivation = self.activationFirst-1
@@ -869,6 +873,7 @@ class PincherTimeLapse:
                     
             else:
                 Nramp = Nramp0-self.excludedFrames_black[i]
+                # print('Excluded_black:' + str(self.excludedFrames_black[i]))
                 for j in range(Nct//2): # Ct field before ramp
                     if self.dictLog['status_frame'][jstart + j] != 0:
                         print(ORANGE + 'Careful ! Rewriting on some data in position {:.0f} (starting from 0)'.format(jstart + j) + '' + NORMAL)
@@ -1675,9 +1680,11 @@ class PincherTimeLapse:
             iField = []
             for i in range(nT):
                 iF = self.listTrajectories[iB].dict['iF'][i]
-                print(iF)
+                
                 iLoop = ((iF)//self.loop_totalSize)
-                offset = self.excludedFrames_black[iLoop] 
+                # print('iLoop : '+str(iLoop))
+                offset = self.excludedFrames_inward[iLoop] 
+                # print('Offset_black : '+str(offset))
                 # For now : excludedFrames_inward = excludedFrames_black
                 # For now : excludedFrames_outward =.. excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
                 i_lim = iLoop*self.loop_totalSize + (self.loop_totalSize - (Nct) - (offset))
@@ -2725,7 +2732,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.determineFramesStatus_Sinus()
             elif 'brokenRamp' in f:
                 PTL.determineFramesStatus_BR()
-            elif 'disc20um' in f:
+            elif 'disc20um' or 'optoGen' in f:
                 PTL.determineFramesStatus_optoGen()
                 pass
         

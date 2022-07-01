@@ -315,7 +315,7 @@ aja.computeGlobalTable_meca(task = Task, fileName = 'Global_MecaData_AJ',
 
 # %%%% Precise dates (to plot)
 
-date = '22-06-21' # For instance '22-03-30 & '22-03-31'
+date = '22-03-31' # For instance '22-03-30 & '22-03-31'
 aja.computeGlobalTable_meca(task = date, fileName = 'Global_MecaData_AJ', 
                             save = True, PLOT = True, source = 'Python') # task = 'updateExisting'
 
@@ -555,19 +555,42 @@ def bestH0vsCompression(GlobalTable_meca, dates, activationType = 'all'):
 # %% Plots
 
 
+
+try:
+    os.mkdir(todayFigDir)
+except:
+    pass
+
+# if background == 'dark':
+#     plt.style.use('dark_background')
+# else:
+#     plt.style.use('default')
+
+
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save = False, sep = ';')
+cellConditionsDf = pd.read_csv(experimentalDataDir+'/cellConditions_M.csv')
+summaryDict = {}
+summaryDict['cellID'] = []
+summaryDict['compNum'] = []
+summaryDict['K2Chadwick'] = []
+
+summaryDict['blebCondition'] = []
+summaryDict['phenotype'] = []
+
+
 #%%%% Plotting TModulus vs. Compression Number
 selectedStressRange = 'all' #['200+/-100']
-activationType = 'away from beads'
-dates = '22.06.21'
+activationType = 'all'
+dates = '22.03.31'
 kind = 'unnormalised'
 save = 'True'
-before, after = TmodulusVsCompression(GlobalTable_meca, dates, selectedStressRange, kind, activationType, save)
+TmodulusVsCompression(GlobalTable_meca, dates, selectedStressRange, kind, activationType, save)
 
 
 #%%%% Plotting best H0 vs. Compression Number
 
-dates = '22.05.31'
-activationType = 'at beads'
+dates = '22.06.21'
+activationType = 'away from beads'
 bestH0vsCompression(GlobalTable_meca, dates, activationType)
 
 #%% Statistics

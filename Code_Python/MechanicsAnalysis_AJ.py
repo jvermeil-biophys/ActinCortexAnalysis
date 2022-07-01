@@ -881,7 +881,7 @@ def compressionFitChadwick_weightedLinearFit(hCompr, fCompr, fitCentres_region, 
         strainCompr = strainCompr.reshape(-1, 1)
         stressCompr = stressCompr.reshape(-1, 1)
         weights = gaussianWeights(fitCentres_region, stressCompr, HR)
-        regr = LinearRegression()
+        regr = LinearRegression(positive=True)
         regr.fit(strainCompr, stressCompr, weights)
         K = regr.coef_[0]
         stress0 = regr.intercept_
@@ -896,20 +896,21 @@ def compressionFitChadwick_weightedLinearFit(hCompr, fCompr, fitCentres_region, 
     strainCompr = computeStrain(hCompr, H0)
     stressCompr = computeStress(fCompr, hCompr, H0)
     # print(stressCompr)
-    # try:
-    #     K, stressPredict = weightedLinearFit(strainCompr, stressCompr, fitCentres_region)
-    #     # print(stressPredict)
-    # except:
-    #     print('error')
-    #     error = True
-    #     K, stressPredict = -1, np.ones(len(stressCompr))*(-1)
-    
-    K, stressPredict = weightedLinearFit(strainCompr, stressCompr, fitCentres_region)
-    if K < 0:
+    try:
+        K, stressPredict = weightedLinearFit(strainCompr, stressCompr, fitCentres_region)
+        K = K[0]
+        # print(stressPredict)
+    except:
+        print('error')
         error = True
         K, stressPredict = -1, np.ones(len(stressCompr))*(-1)
-    else:
-        K = K[0] #Because the way regr.fit() returns the slope is within an array by default (very weird)
+    
+    # K, stressPredict = weightedLinearFit(strainCompr, stressCompr, fitCentres_region)
+    # if K < 0:
+    #     error = True
+    #     K, stressPredict = -1, np.ones(len(stressCompr))*(-1)
+    # else:
+    #     K = K[0] #Because the way regr.fit() returns the slope is within an array by default (very weird)
     return(K, stressPredict, error)
 
 
@@ -1709,25 +1710,24 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
                     
                 thisAx8.set_xlabel('epsilon')
                 thisAx8.set_ylabel('sigma (Pa)')
-                if not fitError and not findH0_fitError:
-                    K3Limit = 50
-                    thisAx8.plot(strainCompr, stressCompr, color = main_color, marker = 'o', markersize = 3, ls = '', alpha = 0.8)
-                    for k in range(len(fit_toPlot)):
-                        if not fitError_fitToPlot[k]:
-                            fitCenters_region = fitCenters[k]
-                            stressPredict_region = np.asarray(list_stressPredictK3_fitToPlot[k])
-                            lowS3, highS3 = int(fitCenters_region - K3Limit),  int(fitCenters_region + K3Limit)
+                K3Limit = 50
+                thisAx8.plot(strainCompr, stressCompr, color = main_color, marker = 'o', markersize = 3, ls = '', alpha = 0.8)
+                for k in range(len(fit_toPlot)):
+                    if not fitError_fitToPlot[k]:
+                        fitCenters_region = fitCenters[k]
+                        stressPredict_region = np.asarray(list_stressPredictK3_fitToPlot[k])
+                        lowS3, highS3 = int(fitCenters_region - K3Limit),  int(fitCenters_region + K3Limit)
+
+                        mask_fitToPlotK3 = np.where(np.logical_and(stressCompr >= lowS3, \
+                                                                  stressCompr <= highS3))
+                        
+                        strainPredict_region = strainCompr[mask_fitToPlotK3]
+                        stressPredict_region = stressPredict_region[mask_fitToPlotK3]
+                        
+                        color = colorList30[k]
     
-                            mask_fitToPlotK3 = np.where(np.logical_and(stressCompr >= lowS3, \
-                                                                      stressCompr <= highS3))
-                            
-                            strainPredict_region = strainCompr[mask_fitToPlotK3]
-                            stressPredict_region = stressPredict_region[mask_fitToPlotK3]
-                            
-                            color = colorList30[k]
-        
-                            thisAx8.plot(strainPredict_region, stressPredict_region, \
-                                          color = color, ls = '-', linewidth = 1.8)
+                        thisAx8.plot(strainPredict_region, stressPredict_region, \
+                                      color = color, ls = '-', linewidth = 1.8)
 
             #### (5) hysteresis (its definition may change)
             try:
