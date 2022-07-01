@@ -119,19 +119,8 @@ expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ';
 #### close all
 plt.close('all')
 
-# %% Next Topic !!
-
-# %%% Next experiment day
-# %%%% Next manipe
-# %%%% Next manipe
-
-
-
-
-
-# %% Next Topic !!
-
-# %%% Next experiment day
+# %% Experiments
+# %%% Experiment , 22.06.16_M1
 
 # %%%% 22.06.16_M1 ; only the first cell
 dates = '22.06.16'
@@ -142,13 +131,15 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = True, MatlabStyle = True, trackAll = False, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
                                   sourceField = 'default',
                                   ownCloudDir = ownCloudDir, 
                                   ownCloud_figureDir = ownCloud_figureDir, 
-                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
 
-# %%%% 22.06.16_M1
+
+
+# %%%% 22.06.16_M1 ; all the cells
 dates = '22.06.16'
 manips, wells, cells = 1, 1, 'all'
 depthoNames = '22.06.16_M1_M450_step20_100X'
@@ -161,13 +152,43 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   sourceField = 'default',
                                   ownCloudDir = ownCloudDir, 
                                   ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+
+
+# %%% Experiment , 22.06.10_M1
+
+
+# %%%% 22.06.10_M1; only the first cell
+dates = '22.06.10'
+manips, wells, cells = 1, 1, 5
+depthoNames = '22.06.10_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
                                   ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
 
 
+# %%%% 22.06.10_M1; all the cells
+dates = '22.06.10'
+manips, wells, cells = 1, 1, 'all'
+depthoNames = '22.06.10_M1_M450_step20_100X'
 
-
-
-
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
 
 
 # %% EXAMPLE FROM JV - Topic : Drugs & perturbation
@@ -249,7 +270,6 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   ownCloudDir = ownCloudDir, 
                                   ownCloud_figureDir = ownCloud_figureDir, 
                                   ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir) 
-
 
 
 

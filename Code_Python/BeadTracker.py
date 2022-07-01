@@ -2276,12 +2276,12 @@ class Trajectory:
             previousZ = -1
             while iF <= max(self.dict['iF']):
 
-#### Important plotting option here
-# ####### Decomment these lines to enable some plots ##################
+### Important plotting option here
+####### Decomment these lines to enable some plots ##################
 
-                # plot = 0
-                # if iF >= 2094 and iF <= 2130:# or (iF < 190 and iF > 150):
-                #     plot = 1
+                plot = 0
+                if iF >= 1290 and iF <= 1324:# or (iF < 190 and iF > 150):
+                    plot = 1
 
 # ############################ OK?! ###################################
 
@@ -2464,7 +2464,7 @@ class Trajectory:
                 iSNuplet = [F.iS+1 for F in framesNuplet]
                 fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
                 Nfig = plt.gcf().number
-                # fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig_'+str(self.iB)+'_'+str(iSNuplet[0])+'.png')
+                fig.savefig('C:/Users/BioMecaCell/Desktop/TempPlot/fig_'+str(self.iB)+'_'+str(iSNuplet[0])+'.png')
                 plt.close(fig)
 
             return(Z)

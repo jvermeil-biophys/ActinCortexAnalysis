@@ -117,7 +117,7 @@ def getExperimentalConditions(experimentalDataDir, save = False, sep = ';', suff
     """
     #### 0. Import the table
     if suffix == '':
-        experimentalDataFile = 'ExperimentalConditions.csv'
+        experimentalDataFile = 'ExperimentalConditions_DB.csv'
     else:
         experimentalDataFile = 'ExperimentalConditions' + suffix + '.csv'
     experimentalDataFilePath = os.path.join(experimentalDataDir, experimentalDataFile)
