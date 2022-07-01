@@ -30,6 +30,7 @@ from skimage import io, filters, exposure, measure, transform, util, color
 from scipy.signal import find_peaks, savgol_filter
 from scipy.optimize import linear_sum_assignment
 from matplotlib.gridspec import GridSpec
+from matplotlib import ticker
 from datetime import date
 
 # Add the folder to path
@@ -98,436 +99,436 @@ BLUE  = '\033[36m' # blue
 
 # %% (1) Utility functions
 
-def findActivation(fieldDf):
-    maxZidx = fieldDf['Z'].argmax() #Finding the index of the max Z
-    maxZ = fieldDf['Z'][maxZidx] #To check if the value is correct
-    return maxZidx, maxZ
+# def findActivation(fieldDf):
+#     maxZidx = fieldDf['Z'].argmax() #Finding the index of the max Z
+#     maxZ = fieldDf['Z'][maxZidx] #To check if the value is correct
+#     return maxZidx, maxZ
                      
-def findInfosInFileName(f, infoType):
-    """
-    Return a given type of info from a file name.
-    Inputs : f (str), the file name.
-             infoType (str), the type of info wanted.
-             infoType can be equal to :
-             * 'M', 'P', 'C' -> will return the number of manip (M), well (P), or cell (C) in a cellID.
-             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'C', the function will return 8.
-             * 'manipID'     -> will return the full manip ID.
-             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'manipID', the function will return '21-01-18_M2'.
-             * 'cellID'     -> will return the full cell ID.
-             ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'cellID', the function will return '21-01-18_M2_P1_C8'.
-    """
-    if infoType in ['M', 'P', 'C']:
-        acceptedChar = [str(i) for i in range(10)] + ['.', '-']
-        string = '_' + infoType
-        iStart = re.search(string, f).end()
-        i = iStart
-        infoString = '' + f[i]
-        while f[i+1] in acceptedChar and i < len(f)-1:
-            i += 1
-            infoString += f[i]
+# def findInfosInFileName(f, infoType):
+#     """
+#     Return a given type of info from a file name.
+#     Inputs : f (str), the file name.
+#              infoType (str), the type of info wanted.
+#              infoType can be equal to :
+#              * 'M', 'P', 'C' -> will return the number of manip (M), well (P), or cell (C) in a cellID.
+#              ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'C', the function will return 8.
+#              * 'manipID'     -> will return the full manip ID.
+#              ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'manipID', the function will return '21-01-18_M2'.
+#              * 'cellID'     -> will return the full cell ID.
+#              ex : if f = '21-01-18_M2_P1_C8.tif' and infoType = 'cellID', the function will return '21-01-18_M2_P1_C8'.
+#     """
+#     if infoType in ['M', 'P', 'C']:
+#         acceptedChar = [str(i) for i in range(10)] + ['.', '-']
+#         string = '_' + infoType
+#         iStart = re.search(string, f).end()
+#         i = iStart
+#         infoString = '' + f[i]
+#         while f[i+1] in acceptedChar and i < len(f)-1:
+#             i += 1
+#             infoString += f[i]
 
-    elif infoType == 'date':
-        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
-        date = f[datePos.start():datePos.end()]
-        infoString = date
+#     elif infoType == 'date':
+#         datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
+#         date = f[datePos.start():datePos.end()]
+#         infoString = date
 
-    elif infoType == 'manipID':
-        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
-        date = f[datePos.start():datePos.end()]
-        manip = 'M' + findInfosInFileName(f, 'M')
-        infoString = date + '_' + manip
+#     elif infoType == 'manipID':
+#         datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
+#         date = f[datePos.start():datePos.end()]
+#         manip = 'M' + findInfosInFileName(f, 'M')
+#         infoString = date + '_' + manip
 
-    elif infoType == 'cellID':
-        datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
-        date = f[datePos.start():datePos.end()]
-        infoString = date + '_' + 'M' + findInfosInFileName(f, 'M') + \
-                            '_' + 'P' + findInfosInFileName(f, 'P') + \
-                            '_' + 'C' + findInfosInFileName(f, 'C')
+#     elif infoType == 'cellID':
+#         datePos = re.search(r"[\d]{1,2}-[\d]{1,2}-[\d]{2}", f)
+#         date = f[datePos.start():datePos.end()]
+#         infoString = date + '_' + 'M' + findInfosInFileName(f, 'M') + \
+#                             '_' + 'P' + findInfosInFileName(f, 'P') + \
+#                             '_' + 'C' + findInfosInFileName(f, 'C')
 
 
-    return(infoString)
+#     return(infoString)
 
-def isFileOfInterest(f, manips, wells, cells):
-    """
-    Determine if a file f correspond to the given criteria.
-    More precisely, return a boolean saying if the manip, well and cell number are in the given range.
-    f is a file name. Each of the fields 'manips', 'wells', 'cells' can be either a number, a list of numbers, or 'all'.
-    Example : if f = '21-01-18_M2_P1_C8.tif'
-    * manips = 'all', wells = 'all', cells = 'all' -> the function return True.
-    * manips = 1, wells = 'all', cells = 'all' -> the function return False.
-    * manips = [1, 2], wells = 'all', cells = 'all' -> the function return True.
-    * manips = [1, 2], wells = 2, cells = 'all' -> the function return False.
-    * manips = [1, 2], wells = 1, cells = [5, 6, 7, 8] -> the function return True.
-    Note : if manips = 'all', the code will consider that wells = 'all', cells = 'all'.
-           if wells = 'all', the code will consider that cells = 'all'.
-           This means you can add filters only in this order : manips > wells > cells.
-    """
-    test = False
-    if f.endswith(".tif"):
-        if manips == 'all':
-            test = True
-        else:
-            try:
-                manips_str = [str(i) for i in manips]
-            except:
-                manips_str = [str(manips)]
-            infoM = findInfosInFileName(f, 'M')
-            if infoM in manips_str:
-                if wells == 'all':
-                    test = True
-                else:
-                    try:
-                        wells_str = [str(i) for i in wells]
-                    except:
-                        wells_str = [str(wells)]
-                    infoP = findInfosInFileName(f, 'P')
-                    if infoP in wells_str:
-                        if cells == 'all':
-                            test = True
-                        else:
-                            try:
-                                cells_str = [str(i) for i in cells]
-                            except:
-                                cells_str = [str(cells)]
-                            infoC = findInfosInFileName(f, 'C')
-                            if infoC in cells_str:
-                                test = True
-    return(test)
+# def isFileOfInterest(f, manips, wells, cells):
+#     """
+#     Determine if a file f correspond to the given criteria.
+#     More precisely, return a boolean saying if the manip, well and cell number are in the given range.
+#     f is a file name. Each of the fields 'manips', 'wells', 'cells' can be either a number, a list of numbers, or 'all'.
+#     Example : if f = '21-01-18_M2_P1_C8.tif'
+#     * manips = 'all', wells = 'all', cells = 'all' -> the function return True.
+#     * manips = 1, wells = 'all', cells = 'all' -> the function return False.
+#     * manips = [1, 2], wells = 'all', cells = 'all' -> the function return True.
+#     * manips = [1, 2], wells = 2, cells = 'all' -> the function return False.
+#     * manips = [1, 2], wells = 1, cells = [5, 6, 7, 8] -> the function return True.
+#     Note : if manips = 'all', the code will consider that wells = 'all', cells = 'all'.
+#            if wells = 'all', the code will consider that cells = 'all'.
+#            This means you can add filters only in this order : manips > wells > cells.
+#     """
+#     test = False
+#     if f.endswith(".tif"):
+#         if manips == 'all':
+#             test = True
+#         else:
+#             try:
+#                 manips_str = [str(i) for i in manips]
+#             except:
+#                 manips_str = [str(manips)]
+#             infoM = findInfosInFileName(f, 'M')
+#             if infoM in manips_str:
+#                 if wells == 'all':
+#                     test = True
+#                 else:
+#                     try:
+#                         wells_str = [str(i) for i in wells]
+#                     except:
+#                         wells_str = [str(wells)]
+#                     infoP = findInfosInFileName(f, 'P')
+#                     if infoP in wells_str:
+#                         if cells == 'all':
+#                             test = True
+#                         else:
+#                             try:
+#                                 cells_str = [str(i) for i in cells]
+#                             except:
+#                                 cells_str = [str(cells)]
+#                             infoC = findInfosInFileName(f, 'C')
+#                             if infoC in cells_str:
+#                                 test = True
+#     return(test)
 
-def compute_cost_matrix(XY1,XY2):
-    """
-    Compute a custom cost matrix between two arrays of XY positions.
-    Here the costs are simply the squared distance between each XY positions.
-    Example : M[2,1] is the sqaured distance between XY1[2] and XY2[1],
-    which is ((XY2[1,1]-XY1[2,1])**2 + (XY2[1,0]-XY1[2,0])**2)
-    """
-    N1, N2 = XY1.shape[0],XY2.shape[0]
-    M = np.zeros((N1, N2))
-    for i in range(N1):
-        for j in range(N2):
-            M[i,j] = (np.sum((XY2[j,:] - XY1[i,:]) ** 2))
-    return(M)
+# def compute_cost_matrix(XY1,XY2):
+#     """
+#     Compute a custom cost matrix between two arrays of XY positions.
+#     Here the costs are simply the squared distance between each XY positions.
+#     Example : M[2,1] is the sqaured distance between XY1[2] and XY2[1],
+#     which is ((XY2[1,1]-XY1[2,1])**2 + (XY2[1,0]-XY1[2,0])**2)
+#     """
+#     N1, N2 = XY1.shape[0],XY2.shape[0]
+#     M = np.zeros((N1, N2))
+#     for i in range(N1):
+#         for j in range(N2):
+#             M[i,j] = (np.sum((XY2[j,:] - XY1[i,:]) ** 2))
+#     return(M)
 
-def ui2array(uixy):
-    """
-    Translate the output of the function plt.ginput()
-    (which are lists of tuples), in an XY array with this shape:
-    XY = [[x0, y0], [x1, y1], [x2, y2], ...]
-    So if you need the [x, y] of 1 specific point, call XY[i]
-    If you need the list of all x coordinates, call XY[:, 0]
-    """
-    n = len(uixy)
-    XY = np.zeros((n, 2))
-    for i in range(n):
-        XY[i,0], XY[i,1] = uixy[i][0], uixy[i][1]
-    return(XY)
+# def ui2array(uixy):
+#     """
+#     Translate the output of the function plt.ginput()
+#     (which are lists of tuples), in an XY array with this shape:
+#     XY = [[x0, y0], [x1, y1], [x2, y2], ...]
+#     So if you need the [x, y] of 1 specific point, call XY[i]
+#     If you need the list of all x coordinates, call XY[:, 0]
+#     """
+#     n = len(uixy)
+#     XY = np.zeros((n, 2))
+#     for i in range(n):
+#         XY[i,0], XY[i,1] = uixy[i][0], uixy[i][1]
+#     return(XY)
 
-def getROI(roiSize, x0, y0, nx, ny):
-    """
-    Return coordinates of top left (x1, y1) and bottom right (x2, y2) corner of a ROI,
-    and a boolean validROI that says if the ROI exceed the limit of the image.
-    Inputs :
-    - roiSize, the width of the (square) ROI.
-    - x0, y0, the position of the central pixel.
-    - nx, ny, the size of the image.
-    Note : the ROI is done so that the final width (= height)
-    of the ROI will always be an odd number.
-    """
-    roiSize += roiSize%2
-    x1 = int(np.floor(x0) - roiSize*0.5) - 1
-    x2 = int(np.floor(x0) + roiSize*0.5)
-    y1 = int(np.floor(y0) - roiSize*0.5) - 1
-    y2 = int(np.floor(y0) + roiSize*0.5)
-    if min([x1,nx-x2,y1,ny-y2]) < 0:
-        validROI = False
-    else:
-        validROI = True
-    return(x1, y1, x2, y2, validROI)
+# def getROI(roiSize, x0, y0, nx, ny):
+#     """
+#     Return coordinates of top left (x1, y1) and bottom right (x2, y2) corner of a ROI,
+#     and a boolean validROI that says if the ROI exceed the limit of the image.
+#     Inputs :
+#     - roiSize, the width of the (square) ROI.
+#     - x0, y0, the position of the central pixel.
+#     - nx, ny, the size of the image.
+#     Note : the ROI is done so that the final width (= height)
+#     of the ROI will always be an odd number.
+#     """
+#     roiSize += roiSize%2
+#     x1 = int(np.floor(x0) - roiSize*0.5) - 1
+#     x2 = int(np.floor(x0) + roiSize*0.5)
+#     y1 = int(np.floor(y0) - roiSize*0.5) - 1
+#     y2 = int(np.floor(y0) + roiSize*0.5)
+#     if min([x1,nx-x2,y1,ny-y2]) < 0:
+#         validROI = False
+#     else:
+#         validROI = True
+#     return(x1, y1, x2, y2, validROI)
 
-def getDepthoCleanSize(D, scale):
-    """
-    Function that looks stupid but is quite important ! It allows to standardise
-    across all other functions the way the depthograph width is computed.
-    D here is the approximative size of the bead in microns, 4.5 for M450, 2.7 for M270.
-    Scale is the pixel to microns ration of the objective.
-    """
-    cleanSize = int(np.floor(1*D*scale))
-    cleanSize += 1 + cleanSize%2
-    return(cleanSize)
+# def getDepthoCleanSize(D, scale):
+#     """
+#     Function that looks stupid but is quite important ! It allows to standardise
+#     across all other functions the way the depthograph width is computed.
+#     D here is the approximative size of the bead in microns, 4.5 for M450, 2.7 for M270.
+#     Scale is the pixel to microns ration of the objective.
+#     """
+#     cleanSize = int(np.floor(1*D*scale))
+#     cleanSize += 1 + cleanSize%2
+#     return(cleanSize)
 
-def squareDistance_V0(M, V, normalize = False): # MAKE FASTER !!!
-    """
-    DEPRECATED BECAUSE TOO SLOW
-    Compute a distance between two arrays of the same size, defined as such:
-    D = integral of the squared difference between the two arrays.
-    It is used to compute the best fit of a slice of a bead profile on the depthograph.
-    This function speed is critical for the Z computation process because it is called so many times !
-    """
-    top = time.time()
-    n, m = M.shape[0], M.shape[1]
-    # len(V) should be m
-    result = np.zeros(n)
-    if normalize:
-        V = V/np.mean(V)
-    for i in range(n):
-        if normalize:
-            Mi = M[i,:]/np.mean(M[i,:])
-        else:
-            Mi = M[i,:]
-        d = np.sum((Mi-V)**2)
-        result[i] = d
-    print('DistanceCompTime')
-    print(time.time()-top)
-    return(result)
+# def squareDistance_V0(M, V, normalize = False): # MAKE FASTER !!!
+#     """
+#     DEPRECATED BECAUSE TOO SLOW
+#     Compute a distance between two arrays of the same size, defined as such:
+#     D = integral of the squared difference between the two arrays.
+#     It is used to compute the best fit of a slice of a bead profile on the depthograph.
+#     This function speed is critical for the Z computation process because it is called so many times !
+#     """
+#     top = time.time()
+#     n, m = M.shape[0], M.shape[1]
+#     # len(V) should be m
+#     result = np.zeros(n)
+#     if normalize:
+#         V = V/np.mean(V)
+#     for i in range(n):
+#         if normalize:
+#             Mi = M[i,:]/np.mean(M[i,:])
+#         else:
+#             Mi = M[i,:]
+#         d = np.sum((Mi-V)**2)
+#         result[i] = d
+#     print('DistanceCompTime')
+#     print(time.time()-top)
+#     return(result)
 
-def squareDistance(M, V, normalize = False): # MUCH FASTER ! **Michael Scott Voice** VERRRRY GOODE
-    """
-    Compute a distance between two arrays of the same size, defined as such:
-    D = integral of the squared difference between the two arrays.
-    It is used to compute the best fit of a slice of a bead profile on the depthograph.
-    This function speed is critical for the Z computation process because it is called so many times !
-    What made that function faster is the absence of 'for' loops and the use of np.repeat().
-    """
-    # squareDistance(self.deptho, listProfiles[i], normalize = True)
-    # top = time.time()
-    # n, m = M.shape[0], M.shape[1]
-    # len(V) should be m
-    if normalize:
-        V = V/np.mean(V)
-    V = np.array([V])
-    MV = np.repeat(V, M.shape[0], axis = 0) # Key trick for speed !
-    if normalize:
-        M = M / np.mean(M,axis=1)[:,None]
-    R = np.sum(np.square(np.subtract(M,MV)), axis = 1)
-    # print('DistanceCompTime')
-    # print(time.time()-top)
-    return(R)
+# def squareDistance(M, V, normalize = False): # MUCH FASTER ! **Michael Scott Voice** VERRRRY GOODE
+#     """
+#     Compute a distance between two arrays of the same size, defined as such:
+#     D = integral of the squared difference between the two arrays.
+#     It is used to compute the best fit of a slice of a bead profile on the depthograph.
+#     This function speed is critical for the Z computation process because it is called so many times !
+#     What made that function faster is the absence of 'for' loops and the use of np.repeat().
+#     """
+#     # squareDistance(self.deptho, listProfiles[i], normalize = True)
+#     # top = time.time()
+#     # n, m = M.shape[0], M.shape[1]
+#     # len(V) should be m
+#     if normalize:
+#         V = V/np.mean(V)
+#     V = np.array([V])
+#     MV = np.repeat(V, M.shape[0], axis = 0) # Key trick for speed !
+#     if normalize:
+#         M = M / np.mean(M,axis=1)[:,None]
+#     R = np.sum(np.square(np.subtract(M,MV)), axis = 1)
+#     # print('DistanceCompTime')
+#     # print(time.time()-top)
+#     return(R)
 
-def matchDists(listD, listStatus, Nup, NVox, direction):
-    """
-    This function transform the different distances curves computed for
-    a Nuplet of images to match their minima. By definition it is not used for singlets of images.
-    In practice, it's a tedious and boring function.
-    For a triplet of image, it will move the distance curve by NVox voxels to the left
-    for the first curve of a triplet, not move the second one, and move the third by NVox voxels to the right.
-    The goal : align the 3 matching minima so that the sum of the three will have a clear global minimum.
-    direction = 'upward' or 'downward' depending on how your triplet images are taken
-    (i.e. upward = consecutively towards the bright spot and downwards otherwise)
-    """
-    N = len(listStatus)
-    offsets = np.array(listStatus) - np.ones(N) * (Nup//2 + 1)
-    offsets = offsets.astype(int)
-    listD2 = []
-    if direction == 'upward':
-        for i in range(N):
-            if offsets[i] < 0:
-                shift = abs(offsets[i])*NVox
-                D = listD[i]
-                fillVal = D[-1]
-                D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.uint16)
-                listD2.append(D2)
-            if offsets[i] == 0:
-                D = listD[i].astype(np.uint16)
-                listD2.append(D)
-            if offsets[i] > 0:
-                shift = abs(offsets[i])*NVox
-                D = listD[i]
-                fillVal = D[0]
-                D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
-                listD2.append(D2)
+# def matchDists(listD, listStatus, Nup, NVox, direction):
+#     """
+#     This function transform the different distances curves computed for
+#     a Nuplet of images to match their minima. By definition it is not used for singlets of images.
+#     In practice, it's a tedious and boring function.
+#     For a triplet of image, it will move the distance curve by NVox voxels to the left
+#     for the first curve of a triplet, not move the second one, and move the third by NVox voxels to the right.
+#     The goal : align the 3 matching minima so that the sum of the three will have a clear global minimum.
+#     direction = 'upward' or 'downward' depending on how your triplet images are taken
+#     (i.e. upward = consecutively towards the bright spot and downwards otherwise)
+#     """
+#     N = len(listStatus)
+#     offsets = np.array(listStatus) - np.ones(N) * (Nup//2 + 1)
+#     offsets = offsets.astype(int)
+#     listD2 = []
+#     if direction == 'upward':
+#         for i in range(N):
+#             if offsets[i] < 0:
+#                 shift = abs(offsets[i])*NVox
+#                 D = listD[i]
+#                 fillVal = D[-1]
+#                 D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.uint16)
+#                 listD2.append(D2)
+#             if offsets[i] == 0:
+#                 D = listD[i].astype(np.uint16)
+#                 listD2.append(D)
+#             if offsets[i] > 0:
+#                 shift = abs(offsets[i])*NVox
+#                 D = listD[i]
+#                 fillVal = D[0]
+#                 D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
+#                 listD2.append(D2)
                 
-    elif direction == 'downward':
-        for i in range(N):
-            if offsets[i] > 0:
-                shift = abs(offsets[i])*NVox
-                D = listD[i]
-                fillVal = D[-1]
-                D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.uint16)
-                listD2.append(D2)
-            if offsets[i] == 0:
-                D = listD[i].astype(np.uint16)
-                listD2.append(D)
-            if offsets[i] < 0:
-                shift = abs(offsets[i])*NVox
-                D = listD[i]
-                fillVal = D[0]
-                D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
-                listD2.append(D2)
-    return(np.array(listD2))
+#     elif direction == 'downward':
+#         for i in range(N):
+#             if offsets[i] > 0:
+#                 shift = abs(offsets[i])*NVox
+#                 D = listD[i]
+#                 fillVal = D[-1]
+#                 D2 = np.concatenate((D[shift:],fillVal*np.ones(shift))).astype(np.uint16)
+#                 listD2.append(D2)
+#             if offsets[i] == 0:
+#                 D = listD[i].astype(np.uint16)
+#                 listD2.append(D)
+#             if offsets[i] < 0:
+#                 shift = abs(offsets[i])*NVox
+#                 D = listD[i]
+#                 fillVal = D[0]
+#                 D2 = np.concatenate((fillVal*np.ones(shift),D[:-shift])).astype(np.uint16)
+#                 listD2.append(D2)
+#     return(np.array(listD2))
 
-def uiThresholding(I, method = 'otsu', factorT = 0.8):
-    """
-    Interactive thresholding function to replace IJ.
-    Compute an auto thresholding on a global 3D image with a method from this list:
-    > 'otsu', 'max_entropy', (add the method you want ! here are the options : https://scikit-image.org/docs/stable/api/skimage.filters.html )
-    Then display a figure for the user to assess the threshold fitness, and according to the user choice,
-    confirm the threshold or recompute it with new parameters in a recursive way.
-    """
-    # 1. Compute the threshold
-    nz = I.shape[0]
-    if method == 'otsu':
-        threshold = factorT*filters.threshold_otsu(I)
-    elif method == 'max_entropy':
-        bitDepth = util.dtype_limits(I)[1]+1
-        I8 = util.img_as_ubyte(I)
-        threshold = factorT*max_entropy_threshold(I8)*(bitDepth/2**8)
+# def uiThresholding(I, method = 'otsu', factorT = 0.8):
+#     """
+#     Interactive thresholding function to replace IJ.
+#     Compute an auto thresholding on a global 3D image with a method from this list:
+#     > 'otsu', 'max_entropy', (add the method you want ! here are the options : https://scikit-image.org/docs/stable/api/skimage.filters.html )
+#     Then display a figure for the user to assess the threshold fitness, and according to the user choice,
+#     confirm the threshold or recompute it with new parameters in a recursive way.
+#     """
+#     # 1. Compute the threshold
+#     nz = I.shape[0]
+#     if method == 'otsu':
+#         threshold = factorT*filters.threshold_otsu(I)
+#     elif method == 'max_entropy':
+#         bitDepth = util.dtype_limits(I)[1]+1
+#         I8 = util.img_as_ubyte(I)
+#         threshold = factorT*max_entropy_threshold(I8)*(bitDepth/2**8)
 
-    # 2. Display images for the user to assess the fitness
-    # New version of the plot
-        nS = I.shape[0]
-        loopSize = nS//4
-        N = min(4, nS//loopSize)
-        L_I_plot = [I[loopSize*2*k + 2] for k in range(N)]
-        L_I_thresh = [I_plot > threshold for I_plot in L_I_plot]
-        for i in range(N):
-            I_plot = L_I_plot[i]
-            I_thresh = L_I_thresh[i]
-            I_plot = util.img_as_ubyte(I_plot)
-            I_plot = color.gray2rgb(I_plot)
-            pStart, pStop = np.percentile(I_plot, (1, 99))
-            I_plot = exposure.rescale_intensity(I_plot, in_range=(pStart, pStop))
-            red_multiplier = [255, 0, 0]
-            I_plot[I_thresh] = red_multiplier
-            L_I_plot[i] = I_plot
+#     # 2. Display images for the user to assess the fitness
+#     # New version of the plot
+#         nS = I.shape[0]
+#         loopSize = nS//4
+#         N = min(4, nS//loopSize)
+#         L_I_plot = [I[loopSize*2*k + 2] for k in range(N)]
+#         L_I_thresh = [I_plot > threshold for I_plot in L_I_plot]
+#         for i in range(N):
+#             I_plot = L_I_plot[i]
+#             I_thresh = L_I_thresh[i]
+#             I_plot = util.img_as_ubyte(I_plot)
+#             I_plot = color.gray2rgb(I_plot)
+#             pStart, pStop = np.percentile(I_plot, (1, 99))
+#             I_plot = exposure.rescale_intensity(I_plot, in_range=(pStart, pStop))
+#             red_multiplier = [255, 0, 0]
+#             I_plot[I_thresh] = red_multiplier
+#             L_I_plot[i] = I_plot
 
-        I_thresh_all = I > threshold
-        I_thresh_max = np.max(I_thresh_all, axis = 0)
+#         I_thresh_all = I > threshold
+#         I_thresh_max = np.max(I_thresh_all, axis = 0)
 
-        fig = plt.figure(tight_layout=True)
-        gs = GridSpec(2, 4, figure=fig)
-        ax = []
-        for i in range(N):
-            ax.append(fig.add_subplot(gs[i//2, i%2]))
-            ax[-1].imshow(L_I_plot[i])
-            ax[-1].set_title('Frame ' + str(loopSize*2*i + 2) + '/' + str(nS), fontsize = 8)
-            ax[-1].axes.xaxis.set_ticks([])
-            ax[-1].axes.yaxis.set_ticks([])
-        ax.append(fig.add_subplot(gs[:, 2:]))
-        ax[-1].imshow(I_thresh_max, cmap = 'gray')
-        ax[-1].set_title('Max projection', fontsize = 10)
-        ax[-1].axes.xaxis.set_ticks([])
-        ax[-1].axes.yaxis.set_ticks([])
-        fig.suptitle(str(threshold), fontsize = 12)
-        fig.show()
-        mngr = plt.get_current_fig_manager()
-        mngr.window.setGeometry(50, 380, 1800, 650)
+#         fig = plt.figure(tight_layout=True)
+#         gs = GridSpec(2, 4, figure=fig)
+#         ax = []
+#         for i in range(N):
+#             ax.append(fig.add_subplot(gs[i//2, i%2]))
+#             ax[-1].imshow(L_I_plot[i])
+#             ax[-1].set_title('Frame ' + str(loopSize*2*i + 2) + '/' + str(nS), fontsize = 8)
+#             ax[-1].axes.xaxis.set_ticks([])
+#             ax[-1].axes.yaxis.set_ticks([])
+#         ax.append(fig.add_subplot(gs[:, 2:]))
+#         ax[-1].imshow(I_thresh_max, cmap = 'gray')
+#         ax[-1].set_title('Max projection', fontsize = 10)
+#         ax[-1].axes.xaxis.set_ticks([])
+#         ax[-1].axes.yaxis.set_ticks([])
+#         fig.suptitle(str(threshold), fontsize = 12)
+#         fig.show()
+#         mngr = plt.get_current_fig_manager()
+#         mngr.window.setGeometry(50, 380, 1800, 650)
 
-    # 3. Ask the question to the user
-    QA = pyautogui.confirm(
-                text='Is the threshold satisfying?',
-                title='Confirm threshold',
-                buttons=['Yes', '10% Lower', '5% Lower', '1% Lower', '1% Higher', '5% Higher', '10% Higher'])
-    plt.close(fig)
+#     # 3. Ask the question to the user
+#     QA = pyautogui.confirm(
+#                 text='Is the threshold satisfying?',
+#                 title='Confirm threshold',
+#                 buttons=['Yes', '10% Lower', '5% Lower', '1% Lower', '1% Higher', '5% Higher', '10% Higher'])
+#     plt.close(fig)
 
-    # 4. Recall the same function with new parameters, or validate the threshold
-    # according to the user answer.
-    increment = 0.1 * ('10%' in QA) + 0.05 * ('5%' in QA) + 0.01 * ('1%' in QA)
-    if 'Lower' in QA:
-        uiThresholding(method = method, factorT = factorT - increment)
-    elif 'Higher' in QA:
-        uiThresholding(method = method, factorT = factorT + increment)
-    elif QA == 'Yes':
-        threshold = threshold
-    return(threshold)
+#     # 4. Recall the same function with new parameters, or validate the threshold
+#     # according to the user answer.
+#     increment = 0.1 * ('10%' in QA) + 0.05 * ('5%' in QA) + 0.01 * ('1%' in QA)
+#     if 'Lower' in QA:
+#         uiThresholding(method = method, factorT = factorT - increment)
+#     elif 'Higher' in QA:
+#         uiThresholding(method = method, factorT = factorT + increment)
+#     elif QA == 'Yes':
+#         threshold = threshold
+#     return(threshold)
 
-def max_entropy(data):
-    """
-    Implements Kapur-Sahoo-Wong (Maximum Entropy) thresholding method
-    Kapur J.N., Sahoo P.K., and Wong A.K.C. (1985) "A New Method for Gray-Level Picture Thresholding Using the Entropy
-    of the Histogram", Graphical Models and Image Processing, 29(3): 273-285
-    M. Emre Celebi
-    06.15.2007
-    Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines
-    2016-04-28: Adapted for Python 2.7 by Robert Metchev from Java source of MaxEntropy() in the Autothresholder plugin
-    http://rsb.info.nih.gov/ij/plugins/download/AutoThresholder.java
-    :param data: Sequence representing the histogram of the image
-    :return threshold: Resulting maximum entropy threshold
-    """
+# def max_entropy(data):
+#     """
+#     Implements Kapur-Sahoo-Wong (Maximum Entropy) thresholding method
+#     Kapur J.N., Sahoo P.K., and Wong A.K.C. (1985) "A New Method for Gray-Level Picture Thresholding Using the Entropy
+#     of the Histogram", Graphical Models and Image Processing, 29(3): 273-285
+#     M. Emre Celebi
+#     06.15.2007
+#     Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines
+#     2016-04-28: Adapted for Python 2.7 by Robert Metchev from Java source of MaxEntropy() in the Autothresholder plugin
+#     http://rsb.info.nih.gov/ij/plugins/download/AutoThresholder.java
+#     :param data: Sequence representing the histogram of the image
+#     :return threshold: Resulting maximum entropy threshold
+#     """
 
-    # calculate CDF (cumulative density function)
-    cdf = data.astype(np.float64).cumsum()
+#     # calculate CDF (cumulative density function)
+#     cdf = data.astype(np.float64).cumsum()
 
-    # find histogram's nonzero area
-    valid_idx = np.nonzero(data)[0]
-    first_bin = valid_idx[0]
-    last_bin = valid_idx[-1]
+#     # find histogram's nonzero area
+#     valid_idx = np.nonzero(data)[0]
+#     first_bin = valid_idx[0]
+#     last_bin = valid_idx[-1]
 
-    # initialize search for maximum
-    max_ent, threshold = 0, 0
+#     # initialize search for maximum
+#     max_ent, threshold = 0, 0
 
-    for it in range(first_bin, last_bin + 1):
-        # Background (dark)
-        hist_range = data[:it + 1]
-        hist_range = hist_range[hist_range != 0] / cdf[it]  # normalize within selected range & remove all 0 elements
-        tot_ent = -np.sum(hist_range * np.log(hist_range))  # background entropy
+#     for it in range(first_bin, last_bin + 1):
+#         # Background (dark)
+#         hist_range = data[:it + 1]
+#         hist_range = hist_range[hist_range != 0] / cdf[it]  # normalize within selected range & remove all 0 elements
+#         tot_ent = -np.sum(hist_range * np.log(hist_range))  # background entropy
 
-        # Foreground/Object (bright)
-        hist_range = data[it + 1:]
-        # normalize within selected range & remove all 0 elements
-        hist_range = hist_range[hist_range != 0] / (cdf[last_bin] - cdf[it])
-        tot_ent -= np.sum(hist_range * np.log(hist_range))  # accumulate object entropy
+#         # Foreground/Object (bright)
+#         hist_range = data[it + 1:]
+#         # normalize within selected range & remove all 0 elements
+#         hist_range = hist_range[hist_range != 0] / (cdf[last_bin] - cdf[it])
+#         tot_ent -= np.sum(hist_range * np.log(hist_range))  # accumulate object entropy
 
-        # find max
-        if tot_ent > max_ent:
-            max_ent, threshold = tot_ent, it
+#         # find max
+#         if tot_ent > max_ent:
+#             max_ent, threshold = tot_ent, it
 
-    return(threshold)
+#     return(threshold)
 
-def max_entropy_threshold(I):
-    """
-    Function based on the previous one that directly takes an image for argument.
-    """
-    H, bins = exposure.histogram(I, nbins=256, source_range='image', normalize=False)
-    T = max_entropy(H)
-    return(T)
+# def max_entropy_threshold(I):
+#     """
+#     Function based on the previous one that directly takes an image for argument.
+#     """
+#     H, bins = exposure.histogram(I, nbins=256, source_range='image', normalize=False)
+#     T = max_entropy(H)
+#     return(T)
 
 
 
-def archiveFig(fig, ax, figDir, name='auto', dpi = 100):
+# def archiveFig(fig, ax, figDir, name='auto', dpi = 100):
     
-    if not os.path.exists(figDir):
-        os.makedirs(figDir)
+#     if not os.path.exists(figDir):
+#         os.makedirs(figDir)
     
-    saveDir = os.path.join(figDir, str(date.today()))
-    if not os.path.exists(saveDir):
-        os.makedirs(saveDir)
+#     saveDir = os.path.join(figDir, str(date.today()))
+#     if not os.path.exists(saveDir):
+#         os.makedirs(saveDir)
     
-    if name != 'auto':
-        fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+#     if name != 'auto':
+#         fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
     
-    else:
-        suptitle = fig._suptitle.get_text()
-        if len(suptitle) > 0:
-            name = suptitle
-            fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+#     else:
+#         suptitle = fig._suptitle.get_text()
+#         if len(suptitle) > 0:
+#             name = suptitle
+#             fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
         
-        else:
-            try:
-                N = len(ax)
-                ax = ax[0]
-            except:
-                N = 1
-                ax = ax
+#         else:
+#             try:
+#                 N = len(ax)
+#                 ax = ax[0]
+#             except:
+#                 N = 1
+#                 ax = ax
                 
-            xlabel = ax.get_xlabel()
-            ylabel = ax.get_ylabel()
-            if len(xlabel) > 0 and len(ylabel) > 0:
-                name = ylabel + ' Vs ' + xlabel
-                if N > 1:
-                    name = name + '___etc'
-                fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+#             xlabel = ax.get_xlabel()
+#             ylabel = ax.get_ylabel()
+#             if len(xlabel) > 0 and len(ylabel) > 0:
+#                 name = ylabel + ' Vs ' + xlabel
+#                 if N > 1:
+#                     name = name + '___etc'
+#                 fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
             
-            else:
-                title = ax.get_title()
-                if len(title) > 0:
-                    if N > 1:
-                        name = name + '___etc'
-                    fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+#             else:
+#                 title = ax.get_title()
+#                 if len(title) > 0:
+#                     if N > 1:
+#                         name = name + '___etc'
+#                     fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
                 
-                else:
-                    figNum = plt.gcf().number
-                    name = 'figure ' + str(figNum) 
-                    fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
+#                 else:
+#                     figNum = plt.gcf().number
+#                     name = 'figure ' + str(figNum) 
+#                     fig.savefig(os.path.join(saveDir, name + '.png'), dpi=dpi)
 
 
 # %% (2) Tracker classes
@@ -774,7 +775,6 @@ class PincherTimeLapse:
         """
         
         if self.microscope == 'labview':
-            print(self.excludedFrames_black)
             try:
                 if self.activationFirst > 0:
                     for iLoop in self.LoopActivations:
@@ -911,7 +911,6 @@ class PincherTimeLapse:
         Nct = N0 - 2*Nramp0 # N
         i_nUp = 1
         
-        print(self.excludedFrames_outward)
         
         # if not self.wFluoEveryLoop:
         #     mask_notAlreadyExcluded = self.dictLog['status_frame'] >= 0
@@ -993,7 +992,7 @@ class PincherTimeLapse:
         actType = [self.activationType]
         microscope = self.microscope
         if microscope == 'labview':
-            idxActivation = findActivation(fieldDf)[0]
+            idxActivation = jvu.findActivation(fieldDf)[0]
             actFirst = idxActivation//self.loop_mainSize
             timeScaleFactor = 1000
         elif microscope == 'metamorph':
@@ -1073,7 +1072,7 @@ class PincherTimeLapse:
         elif method == 'max_entropy':
             bitDepth = util.dtype_limits(self.I[:end_z])[1]+1
             I8 = util.img_as_ubyte(self.I[:end_z])
-            threshold = factorT*max_entropy_threshold(I8)*(bitDepth/(2**8))
+            threshold = factorT*jvu.max_entropy_threshold(I8)*(bitDepth/(2**8))
         self.threshold = threshold
 
 
@@ -1106,7 +1105,7 @@ class PincherTimeLapse:
         elif method == 'max_entropy':
             bitDepth = util.dtype_limits(self.I[:end_z])[1]+1
             I8 = util.img_as_ubyte(self.I[:end_z])
-            threshold = factorT*max_entropy_threshold(I8)*(bitDepth/(2**8))
+            threshold = factorT*jvu.max_entropy_threshold(I8)*(bitDepth/(2**8))
 
         # New version of the plot
         loopSize = self.loop_mainSize
@@ -1405,7 +1404,7 @@ class PincherTimeLapse:
                 if QA == 'Yes':
                     init_ok = True
                     ui = plt.ginput(self.NB, timeout=0)
-                    uiXY = ui2array(ui)
+                    uiXY = jvu.ui2array(ui)
                     self.dictLog['UI'][init_iS] = True
                     self.dictLog['UILog'][init_iS] = 'init_' + QA
                     self.dictLog['UIxy'][init_iS] = uiXY
@@ -1432,7 +1431,7 @@ class PincherTimeLapse:
                     print('Strange event in the tracking init')
 
         init_BXY = self.listFrames[init_iF].beadsXYarray()
-        M = compute_cost_matrix(uiXY,init_BXY)
+        M = jvu.compute_cost_matrix(uiXY,init_BXY)
         row_ind, col_ind = linear_sum_assignment(M) # row_ind -> clicks / col_ind -> listBeads
         
         # Sort the beads by growing X coordinates on the first image,
@@ -1500,7 +1499,7 @@ class PincherTimeLapse:
                 trackXY = previous_BXY
                 
             BXY = self.listFrames[iF].beadsXYarray()
-            M = compute_cost_matrix(trackXY,BXY)
+            M = jvu.compute_cost_matrix(trackXY,BXY)
             row_ind, col_ind = linear_sum_assignment(M)
             costs = np.array([M[row_ind[iB], col_ind[iB]] for iB in range(len(row_ind))])
             foundBoi = []
@@ -1579,7 +1578,7 @@ class PincherTimeLapse:
                         # According to the question's answer:
                         if QA == 'Yes':
                             ui = plt.ginput(self.NB, timeout=0)
-                            uiXY = ui2array(ui)
+                            uiXY = jvu.ui2array(ui)
                             self.dictLog['UI'][iS] = True
                             self.dictLog['UILog'][iS] = QA
                             self.dictLog['UIxy'][iS] = uiXY
@@ -1621,12 +1620,12 @@ class PincherTimeLapse:
                     # to be sure to attribute each position to the good trajectory !
                     
                     # First matching
-                    M = compute_cost_matrix(uiXY,BXY)
+                    M = jvu.compute_cost_matrix(uiXY,BXY)
                     row_ind, col_ind = linear_sum_assignment(M)
                     UIfound_BoiXY = np.array([BXY[iB] for iB in col_ind])
                     
                     # Second matching
-                    M2 = compute_cost_matrix(previous_BoiXY, UIfound_BoiXY)
+                    M2 = jvu.compute_cost_matrix(previous_BoiXY, UIfound_BoiXY)
                     row_ind2, col_ind2 = linear_sum_assignment(M2)
 
                     
@@ -2251,7 +2250,12 @@ class Trajectory:
         self.depthoStep = 20
         self.depthoZFocus = 200
         self.Zstep = Zstep # The step in microns between 2 consecutive frames in a multi-frame Nuplet
-
+        self.HDZfactor = 1
+        self.maxDz_triplets = 60 # Max Dz allowed between images
+        self.maxDz_singlets = 30
+        self.HWScan_triplets = 1000 # Half width of the scans
+        self.HWScan_singlets = 500
+        
     def __str__(self):
         text = 'iS : ' + str(self.series_iS)
         text += '\n'
@@ -2264,8 +2268,7 @@ class Trajectory:
 
     def computeZ(self, matchingDirection, plot = 0):
         #### SETTING ! Tweek the maxDz here
-        maxDz = 40
-
+        
 
         if len(self.deptho) == 0:
             return('Error, no depthograph associated with this trajectory')
@@ -2274,16 +2277,14 @@ class Trajectory:
             Ddz, Ddx = self.deptho.shape[0], self.deptho.shape[1]
             iF = self.dict['iF'][0]
             previousZ = -1
+            
+            
             while iF <= max(self.dict['iF']):
-
-### Important plotting option here
-####### Decomment these lines to enable some plots ##################
-
-                plot = 0
-                if iF >= 1290 and iF <= 1324:# or (iF < 190 and iF > 150):
-                    plot = 1
-
-# ############################ OK?! ###################################
+            #### Enable the Z detection plots here
+                # plot = 0
+                # if iF >= 400 and iF <= 440:# or (iF < 190 and iF > 150):
+                #     plot = 1
+            # ###################################################################
 
                 if iF not in self.dict['iF']: # this index isn't in the trajectory list => the frame was removed for some reason.
                     iF += 1 # Let's just go to the next index
@@ -2309,9 +2310,8 @@ class Trajectory:
 
                         iF += jF
 
-
-
-                    Z = self.findZ_Nuplet(framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz, plot)
+                    Z = self.findZ_Nuplet(framesNuplet, iFNuplet, Nup, previousZ, 
+                                          matchingDirection, plot)
                     previousZ = Z
                     # This Z_pix has no meaning in itself, it needs to be compared to the depthograph Z reference point,
                     # which is depthoZFocus.
@@ -2325,168 +2325,308 @@ class Trajectory:
 
 
 
-    def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, matchingDirection, maxDz, plot = 0):
-        try:
-            Nframes = len(framesNuplet)
-            listStatus_1 = [F.status_frame for F in framesNuplet]
-            listXY = [[self.dict['X'][np.where(self.dict['iF']==iF)][0],
-                       self.dict['Y'][np.where(self.dict['iF']==iF)][0]] for iF in iFNuplet]
-            listiS = [self.dict['iS'][np.where(self.dict['iF']==iF)][0] for iF in iFNuplet]
-            cleanSize = getDepthoCleanSize(self.D, self.scale)
-            hdSize = self.deptho.shape[1]
-            depthoDepth = self.deptho.shape[0]
-            listProfiles = np.zeros((Nframes, hdSize))
-            listROI = []
-            for i in range(Nframes):
-                xx = np.arange(0, 5)
-                yy = np.arange(0, cleanSize)
-                try:
-                    X, Y, iS = int(np.round(listXY[i][0])), int(np.round(listXY[i][1])), listiS[i] # > We could also try to recenter the image to keep a subpixel resolution here
-                    # line that is 5 pixels wide
-                    profileROI = framesNuplet[i].F[Y-cleanSize//2:Y+cleanSize//2+1, X-2:X+3]
-                    f = interpolate.interp2d(xx, yy, profileROI, kind='cubic')
-                    # Now use the obtained interpolation function and plot the result:
-                    xxnew = xx
-                    yynew = np.linspace(0, cleanSize, hdSize)
-                    profileROI_hd = f(xxnew, yynew)
+    def findZ_Nuplet(self, framesNuplet, iFNuplet, Nup, previousZ, 
+                     matchingDirection, plot):
+        # try:
+        Nframes = len(framesNuplet)
+        listStatus_1 = [F.status_frame for F in framesNuplet]
+        listXY = [[self.dict['X'][np.where(self.dict['iF']==iF)][0],
+                   self.dict['Y'][np.where(self.dict['iF']==iF)][0]] for iF in iFNuplet]
+        listiS = [self.dict['iS'][np.where(self.dict['iF']==iF)][0] for iF in iFNuplet]
+        cleanSize = jvu.getDepthoCleanSize(self.D, self.scale)
+        hdSize = self.deptho.shape[1]
+        depthoDepth = self.deptho.shape[0]
+        listProfiles = np.zeros((Nframes, hdSize))
+        listROI = []
+        listWholeROI = []
+        for i in range(Nframes):
+            xx = np.arange(0, 5)
+            yy = np.arange(0, cleanSize)
+            try:
+                X, Y, iS = int(np.round(listXY[i][0])), int(np.round(listXY[i][1])), listiS[i] # > We could also try to recenter the image to keep a subpixel resolution here
+                # line that is 5 pixels wide
+                wholeROI = framesNuplet[i].F[Y-cleanSize//2:Y+cleanSize//2+1, X-cleanSize//2:X+cleanSize//2+1]
+                profileROI = framesNuplet[i].F[Y-cleanSize//2:Y+cleanSize//2+1, X-2:X+3]
+                f = interpolate.interp2d(xx, yy, profileROI, kind='cubic')
+                # Now use the obtained interpolation function and plot the result:
+                xxnew = xx
+                yynew = np.linspace(0, cleanSize, hdSize)
+                profileROI_hd = f(xxnew, yynew)
 
-                except: # If the vertical slice doesn't work, try the horizontal one
-                    print(ORANGE + 'error with the vertical slice -> trying with horizontal one')
-                    print('iFNuplet')
-                    print(iFNuplet)
-                    print('Roi')
-                    print(Y-2,Y+3, X-cleanSize//2,X+cleanSize//2+1)
-                    print('' + NORMAL)
+            except: # If the vertical slice doesn't work, try the horizontal one
+                print(ORANGE + 'error with the vertical slice -> trying with horizontal one')
+                print('iFNuplet')
+                print(iFNuplet)
+                print('Roi')
+                print(Y-2,Y+3, X-cleanSize//2,X+cleanSize//2+1)
+                print('' + NORMAL)
 
-                    xx, yy = yy, xx
-                    X, Y, iS = int(np.round(listXY[i][0])), int(np.round(listXY[i][1])), listiS[i] # > We could also try to recenter the image to keep a subpixel resolution here
-                    # line that is 5 pixels wide
-                    profileROI = framesNuplet[i].F[Y-2:Y+3, X-cleanSize//2:X+cleanSize//2+1]
-                    f = interpolate.interp2d(xx, yy, profileROI, kind='cubic')
-                    # Now use the obtained interpolation function and plot the result:
-                    xxnew = np.linspace(0, cleanSize, hdSize)
-                    yynew = yy
-                    profileROI_hd = f(xxnew, yynew).T
+                xx, yy = yy, xx
+                X, Y, iS = int(np.round(listXY[i][0])), int(np.round(listXY[i][1])), listiS[i] # > We could also try to recenter the image to keep a subpixel resolution here
+                # line that is 5 pixels wide
+                wholeROI = framesNuplet[i].F[Y-cleanSize//2:Y+cleanSize//2+1, X-cleanSize//2:X+cleanSize//2+1]
+                profileROI = framesNuplet[i].F[Y-2:Y+3, X-cleanSize//2:X+cleanSize//2+1]
+                f = interpolate.interp2d(xx, yy, profileROI, kind='cubic')
+                # Now use the obtained interpolation function and plot the result:
+                xxnew = np.linspace(0, cleanSize, hdSize)
+                yynew = yy
+                profileROI_hd = f(xxnew, yynew).T
 
-                listROI.append(profileROI)
+            listROI.append(profileROI)
+            listWholeROI.append(wholeROI)
 
-                listProfiles[i,:] = profileROI_hd[:,5//2] * (1/5)
-                for j in range(1, 1 + 5//2):
-                    listProfiles[i,:] += profileROI_hd[:,5//2-j] * (1/5)
-                    listProfiles[i,:] += profileROI_hd[:,5//2+j] * (1/5)
+            listProfiles[i,:] = profileROI_hd[:,5//2] * (1/5)
+            for j in range(1, 1 + 5//2):
+                listProfiles[i,:] += profileROI_hd[:,5//2-j] * (1/5)
+                listProfiles[i,:] += profileROI_hd[:,5//2+j] * (1/5)
 
-            listProfiles = listProfiles.astype(np.uint16)
+        listProfiles = listProfiles.astype(np.uint16)
 
-            # now use listStatus_1, listProfiles, self.deptho + data about the jump between Nuplets ! (TBA)
-            # to compute the correlation function
-            nVoxels = int(np.round(int(self.Zstep)/self.depthoStep))
+
+
+        # now use listStatus_1, listProfiles, self.deptho + data about the jump between Nuplets ! (TBA)
+        # to compute the correlation function
+        nVoxels = int(np.round(int(self.Zstep)/self.depthoStep))
+        
+        if previousZ == -1:
+            Ztop = 0
+            Zbot = depthoDepth
+        
+        elif Nup > 1:
+            HW = self.HWScan_triplets
+            halfScannedDepth_raw = int(HW / self.depthoStep)
+            Ztop = max(0, previousZ - halfScannedDepth_raw) 
+            Zbot = min(depthoDepth, previousZ + halfScannedDepth_raw)
             
-            listDistances = np.zeros((Nframes, depthoDepth))
-            listZ = np.zeros(Nframes, dtype = int)
+        elif Nup == 1:
+            HW = self.HWScan_singlets
+            halfScannedDepth_raw = int(HW / self.depthoStep) 
+            Ztop = max(0, previousZ - halfScannedDepth_raw) 
+            Zbot = min(depthoDepth, previousZ + halfScannedDepth_raw)
+
+        scannedDepth = Zbot-Ztop
+        # print(Nup, depthoDepth, Ztop, Zbot, scannedDepth)
+        
+        listDistances = np.zeros((Nframes, scannedDepth))
+        listZ = np.zeros(Nframes, dtype = int)
+        Zscanned = np.arange(Ztop,Zbot,1, dtype=int)
+        
+        subDeptho = self.deptho[Ztop:Zbot,:]
+        
+        for i in range(Nframes):
+            
+            listDistances[i] = jvu.squareDistance(subDeptho, listProfiles[i], normalize = True) # Utility functions
+            listZ[i] = Ztop + np.argmin(listDistances[i])
+
+        # Translate the profiles that must be translated (status_frame 1 & 3 if Nup = 3)
+        # and don't move the others (status_frame 2 if Nup = 3 or the 1 profile when Nup = 1)
+        if Nup > 1:
+            finalDists = jvu.matchDists(listDistances, listStatus_1, Nup, 
+                                        nVoxels, direction = matchingDirection)
+        elif Nup == 1:
+            finalDists = listDistances
+
+        sumFinalD = np.sum(finalDists, axis = 0)
+
+
+        #### Tweak this part to force the Z-detection to a specific range to prevent abnormal jumps
+        if previousZ == -1: # First image => No restriction
+            Z = np.argmin(sumFinalD)
+            maxDz = 0
+            
+        else: # Not first image => Restriction
+            if Nup > 1 and previousZ != -1: # Not first image AND Triplets => Restriction Triplets
+                maxDz = self.maxDz_triplets
+            elif Nup == 1 and previousZ != -1: # Not first image AND singlet => Restriction Singlet
+                maxDz = self.maxDz_singlets
+                
+            limInf = max(previousZ - maxDz, 0) - Ztop
+            limSup = min(previousZ + maxDz, depthoDepth) - Ztop
+            Z = Ztop + limInf + np.argmin(sumFinalD[limInf:limSup])
+
+
+
+
+
+
+
+
+        #### Important plotting option here
+        if plot >= 1:
+            plt.ioff()
+            fig, axes = plt.subplots(5, 3, figsize = (16,16))
+            
+            cmap = 'magma'
+            color_image = 'cyan'
+            color_Nup = ['gold', 'darkorange', 'red']
+            color_result = 'darkgreen'
+            color_previousResult = 'turquoise'
+            color_margin = 'aquamarine'
+            
+            im = framesNuplet[0].F
+            X2, Y2 = listXY[0][0], listXY[0][1]
+            
+            deptho_zticks_list = np.arange(0, depthoDepth, 50*self.HDZfactor, dtype = int)
+            deptho_zticks_loc = ticker.FixedLocator(deptho_zticks_list)
+            deptho_zticks_format = ticker.FixedFormatter((deptho_zticks_list/self.HDZfactor).astype(int))
+
+            
+            if Nup == 1:
+                direction = 'Single Image'
+            else:
+                direction = matchingDirection
+
+            pStart, pStop = np.percentile(im, (1, 99))
+            axes[0,0].imshow(im, vmin = pStart, vmax = 1.5*pStop, cmap = 'gray')
+            images_ticks_loc = ticker.MultipleLocator(50)
+            axes[0,0].xaxis.set_major_locator(images_ticks_loc)
+            axes[0,0].yaxis.set_major_locator(images_ticks_loc)
+            
+            
+            dx, dy = 50, 50
+            axes[0,0].plot([X2], [Y2], marker = '+', c = 'red')
+            axes[0,0].plot([X2-dx,X2-dx], [Y2-dy,Y2+dy], ls = '--', c = color_image, lw = 0.8)
+            axes[0,0].plot([X2+dx,X2+dx], [Y2-dy,Y2+dy], ls = '--', c = color_image, lw = 0.8)
+            axes[0,0].plot([X2-dx,X2+dx], [Y2-dy,Y2-dy], ls = '--', c = color_image, lw = 0.8)
+            axes[0,0].plot([X2-dx,X2+dx], [Y2+dy,Y2+dy], ls = '--', c = color_image, lw = 0.8)
+
+            # Plot the deptho then resize it better
+            axes[0,1].imshow(self.deptho, cmap = cmap)
+            XL0, YL0 = axes[0,1].get_xlim(), axes[0,1].get_ylim()
+            extent = (XL0[0], YL0[0]*(5/3), YL0[0], YL0[1])
+            axes[0,1].imshow(self.deptho, extent = extent, cmap = cmap)
+            
+            axes[0,1].yaxis.set_major_locator(deptho_zticks_loc)
+            axes[0,1].yaxis.set_major_formatter(deptho_zticks_format)
+            
+            pixLineHD = np.arange(0, hdSize, 1)
+            zPos = Zscanned
+            
+            
             for i in range(Nframes):
-                listDistances[i] = squareDistance(self.deptho, listProfiles[i], normalize = True) # Utility functions
-                listZ[i] = np.argmin(listDistances[i])
+                status_frame = int(framesNuplet[i].status_frame)
+                status_frame += (status_frame == 0)
+                
+                # Show the bead appearence
+                axes[1,i].imshow(listWholeROI[i], cmap = cmap)
+                images_ticks_loc = ticker.MultipleLocator(10)
+                axes[1,i].xaxis.set_major_locator(images_ticks_loc)
+                axes[1,i].yaxis.set_major_locator(images_ticks_loc)
+                axes[1,i].set_title('Image {:.0f}/{:.0f} - '.format(status_frame, Nup) + direction, 
+                                    fontsize = 14)
+                axes[1,i].plot([cleanSize//2,cleanSize//2],[0,cleanSize-1], c=color_Nup[i], ls='--', lw = 1)
+                
+                # Show the profile of the beads
+                axes[2,i].plot(pixLineHD, listProfiles[i], c = color_Nup[i])
+                axes[2,i].set_xlabel('Position along the profile\n(Y-axis)', 
+                                     fontsize = 9)
+                axes[2,i].set_ylabel('Pixel intensity', 
+                                     fontsize = 9)
+                axes[2,i].set_title('Profile {:.0f}/{:.0f} - '.format(status_frame, Nup), 
+                                    fontsize = 11)
+                
+                # Show the distance map to the deptho
+                axes[3,i].plot(zPos, listDistances[i])
+                axes[3,i].xaxis.set_major_locator(deptho_zticks_loc)
+                axes[3,i].xaxis.set_major_formatter(deptho_zticks_format)
+                axes[3,i].set_xlabel('Position along the depthograph\n(Z-axis)', 
+                                     fontsize = 9)
+                axes[3,i].set_ylabel('Cost\n(Squared diff to deptho)', 
+                                     fontsize = 9)
+                axes[3,i].set_title('Cost curve {:.0f}/{:.0f}'.format(status_frame, Nup), 
+                                    fontsize = 11)
+                
+                limy3 = axes[3,i].get_ylim()
+                min_i = zPos[np.argmin(listDistances[i])]
+                axes[3,i].plot([min_i, min_i], limy3, ls = '--', c = color_Nup[i])
+                axes[3,i].set_xlim([0, depthoDepth])
+                
+                #
+                axes[4,i].plot(zPos, finalDists[i])
+                axes[4,i].xaxis.set_major_locator(deptho_zticks_loc)
+                axes[4,i].xaxis.set_major_formatter(deptho_zticks_format)
+                axes[4,i].set_xlabel('Corrected position along the depthograph\n(Z-axis)', 
+                                     fontsize = 9)
+                axes[4,i].set_ylabel('Cost\n(Squared diff to deptho)', 
+                                     fontsize = 9)
+                axes[4,i].set_title('Cost curve with corrected position {:.0f}/{:.0f}'.format(status_frame, Nup), 
+                                    fontsize = 11)
+                
+                limy4 = axes[4,i].get_ylim()
+                min_i = zPos[np.argmin(finalDists[i])]
+                axes[4,i].plot([min_i, min_i], limy4, ls = '--', c = color_Nup[i])
+                axes[4,i].set_xlim([0, depthoDepth])
 
-            # Translate the profiles that must be translated (status_frame 1 & 3 if Nup = 3)
-            # and don't move the others (status_frame 2 if Nup = 3 or the 1 profile when Nup = 1)
-            if Nup > 1:
-                finalDists = matchDists(listDistances, listStatus_1, Nup, nVoxels, direction = matchingDirection)
-            elif Nup == 1:
-                finalDists = listDistances
-
-            sumFinalD = np.sum(finalDists, axis = 0)
-            #### Tweak this part to force the Z-detection to a specific range to prevent abnormal jumps
-            if previousZ == -1: # First image => No restriction
-                Z = np.argmin(sumFinalD)
-            elif Nup > 1 and previousZ != -1: # Not first image AND Triplets => Restriction
-                # Z = np.argmin(sumFinalD)
-                limInf = max(previousZ-maxDz, 0)
-                limSup = min(previousZ+maxDz, depthoDepth)
-                Z = limInf + np.argmin(sumFinalD[limInf:limSup])
-            elif Nup == 1 and previousZ != -1: # Not first image AND singlet => Restriction
-                limInf = max(previousZ-maxDz, 0)
-                limSup = min(previousZ+maxDz, depthoDepth)
-                Z = limInf + np.argmin(sumFinalD[limInf:limSup])
-
-            #### Important plotting option here
-            if plot >= 1:
-                fig, axes = plt.subplots(5, 3, figsize = (20,10))
-                fig.tight_layout()
-                im = framesNuplet[0].F
-                X2, Y2 = listXY[0][0], listXY[0][1]
-
-                pStart, pStop = np.percentile(im, (1, 99))
-                axes[0,0].imshow(im, vmin = pStart, vmax = 1.5*pStop, cmap = 'gray')
-                col_im = 'cyan'
-                dx, dy = 10, 60
-                axes[0,0].plot([X2], [Y2], marker = '+', color = 'red')
-                axes[0,0].plot([X2-dx,X2-dx], [Y2-dy,Y2+dy], ls = '--', color = col_im)
-                axes[0,0].plot([X2+dx,X2+dx], [Y2-dy,Y2+dy], ls = '--', color = col_im)
-                axes[0,0].plot([X2-dx,X2+dx], [Y2-dy,Y2-dy], ls = '--', color = col_im)
-                axes[0,0].plot([X2-dx,X2+dx], [Y2+dy,Y2+dy], ls = '--', color = col_im)
-
-                axes[0,1].imshow(self.deptho)
-                # TEST !!! # -> Works well !
-                XL0, YL0 = axes[0,1].get_xlim(), axes[0,1].get_ylim()
-                extent = (XL0[0], YL0[0]*(5/3), YL0[0], YL0[1])
-                axes[0,1].imshow(self.deptho, extent = extent)
-                # TEST !!! #
-
-                pixLineHD = np.arange(0, hdSize, 1)
-                zPos = np.arange(0, depthoDepth, 1)
-                col = ['orange', 'gold', 'green']
-                for i in range(Nframes):
-                    axes[1,i].imshow(listROI[i])
-                    #
-                    axes[2,i].plot(pixLineHD, listProfiles[i])
-                    #
-                    axes[3,i].plot(zPos, listDistances[i])
-                    limy3 = axes[3,i].get_ylim()
-                    min_i = np.argmin(listDistances[i])
-                    axes[3,i].plot([min_i,min_i],limy3,ls = '--', c = col[i])
-                    #
-                    axes[4,i].plot(zPos, finalDists[i])
-                    limy4 = axes[4,i].get_ylim()
-                    min_i = np.argmin(finalDists[i])
-                    axes[4,i].plot([min_i,min_i],limy4,ls = '--', c = col[i])
-
-                    axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], [listZ[i], listZ[i]], ls = '--', c = col[i])
-                    axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], [Z,Z], ls = '--', c = 'red')
+                axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], 
+                               [listZ[i], listZ[i]], 
+                               ls = '--', c = color_Nup[i])
+                
+                axes[0,1].plot([axes[0,1].get_xlim()[0], axes[0,1].get_xlim()[1]-1], 
+                               [Z,Z], 
+                               ls = '--', c = color_result)
 
 
-                axes[0,2].plot(zPos, sumFinalD)
-                limy0 = axes[0,2].get_ylim()
-                axes[0,2].plot([Z,Z],limy0,ls = '-', c = 'red')
-                axes[0,2].plot([previousZ,previousZ],limy0,ls = '--', c = 'pink')
-                axes[0,2].plot([previousZ-maxDz,previousZ-maxDz],limy0,ls = '--', c = 'cyan')
-                axes[0,2].plot([previousZ+maxDz,previousZ+maxDz],limy0,ls = '--', c = 'cyan')
+            axes[0,2].plot(zPos, sumFinalD)
+            axes[0,2].xaxis.set_major_locator(deptho_zticks_loc)
+            axes[0,2].xaxis.set_major_formatter(deptho_zticks_format)
+            limy0 = axes[0,2].get_ylim()
+            axes[0,2].plot([Z, Z], limy0, ls = '-', c = color_result, label = 'Z', lw = 1.5)
+            axes[0,2].plot([previousZ, previousZ], limy0, 
+                           ls = '--', c = color_previousResult, label = 'previous Z', lw = 0.8)
+            axes[0,2].plot([previousZ-maxDz, previousZ-maxDz], limy0,
+                           ls = '--', c = color_margin, label = 'allowed margin', lw = 0.8)
+            axes[0,2].plot([previousZ+maxDz, previousZ+maxDz], limy0,
+                           ls = '--', c = color_margin, lw = 0.8)
+            axes[0,2].set_xlim([0, depthoDepth])
+            
+            axes[0,2].set_xlabel('Position along the depthograph\n(Z-axis)', 
+                                 fontsize = 9)
+            axes[0,2].set_ylabel('Total Cost\n(Sum of Squared diff to deptho)', 
+                                 fontsize = 9)
+            axes[0,2].set_title('Sum of Cost curves with corrected position', 
+                                fontsize = 11)
+            axes[0,2].legend()
+            
+            for ax in axes.flatten():
+                ax.tick_params(axis='x', labelsize=9)
+                ax.tick_params(axis='y', labelsize=9)
+            
+            Nfig = plt.gcf().number
+            iSNuplet = [F.iS+1 for F in framesNuplet]
+            
+            
+            fig.tight_layout()
+            fig.subplots_adjust(top=0.94)
+            
+            fig.suptitle('Frames '+str(iFNuplet)+' - Slices '+str(iSNuplet)+' ; '+\
+                         'Z = {:.1f} slices = '.format(Z/self.HDZfactor) + \
+                         '{:.1f} nm'.format(Z*(self.depthoStep/self.HDZfactor)),
+                         y=0.98)
+            
+            fig.savefig(tempPlot + '//ZCheckPlot_S' +str(iSNuplet[0])+ '_B' + str(self.iB+1) + '.png')
+            plt.close(fig)
+        
+        plt.ion()
+        return(Z)
 
-                iSNuplet = [F.iS+1 for F in framesNuplet]
-                fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
-                Nfig = plt.gcf().number
-                fig.savefig('C:/Users/BioMecaCell/Desktop/TempPlot/fig_'+str(self.iB)+'_'+str(iSNuplet[0])+'.png')
-                plt.close(fig)
-
-            return(Z)
-
-        except Exception:
-            print(RED + '')
-            traceback.print_exc()
-            print('\n')
-            print(ORANGE + 'Error with the Z detection')
-            print('iFNuplet')
-            print(iFNuplet)
-            print('Roi')
-            print(Y-2,Y+3, X-cleanSize//2,X+cleanSize//2+1)
-            print('Deptho shape')
-            print(self.deptho.shape)
-            print('Shapes of listDistances, finalDists, sumFinalD')
-            print(listDistances.shape)
-            print(finalDists.shape)
-            print(sumFinalD.shape)
-            print('previousZ, previousZ-maxDz, previousZ+maxDz')
-            print(previousZ, previousZ-maxDz, previousZ+maxDz)
-            print('' + NORMAL)
+        # except Exception:
+        #     print(RED + '')
+        #     traceback.print_exc()
+        #     print('\n')
+        #     print(ORANGE + 'Error with the Z detection')
+        #     print('iFNuplet')
+        #     print(iFNuplet)
+        #     print('Roi')
+        #     print(Y-2,Y+3, X-cleanSize//2,X+cleanSize//2+1)
+        #     print('Deptho shape')
+        #     print(self.deptho.shape)
+        #     print('Shapes of listDistances, finalDists, sumFinalD')
+        #     print(listDistances.shape)
+        #     print(finalDists.shape)
+        #     print(sumFinalD.shape)
+        #     print('previousZ, previousZ-maxDz, previousZ+maxDz')
+        #     print(previousZ, previousZ-maxDz, previousZ+maxDz)
+        #     print('' + NORMAL)
 
 
     def keepBestStdOnly(self):
@@ -2685,8 +2825,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
     for rd in rawDirList:
         fileList = os.listdir(rd)
         for f in fileList:
-            print(f)
-            if isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
+            if jvu.isFileOfInterest(f, manips, wells, cells): # See Utility Functions > isFileOfInterest
                 fPath = os.path.join(rd, f)
                 if os.path.isfile(fPath[:-4] + '_Field.txt'):
                     imagesToAnalyse.append(f)
@@ -2696,8 +2835,8 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         #### 0.2 - Begining of the Main Loop
     for i in range(len(imagesToAnalyse)): 
         f, fP = imagesToAnalyse[i], imagesToAnalyse_Paths[i]
-        manipID = findInfosInFileName(f, 'manipID') # See Utility Functions > findInfosInFileName
-        cellID = findInfosInFileName(f, 'cellID') # See Utility Functions > findInfosInFileName
+        manipID = jvu.findInfosInFileName(f, 'manipID') # See Utility Functions > findInfosInFileName
+        cellID = jvu.findInfosInFileName(f, 'cellID') # See Utility Functions > findInfosInFileName
 
         print('\n')
         print(BLUE + 'Analysis of file {:.0f}/{:.0f} : {}'.format(i+1, len(imagesToAnalyse), f))
@@ -2767,7 +2906,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
         print(BLUE + 'Pretreating the image...' + NORMAL)
         
         #### 0.7 - Detect fluo & black images
-        current_date = findInfosInFileName(f, 'date')
+        current_date = jvu.findInfosInFileName(f, 'date')
         current_date = current_date.replace("-", ".")
         fluoDirPath = os.path.join(rawDataDir, current_date + '_Fluo', f[:-4])
 
@@ -3004,6 +3143,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 traj.depthoPath = depthoPath
                 traj.depthoStep = depthoStepHD
                 traj.depthoZFocus = depthoZFocus
+                traj.HDZfactor = HDZfactor
 
         if len(PTL.beadTypes) > 1:
             for dN in depthoNames:
@@ -3509,14 +3649,14 @@ class BeadDeptho:
             roughSize += 1 + roughSize%2
             roughCenter = int((roughSize+1)//2)
 
-            cleanSize = getDepthoCleanSize(self.D0, self.scale)
+            cleanSize = jvu.getDepthoCleanSize(self.D0, self.scale)
 
             I_cleanROI = np.zeros([self.nz, cleanSize, cleanSize])
 
             try:
                 for i in range(zFirst, zLast):
                     xmi, ymi = self.XYm[i,0], self.XYm[i,1]
-                    x1, y1, x2, y2, validBead = getROI(roughSize, xmi, ymi, self.nx, self.ny)
+                    x1, y1, x2, y2, validBead = jvu.getROI(roughSize, xmi, ymi, self.nx, self.ny)
                     if not validBead:
                         if x1 < 0 or x2 > self.nx:
                             self.valid_h = False

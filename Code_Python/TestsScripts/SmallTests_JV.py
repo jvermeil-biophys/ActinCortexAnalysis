@@ -6,6 +6,106 @@ Created on Thu Nov 25 13:37:51 2021
 """
 
 # %%
+
+# 1. Imports
+import numpy as np
+import pandas as pd
+import scipy.ndimage as ndi
+import matplotlib.pyplot as plt
+
+import os
+import re
+import time
+import pyautogui
+import matplotlib
+import traceback
+# import cv2
+
+# import scipy
+from scipy import interpolate
+from scipy import signal
+
+# import skimage
+from skimage import io, filters, exposure, measure, transform, util, color
+from scipy.signal import find_peaks, savgol_filter
+from scipy.optimize import linear_sum_assignment
+from matplotlib.gridspec import GridSpec
+from matplotlib import ticker
+from datetime import date
+
+# Add the folder to path
+COMPUTERNAME = os.environ['COMPUTERNAME']
+if COMPUTERNAME == 'ORDI-JOSEPH':
+    mainDir = "C://Users//JosephVermeil//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//JosephVermeil//ownCloud//ActinCortexAnalysis"
+    tempPlot = 'C://Users//JosephVermeil//Desktop//TempPlots'
+elif COMPUTERNAME == 'LARISA':
+    mainDir = "C://Users//Joseph//Desktop//ActinCortexAnalysis"
+    ownCloudDir = "C://Users//Joseph//ownCloud//ActinCortexAnalysis"
+    tempPlot = 'C://Users//Joseph//Desktop//TempPlots'
+elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
+    mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
+elif COMPUTERNAME =='DATA2JHODR':
+    mainDir = "C://Utilisateurs//BioMecaCell//Bureau//ActinCortexAnalysis"
+    tempPlot = 'C://Utilisateurs//BioMecaCell//Bureau//TempPlots'
+
+
+
+import sys
+sys.path.append(mainDir + "//Code_Python")
+
+# from getExperimentalConditions import getExperimentalConditions
+import utilityFunctions_JV as jvu
+
+
+# 2. Pandas settings
+pd.set_option('mode.chained_assignment', None)
+
+# 3. Plot settings
+# Here we use this mode because displaying images
+# in new windows is more convenient for this code.
+# %matplotlib qt 
+# matplotlib.use('Qt5Agg')
+# To switch back to inline display, use : 
+# %matplotlib widget or %matplotlib inline
+# matplotlib.rcParams.update({'figure.autolayout': True})
+
+SMALLER_SIZE = 8
+SMALL_SIZE = 12
+MEDIUM_SIZE = 16
+BIGGER_SIZE = 20
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=MEDIUM_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALLER_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
+# 4. Other settings
+# These regex are used to correct the stupid date conversions done by Excel
+dateFormatExcel = re.compile(r'\d{2}/\d{2}/\d{4}')
+dateFormatExcel2 = re.compile(r'\d{2}-\d{2}-\d{4}')
+dateFormatOk = re.compile(r'\d{2}-\d{2}-\d{2}')
+
+# 5. Global constants
+SCALE_100X = 15.8 # pix/µm
+NORMAL  = '\033[0m'
+RED  = '\033[31m' # red
+GREEN = '\033[32m' # green
+ORANGE  = '\033[33m' # orange
+BLUE  = '\033[36m' # blue
+
+
+fig, axes = plt.subplots(1, 2, figsize = (8,4))
+axes[0].plot(np.arange(0,10,0.5),np.arange(0,100,5)**4)
+
+xtVal = axes[0].get_xticks()
+axes[0].set_xticklabels([str(x*4.5) for x in xtVal])
+
+fig.show()
+
+# %%
 import  pandas as pd
 import numpy as np
 

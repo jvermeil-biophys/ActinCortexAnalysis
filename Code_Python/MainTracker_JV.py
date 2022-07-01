@@ -118,7 +118,7 @@ plt.close('all')
 
 # %% HoxB8 macrophages
 
-# %%% 22.05.05, compressionsLowStart of HoxB8 macrophages, M450, M1 = , M2 = , M3 = , M4 = 
+# %%% 22.05.05, compressionsLowStart of HoxB8 macrophages, M450, M1 = , M2 = 
 # %%%% 22.05.05_M1 C1 Seulement
 dates = '22.05.05'
 manips, wells, cells = 1, 1, 1
@@ -128,7 +128,191 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.05_M1
+dates = '22.05.05'
+manips, wells, cells = 1, 1, 'all'
+depthoNames = '22.05.05_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.05_M2
+dates = '22.05.05'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '22.05.05_M2_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%% 22.05.04, compressionsLowStart of HoxB8 macrophages, M450, M1 = , M2 = , M3 = , M4 = 
+# %%%% 22.05.04_M1 C1 Seulement
+dates = '22.05.04'
+manips, wells, cells = 1, 1, 1
+depthoNames = '22.05.04_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.04_M1
+dates = '22.05.04'
+manips, wells, cells = 1, 1, 'all'
+depthoNames = '22.05.04_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.04_M2
+dates = '22.05.04'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '22.05.04_M2_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.04_M3
+dates = '22.05.04'
+manips, wells, cells = 3, 1, 'all'
+depthoNames = '22.05.04_M3_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.04_M4
+dates = '22.05.04'
+manips, wells, cells = 4, 1, 'all'
+depthoNames = '22.05.04_M4_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+
+
+# %%% 22.05.03, compressionsLowStart of HoxB8 macrophages, M450, M1 = , M2 = , M3 = , M4 = 
+# %%%% 22.05.03_M1 C1 Seulement
+dates = '22.05.03'
+manips, wells, cells = ['1-1'], 1, 1
+depthoNames = '22.05.03_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = True, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.03_M1
+dates = '22.05.03'
+manips, wells, cells = ['1-1', '1-2'], 1, 'all'
+depthoNames = '22.05.03_M1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.03_M2
+dates = '22.05.03'
+manips, wells, cells = 2, 1, 'all'
+depthoNames = '22.05.03_M2_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.03_M3
+dates = '22.05.03'
+manips, wells, cells = 3, 1, 'all'
+depthoNames = '22.05.03_M3_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  sourceField = 'default',
+                                  ownCloudDir = ownCloudDir, 
+                                  ownCloud_figureDir = ownCloud_figureDir, 
+                                  ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
+
+# %%%% 22.05.03_M4
+dates = '22.05.03'
+manips, wells, cells = 4, 1, 'all'
+depthoNames = '22.05.03_M4_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
                                   sourceField = 'default',
                                   ownCloudDir = ownCloudDir, 
                                   ownCloud_figureDir = ownCloud_figureDir, 
