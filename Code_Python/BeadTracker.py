@@ -1447,7 +1447,7 @@ class PincherTimeLapse:
         
         #### 2. Creation of the Trajectory objects
         for iB in range(self.NB):
-            self.listTrajectories.append(Trajectory(self.I, self.listFrames, self.scale, self.Zstep, iB))
+            self.listTrajectories.append(Trajectory(self.I, self.cellID, self.listFrames, self.scale, self.Zstep, iB))
 
             self.listTrajectories[iB].dict['Bead'].append(self.listFrames[init_iF].listBeads[init_iBoi[iB]])
             self.listTrajectories[iB].dict['iF'].append(init_iF)
@@ -2234,9 +2234,10 @@ class Bead:
 # %%%% Trajectory
 
 class Trajectory:
-    def __init__(self, I, listFrames, scale, Zstep, iB):
+    def __init__(self, I, cellID, listFrames, scale, Zstep, iB):
         nS, ny, nx = I.shape[0], I.shape[1], I.shape[2]
         self.I = I
+        self.cellID = cellID
         self.listFrames = listFrames
         self.scale = scale
         self.nx = nx
@@ -2601,7 +2602,6 @@ class Trajectory:
             Nfig = plt.gcf().number
             iSNuplet = [F.iS+1 for F in framesNuplet]
             
-            
             fig.tight_layout()
             fig.subplots_adjust(top=0.94)
             
@@ -2610,7 +2610,16 @@ class Trajectory:
                          '{:.1f} nm'.format(Z*(self.depthoStep/self.HDZfactor)),
                          y=0.98)
             
-            fig.savefig(tempPlot + '//ZCheckPlot_S' +str(iSNuplet[0])+ '_B' + str(self.iB+1) + '.png')
+            if not os.path.isdir(tempPlot):
+                os.mkdir(tempPlot)
+                
+            thisCellTempPlot = os.path.join(tempPlot, self.cellID)
+            if not os.path.isdir(thisCellTempPlot):
+                os.mkdir(thisCellTempPlot)
+            
+            saveName = 'ZCheckPlot_S{:.0f}_B{:.0f}.png'.format(iSNuplet[0], self.iB+1)
+            savePath = os.path.join(thisCellTempPlot, saveName)
+            fig.savefig(savePath)
             plt.close(fig)
         
         plt.ion()
