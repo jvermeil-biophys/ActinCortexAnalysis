@@ -1,0 +1,8 @@
+Power measurements taken through a 100X objective by altering the neutral density filter which is placed atthe source (Source filter) which ranges from 0-6.
+6 is usually used for most experiments. 
+
+Fluorescence level in the fluo intensity as the halogen source (0-4) where 0 means shutter is closed. Residual light may be incoming from the computer screen at this level.
+
+Power meter used: Microscope slide power meter from ThorLabs, measuring at 488 nm. 
+
+Ambient light in the room is usually 32uW close to the curtains or a rather bright day, on the whole sensor. (Divide by area of sensor to obtains intensity). 

@@ -102,9 +102,13 @@ def compressionFitChadwick_weightedLinearFit(hCompr, fCompr, fitCentres_region, 
         stress = (K * strain) + stress0
         return(stress)
     
-    def gaussianWeights(fitCentres_region, stressCompr, HR):
+    def gaussianWeights_Sq(fitCentres_region, stressCompr, HR):
         stressCompr = stressCompr.flatten(order='C')
         return np.exp ( -((stressCompr - fitCentres_region) ** 2) / HR ** 2)
+    
+    def gaussianWeights(fitCentres_region, stressCompr, HR):
+        stressCompr = stressCompr.flatten(order='C')
+        return np.exp ( -(stressCompr - fitCentres_region) / HR)
     
     
     def weightedLinearFit(strainCompr, stressCompr, fitCentres_region, HR = 100):
@@ -184,34 +188,63 @@ strainPredict = strainCompr[idx_local]
 print(stressPredict)
 print(strainPredict)
 
-#%%
+#%% Testing fitCenters generation dependent on range of stressCompr values
+
+def gaussianWeights_Sq(fitCentres_region, stressCompr, HR):
+        stressCompr = stressCompr.flatten(order='C')
+        return np.exp ( -((stressCompr - fitCentres_region) ** 2) / HR ** 2)
+    
+def gaussianWeights(fitCentres_region, stressCompr, HR):
+    stressCompr = stressCompr.flatten(order='C')
+    return np.exp ( -(stressCompr - fitCentres_region) / HR)
 
 def constitutiveRelation(strain, K, stress0):
     stress = (K * strain) + stress0
     return(stress)
 
-strainCompr = strainCompr.reshape(-1, 1)
-stressCompr = stressCompr.reshape(-1, 1)
-print(fitCentres_region)
-weights = gaussianWeights(fitCentres_region, stressCompr, HR)
-# print(weights)
-regr = LinearRegression()
-regr.fit(strainCompr, stressCompr, weights)
-K = regr.coef_[0]
-stress0 = regr.intercept_
-strainCompr = strainCompr.flatten()
 
-# print(K)
-stressCompr_copy = np.copy(stressCompr).flatten()
-stressPredict = constitutiveRelation(stressCompr_copy, K, stress0)
+def weightedLinearFit(strainCompr, stressCompr, fitCentres_region, fitK3 = 50, HR = 100):
+    strainCompr = strainCompr.reshape(-1, 1)
+    stressCompr = stressCompr.reshape(-1, 1)
+    print(fitCentres_region)
+    weights = gaussianWeights(fitCentres_region, stressCompr, HR)
+    # print(weights)
+    regr = LinearRegression()
+    regr.fit(strainCompr, stressCompr, weights)
+    K = regr.coef_[0]
+    stress0 = regr.intercept_
+    
+    # print(K)
+    stressCompr_copy = np.copy(stressCompr).flatten()
+    stressPredict = constitutiveRelation(stressCompr_copy, K, stress0)
+    
+    idx_local = np.where(np.logical_and(stressCompr_copy >= fitCentres_region-fitK3, \
+                                        stressCompr_copy <= fitCentres_region+fitK3))
 
-idx_local = np.where(np.logical_and(stressCompr_copy >= fitCentres_region-HR, \
-                                    stressCompr_copy <= fitCentres_region+HR))
+    
+    stressPredict = stressPredict[idx_local]
+    # plt.plot(strainPredict, stressPredict, label = regionFitName)
+    
+    # print(stressPredict)
+    # print(strainPredict)
+    return(K, stressPredict)
+
+#Fake non-linear data
+x = np.linspace(-10, 10, 20)
+y = x**3 + 1500
+x = x + 10
+
+plt.plot(x,y)
+plt.show()
+
+fitCentres_region = 500
+HR = 50
+
+weights = gaussianWeights(fitCentres_region, x, HR)
+
+K, stressPredict = weightedLinearFit(x, y, fitCentres_region, HR)
+
+# strainPredict = 
 
 
-stressPredict = stressPredict[idx_local]
-# plt.plot(strainPredict, stressPredict, label = regionFitName)
 
-print(stressPredict)
-# print(strainPredict)
-# return(K, stressPredict)

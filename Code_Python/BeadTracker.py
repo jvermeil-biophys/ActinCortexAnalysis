@@ -703,6 +703,7 @@ class PincherTimeLapse:
                 
         except:
             print(ORANGE + 'No optogen parameters found' + NORMAL)
+            
             if self.wFluoEveryLoop:
                 print(ORANGE + 'Fluo every loop detection...' + NORMAL)
                 self.LoopActivations = np.arange(self.nLoop, dtype = int)
@@ -716,7 +717,12 @@ class PincherTimeLapse:
             
         self.totalActivationImages = np.array([np.sum(self.LoopActivations < kk) 
                                                for kk in range(self.nLoop)])
-        self.excludedFrames_outward += self.totalActivationImages
+        
+        if self.microscope == 'labview':
+            print(self.excludedFrames_outward)
+            self.excludedFrames_outward += self.totalActivationImages
+        else:
+            pass
         
         # 3. Field that are just initialized for now and will be filled by calling different methods.
         self.threshold = 0
@@ -749,24 +755,25 @@ class PincherTimeLapse:
         To detect them, compute the checkSum = np.sum(self.I[j]).
         Then modify the 'status_frame' & 'status_nUp' fields to '-1' in the dictLog.
         """
-        
-        offsets = np.array([np.sum(self.LoopActivations <= kk) 
-                            for kk in range(self.nLoop)])
-        
-        for i in range(self.nLoop):
-            j = ((i+1)*self.loop_mainSize) - 1 + offsets[i]
-            checkSum = np.sum(self.I[j])
-            print('Passing trough checksum')
-            while checkSum == 0:
-                print('Black found')
-#                 self.dictLog['Black'][j] = True
-                self.dictLog['status_frame'][j] = -1
-                self.dictLog['status_nUp'][j] = -1
-                self.excludedFrames_black[i] += 1
-                self.excludedFrames_inward[i] += 1 # More general
-                j -= 1
+        if self.microscope == 'labview':
+            offsets = np.array([np.sum(self.LoopActivations <= kk) 
+                                for kk in range(self.nLoop)])
+            
+            for i in range(self.nLoop):
+                j = ((i+1)*self.loop_mainSize) - 1 + offsets[i]
                 checkSum = np.sum(self.I[j])
-        print('check if black frames done')
+                
+                while checkSum == 0:
+                    print('Black images found')
+    #                 self.dictLog['Black'][j] = True
+                    self.dictLog['status_frame'][j] = -1
+                    self.dictLog['status_nUp'][j] = -1
+                    self.excludedFrames_black[i] += 1
+                    self.excludedFrames_inward[i] += 1 # More general
+                    j -= 1
+                    checkSum = np.sum(self.I[j])
+        else:
+            pass
 
 
     def saveFluoAside(self, fluoDirPath, f):
@@ -785,23 +792,7 @@ class PincherTimeLapse:
                         j = int(((iLoop+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
                         self.dictLog['status_frame'][j] = -1
                         self.dictLog['status_nUp'][j] = -1
-            try: # Optogenetic activations behaviour
-                print(ORANGE + 'tried optogen fluo detection' + NORMAL)
-                if self.activationFirst > 0 and not self.wFluoEveryLoop:
-                    if (not pd.isna(self.activationFreq)) and self.activationFreq > 0: # Meaning there is a repetition of activation
-                        # LoopActivations = [k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)]
-                        for iLoopActivation in self.LoopActivations:
-                            totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
-                            j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
-                            self.dictLog['status_frame'][j] = -1
-                            self.dictLog['status_nUp'][j] = -1
-                        print('Total excluded fluoro: '+str(totalExcludedOutward))
-                        
-                            
-                    else: # Set self.activationFreq = 0 to only detect one single activation
-                        iLoopActivation = self.activationFirst-1
-                        totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
-                        # LoopActivations = [iLoopActivation]
+            
                         
             except:
                 if self.wFluoEveryLoop:
@@ -813,27 +804,29 @@ class PincherTimeLapse:
                     
                         
                     
-            if not os.path.exists(fluoDirPath):
-                os.makedirs(fluoDirPath)
-                for iLoop in self.LoopActivations:
-                    totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoop])
-                    j = int(((iLoop+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
-                    Ifluo = self.I[j]
-                    path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j+1) + '.tif')
-                    io.imsave(path, Ifluo, check_contrast=False)
+        if not os.path.exists(fluoDirPath):
+            os.makedirs(fluoDirPath)
+            for iLoop in self.LoopActivations:
+                totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoop])
+                j = int(((iLoop+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoop])
+                Ifluo = self.I[j]
+                path = os.path.join(fluoDirPath, f[:-4] + '_Fluo_' + str(j+1) + '.tif')
+                io.imsave(path, Ifluo, check_contrast=False)
             
             
             
             # try: # Optogenetic activations behaviour
-            #     print(ORANGE + 'Trying optogen fluo detection...' + NORMAL)
+            #     print(ORANGE + 'tried optogen fluo detection' + NORMAL)
             #     if self.activationFirst > 0 and not self.wFluoEveryLoop:
             #         if (not pd.isna(self.activationFreq)) and self.activationFreq > 0: # Meaning there is a repetition of activation
-            #         # self.LoopActivations = np.array([k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)])    
+            #             # LoopActivations = [k-1 for k in range(self.activationFirst, self.nLoop, self.activationFreq)]
             #             for iLoopActivation in self.LoopActivations:
             #                 totalExcludedOutward = np.sum(self.excludedFrames_outward[iLoopActivation])
-            #                 j = int(((iLoopActivation+1)*self.loop_mainSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
+            #                 j = int(((iLoopActivation+1)*self.loop_totalSize) + totalExcludedOutward - self.excludedFrames_black[iLoopActivation])
             #                 self.dictLog['status_frame'][j] = -1
             #                 self.dictLog['status_nUp'][j] = -1
+            #             print('Total excluded fluoro: '+str(totalExcludedOutward))
+                        
                             
             #         else: # Set self.activationFreq = 0 to only detect one single activation
             #             iLoopActivation = self.activationFirst-1
@@ -1747,6 +1740,9 @@ class PincherTimeLapse:
         # In that case you have to skip the X lines corresponding to the end of the ramp part, X being the nb of black images at the end of the current loop
         # This is because when black images occurs, they do because of the high frame rate during ramp parts and thus replace these last ramp images.
         
+        # For now : excludedFrames_inward = excludedFrames_black
+        # For now : excludedFrames_outward = excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
+        
         Nct = (self.loop_mainSize-self.loop_rampSize)//2
         
         for iB in range(self.NB):
@@ -1762,12 +1758,13 @@ class PincherTimeLapse:
                     print(iF)
                     print(iLoop)
                     print(self.excludedFrames_black)
-                # For now : excludedFrames_inward = excludedFrames_black
-                # For now : excludedFrames_outward = excludedFrames_fluo # self.excludedFrames_outward[iLoop] + 
+                
                 i_lim = iLoop*self.loop_mainSize + (self.loop_mainSize - (Nct) - (offset))
+                
                 # i_lim is the first index after the end of the ramp
                 addOffset = (iF >= i_lim) # Is this ramp going further than it should, considering the black images ?
-                SField = iF + int(addOffset*offset)
+                
+                SField = iF + int(addOffset*offset) + self.excludedFrames_outward[iLoop]
                 iField.append(SField)
                 # except:
                 #     print(i, nT, offset)
@@ -1775,9 +1772,8 @@ class PincherTimeLapse:
                 #     iLoop = ((iF+1)//self.loop_mainSize)
                 #     print(iF, self.loop_mainSize, iLoop)
                 #     [].concat()
-                    
-            self.listTrajectories[iB].dict['iField'] = iField
               
+            self.listTrajectories[iB].dict['iField'] = iField
             
             
         #### 4.2 Find the image with the best std within each n-uplet
@@ -2301,12 +2297,12 @@ class Trajectory:
             previousZ = -1
             while iF <= max(self.dict['iF']):
 
-#### Important plotting option here
+#### >>>>> IMPORTANT PLOTTING OPTION HERE <<<<<
 # ####### Decomment these lines to enable some plots ##################
 
-                # plot = 0
-                # if iF >= 2094 and iF <= 2130:# or (iF < 190 and iF > 150):
-                #     plot = 1
+                plot = 0
+                if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
+                    plot = 1
 
 # ############################ OK?! ###################################
 
@@ -2489,7 +2485,7 @@ class Trajectory:
                 iSNuplet = [F.iS+1 for F in framesNuplet]
                 fig.suptitle('Frames ' + str(iFNuplet) + ' - Slices ' + str(iSNuplet) + ' ; Z = ' + str(Z))
                 Nfig = plt.gcf().number
-                # fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig_'+str(self.iB)+'_'+str(iSNuplet[0])+'.png')
+                fig.savefig('C://Users//anumi//OneDrive//Desktop//TempPlot//fig_'+str(self.iB)+'_'+str(iSNuplet[0])+'.png')
                 plt.close(fig)
 
             return(Z)
@@ -2808,12 +2804,11 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 PTL.determineFramesStatus_R40()
             elif 'L40' in f:
                 PTL.determineFramesStatus_L40()
-                
             elif 'sin' in f:
                 PTL.determineFramesStatus_Sinus()
             elif 'brokenRamp' in f:
                 PTL.determineFramesStatus_BR()
-            elif 'disc20um' or 'optoGen' in f:
+            elif 'disc20um' in f:
                 PTL.determineFramesStatus_optoGen()
                 
 
@@ -3121,7 +3116,6 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             traj1 = PTL.listTrajectories[0]
             traj2 = PTL.listTrajectories[1]
             nT = traj1.nT
-
             #### 5.1.1 - Create a dict to prepare the export of the results
             timeSeries = {
                 'idxAnalysis' : np.zeros(nT),
@@ -3139,6 +3133,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
             #### 5.1.2 - Input common values:
             T0 = fieldDf['T_abs'].values[0]/1000 # From ms to s conversion
             timeSeries['idxAnalysis'] = traj1.dict['idxAnalysis']
+            # print(traj1.dict['iField'])
             timeSeries['Tabs'] = (fieldDf['T_abs'][traj1.dict['iField']])/1000 # From ms to s conversion
             timeSeries['T'] = timeSeries['Tabs'].values - T0*np.ones(nT)
             timeSeries['B'] = fieldDf['B_set'][traj1.dict['iField']].values

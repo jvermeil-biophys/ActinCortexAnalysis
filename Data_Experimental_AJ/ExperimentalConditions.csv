@@ -48,3 +48,4 @@
 46;22-06-09;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;global;3.2;False;3;500;150;metamorph;on Atchoum
 47;22-06-21;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;600;at beads;3.2;False;3;500;302_133;labview;in PMMH
 48;22-06-21;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;600;away from beads;3.2;False;3;500;302_133;labview;in PMMH
+49;22-06-21;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;;;;;;False;3;500;302_133;labview;in PMMH

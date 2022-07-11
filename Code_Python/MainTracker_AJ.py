@@ -83,7 +83,7 @@ timeSeriesDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_An
 # %% Import of the experimental conditions
 
 experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental_AJ"
-expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ',')
 
 # %% EXAMPLE -- 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% M1
@@ -336,7 +336,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # %%%% M2 : Activation away from beads
 
 dates = '22.03.01'
-manips, wells, cells = 2, 'all', 'all'
+manips, wells, cells = 2, 1, 7
 depthoNames = '22.03.01_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -575,7 +575,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # %%%% M6 : Half activation, At beads, 500ms once
 
 dates = '22.03.31'
-manips, wells, cells = 6, 2, 3
+manips, wells, cells = 6, 1, 'all'
 depthoNames = '22.03.31_P1_M450_step20_100X'
   
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -666,7 +666,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # with 50ms activation at the end of every loop
 
 dates = '22.05.31'
-manips, wells, cells = 5, 1, 4
+manips, wells, cells = 5, 1, 'all'
 depthoNames = '22.05.31_P2_M450_step20_100X'
   
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -679,7 +679,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # with 50ms activation at the end of every loop
 
 dates = '22.05.31'
-manips, wells, cells = 7, 1, 8
+manips, wells, cells = 7, 1, 'all'
 depthoNames = '22.05.31_P'+str(wells)+'_M450_step20_100X'
   
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -694,7 +694,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # with 50ms activation at the end of every loop
 
 dates = '22.06.21'
-manips, wells, cells = 2, 2, 2
+manips, wells, cells = 1, 1, 'all'
 depthoNames = '22.06.21_M450_step20_100X' 
   
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -702,3 +702,29 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = True, MatlabStyle = True)
+
+# %%%% M2 : At beads activation, level 3 fluo intensity, filter 6, initial 500ms 
+# with 50ms activation at the end of every loop
+
+dates = '22.06.21'
+manips, wells, cells = 2, 2, 'all'
+depthoNames = '22.06.21_M450_step20_100X' 
+  
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
+# %%%% M3 : Control, 15 loops no activation
+
+dates = '22.06.21'
+manips, wells, cells = 3, 1, 'all'
+depthoNames = '22.06.21_M450_step20_100X' 
+  
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
