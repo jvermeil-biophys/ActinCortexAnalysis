@@ -1769,7 +1769,8 @@ class PincherTimeLapse:
     def importTrajectories(self, path, iB):
         """
         """
-        self.listTrajectories.append(Trajectory(self.I, self.listFrames, self.scale, self.Zstep, iB))
+        self.listTrajectories.append(Trajectory(self.I, self.cellID, self.listFrames, self.scale, self.Zstep, iB))
+        # __init__(self, I, cellID, listFrames, scale, Zstep, iB)
         traj_df = pd.read_csv(path, sep = '\t')
         cols = traj_df.columns.values
         cols_to_remove = []
@@ -3159,7 +3160,7 @@ def mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, figureDir, tim
                 traj.depthoPath = depthoPath
                 traj.depthoStep = depthoStepHD
                 traj.depthoZFocus = depthoZFocus
-                traj.HDZfactor = HDZfactor
+                # traj.HDZfactor = HDZfactor
 
         if len(PTL.beadTypes) > 1:
             for dN in depthoNames:

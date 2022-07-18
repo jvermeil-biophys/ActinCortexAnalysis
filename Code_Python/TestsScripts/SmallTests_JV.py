@@ -106,6 +106,21 @@ axes[0].set_xticklabels([str(x*4.5) for x in xtVal])
 fig.show()
 
 # %%
+
+import os
+import  pandas as pd
+import numpy as np
+
+
+dirPath = 'C:/Users/JosephVermeil/Desktop/ActinCortexAnalysis/Data_Analysis'
+file = 'UserManualSelection_MecaData.csv'
+path = os.path.join(dirPath, file)
+df = pd.read_csv(path, sep = '\t', dtype = str, 
+                 converters = {'compNum': int, 'UI_Valid': bool}, 
+                 keep_default_na = False)
+df
+
+# %%
 import  pandas as pd
 import numpy as np
 

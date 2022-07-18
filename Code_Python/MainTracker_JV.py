@@ -118,17 +118,17 @@ plt.close('all')
 
 # %% HoxB8 macrophages
 
-# %%% 22.05.05, compressionsLowStart of HoxB8 macrophages, M450, M1 = , M2 = 
+# %%% 22.05.05, compressionsLowStart of HoxB8 macrophages, M450, M1 = tko & glass, M2 = ctrl & glass
 # %%%% 22.05.05_M1 C1 Seulement
 dates = '22.05.05'
-manips, wells, cells = 1, 1, 1
+manips, wells, cells = 2, 1, 2
 depthoNames = '22.05.05_M1_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  redoAllSteps = True, MatlabStyle = True, trackAll = False, 
                                   sourceField = 'default',
                                   ownCloudDir = ownCloudDir, 
                                   ownCloud_figureDir = ownCloud_figureDir, 
@@ -164,17 +164,17 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   ownCloud_figureDir = ownCloud_figureDir, 
                                   ownCloud_timeSeriesDataDir = ownCloud_timeSeriesDataDir)
 
-# %%% 22.05.04, compressionsLowStart of HoxB8 macrophages, M450, M1 = , M2 = , M3 = , M4 = 
-# %%%% 22.05.04_M1 C1 Seulement
+# %%% 22.05.04, compressionsLowStart of HoxB8 macrophages, M450, M1 = ctrl & 20um discs, M2 = tko & 20um discs, M3 = tko & glass, M4 = ctrl & glass
+# %%%% 22.05.04 one specific cell
 dates = '22.05.04'
-manips, wells, cells = 1, 1, 1
+manips, wells, cells = 2, 1, 5
 depthoNames = '22.05.04_M1_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
                                   figureDir, timeSeriesDataDir,
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
-                                  redoAllSteps = False, MatlabStyle = True, trackAll = False, 
+                                  redoAllSteps = True, MatlabStyle = True, trackAll = False, 
                                   sourceField = 'default',
                                   ownCloudDir = ownCloudDir, 
                                   ownCloud_figureDir = ownCloud_figureDir, 
@@ -242,7 +242,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 
 
 
-# %%% 22.05.03, compressionsLowStart of HoxB8 macrophages, M450, M1 = , M2 = , M3 = , M4 = 
+# %%% 22.05.03, compressionsLowStart of HoxB8 macrophages, M450, M1 = ctrl & glass, M2 = tko & glass, M3 = tko & 20um discs, M4 = ctrl & 20um discs
 # %%%% 22.05.03_M1 C1 Seulement
 dates = '22.05.03'
 manips, wells, cells = ['1-1'], 1, 1

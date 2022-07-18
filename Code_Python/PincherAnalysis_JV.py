@@ -671,7 +671,7 @@ dictSelectionCurve = {'R2' : 0.6, 'Chi2' : 10, 'Error' : 0.02}
 #### >>> OPTION 5 - Effect of range width
 
 fitC =  np.array([S for S in range(100, 1150, 50)])
-fitW = [100, 150, 200, 250, 300]
+fitW = [150, 200, 250, 300]
 
 fitCenters = np.array([[int(S) for S in fitC] for w in fitW]).flatten()
 fitWidth = np.array([[int(w) for S in fitC] for w in fitW]).flatten()
@@ -684,7 +684,7 @@ fitMin, fitMax = fitMin[fitMin>0], fitMax[fitMin>0]
 
 regionFitsNames = ['S='  + str(fitCenters[ii]) + '+/-' + str(int(fitWidth[ii]//2)) for ii in range(len(fitCenters))]
 
-fit_toPlot = [regionFitsNames[ii] for ii in range(len(fitC), 2*len(fitC), 2)]
+fit_toPlot = [regionFitsNames[ii] for ii in range(0, len(fitC), 2)]
 mask_fitToPlot = np.array(list(map(lambda x : x in fit_toPlot, regionFitsNames)))
 
 for rFN in regionFitsNames:
@@ -1172,6 +1172,9 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, task, PLOT, PLOT_SHO
             # 'E' : [], 'H0' : []
             
             #### SETTING ! Setting of the region fits
+           
+            
+            # 
 
             if not findH0_fitError:
                 
