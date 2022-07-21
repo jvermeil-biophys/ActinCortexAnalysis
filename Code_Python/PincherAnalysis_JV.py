@@ -1894,36 +1894,7 @@ def createDataDict_meca(list_mecaFiles, listColumnsMeca, task, PLOT):
     return(tableDict)
 
 
-def update_uiDf(ui_fileName, mecaDf):
-    """
-    """
-    listColumnsUI = ['date','cellName','cellID','manipID','compNum',
-                     'UI_Valid','UI_Comments']
 
-    try:
-        print('Imported existing UI table')
-        savePath = os.path.join(dataDir, (ui_fileName + '.csv'))
-        uiDf = pd.read_csv(savePath, sep='\t', )
-        fromScratch = False
-    except:
-        print('No existing UI table found with this name')
-        fromScratch = True
-
-    new_uiDf = mecaDf[listColumnsUI[:5]]
-    if not fromScratch:
-        existingCellId = uiDf['cellID'].values
-        new_uiDf = new_uiDf.loc[new_uiDf['cellID'].apply(lambda x : x not in existingCellId), :]
-    
-    nrows = new_uiDf.shape[0]
-    new_uiDf['UI_Valid'] = np.ones(nrows, dtype = bool)
-    new_uiDf['UI_Comments'] = np.array(['' for i in range(nrows)])
-    
-    if not fromScratch:
-        new_uiDf = pd.concat([uiDf, new_uiDf], axis = 0, ignore_index=True)
-        
-    savePath = os.path.join(dataDir, (ui_fileName + '.csv'))
-    new_uiDf.sort_values(by=['cellID', 'compNum'], inplace = True)
-    new_uiDf.to_csv(savePath, sep='\t', index = False)
 
 
 
@@ -2064,7 +2035,56 @@ def getGlobalTable_meca(fileName):
         
     return(mecaDf)
 
-# %%% (4.4) Fluorescence data
+# %%% (4.4) UI data
+
+def update_uiDf(ui_fileName, mecaDf):
+    """
+    """
+    listColumnsUI = ['date','cellName','cellID','manipID','compNum',
+                     'UI_Valid','UI_Comments']
+
+    try:
+        print('Imported existing UI table')
+        savePath = os.path.join(dataDir, (ui_fileName + '.csv'))
+        uiDf = pd.read_csv(savePath, sep=';')
+        fromScratch = False
+    except:
+        print('No existing UI table found with this name')
+        fromScratch = True
+
+    new_uiDf = mecaDf[listColumnsUI[:5]]
+    if not fromScratch:
+        existingCellId = uiDf['cellID'].values
+        new_uiDf = new_uiDf.loc[new_uiDf['cellID'].apply(lambda x : x not in existingCellId), :]
+    
+    nrows = new_uiDf.shape[0]
+    new_uiDf['UI_Valid'] = np.ones(nrows, dtype = bool)
+    new_uiDf['UI_Comments'] = np.array(['' for i in range(nrows)])
+    
+    if not fromScratch:
+        new_uiDf = pd.concat([uiDf, new_uiDf], axis = 0, ignore_index=True)
+        
+    savePath = os.path.join(dataDir, (ui_fileName + '.csv'))
+    new_uiDf.sort_values(by=['cellID', 'compNum'], inplace = True)
+    new_uiDf.to_csv(savePath, sep=';', index = False)
+    
+def get_uiDf(ui_fileName = 'UserManualSelection_MecaData'):
+    try:
+        savePath = os.path.join(dataDir, (ui_fileName + '.csv'))
+        uiDf = pd.read_csv(savePath, sep=';')
+        print('Imported existing UI table')
+        success = True
+    except:
+        print('No existing UI table found with this name')
+        uiDf = pd.DataFrame(np.array([]))
+        success = False
+    return(uiDf, success)
+        
+    
+    
+
+
+# %%% (4.5) Fluorescence data
 
 def getFluoData(save = False):
     # Getting the table
@@ -2089,7 +2109,7 @@ def getFluoData(save = False):
     
     return(fluoDF)
 
-# %%% (4.5) Oscillations
+# %%% (4.6) Oscillations
 
 def analyseTimeSeries_sinus(f, tsDF, expDf, listColumns, PLOT, PLOT_SHOW):
     
@@ -2328,6 +2348,13 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
         #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
         #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
         )
+        GlobalTable = pd.merge(GlobalTable, fluoDf, how="left", left_on='cellID', right_on='cellID'
+        #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
+        #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
+        )
+        
+        
+        
         print('Merged table has ' + str(GlobalTable.shape[0]) + ' lines and ' + str(GlobalTable.shape[1]) + ' columns.')
         
         # print(GlobalTable_meca_Py.tail())
@@ -2387,6 +2414,31 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
 
         # print(GlobalTable_meca_nonLin.tail())
         GlobalTable = removeColumnsDuplicate(GlobalTable)
+        # return(GlobalTable)
+        
+    elif kind == 'meca_HoxB8':
+        GlobalTable = getGlobalTable_meca('Global_MecaData_HoxB8')
+        expDf = jvu.getExperimentalConditions(experimentalDataDir, suffix = '_JV')
+        fluoDf = getFluoData()
+        ui_fileName = 'UserManualSelection_MecaData'
+        uiDf, success = get_uiDf(ui_fileName)
+        GlobalTable = pd.merge(GlobalTable, expDf, how="inner", on='manipID',
+        #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
+        #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
+        )
+        GlobalTable = pd.merge(GlobalTable, fluoDf, how="left", left_on='cellID', right_on='cellID',
+        #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
+        #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
+        )
+        GlobalTable = removeColumnsDuplicate(GlobalTable)
+        GlobalTable = pd.merge(GlobalTable, uiDf, 
+                               how="left", left_on=['cellID', 'compNum'], right_on=['cellID', 'compNum'],
+        #     left_on=None,right_on=None,left_index=False,right_index=False,sort=True,
+        #     suffixes=("_x", "_y"),copy=True,indicator=False,validate=None,
+        )
+        GlobalTable = removeColumnsDuplicate(GlobalTable)
+        print('Merged table has ' + str(GlobalTable.shape[0]) + ' lines and ' + str(GlobalTable.shape[1]) + ' columns.')
+
         # return(GlobalTable)
     
     else:

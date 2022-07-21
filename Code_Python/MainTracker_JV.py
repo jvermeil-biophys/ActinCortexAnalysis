@@ -81,8 +81,8 @@ import utilityFunctions_JV as jvu
 
 mainDataDir = 'D://MagneticPincherData'
 rawDataDir = os.path.join(mainDataDir, 'Raw')
-depthoDir = os.path.join(rawDataDir, 'EtalonnageZ')
-interDataDir = os.path.join(mainDataDir, 'Intermediate')
+depthoDir = os.path.join(rawDataDir, 'DepthoLibrary')
+interDataDir = os.path.join(mainDataDir, 'IntermediateSteps')
 
 figureDir = os.path.join(mainDir, 'Figures')
 ownCloud_figureDir = os.path.join(ownCloudDir, 'Figures')
@@ -167,7 +167,7 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
 # %%% 22.05.04, compressionsLowStart of HoxB8 macrophages, M450, M1 = ctrl & 20um discs, M2 = tko & 20um discs, M3 = tko & glass, M4 = ctrl & glass
 # %%%% 22.05.04 one specific cell
 dates = '22.05.04'
-manips, wells, cells = 2, 1, 5
+manips, wells, cells = 2, 1, 8
 depthoNames = '22.05.04_M1_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
