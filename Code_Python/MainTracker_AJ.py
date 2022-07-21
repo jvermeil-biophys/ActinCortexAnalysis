@@ -83,7 +83,7 @@ timeSeriesDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_An
 # %% Import of the experimental conditions
 
 experimentalDataDir = "C:/Users/anumi/OneDrive/Desktop/ActinCortexAnalysis/Data_Experimental_AJ"
-expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ',')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save = True, sep = ';')
 
 # %% EXAMPLE -- 21.10.18, compressions of 3T3, M1 = M270, M2 = M450
 # %%%% M1
@@ -228,11 +228,11 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = False, MatlabStyle = True)
 
-# %% 20/12/2021 : First experiment with the optimised illumtination
+# %% lol
 
 # %%%% M1
 dates = '21.12.20'
-manips, wells, cells = 1, 1, 1
+manips, wells, cells = 1, 2, 3
 depthoNames = '21.12.20_M450_step20_100X'
 
 timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
@@ -570,6 +570,46 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   dates, manips, wells, cells, depthoNames, 
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = True, MatlabStyle = True)
+
+
+# %% 13/07/2022 : No activation. Constant field experiments at various magnetic fields.
+
+# %%%% M1 : Half activation, away from beads, 50ms, 30s frequency
+
+dates = '22.07.13'
+manips, wells, cells = 1, 2, 'all'
+depthoNames = '22.07.13_P1_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
+  # %%%% M2 : Half activation, at beads, 50ms, 30s frequency
+
+dates = '22.07.13'
+manips, wells, cells = 2, 2, 1
+depthoNames = '22.07.13_P'+str(wells)+'_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
+  # %%%% M3 : Global activation, 50ms, 30s frequency
+
+dates = '22.07.13'
+manips, wells, cells = 3, 2, 'all'
+depthoNames = '22.07.13_P'+str(wells)+'_M450_step20_100X'
+
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)
+
 # %% 31/03/2022 : Experiment in PMMH Mechanics:
 
 # %%%% M6 : Half activation, At beads, 500ms once
@@ -728,3 +768,17 @@ timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDat
                                   expDf, methodT = 'max_entropy', factorT = 0.7, 
                                   redoAllSteps = True, MatlabStyle = True)
 
+# %% 15/04/2022 : Experiment in PMMH : High speed imaging of fluctuations
+
+# %%%% M1 : At beads activation, level 3 fluo intensity, filter 6, initial 500ms 
+# with 50ms activation at the end of every loop
+
+dates = '22.04.15'
+manips, wells, cells = 2, 1, 2
+depthoNames = '22.04.15_M450_step20_100X' 
+  
+timeSeries_DF, dfLogF = mainTracker(mainDataDir, rawDataDir, depthoDir, interDataDir, 
+                                  figureDir, timeSeriesDataDir,
+                                  dates, manips, wells, cells, depthoNames, 
+                                  expDf, methodT = 'max_entropy', factorT = 0.7, 
+                                  redoAllSteps = True, MatlabStyle = True)

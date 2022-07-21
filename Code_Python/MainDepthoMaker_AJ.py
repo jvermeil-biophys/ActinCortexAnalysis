@@ -468,3 +468,51 @@ saveLabel = date + '_M450_step20_100X'
 scale = SCALE_100X # pix/µm
 
 depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+#%% Deptho from experiment 22-04-15. High-speed imaging of fluctuations.
+
+mainDirPath = 'D:/Anumita/MagneticPincherData/Raw/'
+
+date = '22.04.15'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho')
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_M450_step20_100X'# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+
+#%% Deptho from experiment 22-07-13. Constant field experiments in PMMH, no activation.
+
+mainDirPath = 'D:/Anumita/MagneticPincherData/Raw/'
+
+date = '22.07.13'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho')
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+# subdir = 'Deptho_P1'
+# depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+# savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+# specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+# beadType = 'M450'
+# saveLabel = date + '_P1_M450_step20_100X'
+# # convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+# scale = SCALE_100X # pix/µm
+
+# depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)
+
+subdir = 'Deptho_P2'
+depthoPath = os.path.join(mainDirPath, date + '_Deptho', subdir)
+savePath = os.path.join(mainDirPath, 'EtalonnageZ')
+
+specif = 'all' # can be 'all' or any string that you want to have in the deptho file name
+beadType = 'M450'
+saveLabel = date + '_P2_M450_step20_100X'
+# convention - saveLabel = 'date_manip_beadType_stepSize_otherSpecs'
+scale = SCALE_100X # pix/µm
+
+depthoMaker(depthoPath, savePath, specif, saveLabel, scale, beadType = beadType, step = 20, d = 'HD', plot = 0)

@@ -26,10 +26,10 @@
 24;22-04-12;M2;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;9.0;1.0;50;at beads;0.6;False;3;500;147;labview;in PMMH
 25;22-04-12;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;9.0;1.0;50;global;0.6;False;3;500;147;labview;in PMMH
 26;22-04-12;M4;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;15;;;9.0;;50;global;0.6;False;3;500;147;labview;in PMMH
-27;22-04-28;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500;away from beads;0.6;False;3;500_20;302_133;labview;in PMMH
-28;22-04-28;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500;away from beads;0.6;False;3;500_20;302_133;labview;in PMMH
-29;22-04-28;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500;global;0.6;False;3;500_20;302_133;labview;in PMMH
-30;22-04-28;M4;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500;away from beads;0.6;False;3;500_20;302_133;labview;in PMMH
+27;22-04-28;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500_20;away from beads;0.6;False;3;500;302_133;labview;in PMMH
+28;22-04-28;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500_20;away from beads;0.6;False;3;500;302_133;labview;in PMMH
+29;22-04-28;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500_20;global;0.6;False;3;500;302_133;labview;in PMMH
+30;22-04-28;M4;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. high expressing;M450;4503;0;5;1_50;1s;4.0;1.0;500_20;away from beads;0.6;False;3;500;302_133;labview;in PMMH
 31;22-05-09;M1;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;global;1.2;False;3;500;150;metamorph;on Atchoum
 32;22-05-09;M2;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;away from beads;1.2;False;3;500;150;metamorph;on Atchoum
 33;22-05-09;M3;optoGen;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;10.0;1.0;50;at beads;3.2;False;3;500;150;metamorph;on Atchoum
@@ -49,3 +49,7 @@
 47;22-06-21;M1;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;600;at beads;3.2;False;3;500;302_133;labview;in PMMH
 48;22-06-21;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;5.0;1.0;600;away from beads;3.2;False;3;500;302_133;labview;in PMMH
 49;22-06-21;M3;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;5;1_50;1s;;;;;;False;3;500;302_133;labview;in PMMH
+50;22-04-15;M2;compressionsLowStart;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA. lowexpressing;M450;4503;0;3;0.5_0.5;1s;3.0;0.0;500;away from beads;1.0;False;3;500;287_133;labview;in PMMH. Not sure about exposure time and activation power intensity
+51;22-07-13;M1;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;3;;;;;;;;False;3;500;21;labview;in PMMH. Not sure about exposure time and activation power intensity
+52;22-07-13;M2;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;7;;;;;;;;False;3;500;21;labview;in PMMH. Not sure about exposure time and activation power intensity
+53;22-07-13;M3;constant field;none;20um fibronectin discs;100X;15.8;oil;0.875;1.0;3T3;optoRhoA;M450;4503;0;15;;;;;;;;False;3;500;21;labview;in PMMH. Not sure about exposure time and activation power intensity

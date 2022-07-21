@@ -270,7 +270,7 @@ plt.show()
 
 # %%% Experimental conditions
 
-expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ',')
+expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ';')
 
 # =============================================================================
 # %%% Constant Field
@@ -306,7 +306,7 @@ expDf = jvu.getExperimentalConditions(experimentalDataDir, save=True , sep = ','
 # aja.computeGlobalTable_meca(task = 'fromScratch', fileName = 'Global_MecaData_AJ', 
 #                             save = True, PLOT = True, source = 'Python')
 
-# %%%% Specific experiments"
+# %%%% Specific experiments
 
 Task = '22-05-31_M4_P1_C6' # For instance '22-03-30 & '22-03-31'
 aja.computeGlobalTable_meca(task = Task, fileName = 'Global_MecaData_AJ', 

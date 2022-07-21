@@ -162,10 +162,10 @@ def moveFiles(mainDir, allCells, filename):
 
 #%% Define parameters
 
-mainDir = 'D:/Anumita/MagneticPincherData/Raw/22.06.21'
-extDir = 'F:/Cortex Experiments/OptoPincher Experiments/20220621_100xoil_3t3optorhoa_4.5beads_Mechanics/22.06.21'
-prefix = 'cell'
-channel = 'w1TIRF DIC'
+mainDir = 'D:/Anumita/MagneticPincherData/Raw/22.07.13'
+extDir = 'F:/Cortex Experiments/OptoPincher Experiments/20220713_100xoil_3t3optorhoa_4.5StreptBeads_DiffMagFields/22.07.13'
+# prefix = 'cell'
+# channel = 'w1TIRF DIC'
 microscope = 'labview'
 
 
@@ -239,8 +239,9 @@ for i in range(len(allZimg)):
     
 cv2.destroyAllWindows()
 
+#%%
 print(BLUE + 'Saving all tiff stacks...' + NORMAL)
-crop(mainDir, allRefPoints, allCells, microscope)
+crop(mainDir, allRefPoints[17:], allCells[17:], microscope)
 
 
 #%% Creating .tif stacks of 561n recruitment images

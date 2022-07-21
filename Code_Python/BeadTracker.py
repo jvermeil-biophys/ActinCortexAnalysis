@@ -758,7 +758,8 @@ class PincherTimeLapse:
         if self.microscope == 'labview':
             offsets = np.array([np.sum(self.LoopActivations <= kk) 
                                 for kk in range(self.nLoop)])
-            
+            print('offset')
+            print(offsets)
             for i in range(self.nLoop):
                 j = ((i+1)*self.loop_mainSize) - 1 + offsets[i]
                 checkSum = np.sum(self.I[j])
@@ -2300,9 +2301,9 @@ class Trajectory:
 #### >>>>> IMPORTANT PLOTTING OPTION HERE <<<<<
 # ####### Decomment these lines to enable some plots ##################
 
-                plot = 0
-                if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
-                    plot = 1
+                # plot = 0
+                # if iF >= 0 and iF <= 50:# or (iF < 190 and iF > 150):
+                #     plot = 1
 
 # ############################ OK?! ###################################
 
