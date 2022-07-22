@@ -46,8 +46,8 @@ elif COMPUTERNAME == 'LARISA':
 elif COMPUTERNAME == 'DESKTOP-K9KOJR2':
     mainDir = "C://Users//anumi//OneDrive//Desktop//ActinCortexAnalysis"
 elif COMPUTERNAME =='DATA2JHODR':
-    mainDir = "C://Utilisateurs//BioMecaCell//Bureau//ActinCortexAnalysis"
-    tempPlot = 'C://Utilisateurs//BioMecaCell//Bureau//TempPlots'
+    mainDir = "C://Users//BioMecaCell//Desktop//ActinCortexAnalysis"
+    tempPlot = 'C://Users//BioMecaCell//Desktop//TempPlots'
 
 
 
@@ -2281,9 +2281,9 @@ class Trajectory:
             
             while iF <= max(self.dict['iF']):
             #### Enable the Z detection plots here
-                # plot = 0
-                # if iF >= 400 and iF <= 440:# or (iF < 190 and iF > 150):
-                #     plot = 1
+                plot = 0
+                if iF >= 1100 and iF <= 1150:# or (iF < 190 and iF > 150):
+                    plot = 1
             # ###################################################################
 
                 if iF not in self.dict['iF']: # this index isn't in the trajectory list => the frame was removed for some reason.

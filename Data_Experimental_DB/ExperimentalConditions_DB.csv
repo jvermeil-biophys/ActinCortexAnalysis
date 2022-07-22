@@ -2,3 +2,7 @@
 0;01-01-01;DEFAULT;DEFAULT;DEFAULT;DEFAULT;microscope;100X;15.8;oil;0.875;1.15;DEFAULT;DEFAULT;M450;4500;0;5;3_40;1s;False;3;500;143_95;
 1;22-06-10;M1;compressionsLowStart;none;diverse fibronectin discs;labview;100X;15.8;oil;0.875;0.992;3T3;aSFL-LG+++;M450;4490;0;5;1_50;1.5s;True;3;500;436_200;
 2;22-06-16;M1;compressionsLowStart;none;diverse fibronectin discs;labview;100X;15.8;oil;0.875;0.98;3T3;aSFL-LG+++;M450;4477;0;5;1_50;1.5s;True;3;500;436_200;
+3;22-07-06;M1;compressionsLowStart;none;diverse fibronectin discs;labview;100X;15.8;oil;0.875;1.0;3T3;aSFL-LG+++;M450;4477;0;5;1_50;1.5s;True;3;500;436_200;
+4;22-07-06;M2;compressionsLowStart;none;diverse fibronectin discs;labview;100X;15.8;oil;0.875;0.984;3T3;aSFL-LG+++;M450;4477;0;5;1_50;1.5s;True;3;500;436_200;
+5;22-07-12;M1;compressionsLowStart;none;diverse fibronectin discs;labview;100X;15.8;oil;0.875;1.02;3T3;aSFL-LG+++;M450;4477;0;5;1_50;1.5s;True;3;500;436_200;
+6;22-07-12;M2;compressionsLowStart;none;diverse fibronectin discs;labview;100X;15.8;oil;0.875;0.996;3T3;aSFL-LG+++;M450;4477;0;5;1_50;1.5s;True;3;500;436_200;

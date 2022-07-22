@@ -23,10 +23,12 @@ import time
 import random
 import itertools
 
+
 from copy import copy
 from cycler import cycler
 from datetime import date
 from scipy.optimize import curve_fit
+from pathlib import Path
 
 
 # Local imports
@@ -54,6 +56,11 @@ elif COMPUTERNAME == 'DATA2JHODR':
 
 sys.path.append(mainDir + "//Code_Python")
 import utilityFunctions_JV as jvu
+
+dataDir = os.path.join(mainDir, "Data_Analysis")
+data_path=os.path.join(dataDir, "Global_MecaData_DB.csv")
+file_path=os.path.join(rawDir, "Raw")
+ratio_file_path=os.path.join(dataDir, "Global_ratio_file.csv")
 
 # %%% Smaller settings
 
@@ -401,29 +408,7 @@ def getExcludedCells():
         excludedCellsDict[splitLine[0]] = splitLine[1:]
     return(excludedCellsDict)
 
-        
-def plotCellDifferentAdhesion(date, fromPython = True):
-    
 
-    files = [f for f in os.listdir(timeSeriesDataDir) 
-                              if (os.path.isfile(os.path.join(timeSeriesDataDir, f)) 
-                                  and f.startswith(date))]
-    
-    X = 'D3'
-    Y = 'F'
-    fig, ax = plt.subplots()
-
-    for file in files:
-        path = os.path.join(timeSeriesDataDir, file)
-        df=pd.read_csv(path, sep=';') 
-        df = df.iloc[:417]
-        plt.plot(df[X], df[Y], "o", label=file)
-        save_file = f"D:/Duya/MagneticPincherData/Figures/Duya random/{date}.png"
-        plt.savefig(save_file, dpi=200)
-
-    plt.legend()
-    plt.show()
-    
 
     # plt.rcParams['axes.prop_cycle'] = my_default_color_cycle
         
@@ -904,7 +889,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
     # Deal with the asymmetric pair case : the diameter can be for instance 4503 (float) or '4503_2691' (string)
     
     diameters = int(thisExpDf.at[thisExpDf.index.values[0], 'bead diameter'])#.split('_')
-    print(type(diameters))
+    # print(type(diameters))
     # if len(diameters) == 2:
     #     DIAMETER = (int(diameters[0]) + int(diameters[1]))/2.
     # else:
@@ -1841,7 +1826,7 @@ def analyseTimeSeries_meca(f, tsDF, expDf, listColumnsMeca, PLOT, PLOT_SHOW):
             elif nRowsSubplot >= 1:
                 thisAx6 = ax6[rowSp,colSp]
                 
-            Kmax = min(Kmax, 20)
+            Kmax = min(Kmax, 25)
 
             thisAx6.set_xlim([0, sMax])
             thisAx6.set_ylim([0, Kmax])
@@ -2253,7 +2238,7 @@ def removeColumnsDuplicate(df):
             df = df.rename(columns={c: c[:-2]})
         elif c.endswith('_y'):
             df = df.drop(columns=[c])
-    return(df)
+    return df
     
 # %%% Main function
 
@@ -2423,3 +2408,361 @@ def getGlobalTable(kind, experimentalDataDir = experimentalDataDir):
                 print('Automatic determination of substrate type FAILED !')
     
     return(GlobalTable)
+
+
+# %% (5) Duya analysis functions
+
+# %%% Utility function
+
+
+
+# Mapping function that creates diameter
+def diameter_map(df, file):
+    cell_id_to_info = {}
+    for f in file:
+        if f.endswith(".tif"):
+            cell_id = jvu.findInfosInFileName(f, "cellID")
+            diam = jvu.findInfosInFileName(f, "substrate")[4:][:-2]
+            cell_id_to_info[cell_id] = int(diam)
+    df["diameter"] = df["cellID"].map(cell_id_to_info)
+    return df
+
+
+def load_df_merged():
+    #Load data   
+    df = pd.read_csv(data_path, sep=";")
+    df_ratio=pd.read_csv(ratio_file_path, sep=";")
+    # path_name=manipID_to_plot.replace("-", ".")[:-3]
+    # files_path=os.path.join(file_path, path_name)
+    
+    # Mask dataframe based on manipID
+    # manip_mask = df['manipID'] == manipID_to_plot
+    # df = df[manip_mask]
+    # manip_mask_ratio = df_ratio['manipID'] == manipID_to_plot
+    # df_ratio = df_ratio[manip_mask_ratio]
+    # Round the values of ratio_adhesion for visibility in the plots
+    df_ratio["ratio_adhesion"] = df_ratio["ratio_adhesion"].round(2)
+    # Since there are several rows with the same cell ID, keep only the first one
+    df_ratio = df_ratio.groupby("cellID").agg("first")
+    # Merge df_ratio into df
+    df_merged=df.merge(df_ratio, on=['cellID'])
+    mask = df_merged["ratio_adhesion"].isna()
+    df_merged = df_merged[~mask]
+    
+    #Remove column duplicate
+    df_merged = removeColumnsDuplicate(df_merged)
+    # Rename Adhesion to diameter
+    df_merged.rename({"Adhesion": "diameter"}, axis=1, inplace=True)
+    
+    # Define the cell ids to plot and remove measurement for other cell ids
+    cell_ids_to_plot = df_merged["cellID"].unique()
+    mask = df_merged["cellID"].isin(cell_ids_to_plot)
+    df_merged = df_merged[mask]
+    return df_merged#, files_path, path_name
+
+def list_infos_to_plot(df):
+    
+    # Define the list of ratios to plot
+
+    manip_ids_to_plot = df['manipID'].unique()
+    ratios_to_plot = df["ratio_adhesion"].unique()
+    ratios_to_plot.sort()
+    
+    # Make column with cellID and adhesion diameter
+    # csv_files = [f.name for f in Path(files_path).glob("*")]
+    # df = diameter_map(df, csv_files)
+    discs_to_plot = df["diameter"].unique()
+    # Extract 
+    discs_to_plot.sort()
+    return manip_ids_to_plot, discs_to_plot,ratios_to_plot
+
+
+# %%% Main functions
+
+# Individual date
+# def plot_H0(date_to_plot, x_axis):
+    
+#     #Load data   
+#     path_name=date_to_plot.replace("-", ".")
+#     df = pd.read_csv(data_path, sep=";")
+#     df_ratio=pd.read_csv(ratio_file_path, sep=";")
+#     files_path=os.path.join(file_path, path_name)
+    
+#     # Mask dataframe based on date
+#     date_mask = df['date'].str.replace("/", "-") == date_to_plot
+#     df = df[date_mask]
+#     # Change df_ratio dates to "DD-MM-YY" format
+#     df_ratio["date"] = df_ratio['date'].str.replace("/", "-").str.replace("-20", "-")
+#     date_mask_ratio = df_ratio['date'] == date_to_plot
+#     df_ratio = df_ratio[date_mask_ratio]
+#     # Round the values of ratio_adhesion for visibility in the plots
+#     df_ratio["ratio_adhesion"] = df_ratio["ratio_adhesion"].round(2)
+#     # Since there are several rows with the same cell ID, keep only the first one
+#     df_ratio = df_ratio.groupby("cellID").agg("first")
+#     # Merge df_ratio into df
+#     df_merged=df.merge(df_ratio, on=['cellID'])
+#     mask = df_merged["ratio_adhesion"].isna()
+#     df_merged = df_merged[~mask]
+    
+#     # Define the list of ratios to plot
+#     dates_to_plot = df_merged['date_x'].unique()
+#     ratios_to_plot = df_merged["ratio_adhesion"].unique()
+#     ratios_to_plot.sort()
+#     #areas_to_plot = df_merged["area_adhesion"].unique()
+#     #areas_to_plot.sort()
+#     #ratios_areas_to_plot = df_merged["ratio_area"].unique()
+#     #ratios_areas_to_plot.sort()
+    
+#     # Make column with cellID and adhesion diameter
+    
+#     csv_files = [f.name for f in Path(files_path).glob("*")]
+#     cell_id_to_diam = {}
+#     for f in csv_files:
+#         if f.endswith(".tif"):
+#             cell_id = jvu.findInfosInFileName(f, "cellID")
+#             diam = jvu.findInfosInFileName(f, "substrate")[4:][:-2]
+#             cell_id_to_diam[cell_id] = int(diam)
+#     df_merged["diameter"] = df_merged["cellID"].map(cell_id_to_diam)
+#     discs_to_plot = df_merged["diameter"].unique()
+#     # Extract 
+#     discs_to_plot.sort()
+    
+#     # Define the cell ids to plot and remove measurement for other cell ids
+#     cell_ids_to_plot = df_merged["cellID"].unique()
+#     mask = df_merged["cellID"].isin(cell_ids_to_plot)
+#     df_merged = df_merged[mask]
+     
+#     # Find_bestH0
+#     if "bestH0" in df_merged.columns:
+#         df_validated = df_merged[['cellID', 'date_x', 'bestH0','diameter',x_axis]]
+#         if x_axis=='ratio_adhesion' or x_axis=='area_adhesion'or x_axis=='ratio_area':
+#             colorDict, markerDict = {}, {}
+#             for i in range(len(discs_to_plot)):
+#                 colorDict[str(discs_to_plot[i])] = colorList10[i]
+#             for i in range(len(dates_to_plot)):
+#                 markerDict[str(dates_to_plot[i])] = markerList10[i]
+                
+#             fig, ax = plt.subplots(1,1)
+            
+#             # Plotting the data
+#             for d in dates_to_plot:
+#                 df_validated_day = df_validated[df_validated['date_x'] == d]
+#                 X = df_validated_day[x_axis].values
+#                 Y = df_validated_day['bestH0'].values
+#                 colors = df_validated_day['diameter'].astype(str).map(colorDict).values
+#                 marker = markerDict[d]
+#                 # for i in range(len(X)):
+#                     # ax.plot(X[i],Y[i], c = colors[i], marker = markers[i])
+                
+#                 ax.scatter(X,Y, c = colors, marker = marker)
+            
+#             # Making the legend
+#             for disc in discs_to_plot:
+#                 ax.scatter([],[], c = colorDict[str(disc)], marker = 'o',label = f'Disc {disc}µm')
+#             for date in dates_to_plot:
+#                 ax.scatter([],[], c = 'w', marker = markerDict[date], edgecolors ='k',
+#                            label = date)
+        
+#             ax.legend()
+#             fig.suptitle("BestH0")
+#             plt.xlabel(x_axis)
+#             plt.tight_layout()
+#             save_file = f"D:/Duya/MagneticPincherData/Figures/Validated/bestH0/{path_name}_bestH0_{x_axis}.png"
+#             plt.savefig(save_file, dpi=400)
+#             plt.close()
+        
+
+#         elif x_axis=='diameter':
+#             colorDict, markerDict = {},{}
+    
+#             for i in range(len(dates_to_plot)):
+#                 markerDict[str(dates_to_plot[i])] = markerList10[i]
+#             for i in range(len(ratios_to_plot)):
+#                 colorDict[str(ratios_to_plot[i])] = colorList10[i]
+                
+                
+#             fig, ax = plt.subplots(1,1)
+            
+#             # Plotting the data
+#             for d in dates_to_plot:
+#                 df_validated_day = df_validated[df_validated['date_x'] == d]
+#                 X = df_validated_day['diameter'].values
+#                 Y = df_validated_day['bestH0'].values
+#                 marker = markerDict[d]
+#                 # for i in range(len(X)):
+#                     # ax.plot(X[i],Y[i], c = colors[i], marker = markers[i])
+                
+#                 ax.scatter(X,Y, marker = marker)
+            
+#             for date in dates_to_plot:
+#                 ax.scatter([],[], c = 'w', marker = markerDict[date],
+#                             label = date)
+#             ax.legend()    
+#             fig.suptitle('bestH0')
+#             plt.xlabel(x_axis)
+#             plt.tight_layout()
+#             save_file = f"D:/Duya/MagneticPincherData/Figures/Validated/bestH0/{path_name}_bestH0_{x_axis}.png"
+#             plt.savefig(save_file, dpi=400)
+#             plt.close()
+
+# To_do: swarmplot for categorical data / diameter
+def plot_bestH0(x_axis):
+    
+    df_merged = load_df_merged()
+    manip_ids_to_plot, discs_to_plot, ratios_to_plot = list_infos_to_plot(df_merged)
+    
+    # Find_bestH0
+    cols_to_keep = ['cellID', 'manipID', 'bestH0', x_axis]
+    if x_axis != "diameter":
+        cols_to_keep.append("diameter")
+    df_validated = df_merged[cols_to_keep]
+    
+    colorDict, markerDict = {}, {}
+    for i in range(len(discs_to_plot)):
+        colorDict[str(discs_to_plot[i])] = colorList10[i]
+    for i in range(len(manip_ids_to_plot)):
+        markerDict[str(manip_ids_to_plot[i])] = markerList10[i]
+        
+    fig, ax = plt.subplots(1,1, figsize=(10, 5), dpi=400)
+    
+    if x_axis=='ratio_adhesion' or x_axis=='area_adhesion'or x_axis=='ratio_area':
+        
+        colorDict, markerDict = {}, {}
+        for i in range(len(discs_to_plot)):
+            colorDict[str(discs_to_plot[i])] = colorList10[i]
+        for i in range(len(manip_ids_to_plot)):
+            markerDict[str(manip_ids_to_plot[i])] = markerList10[i]
+        # Plotting the data
+        for manip_id in manip_ids_to_plot:
+            df_validated_day = df_validated[df_validated['manipID'] == manip_id]
+            X = df_validated_day[x_axis].values
+            Y = df_validated_day['bestH0'].values
+            colors = df_validated_day['diameter'].astype(str).map(colorDict).values
+            marker = markerDict[manip_id]
+                # for i in range(len(X)):
+                    # ax.plot(X[i],Y[i], c = colors[i], marker = markers[i])
+                
+            ax.scatter(X,Y, c = colors, marker = marker, s=12, edgecolors ='none')
+            
+        # Making the legend
+        for disc in discs_to_plot:
+            ax.scatter([],[], c = colorDict[str(disc)], marker = 'o', 
+                       label = f'{int(disc)}µm')
+        for manip_id in manip_ids_to_plot:
+            ax.scatter([],[], c = 'w', marker = markerDict[manip_id], edgecolors ='k',
+                       label = manip_id)
+
+    
+        ax.legend(bbox_to_anchor=[1., 0.8])
+        fig.suptitle("BestH0")
+        plt.xlabel(x_axis)
+        plt.tight_layout()
+        save_file = f"D:/Duya/MagneticPincherData/Figures/Validated/all_date_bestH0_{x_axis}.png"
+        plt.savefig(save_file, dpi=400)
+        plt.close()
+    
+
+    elif x_axis=='diameter':
+
+        
+        # Plotting the data
+        for manip_id in manip_ids_to_plot:
+            df_validated_day = df_validated[df_validated['manipID'] == manip_id]
+            X = df_validated_day[x_axis].values
+            Y = df_validated_day['bestH0'].values
+            marker = markerDict[manip_id]
+            # for i in range(len(X)):
+                # ax.plot(X[i],Y[i], c = colors[i], marker = markers[i])
+            
+            ax.scatter(X,Y, marker = marker)
+        
+        for manip_id in manip_ids_to_plot:
+            ax.scatter([],[], c = 'w', marker = markerDict[manip_id], edgecolors ='k',
+                        label = manip_id)
+        ax.legend(bbox_to_anchor=[1., 0.8])   
+        fig.suptitle('bestH0')
+        plt.xlabel(x_axis)
+        plt.tight_layout()
+        save_file = f"D:/Duya/MagneticPincherData/Figures/Validated/all_date_bestH0_{x_axis}.png"
+        plt.savefig(save_file, dpi=400)
+        plt.close()
+        
+def plot_KChadwick(x_axis):
+    # 
+
+    df_merged, files_path, path_name = load_df_merged()
+    dates_to_plot, discs_to_plot, ratios_to_plot = list_infos_to_plot(df_merged, files_path)
+    
+    columns_to_plot=['KChadwick_S=100+/-75','KChadwick_S=200+/-75', 'KChadwick_S=300+/-75','KChadwick_S=400+/-75']
+    
+    # df_merged["info2"] = np.array([(df_merged["cellID"].values[i] + '_' + str(df_merged["Adhesion"].values[i]) + 'um') for i in range(df_merged.shape[0])])
+    # sub_df_merged = df_merged[["cellID", "Adhesion", "info", "info2"]]
+    
+    # Find KChad
+    
+    for column in df_merged[columns_to_plot]:
+        col_vf = column.replace('KChadwick_S', "validatedFit_S")
+        validated_fit = df_merged[col_vf]
+        cols_to_keep = ['cellID', 'date_x', 'bestH0', x_axis, column]
+        if x_axis != "diameter":
+            cols_to_keep.append("diameter")
+        df_validated = df_merged[cols_to_keep][validated_fit]
+        # The KChadwick columns are missing from df_validated. Did you change sth there ?
+        colorDict, markerDict = {}, {}
+        for i in range(len(discs_to_plot)):
+            colorDict[str(discs_to_plot[i])] = colorList10[i]
+        for i in range(len(dates_to_plot)):
+            markerDict[str(dates_to_plot[i])] = markerList10[i]
+        
+        fig, ax = plt.subplots(1,1)
+        
+        if x_axis=='ratio_adhesion' or x_axis=='area_adhesion'or x_axis=='ratio_area' :                
+            # Plotting the data
+            for d in dates_to_plot:
+                df_validated_day = df_validated[df_validated['date_x'] == d]
+                X = df_validated_day[x_axis].values
+                Y = df_validated_day[column].values
+                colors = df_validated_day['diameter'].astype(str).map(colorDict).values
+                marker = markerDict[d]
+                # for i in range(len(X)):
+                    # ax.plot(X[i],Y[i], c = colors[i], marker = markers[i])
+                
+                ax.scatter(X,Y, c = colors, marker = marker, edgecolors ='k')
+            
+            # Making the legend
+            for disc in discs_to_plot:
+                ax.scatter([],[], c = colorDict[str(disc)], marker = 'o', 
+                           label = '{:.0f}um'.format(disc))
+            for date in dates_to_plot:
+                ax.scatter([],[], c = 'w', marker = markerDict[date], edgecolors ='k',
+                           label = date)
+            ax.legend() 
+            plt.xlabel(x_axis)
+            plt.tight_layout()
+            fig.suptitle(column)
+            save_file = f"D:/Duya/MagneticPincherData/Figures/Validated/alldate_KChadwick_{x_axis}_{column.replace('/', '')}.png"
+            plt.savefig(save_file, dpi=400)
+            plt.close()
+            
+        if x_axis=='diameter':                
+            # Plotting the data
+            for d in dates_to_plot:
+                df_validated_day = df_validated[df_validated['date_x'] == d]
+                X = df_validated_day['diameter'].values
+                Y = df_validated_day[column].values
+                marker = markerDict[d]
+                # for i in range(len(X)):
+                    # ax.plot(X[i],Y[i], c = colors[i], marker = markers[i])
+                
+                ax.scatter(X,Y, marker = marker)
+            
+            for date in dates_to_plot:
+                ax.scatter([],[], c = 'w',label = date)
+            ax.legend()    
+            fig.suptitle(column)
+            save_file = f"D:/Duya/MagneticPincherData/Figures/Validated/alldate_KChadwick_{x_axis}_{column.replace('/', '')}.png"
+            plt.savefig(save_file, dpi=400)
+            plt.close()
+            
+
+
