@@ -2690,14 +2690,11 @@ def plot_bestH0(x_axis):
 def plot_KChadwick(x_axis):
     # 
 
-    df_merged, files_path, path_name = load_df_merged()
-    dates_to_plot, discs_to_plot, ratios_to_plot = list_infos_to_plot(df_merged, files_path)
+    df_merged = load_df_merged()
+    dates_to_plot, discs_to_plot, ratios_to_plot = list_infos_to_plot(df_merged)
     
     columns_to_plot=['KChadwick_S=100+/-75','KChadwick_S=200+/-75', 'KChadwick_S=300+/-75','KChadwick_S=400+/-75']
-    
-    # df_merged["info2"] = np.array([(df_merged["cellID"].values[i] + '_' + str(df_merged["Adhesion"].values[i]) + 'um') for i in range(df_merged.shape[0])])
-    # sub_df_merged = df_merged[["cellID", "Adhesion", "info", "info2"]]
-    
+
     # Find KChad
     
     for column in df_merged[columns_to_plot]:
@@ -2707,7 +2704,7 @@ def plot_KChadwick(x_axis):
         if x_axis != "diameter":
             cols_to_keep.append("diameter")
         df_validated = df_merged[cols_to_keep][validated_fit]
-        # The KChadwick columns are missing from df_validated. Did you change sth there ?
+
         colorDict, markerDict = {}, {}
         for i in range(len(discs_to_plot)):
             colorDict[str(discs_to_plot[i])] = colorList10[i]
@@ -2719,7 +2716,7 @@ def plot_KChadwick(x_axis):
         if x_axis=='ratio_adhesion' or x_axis=='area_adhesion'or x_axis=='ratio_area' :                
             # Plotting the data
             for d in dates_to_plot:
-                df_validated_day = df_validated[df_validated['date_x'] == d]
+                df_validated_day = df_validated[df_validated['date'] == d]
                 X = df_validated_day[x_axis].values
                 Y = df_validated_day[column].values
                 colors = df_validated_day['diameter'].astype(str).map(colorDict).values
@@ -2747,7 +2744,7 @@ def plot_KChadwick(x_axis):
         if x_axis=='diameter':                
             # Plotting the data
             for d in dates_to_plot:
-                df_validated_day = df_validated[df_validated['date_x'] == d]
+                df_validated_day = df_validated[df_validated['date'] == d]
                 X = df_validated_day['diameter'].values
                 Y = df_validated_day[column].values
                 marker = markerDict[d]
@@ -2765,4 +2762,42 @@ def plot_KChadwick(x_axis):
             plt.close()
             
 
+def datacate(x_axis):
+    
+    df_merged = load_df_merged()
+    manip_ids_to_plot, discs_to_plot, ratios_to_plot = list_infos_to_plot(df_merged)
+    
+    # Find_bestH0
+    cols_to_keep = ['cellID', 'manipID', 'bestH0', x_axis]
+    if x_axis != "diameter":
+        cols_to_keep.append("diameter")
+    df_validated = df_merged[cols_to_keep]
+    
+    colorDict, markerDict = {}, {}
+    for i in range(len(discs_to_plot)):
+        colorDict[str(discs_to_plot[i])] = colorList10[i]
+    for i in range(len(manip_ids_to_plot)):
+        markerDict[str(manip_ids_to_plot[i])] = markerList10[i]
+    
+    if x_axis=='area_adhesion'or x_axis=='logarith_area' or x_axis=='diameter':
+        
+        # Plotting the data
+        for manip_id in manip_ids_to_plot:
+            df_validated_day = df_validated[df_validated['manipID'] == manip_id]
+            X = df_validated_day[x_axis].values
+            Y = df_validated_day['bestH0'].values
+            colors = df_validated_day['diameter'].astype(str).map(colorDict).values
+            marker = markerDict[manip_id]
+                # for i in range(len(X)):
+                    # ax.plot(X[i],Y[i], c = colors[i], marker = markers[i])
+                
+            sns.swarmplot(x=X,y=Y, color = colors, hue = marker, size=0.2, data=df_validated_day)
+            sns.swarmplot()
+
+    
+        # ax.legend(bbox_to_anchor=[1., 0.8])
+        save_file = f"D:/Duya/MagneticPincherData/Figures/Validated/all_date_bestH0_{x_axis}.png"
+        plt.savefig(save_file, dpi=400)
+        plt.show()
+    
 
